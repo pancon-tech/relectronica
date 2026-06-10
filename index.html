@@ -10,44 +10,38 @@
 
     <header class="bg-[#161b22] border-b border-[#30363d] p-4 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">R</div>
+            <div class="bg-green-600 text-white p-2 rounded-lg font-bold text-xl">R</div>
             <div>
                 <h1 class="text-lg font-bold text-white tracking-wide">Relectrónica</h1>
-                <p class="text-xs text-blue-400 flex items-center">
+                <p class="text-xs text-green-400 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-green-500 inline-block mr-1 animate-pulse"></span> 
-                    Conexión Directa v2.0
+                    Motor Groq Activo (Llama 3.1)
                 </p>
             </div>
         </div>
     </header>
 
-    <main id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4" style="height: calc(100vh - 140px);">
-        <div class="flex justify-start">
-            <div class="bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm">
-                <p class="font-semibold text-blue-400 mb-1">⚡ Relectrónica Bot:</p>
-                ¡Línea directa calibrada, Jefferson! Eliminamos los intermediarios. Envíame un mensaje para comprobar la respuesta del servidor.
-            </div>
-        </div>
-    </main>
+    <main id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4" style="height: calc(100vh - 140px);"></main>
 
     <footer class="bg-[#161b22] border-t border-[#30363d] p-3 flex items-center space-x-2">
-        <input type="text" id="user-input" 
-               class="flex-1 bg-[#0d1117] border border-[#30363d] rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-sm" 
-               placeholder="Escribe la falla aquí...">
-        <button id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl transition duration-200 text-sm shadow-md">
-            Enviar
-        </button>
+        <input type="text" id="user-input" class="flex-1 bg-[#0d1117] border border-[#30363d] rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 text-sm" placeholder="Escribe la falla aquí...">
+        <button id="send-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-3 rounded-xl transition duration-200 text-sm shadow-md">Enviar</button>
     </footer>
 
     <script>
-        // Tu clave AQ de AI Studio acoplada directamente
-        const GEMINI_API_KEY = "AQ.Ab8RN6Jl21cBuaphI0cAs37yQHVhxV3cU01_w6m-RhOVr1S2zw"; 
-        
-        const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas.";
+        // Tu clave de Groq asignada directamente en el circuito
+        const GROQ_API_KEY = "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"; 
+
+        const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas para facilitar la lectura en el banco de trabajo.";
 
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
+
+        // Mensaje de bienvenida inicial en el banco de pruebas
+        window.onload = () => { 
+            appendMessage("⚡ Relectrónica Bot", "¡Excelente Jefferson! Sistema encendido con el motor de Groq. El puente de datos está libre de bloqueos de Google. Pásame la falla o el modelo de la tarjeta para empezar el diagnóstico.", false); 
+        };
 
         function appendMessage(sender, text, isUser) {
             const messageDiv = document.createElement('div');
@@ -55,11 +49,11 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = isUser 
-                ? "bg-blue-600 text-white p-3 rounded-lg max-w-[85%] shadow-sm" 
+                ? "bg-green-600 text-white p-3 rounded-lg max-w-[85%] shadow-sm" 
                 : "bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm";
             
             let formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            contentDiv.innerHTML = `<p class="font-semibold text-xs ${isUser ? 'text-blue-200' : 'text-blue-400'} mb-1">${sender}:</p><div>${formattedText}</div>`;
+            contentDiv.innerHTML = `<p class="font-semibold text-xs ${isUser ? 'text-green-200' : 'text-green-400'} mb-1">${sender}:</p><div>${formattedText}</div>`;
             
             messageDiv.appendChild(contentDiv);
             chatBox.appendChild(messageDiv);
@@ -76,42 +70,37 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = "flex justify-start text-sm text-gray-500 animate-pulse pl-2";
             loadingDiv.id = "loading";
-            loadingDiv.innerText = "⚙️ Relectrónica Bot consultando a Google...";
+            loadingDiv.innerText = "⚙️ Procesando señal en el servidor...";
             chatBox.appendChild(loadingDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // URL directa usando v1beta para máxima compatibilidad con llaves de AI Studio
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-            // Estructura limpia de datos
-            const payload = {
-                contents: [{ parts: [{ text: text }] }],
-                systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
-            };
-
             try {
-                const response = await fetch(url, {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant",
+                        messages: [
+                            { role: "system", content: SYSTEM_INSTRUCTION },
+                            { role: "user", content: text }
+                        ]
+                    })
                 });
 
                 const data = await response.json();
-
                 if (document.getElementById('loading')) document.getElementById('loading').remove();
 
-                if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
-                    const aiResponse = data.candidates[0].content.parts[0].text;
-                    appendMessage("⚡ Relectrónica Bot", aiResponse, false);
-                } else if (data.error) {
-                    appendMessage("⚡ Relectrónica Bot", `⚠️ Error del servidor (${data.error.code}): ${data.error.message}`, false);
+                if (response.ok && data.choices && data.choices[0].message.content) {
+                    appendMessage("⚡ Relectrónica Bot", data.choices[0].message.content.trim(), false);
                 } else {
-                    appendMessage("⚡ Relectrónica Bot", "❌ Respuesta con formato desconocido.", false);
+                    appendMessage("⚡ Relectrónica Bot", `⚠️ Error del servidor: ${data.error ? data.error.message : 'Falla de lectura'}`, false);
                 }
-
             } catch (error) {
                 if (document.getElementById('loading')) document.getElementById('loading').remove();
-                appendMessage("⚡ Relectrónica Bot", "❌ No se pudo establecer conexión con Google. Revisa si la clave tiene restricciones geográficas o prueba con el VPN activo.", false);
+                appendMessage("⚡ Relectrónica Bot", "❌ Error de conexión física con el servidor de Groq.", false);
                 console.error(error);
             }
         }
