@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relectrónica - Asistente Técnico</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
-    </script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; }
+        .chat-container { height: calc(100vh - 140px); }
+    </style>
 </head>
-<body class="font-sans antialiased flex flex-col h-screen bg-[#0d1117] text-[#c9d1d9]">
+<body class="font-sans antialiased flex flex-col h-screen">
 
     <header class="bg-[#161b22] border-b border-[#30363d] p-4 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
@@ -22,17 +19,17 @@
                 <h1 class="text-lg font-bold text-white tracking-wide">Relectrónica</h1>
                 <p class="text-xs text-blue-400 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1 animate-pulse"></span> 
-                    Protocolo AQ Integrado v1.5
+                    Línea Bypass CORS Activa
                 </p>
             </div>
         </div>
     </header>
 
-    <main id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4" style="height: calc(100vh - 140px);">
+    <main id="chat-box" class="flex-1 p-4 overflow-y-auto chat-container space-y-4">
         <div class="flex justify-start">
             <div class="bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm">
                 <p class="font-semibold text-blue-400 mb-1">⚡ Relectrónica Bot:</p>
-                ¡Enlace de datos recalibrado para tu clave AQ, Jefferson! El canal está limpio y acoplado. Pásame los componentes o la tarjeta que vamos a chequear.
+                ¡Circuito puente activado, Jefferson! Hemos evitado el bloqueo del navegador. Envíame la falla de la placa o pantalla para probar la respuesta.
             </div>
         </div>
     </main>
@@ -46,20 +43,11 @@
         </button>
     </footer>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
-
-        // Coloca aquí tu clave que inicia con AQ. tal cual como la copiaste de AI Studio
+    <script>
+        // Tu clave AQ que copiaste de AI Studio
         const GEMINI_API_KEY = "AQ.Ab8RN6Jl21cBuaphI0cAs37yQHVhxV3cU01_w6m-RhOVr1S2zw"; 
         
         const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas para facilitar la lectura en el banco de trabajo.";
-
-        // Inicializamos el componente oficial de Google pasándole la llave AQ directamente
-        const ai = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const model = ai.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            systemInstruction: SYSTEM_INSTRUCTION
-        });
 
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
@@ -82,6 +70,37 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        async function sendMessageToGemini(userText) {
+            // Usamos un proxy público inverso para saltarnos la restricción de seguridad CORS del navegador
+            const proxyUrl = "https://corsproxy.io/?";
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userText }] }],
+                systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
+            };
+
+            try {
+                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
+                    return data.candidates[0].content.parts[0].text.trim();
+                } else if (data.error) {
+                    return "⚠️ Error de respuesta de Google: " + data.error.message;
+                } else {
+                    return "❌ Error en el formato de datos recibido.";
+                }
+            } catch (error) {
+                return "❌ El puente de comunicación falló. Intenta enviar de nuevo.";
+            }
+        }
+
         async function handleSend() {
             const text = userInput.value.trim();
             if (!text) return;
@@ -92,28 +111,21 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = "flex justify-start text-sm text-gray-500 animate-pulse pl-2";
             loadingDiv.id = "loading";
-            loadingDiv.innerText = "⚙️ Relectrónica Bot procesando...";
+            loadingDiv.innerText = "⚙️ Relectrónica Bot procesando señal...";
             chatBox.appendChild(loadingDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            try {
-                // Ejecución directa a través del SDK nativo de Google
-                const result = await model.generateContent(text);
-                const response = await result.response;
-                const aiResponse = response.text();
+            const aiResponse = await sendMessageToGemini(text);
 
-                if(document.getElementById('loading')) document.getElementById('loading').remove();
-                appendMessage("⚡ Relectrónica Bot", aiResponse, false);
-
-            } catch (error) {
-                if(document.getElementById('loading')) document.getElementById('loading').remove();
-                appendMessage("⚡ Relectrónica Bot", "⚠️ Error en el procesamiento de la clave. Verifica que la llave AQ esté bien copiada en GitHub o prueba con un VPN.", false);
-                console.error(error);
+            if(document.getElementById('loading')) {
+                document.getElementById('loading').remove();
             }
+            appendMessage("⚡ Relectrónica Bot", aiResponse, false);
         }
 
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
     </script>
 </body>
-</html>
+    </html>
+        
