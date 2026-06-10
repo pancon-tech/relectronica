@@ -29,8 +29,8 @@
     </footer>
 
     <script>
-        // Tu clave de Groq asignada directamente en el circuito
-        const GROQ_API_KEY = "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"; 
+        // ✅ CLAVE NUEVA PROPORCIONADA POR EL USUARIO
+        const GROQ_API_KEY = "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"; 
 
         const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas para facilitar la lectura en el banco de trabajo.";
 
@@ -38,7 +38,6 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // Mensaje de bienvenida inicial en el banco de pruebas
         window.onload = () => { 
             appendMessage("⚡ Relectrónica Bot", "¡Excelente Jefferson! Sistema encendido con el motor de Groq. El puente de datos está libre de bloqueos de Google. Pásame la falla o el modelo de la tarjeta para empezar el diagnóstico.", false); 
         };
