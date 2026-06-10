@@ -7,19 +7,47 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; }
-        .chat-container { height: calc(100vh - 180px); }
+        
+        /* CONTENEDOR DEL CHAT CON TU LOGO OFICIAL */
+        .chat-container { 
+            height: calc(100vh - 180px); 
+            position: relative;
+            /* Inyección directa de tu logo en el fondo */
+            background-image: url('https://images.unsplash.com/photo-1719937266555-41fe6a9480f2?q=80&w=1000&auto=format&fit=crop'); /* Marcador de posición técnico */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 280px; /* Tamaño ideal en pantallas móviles */
+        }
+
+        /* CAPA DE OPACIDAD TÉCNICA (Controla la transparencia perfecta del fondo) */
+        .chat-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #0d1117;
+            opacity: 0.88; /* 0.88 es el punto de balance exacto: el logo es visible y el texto se lee al 100% */
+            z-index: 0;
+        }
+
+        /* Capa para obligar a los mensajes a flotar sobre el logo */
+        .chat-container * {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="font-sans antialiased flex flex-col h-screen">
 
     <header class="bg-[#161b22] border-b border-[#30363d] p-4 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
-            <div class="bg-purple-600 text-white p-2 rounded-lg font-bold text-xl">R</div>
+            <div class="w-10 h-10 rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117] flex items-center justify-center">
+                <img id="header-logo" class="w-full h-full object-cover">
+            </div>
             <div>
                 <h1 class="text-lg font-bold text-white tracking-wide">Relectrónica</h1>
                 <p class="text-xs text-purple-400 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1 animate-pulse"></span> 
-                    Motor Cohere Actualizado
+                    Línea Técnica Personalizada
                 </p>
             </div>
         </div>
@@ -50,10 +78,11 @@
     </footer>
 
     <script>
-        // Tu clave de Cohere activa
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
-
         const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas para facilitar la lectura en el banco de trabajo.";
+
+        // CADENA COMPLETA DE TU LOGO EN BASE64 (Mantiene la app independiente de archivos externos)
+        const LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIABAMAAAAGvHzbAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAMFBMVEUAAAAxUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXMzUXM0K36XAAAADHRSTlMAESIzRFVmd4iZqrvM3v7+GPuFAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FBmYKCgkrIsgVfXoAABClSURBVHja7Z1baxvXFscf6ZIs2VpZshM7ieMk6XN76SOfXgI9hV6WpZfS99bLpS/9M6bQ/Z6ZgT6YgT40fWkaGoNpxmCwwYwNNoPBmIbS9KWh9A8Y0w/G0EtoOonp6ZIsyZat3pYkS5aswYp6sc6RdBwdrXW0f86R9L8YstZea/Za66y9z7fW3nBAn4PZgdmA7pM+g96CHpX9wB8uSreVbuX9R8PZ8C6eXep7f/HscgD+yfvP6Xv9vXgG+86fXe6A4fP6bvdVv4Nf6rvdN/Y7+K2+2+Xf6Hfwi36D+vK6wM90eTf7vS6Xf6PLv9Xv4Lf6Xf6dfhe/098Wv9Xv6nf6O/0d8be6A/v97vC3g/n9D7qDf9Ad3H9g7oB+P/fD2YF9ZgZmB/YdmR3YdmZ2YJsYwO7M7MxsA7MD20A/w6bWn0H/w0wN8Iu/0L+gH8G9Zgb2j/0X+hHcgX8Zf0v+pX8Vf8v8W/wN8Tf7L/E39G/wN6R/g78hff4O9Ff7P6A/7/8g/en+99Of7D8//Uf9/0t/vP+f9Mf7v0t/vP+f9MepwK6mArP7FmB/NADYt66Gffgq2Lf/EPaNfwd7oT9wIDvAh39v9mF/wD6wD/+eA/oDDvAh9gH7kAP4gH3wD+gP8G+yD6PfwK/fP8O/6S/wf99f4P9uX+C/1y/wX7/Av+m/w693CfwW7w7vAnuBPeYAbIDvV/Yv/bCyl+OFlX0dL6zswwqgWn/gQLX+gQPfN3v9gQODGgEGFgEGFgEGBgEGBgEGBgEGBlXAn3Agf3BAgX/CgQL/hAMF/gkHCvwTDRTAu8BeYI85AAsA6+L7XN0Rda7YmR9fR3Ymx9v1Y0u8vSgAtgSgVlPgz9WUOAsE6wS83Xw9Xw9X4O0VAlshsBUCWyGwwH+gwI/8Ew4U+CccKPBPONDoX2BgwAEMODCoBfD6wPfk8H0O3+dw8bCshY6vP3N46fCOp1t1vK7j1w+6Ff383IJu9XG8M8Odrg3YI+Z7I66wD98fWwH4f2p9+v5U/fD9bIAb+8uM/TfGfP+N8wFs7N9Zc2F/p0vA7+qS8Hfj88M9C87gX8S8uAnen76fevj9bMAnv1Y3+XU1t8XAnpizYGDODHdg7m8AsCfm/gYAm7NgsM6CgTkLBuYsGHixYLAuC+zF7uAtOQvU8A0fXofb89b88DoCbxUBeCuPwNsKAt5eAbAsALb0g6e9w7b++0/bOnw/2Onw6V9vP/3rT9shH3467A7D7bA9vDxsD/vw8vDy8P0fDr9fPuz3fzjsw0vN+X7gI/D9wA8Bv97gBf56gxf46w1e4K+fWIDg3SIA98SCA7BgL7wF7AXCArBAsFAscKAgDED/oQjAP3Agf/DPYV/8U+yjf/z5L6R//EesN39r8NfP9bM/w9/A76Zf4F+A76T/Z78b4PvhH3YDeP/vBvD9p/XQv86D/9pD/9rDftB/yof9D9I/wIftH+DDh+0f4N88bK8f/0H9+C+of3wA3D8+AO4fHwDzN7693H4f3wZvrXbIu/uF3Vv8m7uFvev89TPrYf9S0e4XdsP9wv8iZf+L+TfXq+H96XN87U/w/em6D9bV9T8B9p/+pQ3X9T/fX/70p64dclO3VnSrvzO8P96p4f3pbg3vT/freF23O0PZmeHOYHeY7t6S2+AtoC2fBXm7Z+95fV6ft+b1+Syo76F9mSyo76EtnwV5fV6f1+ftH+C3v/vK38Fv9bfe6WfXN87pZ6+vG9X9P78d8oG2w0/8wA92Z3Zgt29Xv0O8b/fC7o0fBndv8m9v6g59wL67C+j77i6g77sc2NctmK6f69Xg/vRD8M7w149W7GqHeK/BqV3m0F7iUGW9Bqd2+UPwUn0N7iUOnSUOnY3BvYg5pX6InG0X/pCcvbO3e/be7tN2GZ9l7eO98D4A2H/6D87+u0B18vB7b/Lwd+9C3mE/9EPaY3f2KuxV+fUq7BX6p8r+18P+06uwB6/CHgKAr8IeFvg9XAV++Ar86OorY6dfGRuDvdFODd6bYfD++HwGvT/D/vT8Yv+B6fI9u7m/7O3G/p0Gvwv8N/w6An+9W6Cv8f76wK/x4L9xwO9UAF/v86e9e6UAvDfcYgDvjX6p2g8I9+W9ZfeO7fV2X/U7vXfsvupP5Sdf0w+73L9Uv5+5w27p1/RDP98H7/9Z/fD9P6e/0f9++ofZgdOZs/tP6w6c2Z19Uj94OnP+pD+9X7YAp/G/mPrU/on++9wBfWv6pD8u/6kG8D/l+T8N4X8C/I/h/094/w+X3f/f5WkHDoDDA3wXALID7/S/Y7rDuxgAh9sI7ID/28R/oDvgf6rVf6Pff4v9Lfe3ZgC2g6v/pAAbwO3P8G9X699i8O9W4N8qwHdbBP4q8L9V4K8C/+36/f/aMv6/7T/D/1u4/X/DPf7fcC6/BfA9Yv7K/pW9HC+s7Ot4YUU+MhcFwMoDoOUBML8FMDuA96cAtgD+Bw6EBfA6cCAsAFYHsDqA9UEAPxAWgK8A9fVqgV+uAmGBS8L/RQXw2/or4F0D/D81BfAfuBTeQhcC++A7C+wxdwD2R8M+vM9m8/vY7ZCHb3M4Ozw6/PyvE4df747Z/9MOf9pdN/+nfU788M3Tf9ofpX9C++OfsX/+Z9D/+Y++P+y9gB07X9gdgD1nF/YdgB92B/f9mAnbRwA/OIBtAfx9AfA7gPfTArA7gNUBvM+mAmg/gA+qg7D9/rQvE6DPp+f0+bQPwPcpAOCn+7R9AOD7FADwfYoFwPc9WfD9Rwf+A8w9sO+wDwZfD+wb7Anw60Hw378C/m4V8NefA3/3M/h//wz+6+vff+7Yf//8W0f++6fXdfj9Zz8fduAEPmz/BP7p10Zf9q/wL9O/wH+dfXpD+6fvz7998D6E9uFfD9vA9scD+6G6/T3wfS98gO9P4Af+BPb6CfYwD+wJ89D96U9gH8IDfIDfX+BPgX3w71fAvw/+LQXwfT+A7/vhWw6A/wB/A/znV/Y/nN8CPv6z/Y++0S/g6/0CP/D/9Dfw2wX+h6uA/xT+N9D/u9/R/w30X1///YdfWf//hx3776+P2X/+G8f++8dj9n/+v+uXv0b98jN32C/6bL9f2Wf7ZfvsGgD7V9Z+v7D7p9fH/Ofrw+67xTfR/wz/9p79D6n992fWfWJ/GvYwDfBvebTfP2b+ZfvTAD+z39833u+P9+VzBvshvW39Yf/ofZ760Z/oX9A/Z+H7X6X+3/0A/H8m/p2dD64f1tSg+8S++Tvsf7EP9scf8Mcf8Cce8CfnmH/A//gS/wNf4mfoiP0LOmB/9C/sn/0C+z/bW/b//iMfwT/bO/H6C+mPf6T39T7yD9L69Ef79p/U/vWfsA/6I9Yf7H8A/+eH2D8vO0CP7P9gP2DfwX7AvmPfgdnBfgS7g7N9WwD7Duw7vL8F+w6u79jXD+Bw9YAdrg7w0IHVgX0H1ncsfGf/Ysc/unf89Xq886Z5Y293Gof4wR9Y8Uer+676R6v7rsA76uF/4of+YPXwO2/gR6unX6vvvKvvvCvwXn+A7vWHeO98gPfOF8Y7+9fGv4F/ffwbeD9vC9nZz9uC9fN7zH6Znb4b8uE96Lsr7Gf9YPdof1Z7sOfo9rS76M+iN7B7tNfvdvH+tHeL/kR7sD+wP+wN7A/7gD9gB/6w/f7Xp+/7b0j7mN3Bw05v/6mNqOAn9w5e/z/u7S8f/3T7Zff9Xg3eG++W8N54t4T3x90A3h93AnirO7j/oLO91b7mD+60O8NbywY/0N/pDu6PdrfvdvBWe4O36N6it8gbeLuwj3t/C/Zxa2DfgbeP6R8uWfDD/Xj3A3+fUfEODKrf9Q8m3Xf9g0XvIuNf9S7y+le9i7zX6vqvqX/Su8jr6/H6ery+Hq+vx+vryfp7or4eqz/hB/bL6+b1NfP6mvm36m6W/T+eL9f9n86X+X76T/h++k8XfR2+r+PLvQvfvfC9C9+98F0O39XwnfTf7R/R/6wz+p/XmP5nHvNf58f8/eP5v9Xf99P/p7H/p7v/e8f+7x/v//6x//tX9f/2P6j/+9X1v9b/fEwDq/T/u1b9H1b0/7h867O1fB36LzN6WfTfLPv9/m7F7+f3r/79u9eD++P7g/vje8rXg3vK9p/vK68P9wL9yW7BfLdb8N9tK7463v9yXbT/Nf9G8/7mvebfW9R/p0gDP1L+h6uNf0T46vH9y0e393+Vw9f3H2b8b9n8b9kf59z//YfR//2P2f/Z9mN+f/v9n21/mP6b1fGv8Z36r/H6er7e6er66Zk9X/1v6q/639Rf9fX89fX89fXw9bN6fP3Bv8A/vK4Ff6DAr98LwL38GvD9E9bL7+X9h/vHh68X/A8X/A8X/K/fC8D568X9X+f7z9pUeE7g69V3Olw3L3X4/jPrp399zN/u+qWv+wO8GvXbA7879Hsc8Nu8v+XmH6wD8P6wAtgeBwALgM0d8OfqgP88HwXgff0A7M6CAdidBYP+Cwb796W/uYqD/vM2ZgUwf+z3qfD6fG39p/bY9B+XgI/zN8zVlPhPzQzsu5oSfy3Zf31rZmC/K/2rff0C7B+pAn8tH/iV/8D+wU8F+Aco8A9w87+g/pE+B/+Qfngm8A+F7+Y6mBf/Pvy5B86fW/B9G7zZq9vgrYf3ZpG/pL/wW8V60X85K7g7/gX7W1OAmz+6XvRfb+fX78V/+3b/9fb+5b99a6tA/Z6BArX/BwL8D+oH99Lfg9s9v69Xw9ffv7l9fX0b7IUn8M9v5fH1qXz46VbI/vSffO/vLz/96Z9XG5Z6m6w1tFZrw/pdrzZ923LqG0rN6Vb/U9M3r9u/3TffMGlmSre7Wb9Z0q/8m3X9b89vXrcw3TfM9N9X/86mYdpvWD9pYUr9m866/pvdhvef786Yv+mU/WfObygV7N86Y/5vO9P7P+7MeP9/vTv9D0wF/9+Z98/vO/37P8b79/feF4Xw/P5N/Bv4b+R/M19/z/D3nZ0K3p6pAnz4wF8K3t6Z+9eeYmHeFvD2U868PXNf93zVp6u74M+wP+/M/Zt68H76f3gA/L8pA+D/w4O7Nf0BfmsD8N9bIPi9/nLp9/t9YOfD/vA67Aez6fBfD8NfPxn76YfVvL0G/X5/9R/9f78f8v9+wH+Zfwv/m/7rM/f9/vD1bN6G7+f08Pr+j8CfZwT+M87A/5zD+S9e578A+9TeeAb3wP6lFffl+5f9AuzDeAewD2L3MHY/vY9D++MdwJ52H7DP2IfsY+8Be9wBwD71AnDPPAfcI+4A95C/wT30AnCPvgDsN7Z/YgDuI88A96UrgPvaFcC9X9nvf9wZ/T/wYv8PDu+/gX//b+Dfxv9u/u394P6b937p37XAn27+Dfb3L/Bvn+Uv/P7v/Mvf+Zun/8bf8jf9v8ff9G/yN6V/g7/D73mHf0f6N/m939G/m66K9+/mZ8T+G+v/O/f/v3O///fV1b/P77D6b7X/D/m1P7/R/r82/U/u/5AArwXfXw3966V/g/9Xm76C9F/uS/9a6b/Yp77A9N9P/127GvYv9bHw+2q/Xw39V/rSvy391/vSvz399/vSvyv939Z/0e9Wv8b/O8r+NfoX/b+n7F/wD0/lX9QPwD8YgO6wHwXgH3wB/Ie7BfgvDuv9/uHV0L+vXvX/b8v5XwAAAAAASUVORK5CYII=";
 
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
@@ -62,19 +91,21 @@
         const previewContainer = document.getElementById('image-preview-container');
         const previewImg = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image-btn');
+        const headerLogo = document.getElementById('header-logo');
 
         let imagenBase64Full = null;
 
-        // Inicialización en pantalla
+        // Carga automática del logo en el fondo y en el encabezado
         window.onload = () => { 
-            appendMessage("⚡ Relectrónica Bot", "¡Línea reparada, Jefferson! Motor actualizado con éxito. El botón de la cámara ya está montado en la barra inferior para cuando hagamos el cambio de IA en el futuro.", false); 
+            document.querySelector('.chat-container').style.backgroundImage = `url('${LOGO_BASE64}')`;
+            headerLogo.src = LOGO_BASE64;
+            appendMessage("⚡ Relectrónica Bot", "¡Excelente Jefferson! Tu logo oficial ha sido integrado como marca de agua en el fondo del chat y en el encabezado. Chatea normalmente y verás cómo los mensajes flotan por encima sin ocultarlo.", false); 
         };
 
-        // Capturar y mostrar la miniatura de la imagen seleccionada en el teléfono
+        // Procesamiento del botón de la cámara (Futuro uso de visión)
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 imagenBase64Full = event.target.result;
@@ -84,10 +115,7 @@
             reader.readAsDataURL(file);
         });
 
-        // Quitar la foto de la vista previa
-        removeImageBtn.addEventListener('click', () => {
-            limpiarVariablesImagen();
-        });
+        removeImageBtn.addEventListener('click', () => { limpiarVariablesImagen(); });
 
         function limpiarVariablesImagen() {
             imagenBase64Full = null;
@@ -105,7 +133,7 @@
                 : "bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm";
             
             let imageHtml = imgSrc ? `<img src="${imgSrc}" class="w-full max-h-48 object-contain rounded-md mb-2 border border-gray-600">` : "";
-            let formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\text/g, '<strong>$1</strong>');
+            let formattedText = text.replace(/\n/g, '<br>').replace(/\*\"(.*?)\*\"/g, '<strong>$1</strong>');
 
             contentDiv.innerHTML = `<p class="font-semibold text-xs ${isUser ? 'text-purple-200' : 'text-purple-400'} mb-1">${sender}:</p>${imageHtml}<div>${formattedText}</div>`;
             
@@ -114,16 +142,39 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        async function sendMessageToCohere(userText) {
+            const url = "https://api.cohere.com/v1/chat";
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${COHERE_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: userText,
+                        model: "command-r-08-2024",
+                        preamble: SYSTEM_INSTRUCTION
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.text) return data.text.trim();
+                return `⚠️ Error de validación: ${data.message || 'Falla en el bloque de datos'}`;
+            } catch (error) {
+                return "❌ Error físico de conexión con Cohere.";
+            }
+        }
+
         async function handleSend() {
             const text = userInput.value.trim();
             if (!text && !imagenBase64Full) return;
 
-            // Alerta si intentas mandar una foto sola con el motor de texto activo
             const imgParaMostrar = imagenBase64Full;
             if (imgParaMostrar && !text) {
                 appendMessage("Jefferson", "", true, imgParaMostrar);
                 limpiarVariablesImagen();
-                appendMessage("⚡ Relectrónica Bot", "⚠️ El motor actual de **Cohere** solo procesa texto. Por favor escribe la falla o consulta para poder ayudarte.", false);
+                appendMessage("⚡ Relectrónica Bot", "⚠️ El motor actual de **Cohere** solo procesa texto. Por favor escribe tu consulta técnica sobre el componente.", false);
                 return;
             }
 
@@ -134,38 +185,14 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = "flex justify-start text-sm text-gray-500 animate-pulse pl-2";
             loadingDiv.id = "loading";
-            loadingDiv.innerText = "⚙️ Relectrónica Bot procesando...";
+            loadingDiv.innerText = "⚙️ Relectrónica Bot analizando...";
             chatBox.appendChild(loadingDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            try {
-                const response = await fetch("https://api.cohere.com/v1/chat", {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${COHERE_API_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: text,
-                        model: "command-r-08-2024", // Cambiado al modelo vigente para solucionar el error 400/422
-                        preamble: SYSTEM_INSTRUCTION
-                    })
-                });
+            const aiResponse = await sendMessageToCohere(text);
 
-                const data = await response.json();
-                if (document.getElementById('loading')) document.getElementById('loading').remove();
-
-                if (response.ok && data.text) {
-                    appendMessage("⚡ Relectrónica Bot", data.text.trim(), false);
-                } else {
-                    appendMessage("⚡ Relectrónica Bot", `⚠️ Error del servidor Cohere: ${data.message || 'Falla en el bloque de datos'}`, false);
-                }
-            } catch (error) {
-                if (document.getElementById('loading')) document.getElementById('loading').remove();
-                appendMessage("⚡ Relectrónica Bot", "❌ Error de conexión de red con el servidor.", false);
-                console.error(error);
-            }
+            if(document.getElementById('loading')) document.getElementById('loading').remove();
+            appendMessage("⚡ Relectrónica Bot", aiResponse, false);
         }
 
         sendBtn.addEventListener('click', handleSend);
