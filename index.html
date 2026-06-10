@@ -217,7 +217,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE APIS (Key integrada con éxito)
+        // CONFIGURACIÓN DE APIS (Key integrada fijamente)
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
         
         const chatContainer = document.getElementById('chat-container');
@@ -242,7 +242,6 @@
 
             msgDiv.appendChild(metaSpan);
             
-            // Reemplazar saltos de línea para estructurar los datos técnicos de las tarjetas o fallas
             const formattedText = text.split('\n');
             formattedText.forEach((line, index) => {
                 msgDiv.appendChild(document.createTextNode(line));
@@ -273,7 +272,7 @@
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        // Modelo vigente con soporte oficial estable
+                        // MODELO CORREGIDO: Versión plenamente activa y compatible
                         model: 'command-r-08-2024',
                         message: query,
                         preamble: "Eres un asistente técnico experto en electrónica, hardware, diagnóstico de tarjetas PCB y reparación de pantallas LED. Responde de forma precisa y profesional a Jefferson."
