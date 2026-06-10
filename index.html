@@ -19,7 +19,7 @@
                 <h1 class="text-lg font-bold text-white tracking-wide">Relectrónica</h1>
                 <p class="text-xs text-blue-400 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1 animate-pulse"></span> 
-                    Potenciado por Gemini Engine
+                    Potenciado por Gemini Engine (Protocolo AQ)
                 </p>
             </div>
         </div>
@@ -29,7 +29,7 @@
         <div class="flex justify-start">
             <div class="bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm">
                 <p class="font-semibold text-blue-400 mb-1">⚡ Relectrónica Bot:</p>
-                ¡Línea directa configurada con éxito, Jefferson! El cerebro de Gemini está encendido. ¿Qué tarjeta electrónica, pantalla LED o componente vamos a diagnosticar hoy en el taller? Pásame la falla.
+                ¡Circuito adaptado con éxito para claves tipo AQ, Jefferson! El cerebro de Gemini está en línea. Pásame la falla de la tarjeta o pantalla que vamos a revisar hoy.
             </div>
         </div>
     </main>
@@ -37,15 +37,15 @@
     <footer class="bg-[#161b22] border-t border-[#30363d] p-3 flex items-center space-x-2">
         <input type="text" id="user-input" 
                class="flex-1 bg-[#0d1117] border border-[#30363d] rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-sm" 
-               placeholder="Escribe la falla (Ej: TV LG no enciende)...">
+               placeholder="Escribe la falla...">
         <button id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl transition duration-200 text-sm shadow-md">
             Enviar
         </button>
     </footer>
 
     <script>
-        // Circuito de conexión directo con Google AI Studio
-        const GEMINI_API_KEY = "AQ.Ab8RN6IifkGelS3ezplxEm2BIRap3gOBqzuklouIUGb_rLzKMQ";
+        // Tu clave de API real tipo AQ asignada correctamente
+        const GEMINI_API_KEY = "AQ.Ab8RN6Jl21cBuaphI0cAs37yQHVhxV3cU01_w6m-RhOVr1S2zw"; 
         const SYSTEM_INSTRUCTION = "Eres un ingeniero electrónico experto en reparación de hardware, pantallas LED y circuitos impresos. Tu propósito es ayudar a Jefferson en su taller Relectrónica en Caracas, Venezuela. Responde siempre en español, de forma clara, técnica pero directa, usando viñetas, listas y negritas para facilitar la lectura en el banco de trabajo.";
 
         const chatBox = document.getElementById('chat-box');
@@ -61,9 +61,7 @@
                 ? "bg-blue-600 text-white p-3 rounded-lg max-w-[85%] shadow-sm" 
                 : "bg-[#21262d] border border-[#30363d] text-gray-200 p-3 rounded-lg max-w-[85%] shadow-sm";
             
-            // Reemplazar saltos de línea y formatear negritas simples de markdown
             let formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
             contentDiv.innerHTML = `<p class="font-semibold text-xs ${isUser ? 'text-blue-200' : 'text-blue-400'} mb-1">${sender}:</p><div>${formattedText}</div>`;
             
             messageDiv.appendChild(contentDiv);
@@ -72,10 +70,9 @@
         }
 
         async function sendMessageToGemini(userText) {
-            // Usamos el endpoint oficial de Gemini 1.5 Flash (óptimo, rápido y gratuito)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // Adaptación de cabecera HTTP para procesar credenciales tipo AQ de forma nativa
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
             
-            // Estructura limpia de la petición combinando el rol del sistema y el mensaje del usuario
             const payload = {
                 contents: [{
                     parts: [{
@@ -88,7 +85,8 @@
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': GEMINI_API_KEY // Forzamos la autenticación por cabecera de desarrollo
                     },
                     body: JSON.stringify(payload)
                 });
@@ -98,13 +96,12 @@
                 if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
                     return data.candidates[0].content.parts[0].text.trim();
                 } else if (data.error) {
-                    return "⚠️ Error del servidor de Google: " + data.error.message;
+                    return "⚠️ Error de validación: " + data.error.message;
                 } else {
-                    return "❌ Error en el formato de respuesta del procesador gráfico.";
+                    return "❌ Error en el formato de respuesta.";
                 }
             } catch (error) {
-                console.error("Error de red:", error);
-                return "❌ Error de conexión de red. Revisa el internet de tu teléfono o el estado de la señal web.";
+                return "❌ Error de conexión de red.";
             }
         }
 
@@ -118,7 +115,7 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = "flex justify-start text-sm text-gray-500 animate-pulse pl-2";
             loadingDiv.id = "loading";
-            loadingDiv.innerText = "⚙️ Relectrónica Bot analizando circuito...";
+            loadingDiv.innerText = "⚙️ Relectrónica Bot analizando...";
             chatBox.appendChild(loadingDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -134,5 +131,4 @@
         userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
     </script>
 </body>
-        </html>
-    
+</html>
