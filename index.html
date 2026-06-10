@@ -78,7 +78,6 @@
             display: inline-block;
         }
 
-        /* Botón para limpiar historial */
         .clear-btn {
             background: none;
             border: none;
@@ -102,7 +101,6 @@
             position: relative;
         }
 
-        /* Marca de agua de fondo con el logo */
         #chat-container::before {
             content: "";
             position: absolute;
@@ -311,7 +309,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE APIS FIJA 
+        // CONFIGURACIÓN DE APIS FIJA
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
         
         const chatContainer = document.getElementById('chat-container');
@@ -327,17 +325,15 @@
         let selectedImageBase64 = null;
         let chatHistory = [];
 
-        // CORRECCIÓN: Carga los mensajes del almacenamiento interno al iniciar
+        // Carga los mensajes guardados al iniciar
         window.addEventListener('DOMContentLoaded', () => {
             const savedChat = localStorage.getItem('relectronica_chat_history');
             if (savedChat) {
                 chatHistory = JSON.parse(savedChat);
-                // Volver a renderizar todos los mensajes guardados
                 chatHistory.forEach(msg => {
                     appendMessageToDOM(msg.sender, msg.text, msg.isError, msg.imageSrc);
                 });
             } else {
-                // Si no hay nada guardado, se muestra el saludo inicial de fábrica
                 const welcomeText = '¡Excelente Jefferson! Tu logo oficial ha sido integrado como marca de agua en el fondo del chat y en el encabezado. Chatea normalmente y verás cómo los mensajes flotan por encima sin ocultarlo.';
                 appendMessageToDOM('bot', welcomeText);
                 saveMessageToHistory('bot', welcomeText);
@@ -366,20 +362,18 @@
             imagePreviewContainer.style.display = 'none';
         });
 
-        // CORRECCIÓN: Función para borrar el historial guardado por completo
+        // Evento para limpiar el historial completo
         clearBtn.addEventListener('click', () => {
             if (confirm('¿Quieres vaciar toda la conversación actual?')) {
                 localStorage.removeItem('relectronica_chat_history');
                 chatHistory = [];
                 chatContainer.innerHTML = '';
-                // Relanzar el mensaje de bienvenida base
                 const welcomeText = '¡Excelente Jefferson! Tu logo oficial ha sido integrado como marca de agua en el fondo del chat y en el encabezado. Chatea normalmente y verás cómo los mensajes flotan por encima sin ocultarlo.';
                 appendMessageToDOM('bot', welcomeText);
                 saveMessageToHistory('bot', welcomeText);
             }
         });
 
-        // Pinta el mensaje visualmente en la pantalla
         function appendMessageToDOM(sender, text, isError = false, imageSrc = null) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
@@ -414,7 +408,6 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // CORRECCIÓN: Función interna para empaquetar el texto y guardarlo en el teléfono
         function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
             chatHistory.push({ sender, text, isError, imageSrc });
             localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
@@ -427,7 +420,6 @@
             const currentImageSrc = imagePreview.src;
             const activeImageBase64 = selectedImageBase64;
             
-            // Pintar e indexar en la memoria local el mensaje del usuario
             appendMessageToDOM('user', query, false, activeImageBase64 ? currentImageSrc : null);
             saveMessageToHistory('user', query, false, activeImageBase64 ? currentImageSrc : null);
             
@@ -468,7 +460,8 @@
             } catch (error) {
                 appendMessageToDOM('bot', '⚠️ Error de red: No se pudo conectar con el servidor.', true);
                 console.error(error);
-            } declare {
+            } finally {
+                // SINTAXIS CORREGIDA: Cambio de declare a finally
                 inputField.disabled = false;
                 sendBtn.disabled = false;
                 attachBtn.disabled = false;
@@ -482,5 +475,4 @@
         });
     </script>
 </body>
-            </html>
-            
+</html>
