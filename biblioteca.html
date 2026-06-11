@@ -15,12 +15,7 @@
             --accent-color: #a855f7;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--bg-color);
@@ -28,7 +23,8 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         header {
@@ -38,211 +34,51 @@
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             gap: 15px;
+            margin: -20px -20px 20px -20px;
         }
 
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 50px; height: 50px; border-radius: 8px; overflow: hidden;
+            background-color: #000; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);
         }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.2rem; font-weight: 600; }
+        .header-info p { font-size: 0.85rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%; display: inline-block; }
 
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
+        .search-bar { width: 100%; background-color: var(--chat-bg); border: 1px solid var(--border-color); color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; outline: none; }
+        .search-bar:focus { border-color: var(--primary-color); }
+        .section-title { font-size: 1.2rem; margin-bottom: 15px; color: var(--accent-color); font-weight: 600; }
 
-        .header-info p {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-bottom: 65px;
-        }
-
-        .search-bar {
-            width: 100%;
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            outline: none;
-        }
-
-        .search-bar:focus {
-            border-color: var(--primary-color);
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .tech-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-        }
-
-        .tech-card h3 {
-            font-size: 1rem;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tech-card h3::after {
-            content: "▼";
-            font-size: 0.75rem;
-            color: #a0aec0;
-        }
-
-        .tech-card-content {
-            display: none;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #cbd5e1;
-        }
-
-        .tech-badge {
-            background-color: #1e1b4b;
-            color: #a5b4fc;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.72rem;
-            flex: 1;
-            height: 100%;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .nav-item.active {
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            font-size: 1.2rem;
-        }
+        .tech-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 12px; cursor: pointer; }
+        .tech-card h3 { font-size: 1rem; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+        .tech-card h3::after { content: "▼"; font-size: 0.75rem; color: #a0aec0; }
+        .tech-card-content { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 0.9rem; line-height: 1.5; color: #cbd5e1; }
+        .tech-badge { background-color: #1e1b4b; color: #a5b4fc; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
-        </div>
+        <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
         <div class="header-info">
             <h1>Relectrónica</h1>
             <p><span class="status-dot"></span> Biblioteca de Componentes</p>
         </div>
     </header>
 
-    <div class="main-content">
-        <input type="text" class="search-bar" id="lib-search" placeholder="Buscar componente (Ej: Mosfet, Optoacoplador)...">
-        
-        <h2 class="section-title">Conceptos e Instrumentos</h2>
+    <input type="text" class="search-bar" id="lib-search" placeholder="Buscar componente...">
+    <h2 class="section-title">Conceptos e Instrumentos</h2>
 
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>¿Qué es y cómo medir un Optoacoplador?</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">COMPONENTES</span><br>
-                <strong>Definición:</strong> Es un componente de aislamiento que transmite una señal eléctrica usando luz interna (LED + Fototransistor).<br><br>
-                <strong>Cómo medirlo:</strong> Con el multímetro en escala de diodos, mide los pines del lado del emisor (debe marcar como diodo normal, aprox 1V). Del lado del receptor no debe marcar nada en frío.
-            </div>
+    <div class="tech-card" onclick="toggleCard(this)">
+        <h3>¿Qué es y cómo medir un Optoacoplador?</h3>
+        <div class="tech-card-content">
+            <span class="tech-badge">COMPONENTES</span><br>
+            <strong>Definición:</strong> Componente de aislamiento eléctrico que transmite señales de control usando luz interna.<br><br>
+            <strong>Medición:</strong> En escala de diodos, mide los pines del emisor (debe marcar aprox 1V en un sentido y nada en el inverso). El receptor no debe marcar continuidad en frío.
         </div>
-
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Uso correcto del Multímetro en Fuentes</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">MEDICIONES</span><br>
-                <strong>Tierra Caliente vs Fría:</strong> Al medir el capacitor principal de la fuente, coloca la punta negra en el negativo de ese capacitor (Tierra Caliente). Al medir las salidas secundarias, coloca la punta negra en el chasis o tierra de los conectores (Tierra Fría).
-            </div>
-        </div>
-
     </div>
-
-    <nav class="nav-tabs">
-        <a href="index.html" class="nav-item">
-            <span class="nav-icon">💬</span>
-            <span>Chat Técnico</span>
-        </a>
-        <a href="biblioteca.html" class="nav-item active">
-            <span class="nav-icon">📘</span>
-            <span>Biblioteca</span>
-        </a>
-        <a href="fallas.html" class="nav-item">
-            <span class="nav-icon">🛠️</span>
-            <span>Casos de Falla</span>
-        </a>
-        <a href="calculadoras.html" class="nav-item">
-            <span class="nav-icon">🧮</span>
-            <span>Calculadoras</span>
-        </a>
-    </nav>
 
     <script>
         function toggleCard(card) {
