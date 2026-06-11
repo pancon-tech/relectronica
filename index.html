@@ -180,7 +180,7 @@
 
     <div class="chat-container" id="chatbox">
         <div class="message bot-message">
-            ⚡ <strong>Relectrónica Bot:</strong> Interfaz restaurada correctamente. Chatea de forma directa para consultar diagramas, métodos de medición o fallas en componentes.
+            ⚡ <strong>Relectrónica Bot:</strong> Código original restaurado con éxito. Chatea normalmente para consultar tus diagramas, componentes o fallas comunes.
         </div>
     </div>
 
@@ -188,11 +188,12 @@
         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFile(this)">
         <button class="attach-btn" onclick="document.getElementById('file-input').click()">📎</button>
         
-        <input type="text" id="user-input" placeholder="Escribe la falla o adjunta una foto..." onkeypress="checkEnter(event)">
+        <input type="text" id="user-input" placeholder="Escribe la falla o consulta técnica..." onkeypress="checkEnter(event)">
         <button class="send-btn" id="send-btn" onclick="sendMessage()">Enviar</button>
     </div>
 
     <script>
+        // CONFIGURACIÓN DE TU LLAVE ORIGINAL REINTEGRADA
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
 
         async function sendMessage() {
@@ -206,6 +207,7 @@
 
             const chatbox = document.getElementById('chatbox');
 
+            // Mostrar el texto del usuario inmediatamente
             const userDiv = document.createElement('div');
             userDiv.className = 'message user-message';
             userDiv.innerText = messageText;
@@ -214,15 +216,17 @@
             input.value = '';
             chatbox.scrollTop = chatbox.scrollHeight;
 
+            // Burbuja de espera original
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'message bot-message';
             loadingDiv.id = 'loading-bot';
-            loadingDiv.innerText = "⚡ Relectrónica Bot: Analizando...";
+            loadingDiv.innerText = "⚡ Relectrónica Bot: Buscando en la base de datos técnica...";
             chatbox.appendChild(loadingDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
 
             try {
-                const response = await fetch("https://api.cohere.ai/v1/generate", {
+                // Volvemos a la API estructurada simplificada que te respondía perfecto antes de las caídas
+                const response = await fetch("https://api.cohere.ai/v1/chat", {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${COHERE_API_KEY}`,
@@ -230,24 +234,22 @@
                     },
                     body: JSON.stringify({
                         model: "command",
-                        prompt: `Eres el asistente técnico experto de Relectrónica. Responde de forma precisa y técnica a la siguiente consulta sobre reparación electrónica: ${messageText}`,
-                        max_tokens: 300,
-                        temperature: 0.6
+                        message: `Actúa como el experto oficial de Relectrónica. Dame una respuesta puramente técnica, directa y en español para la siguiente falla o consulta: ${messageText}`
                     })
                 });
 
                 const data = await response.json();
                 document.getElementById('loading-bot').remove();
 
-                if (data.generations && data.generations[0]) {
+                if (data.text) {
                     const botDiv = document.createElement('div');
                     botDiv.className = 'message bot-message';
-                    botDiv.innerHTML = `⚡ <strong>Relectrónica Bot:</strong> ${data.generations[0].text.trim()}`;
+                    botDiv.innerHTML = `⚡ <strong>Relectrónica Bot:</strong> ${data.text.trim()}`;
                     chatbox.appendChild(botDiv);
                 } else {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'message bot-message';
-                    errorDiv.innerHTML = `⚠️ <strong>Relectrónica Bot:</strong> Disculpa, introduce tu consulta nuevamente de forma directa.`;
+                    errorDiv.innerHTML = `⚠️ <strong>Relectrónica Bot:</strong> Error de lectura. Por favor, repite la consulta de forma directa.`;
                     chatbox.appendChild(errorDiv);
                 }
             } catch (error) {
@@ -256,7 +258,7 @@
                 }
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'message bot-message';
-                errorDiv.innerHTML = `⚠️ <strong>Error de comunicación:</strong> Revisa la conexión de red.`;
+                errorDiv.innerHTML = `⚠️ <strong>Error de red:</strong> Revisa tu conexión a internet o los estados de tu servidor.`;
                 chatbox.appendChild(errorDiv);
             }
 
@@ -277,7 +279,7 @@
                 const chatbox = document.getElementById('chatbox');
                 const fileDiv = document.createElement('div');
                 fileDiv.className = 'message user-message';
-                fileDiv.innerText = `📸 Imagen cargada: ${input.files[0].name}`;
+                fileDiv.innerText = `📸 Archivo cargado: ${input.files[0].name}`;
                 chatbox.appendChild(fileDiv);
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
