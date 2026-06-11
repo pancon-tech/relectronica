@@ -85,6 +85,11 @@
             margin-bottom: 130px;
             display: flex;
             flex-direction: column;
+            background-image: url('logo.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 40%;
+            background-blend-mode: overlay;
         }
 
         .message {
@@ -94,6 +99,7 @@
             margin-bottom: 15px;
             line-height: 1.4;
             font-size: 0.95rem;
+            word-wrap: break-word;
         }
 
         .bot-message {
@@ -146,7 +152,6 @@
             cursor: pointer;
         }
 
-        /* Botón de Adjuntar Archivo/Foto */
         .attach-btn {
             background-color: var(--chat-bg);
             border: 1px solid var(--border-color);
@@ -210,17 +215,14 @@
     </header>
 
     <div class="chat-container" id="chatbox">
-        <div class="message bot-message">
-            ⚡ <strong>Relectrónica Bot:</strong> ¡Excelente Jefferson! Tu logo oficial ha sido integrado en el sistema. Chatea normalmente para consultar diagramas, métodos de medición o fallas comunes.
         </div>
-    </div>
 
     <div class="input-area">
         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFile(this)">
         <button class="attach-btn" onclick="document.getElementById('file-input').click()">📎</button>
         
         <input type="text" id="user-input" placeholder="Escribe la falla aquí..." onkeypress="checkEnter(event)">
-        <button class="send-btn" onclick="sendMessage()">Enviar</button>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">Enviar</button>
     </div>
 
     <nav class="nav-tabs">
@@ -243,30 +245,95 @@
     </nav>
 
     <script>
-        function sendMessage() {
-            const input = document.getElementById('user-input');
-            const messageText = input.value.trim();
-            if (messageText === '') return;
+        // CONFIGURACIÓN DE COHERE CON TU KEY REAL
+        const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
+        const SYSTEM_PROMPT = "Eres el asistente técnico experto en electrónica de la marca Relectrónica. Ayudas a diagnosticar fallas en tarjetas de TV, fuentes conmutadas, pantallas LED y circuitos electrónicos. Das respuestas técnicas, precisas, profesionales y en español.";
 
+        let chatHistory = JSON.parse(localStorage.getItem('relectronica_chat')) || [
+            { role: "CHATBOT", message: "⚡ <strong>Relectrónica Bot:</strong> ¡Excelente Jefferson! Tu asistente con Cohere está en línea y activo. Chatea normalmente para consultar tus diagramas o fallas." }
+        ];
+
+        window.onload = function() {
+            renderChat();
+        };
+
+        function renderChat() {
             const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML = '';
+            chatHistory.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = msg.role === "USER" ? 'message user-message' : 'message bot-message';
+                div.innerHTML = msg.message;
+                chatbox.appendChild(div);
+            });
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
 
-            // Crear mensaje del usuario
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message user-message';
-            userDiv.innerText = messageText;
-            chatbox.appendChild(userDiv);
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const btn = document.getElementById('send-btn');
+            const messageText = input.value.trim();
+            if (messageText === '' || btn.disabled) return;
 
+            input.disabled = true;
+            btn.disabled = true;
+
+            // Guardar e imprimir mensaje del usuario
+            chatHistory.push({ role: "USER", message: messageText });
+            localStorage.setItem('relectronica_chat', JSON.stringify(chatHistory));
+            renderChat();
             input.value = '';
+
+            // Mostrar indicador de carga ("Pensando...")
+            const chatbox = document.getElementById('chatbox');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot-message';
+            loadingDiv.id = 'loading-bot';
+            loadingDiv.innerText = "⚡ Relectrónica Bot: Analizando parámetros...";
+            chatbox.appendChild(loadingDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
 
-            // Simulación inmediata de respuesta del bot
-            setTimeout(() => {
-                const botDiv = document.createElement('div');
-                botDiv.className = 'message bot-message';
-                botDiv.innerHTML = `⚡ <strong>Relectrónica Bot:</strong> Recibido tu reporte técnico. Analizando parámetros...`;
-                chatbox.appendChild(botDiv);
-                chatbox.scrollTop = chatbox.scrollHeight;
-            }, 1000);
+            // Formatear historial limpio de etiquetas HTML para Cohere
+            const formattedHistory = chatHistory.slice(1, -1).map(h => ({
+                role: h.role,
+                message: h.message.replace(/<\/?[^>]+(>|$)/g, "")
+            }));
+
+            try {
+                const response = await fetch("https://api.cohere.ai/v1/chat", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${COHERE_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "command-r-plus",
+                        message: messageText,
+                        preamble: SYSTEM_PROMPT,
+                        chat_history: formattedHistory
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById('loading-bot').remove();
+
+                if (data.text) {
+                    chatHistory.push({ role: "CHATBOT", message: `⚡ <strong>Relectrónica Bot:</strong> ${data.text}` });
+                } else {
+                    chatHistory.push({ role: "CHATBOT", message: `⚠️ <strong>Error:</strong> No se obtuvo respuesta de la base de datos.` });
+                }
+            } catch (error) {
+                if (document.getElementById('loading-bot')) {
+                    document.getElementById('loading-bot').remove();
+                }
+                chatHistory.push({ role: "CHATBOT", message: `⚠️ <strong>Error de red:</strong> Verifica tu conexión o los límites de tu llave.` });
+            }
+
+            localStorage.setItem('relectronica_chat', JSON.stringify(chatHistory));
+            renderChat();
+            input.disabled = false;
+            btn.disabled = false;
+            input.focus();
         }
 
         function checkEnter(event) {
@@ -280,7 +347,7 @@
                 const chatbox = document.getElementById('chatbox');
                 const fileDiv = document.createElement('div');
                 fileDiv.className = 'message user-message';
-                fileDiv.innerText = `📸 Imagen seleccionada: ${input.files[0].name}`;
+                fileDiv.innerText = `📸 Archivo seleccionado: ${input.files[0].name}`;
                 chatbox.appendChild(fileDiv);
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
