@@ -28,6 +28,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
         header {
@@ -99,6 +100,7 @@
             flex-direction: column;
             gap: 15px;
             position: relative;
+            margin-bottom: 65px;
         }
 
         #chat-container::before {
@@ -171,8 +173,16 @@
             color: #fc8181;
         }
 
-        .input-container {
+        .footer-controls {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
             background-color: var(--chat-bg);
+            z-index: 90;
+        }
+
+        .input-container {
             padding: 15px;
             display: flex;
             gap: 10px;
@@ -207,11 +217,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .icon-btn:hover {
-            background-color: var(--border-color);
         }
 
         #send-btn {
@@ -223,16 +228,6 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        #send-btn:hover {
-            background-color: #6b21a8;
-        }
-
-        #send-btn:disabled, .icon-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         #image-preview-container {
@@ -274,6 +269,42 @@
             cursor: pointer;
             border: none;
         }
+
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.75rem;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
     </style>
 </head>
 <body>
@@ -289,24 +320,39 @@
         <button class="clear-btn" id="clear-btn" title="Borrar Historial">🗑️</button>
     </header>
 
-    <div id="chat-container">
+    <div id="chat-container"></div>
+
+    <div class="footer-controls">
+        <div id="image-preview-container">
+            <div class="preview-box">
+                <img id="image-preview" src="" alt="Preview">
+                <button class="remove-preview" id="cancel-image-btn">×</button>
+            </div>
+            <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
         </div>
 
-    <div id="image-preview-container">
-        <div class="preview-box">
-            <img id="image-preview" src="" alt="Preview">
-            <button class="remove-preview" id="cancel-image-btn">×</button>
+        <div class="input-container">
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
+            <input type="text" id="input-field" placeholder="Escribe la falla o adjunta una foto..." autocomplete="off">
+            <button id="send-btn">Enviar</button>
         </div>
-        <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
     </div>
 
-    <div class="input-container">
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-        <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
-        
-        <input type="text" id="input-field" placeholder="Escribe la falla o adjunta una foto..." autocomplete="off">
-        <button id="send-btn">Enviar</button>
-    </div>
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item active">
+            <span class="nav-icon">💬</span>
+            <span>Chat Técnico</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item">
+            <span class="nav-icon">📘</span>
+            <span>Biblioteca</span>
+        </a>
+        <a href="fallas.html" class="nav-item">
+            <span class="nav-icon">🛠️</span>
+            <span>Casos de Falla</span>
+        </a>
+    </nav>
 
     <script>
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
@@ -469,5 +515,4 @@
         });
     </script>
 </body>
-            </html>
-            
+</html>
