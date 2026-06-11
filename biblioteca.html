@@ -12,13 +12,14 @@
             --primary-color: #7928ca;
             --border-color: #22344d;
             --card-bg: #162235;
+            --accent-color: #a855f7;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         body {
@@ -73,7 +74,7 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background-color: #a855f7;
+            background-color: var(--accent-color);
             border-radius: 50%;
             display: inline-block;
         }
@@ -94,7 +95,6 @@
             border-radius: 8px;
             margin-bottom: 20px;
             outline: none;
-            font-size: 0.95rem;
         }
 
         .search-bar:focus {
@@ -104,7 +104,7 @@
         .section-title {
             font-size: 1.2rem;
             margin-bottom: 15px;
-            color: #a855f7;
+            color: var(--accent-color);
             font-weight: 600;
         }
 
@@ -115,11 +115,6 @@
             padding: 15px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .tech-card:hover {
-            transform: translateY(-2px);
         }
 
         .tech-card h3 {
@@ -134,11 +129,6 @@
             content: "▼";
             font-size: 0.75rem;
             color: #a0aec0;
-            transition: transform 0.2s;
-        }
-
-        .tech-card.expanded h3::after {
-            transform: rotate(180deg);
         }
 
         .tech-card-content {
@@ -182,9 +172,7 @@
             align-items: center;
             color: #a0aec0;
             text-decoration: none;
-            font-size: 0.75rem;
-            background: none;
-            border: none;
+            font-size: 0.72rem;
             flex: 1;
             height: 100%;
             justify-content: center;
@@ -192,12 +180,12 @@
         }
 
         .nav-item.active {
-            color: #a855f7;
+            color: var(--accent-color);
             font-weight: bold;
         }
 
         .nav-icon {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -209,36 +197,33 @@
         </div>
         <div class="header-info">
             <h1>Relectrónica</h1>
-            <p><span class="status-dot"></span> Manual de Diagnóstico Activo</p>
+            <p><span class="status-dot"></span> Biblioteca de Componentes</p>
         </div>
     </header>
 
     <div class="main-content">
-        <input type="text" class="search-bar" id="library-search" placeholder="Buscar conceptos o componentes...">
-        <h2 class="section-title">Conceptos de Diagnóstico Técnico</h2>
+        <input type="text" class="search-bar" id="lib-search" placeholder="Buscar componente (Ej: Mosfet, Optoacoplador)...">
         
+        <h2 class="section-title">Conceptos e Instrumentos</h2>
+
         <div class="tech-card" onclick="toggleCard(this)">
-            <h3>¿Qué es VGH, VGL, VCOM y VDD?</h3>
+            <h3>¿Qué es y cómo medir un Optoacoplador?</h3>
             <div class="tech-card-content">
-                <span class="tech-badge">PANTALLAS LED / T-CON</span><br>
-                Son los voltajes vitales generados por el integrado conversor DC-DC en la tarjeta T-CON para el manejo de los pixeles del panel LCD:<br><br>
-                <strong>• VGH (Voltage Gate High):</strong> Voltaje positivo alto (típicamente entre +20V a +30V). Se encarga de encender los transistores internos (TFT) de la pantalla para permitir el paso de la imagen.<br><br>
-                <strong>• VGL (Voltage Gate Low):</strong> Voltaje negativo (típicamente entre -5V a -10V). Se encarga de apagar de forma rápida los transistores para refrescar el pixel.<br><br>
-                <strong>• VDD / VCC:</strong> Voltaje de alimentación lógico (3.3V o 12V principales).<br><br>
-                <strong>💡 Tip de taller:</strong> Si falta VGH o VGL la pantalla se quedará completamente en blanco, oscura o con congelamiento de imagen.
+                <span class="tech-badge">COMPONENTES</span><br>
+                <strong>Definición:</strong> Es un componente de aislamiento que transmite una señal eléctrica usando luz interna (LED + Fototransistor).<br><br>
+                <strong>Cómo medirlo:</strong> Con el multímetro en escala de diodos, mide los pines del lado del emisor (debe marcar como diodo normal, aprox 1V). Del lado del receptor no debe marcar nada en frío.
             </div>
         </div>
 
         <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Resistencias SMD y de Precisión</h3>
+            <h3>Uso correcto del Multímetro en Fuentes</h3>
             <div class="tech-card-content">
-                <span class="tech-badge">COMPONENTES PASIVOS</span><br>
-                Las resistencias de montaje superficial (SMD) limitan el flujo de corriente en los circuitos impresos (PCB). En fuentes conmutadas, las resistencias de bajo valor óhmico (tipo Shunt, menores a 1 Ohm) suelen actuar como sensores de corriente y se abren por completo cuando un MOSFET entra en cortocircuito.<br><br>
-                <strong>🔍 Medición correcta:</strong> Deben medirse fuera del circuito si la lectura da un valor alterado o en paralelo con bobinas, para evitar mediciones erróneas inducidas por otros componentes.
+                <span class="tech-badge">MEDICIONES</span><br>
+                <strong>Tierra Caliente vs Fría:</strong> Al medir el capacitor principal de la fuente, coloca la punta negra en el negativo de ese capacitor (Tierra Caliente). Al medir las salidas secundarias, coloca la punta negra en el chasis o tierra de los conectores (Tierra Fría).
             </div>
         </div>
 
-        </div>
+    </div>
 
     <nav class="nav-tabs">
         <a href="index.html" class="nav-item">
@@ -253,18 +238,21 @@
             <span class="nav-icon">🛠️</span>
             <span>Casos de Falla</span>
         </a>
+        <a href="calculadoras.html" class="nav-item">
+            <span class="nav-icon">🧮</span>
+            <span>Calculadoras</span>
+        </a>
     </nav>
 
     <script>
         function toggleCard(card) {
-            card.classList.toggle('expanded');
             const content = card.querySelector('.tech-card-content');
             if (content) {
                 content.style.display = content.style.display === 'block' ? 'none' : 'block';
             }
         }
 
-        document.getElementById('library-search').addEventListener('input', function(e) {
+        document.getElementById('lib-search').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
             document.querySelectorAll('.tech-card').forEach(card => {
                 const text = card.innerText.toLowerCase();
@@ -273,5 +261,4 @@
         });
     </script>
 </body>
-                                                                     </html>
-
+</html>
