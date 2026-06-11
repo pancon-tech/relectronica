@@ -15,12 +15,7 @@
             --accent-color: #a855f7;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--bg-color);
@@ -28,7 +23,8 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         header {
@@ -38,210 +34,51 @@
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             gap: 15px;
+            margin: -20px -20px 20px -20px;
         }
 
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 50px; height: 50px; border-radius: 8px; overflow: hidden;
+            background-color: #000; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);
         }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.2rem; font-weight: 600; }
+        .header-info p { font-size: 0.85rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%; display: inline-block; }
 
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
+        .search-bar { width: 100%; background-color: var(--chat-bg); border: 1px solid var(--border-color); color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; outline: none; }
+        .search-bar:focus { border-color: var(--primary-color); }
+        .section-title { font-size: 1.2rem; margin-bottom: 15px; color: var(--accent-color); font-weight: 600; }
 
-        .header-info p {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-bottom: 65px;
-        }
-
-        .search-bar {
-            width: 100%;
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            outline: none;
-        }
-
-        .search-bar:focus {
-            border-color: var(--primary-color);
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .tech-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-        }
-
-        .tech-card h3 {
-            font-size: 1rem;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tech-card h3::after {
-            content: "▼";
-            font-size: 0.75rem;
-            color: #a0aec0;
-        }
-
-        .tech-card-content {
-            display: none;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #cbd5e1;
-        }
-
-        .tech-badge {
-            background-color: #1e1b4b;
-            color: #a5b4fc;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.72rem;
-            flex: 1;
-            height: 100%;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .nav-item.active {
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            font-size: 1.2rem;
-        }
+        .tech-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 12px; cursor: pointer; }
+        .tech-card h3 { font-size: 1rem; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+        .tech-card h3::after { content: "▼"; font-size: 0.75rem; color: #a0aec0; }
+        .tech-card-content { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 0.9rem; line-height: 1.5; color: #cbd5e1; }
+        .tech-badge { background-color: #1e1b4b; color: #a5b4fc; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
-        </div>
+        <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
         <div class="header-info">
             <h1>Relectrónica</h1>
             <p><span class="status-dot"></span> Base de Casos Resueltos</p>
         </div>
     </header>
 
-    <div class="main-content">
-        <input type="text" class="search-bar" id="cases-search" placeholder="Buscar por marca o componente...">
-        <h2 class="section-title">Historial de Soluciones Exitosas</h2>
-        
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Samsung / LG - Reinicio constante o Líneas</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">FALLA DE PANEL / T-CON</span><br>
-                <strong>Síntoma:</strong> El televisor muestra el logo brevemente, se reinicia en bucle o da líneas de colores fijas.<br><br>
-                <strong>Solución:</strong> Método de aislamiento. Colocar una cinta plástica delgada (2mm a 4mm) sobre los pines de señales de reloj (CLK) en el cable flex defectuoso para anular el sector en corto.
-            </div>
-        </div>
-
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Smart TV - Hay Audio pero no da Imagen</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">FALLA DE BACKLIGHT</span><br>
-                <strong>Prueba rápido:</strong> Iluminar con linterna de cerca. Si hay siluetas de fondo, las tarjetas están bien.<br><br>
-                <strong>Solución:</strong> Reemplazar la tira LED completa del backlight y bajar la corriente del inversor desde el modo de servicio para evitar fallas futuras.
-            </div>
+    <input type="text" class="search-bar" id="cases-search" placeholder="Buscar por falla o componente...">
+    <h2 class="section-title">Historial de Soluciones Exitosas</h2>
+    
+    <div class="tech-card" onclick="toggleCard(this)">
+        <h3>Smart TV - Hay Audio pero no da Imagen</h3>
+        <div class="tech-card-content">
+            <span class="tech-badge">FALLA DE BACKLIGHT</span><br>
+            <strong>Diagnóstico rápido:</strong> Inyectar voltaje controlado a las tiras con probador LED.<br><br>
+            <strong>Solución:</strong> Reemplazar los diodos quemados o la tira LED completa, y disminuir la corriente de drenaje desde el menú de servicio o modificando las resistencias en la fuente.
         </div>
     </div>
-
-    <nav class="nav-tabs">
-        <a href="index.html" class="nav-item">
-            <span class="nav-icon">💬</span>
-            <span>Chat Técnico</span>
-        </a>
-        <a href="biblioteca.html" class="nav-item">
-            <span class="nav-icon">📘</span>
-            <span>Biblioteca</span>
-        </a>
-        <a href="fallas.html" class="nav-item active">
-            <span class="nav-icon">🛠️</span>
-            <span>Casos de Falla</span>
-        </a>
-        <a href="calculadoras.html" class="nav-item">
-            <span class="nav-icon">🧮</span>
-            <span>Calculadoras</span>
-        </a>
-    </nav>
 
     <script>
         function toggleCard(card) {
