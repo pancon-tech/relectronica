@@ -82,7 +82,9 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            margin-bottom: 130px; /* Espacio para el input y la barra */
+            margin-bottom: 130px;
+            display: flex;
+            flex-direction: column;
         }
 
         .message {
@@ -99,6 +101,12 @@
             color: var(--text-color);
             border: 1px solid var(--border-color);
             align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
         }
 
         .input-area {
@@ -136,6 +144,20 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        /* Botón de Adjuntar Archivo/Foto */
+        .attach-btn {
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            color: #a0aec0;
+            padding: 0 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
         nav.nav-tabs {
@@ -187,15 +209,18 @@
         </div>
     </header>
 
-    <div class="chat-container">
+    <div class="chat-container" id="chatbox">
         <div class="message bot-message">
             ⚡ <strong>Relectrónica Bot:</strong> ¡Excelente Jefferson! Tu logo oficial ha sido integrado en el sistema. Chatea normalmente para consultar diagramas, métodos de medición o fallas comunes.
         </div>
     </div>
 
     <div class="input-area">
-        <input type="text" placeholder="Escribe la falla o adjunta una foto...">
-        <button class="send-btn">Enviar</button>
+        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFile(this)">
+        <button class="attach-btn" onclick="document.getElementById('file-input').click()">📎</button>
+        
+        <input type="text" id="user-input" placeholder="Escribe la falla aquí..." onkeypress="checkEnter(event)">
+        <button class="send-btn" onclick="sendMessage()">Enviar</button>
     </div>
 
     <nav class="nav-tabs">
@@ -217,5 +242,49 @@
         </a>
     </nav>
 
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const messageText = input.value.trim();
+            if (messageText === '') return;
+
+            const chatbox = document.getElementById('chatbox');
+
+            // Crear mensaje del usuario
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-message';
+            userDiv.innerText = messageText;
+            chatbox.appendChild(userDiv);
+
+            input.value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            // Simulación inmediata de respuesta del bot
+            setTimeout(() => {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot-message';
+                botDiv.innerHTML = `⚡ <strong>Relectrónica Bot:</strong> Recibido tu reporte técnico. Analizando parámetros...`;
+                chatbox.appendChild(botDiv);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }, 1000);
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function handleFile(input) {
+            if (input.files && input.files[0]) {
+                const chatbox = document.getElementById('chatbox');
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'message user-message';
+                fileDiv.innerText = `📸 Imagen seleccionada: ${input.files[0].name}`;
+                chatbox.appendChild(fileDiv);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        }
+    </script>
 </body>
 </html>
