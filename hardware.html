@@ -1,1 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Módulos de Hardware</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #a855f7;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 65px;
+        }
+
+        .search-bar {
+            width: 100%;
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #a855f7;
+            font-weight: 600;
+        }
+
+        /* REJILLA VISUAL PARA DE HARDWARE */
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .hardware-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .hardware-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 120px;
+            background-color: #080d16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-placeholder {
+            font-size: 2rem;
+            color: #3b4f6a;
+        }
+
+        .card-info {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .card-info h3 {
+            font-size: 0.9rem;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .card-tag {
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            background-color: #1e1b4b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            align-self: flex-start;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.75rem;
+            background: none;
+            border: none;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Reconocimiento de Hardware</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas, módulos o componentes...">
+        
+        <h2 class="section-title">Módulos y Componentes de Hardware</h2>
+        
+        <div class="hardware-grid">
+
+            <div class="hardware-card">
+                <div class="image-container">
+                    <img src="imagenes/tcon.jpg" alt="Tarjeta T-CON" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <span class="image-placeholder" style="display:none;">📺</span>
+                </div>
+                <div class="card-info">
+                    <h3>Tarjeta T-CON</h3>
+                    <span class="card-tag">Módulos</span>
+                </div>
+            </div>
+
+            <div class="hardware-card">
+                <div class="image-container">
+                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <span class="image-placeholder" style="display:none;">⚡</span>
+                </div>
+                <div class="card-info">
+                    <h3>Fuente Conmutada (SMPS)</h3>
+                    <span class="card-tag">Potencia</span>
+                </div>
+            </div>
+
+            <div class="hardware-card">
+                <div class="image-container">
+                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <span class="image-placeholder" style="display:none;">🔲</span>
+                </div>
+                <div class="card-info">
+                    <h3>Regulador Lineal TO-220</h3>
+                    <span class="card-tag">Semiconductores</span>
+                </div>
+            </div>
+
+            <div class="hardware-card">
+                <div class="image-container">
+                    <img src="imagenes/display.jpg" alt="Display LCD" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <span class="image-placeholder" style="display:none;">📱</span>
+                </div>
+                <div class="card-info">
+                    <h3>Panel LCD / Display</h3>
+                    <span class="card-tag">Componentes</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>Chat Técnico</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item">
+            <span class="nav-icon">📘</span>
+            <span>Biblioteca</span>
+        </a>
+        <a href="hardware.html" class="nav-item active">
+            <span class="nav-icon">🖼️</span>
+            <span>Hardware</span>
+        </a>
+        <a href="fallas.html" class="nav-item">
+            <span class="nav-icon">🛠️</span>
+            <span>Casos de Falla</span>
+        </a>
+    </nav>
+
+    <script>
+        // Filtrado dinámico en tiempo real para la sección de Hardware
+        document.getElementById('hardware-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.hardware-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
