@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relectrónica - Módulos de Hardware</title>
+    <title>Relectrónica - Hardware Vista Grande</title>
     <style>
         :root {
             --bg-color: #0b131f;
@@ -108,7 +108,7 @@
             font-weight: 600;
         }
 
-        /* REJILLA VISUAL PARA DE HARDWARE */
+        /* DISEÑO DE LA REJILLA DE IMÁGENES */
         .hardware-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -122,6 +122,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
             transition: transform 0.2s, border-color 0.2s;
         }
 
@@ -132,13 +133,12 @@
 
         .image-container {
             width: 100%;
-            height: 120px;
+            height: 130px;
             background-color: #080d16;
             display: flex;
             align-items: center;
             justify-content: center;
             border-bottom: 1px solid var(--border-color);
-            position: relative;
         }
 
         .image-container img {
@@ -147,18 +147,11 @@
             object-fit: cover;
         }
 
-        .image-placeholder {
-            font-size: 2rem;
-            color: #3b4f6a;
-        }
-
         .card-info {
             padding: 10px;
             display: flex;
             flex-direction: column;
             gap: 5px;
-            flex: 1;
-            justify-content: space-between;
         }
 
         .card-info h3 {
@@ -179,6 +172,63 @@
             text-transform: uppercase;
         }
 
+        /* ─── VENTANA MODAL (PANTALLA COMPLETA PARA AMPLIAR FOTO) ─── */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(5, 9, 15, 0.95);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content-container {
+            max-width: 95%;
+            max-height: 85%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .image-modal img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #a0aec0;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        /* NAVEGACIÓN INFERIOR */
         nav.nav-tabs {
             position: fixed;
             bottom: 0;
@@ -231,16 +281,15 @@
     </header>
 
     <div class="main-content">
-        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas, módulos o componentes...">
+        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas o componentes...">
         
-        <h2 class="section-title">Módulos y Componentes de Hardware</h2>
+        <h2 class="section-title">Galería de Hardware Técnico</h2>
         
         <div class="hardware-grid">
 
-            <div class="hardware-card">
+            <div class="hardware-card" onclick="openImage('imagenes/tcon.jpg', 'Tarjeta T-CON - Voltajes Clave')">
                 <div class="image-container">
-                    <img src="imagenes/TconTT5461B03-2-C-1.png" alt="Tarjeta T-CON" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                    <span class="image-placeholder" style="display:none;">📺</span>
+                    <img src="imagenes/tcon.jpg" alt="Tarjeta T-CON">
                 </div>
                 <div class="card-info">
                     <h3>Tarjeta T-CON</h3>
@@ -248,32 +297,29 @@
                 </div>
             </div>
 
-            <div class="hardware-card">
+            <div class="hardware-card" onclick="openImage('imagenes/fuente.jpg', 'Fuente Conmutada (SMPS)')">
                 <div class="image-container">
-                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                    <span class="image-placeholder" style="display:none;">⚡</span>
+                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada">
                 </div>
                 <div class="card-info">
-                    <h3>Fuente Conmutada (SMPS)</h3>
+                    <h3>Fuente Conmutada</h3>
                     <span class="card-tag">Potencia</span>
                 </div>
             </div>
 
-            <div class="hardware-card">
+            <div class="hardware-card" onclick="openImage('imagenes/regulador.jpg', 'Regulador de Voltaje TO-220')">
                 <div class="image-container">
-                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                    <span class="image-placeholder" style="display:none;">🔲</span>
+                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje">
                 </div>
                 <div class="card-info">
-                    <h3>Regulador Lineal TO-220</h3>
+                    <h3>Regulador TO-220</h3>
                     <span class="card-tag">Semiconductores</span>
                 </div>
             </div>
 
-            <div class="hardware-card">
+            <div class="hardware-card" onclick="openImage('imagenes/display.jpg', 'Estructura Interna Display LCD')">
                 <div class="image-container">
-                    <img src="imagenes/display.jpg" alt="Display LCD" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                    <span class="image-placeholder" style="display:none;">📱</span>
+                    <img src="imagenes/display.jpg" alt="Display LCD">
                 </div>
                 <div class="card-info">
                     <h3>Panel LCD / Display</h3>
@@ -281,6 +327,14 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <div id="myModal" class="image-modal" onclick="closeImage()">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content-container" onclick="event.stopPropagation()">
+            <img id="imgExpanded" src="" alt="Imagen ampliada">
+            <div id="modalTitle" class="modal-title"></div>
         </div>
     </div>
 
@@ -304,7 +358,23 @@
     </nav>
 
     <script>
-        // Filtrado dinámico en tiempo real para la sección de Hardware
+        // Función inteligente para abrir cualquier imagen en grande
+        function openImage(imgSrc, titleText) {
+            const modal = document.getElementById("myModal");
+            const expandedImg = document.getElementById("imgExpanded");
+            const modalTitle = document.getElementById("modalTitle");
+            
+            expandedImg.src = imgSrc;
+            modalTitle.innerText = titleText;
+            modal.style.display = "flex";
+        }
+
+        // Función para cerrar el visor
+        function closeImage() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Buscador interactivo en tiempo real
         document.getElementById('hardware-search').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
             document.querySelectorAll('.hardware-card').forEach(card => {
@@ -314,4 +384,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
