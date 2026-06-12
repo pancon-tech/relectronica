@@ -124,12 +124,12 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(5, 9, 15, 0.9);
+            height: 100vh; /* Forzar que cubra toda la altura de la pantalla del celular */
+            background-color: rgba(11, 19, 31, 0.98); /* Fondo oscuro sólido para tapar los botones de atrás */
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 200;
+            z-index: 9999; /* Forzar que se ponga por encima de cualquier otro elemento */
             padding: 20px;
         }
 
