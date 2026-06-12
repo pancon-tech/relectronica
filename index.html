@@ -523,11 +523,13 @@
             }
         }
 
-        sendBtn.addEventListener('click', sendMessage);
+                sendBtn.addEventListener('click', sendMessage);
+
         inputField.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
-                // 1. ESCUCHAR TU VOZ Y CONVERTIRLA A TEXTO
+
+        // 1. ESCUCHAR TU VOZ Y CONVERTIRLA A TEXTO
         function activarMicrofono() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             
@@ -579,7 +581,6 @@
                 const vocesEspanol = voces.filter(voz => voz.lang.startsWith('es'));
                 
                 if (vocesEspanol.length > 0) {
-                    // Puedes cambiar el índice [0] por [1] o [2] para alternar entre las voces del celular
                     utterance.voice = vocesEspanol[0]; 
                 }
 
@@ -595,8 +596,8 @@
             window.speechSynthesis.onvoiceschanged = function() {
                 window.speechSynthesis.getVoices();
             };
-                    }
-                                    
+        }
     </script>
 </body>
 </html>
+
