@@ -131,7 +131,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 9999; /* Subido para asegurar superposición total en celulares */
+            z-index: 200;
             padding: 20px;
         }
 
@@ -423,7 +423,7 @@
     </nav>
 
     <script>
-        // CONTROL DE VENTANAS FLOTANTES
+        // CONTROL DE VENTANAS FLOTANTES (IGUAL AL ORIGINAL)
         function openCalc(id) {
             document.getElementById(id).style.display = 'flex';
         }
@@ -520,4 +520,56 @@
             let resBox = document.getElementById('result-ohm');
 
             if (!isNaN(v) && !isNaN(i) && isNaN(r)) {
-                resBox.innerText = `Resistencia (R) = ${(v / i).toFixe
+                resBox.innerText = `Resistencia (R) = ${(v / i).toFixed(2)} Ω`;
+            } else if (!isNaN(v) && isNaN(i) && !isNaN(r)) {
+                resBox.innerText = `Corriente (I) = ${(v / r).toFixed(4)} A (${(v / r * 1000).toFixed(1)} mA)`;
+            } else if (isNaN(v) && !isNaN(i) && !isNaN(r)) {
+                resBox.innerText = `Voltaje (V) = ${(i * r).toFixed(2)} V`;
+            } else {
+                resBox.innerText = "Error: Rellena exactamente 2 campos.";
+            }
+        }
+
+        // NUEVA FUNCIÓN: SERIE / PARALELO
+        function calcularAsociacion() {
+            let r1 = parseFloat(document.getElementById('asoc-r1').value);
+            let r2 = parseFloat(document.getElementById('asoc-r2').value);
+            let resBox = document.getElementById('result-asoc');
+            if(isNaN(r1) || isNaN(r2)) { resBox.innerText = "Rellena ambos campos."; return; }
+            let serie = r1 + r2;
+            let paralelo = (r1 * r2) / (r1 + r2);
+            resBox.innerHTML = `Serie: ${formatearOhms(serie)} <br>Paralelo: ${formatearOhms(paralelo)}`;
+        }
+
+        // NUEVA FUNCIÓN: DIVISOR DE VOLTAJE
+        function calcularDivisor() {
+            let vin = parseFloat(document.getElementById('div-vin').value);
+            let r1 = parseFloat(document.getElementById('div-r1').value);
+            let r2 = parseFloat(document.getElementById('div-r2').value);
+            let resBox = document.getElementById('result-divisor');
+            if(isNaN(vin) || isNaN(r1) || isNaN(r2)) { resBox.innerText = "Faltan parámetros."; return; }
+            let vout = vin * (r2 / (r1 + r2));
+            resBox.innerText = `Voltaje de Salida (Vout) = ${vout.toFixed(2)} V`;
+        }
+
+        // NUEVA FUNCIÓN: CONDENSADORES
+        function calcularCapacitancia() {
+            let code = document.getElementById('cap-code').value.trim();
+            let resBox = document.getElementById('result-cap');
+            if(code === "" || !/^\d+$/.test(code) || code.length < 3) { resBox.innerText = "Código inválido."; return; }
+            let pf = parseInt(code.substring(0, 2)) * Math.pow(10, parseInt(code.substring(2, 3)));
+            resBox.innerHTML = ${(pf / 1000).toFixed(2)} + " nF <br>" + ${(pf / 1000000).toFixed(4)} + " µF <br>" + pf.toLocaleString() + " pF";
+        }
+
+        function formatearOhms(ohm) {
+            if (ohm >= 1000000) {
+                return (ohm / 1000000).toFixed(2) + " MΩ";
+            } else if (ohm >= 1000) {
+                return (ohm / 1000).toFixed(2) + " kΩ";
+            } else {
+                return ohm.toFixed(1) + " Ω";
+            }
+        }
+    </script>
+</body>
+</html>
