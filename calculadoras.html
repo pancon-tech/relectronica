@@ -95,6 +95,7 @@
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
             text-align: center;
+            -webkit-tap-highlight-color: transparent; /* Quita el destello azul en móviles */
         }
 
         .app-button:active {
@@ -120,18 +121,18 @@
             color: #e2e8f0;
         }
 
-        /* DISEÑO DE VENTANAS EMERGENTES (MODALS) */
+        /* CORRECCIÓN: DISEÑO DE VENTANAS EMERGENTES (MODALS) SEGUROS */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(5, 9, 15, 0.9);
-            display: none;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(5, 9, 15, 0.85);
+            display: none; /* Se activa con JS cambiando a 'flex' */
             justify-content: center;
             align-items: center;
-            z-index: 200;
+            z-index: 9999; /* Se asegura de estar sobre el menú inferior y superior */
             padding: 20px;
         }
 
@@ -140,10 +141,16 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             padding: 20px;
             position: relative;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            animation: popIn 0.25s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .close-modal {
@@ -153,9 +160,11 @@
             background: none;
             border: none;
             color: #a0aec0;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
             font-weight: bold;
+            line-height: 1;
+            padding: 5px;
         }
 
         .modal-content h3 {
@@ -164,7 +173,7 @@
             color: #fff;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
-            padding-right: 25px;
+            padding-right: 30px;
         }
 
         /* ENTRADAS Y FORMULARIOS */
@@ -178,6 +187,8 @@
         label {
             font-size: 0.85rem;
             color: #cbd5e1;
+            text-align: left;
+            width: 100%;
         }
 
         input, select {
@@ -185,8 +196,8 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             color: white;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             outline: none;
             font-size: 0.95rem;
         }
@@ -200,10 +211,11 @@
             color: white;
             border: none;
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
+            font-size: 0.95rem;
         }
 
         .result-box {
@@ -215,6 +227,7 @@
             font-size: 0.95rem;
             font-weight: bold;
             color: #e2e8f0;
+            text-align: left;
         }
 
         .band-select {
@@ -323,7 +336,7 @@
     </div>
 
     <div id="modal-colores" class="modal-overlay">
-        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+        <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
             <button class="close-modal" onclick="closeCalc('modal-colores')">×</button>
             <h3>Código de Colores (6 Franjas)</h3>
             <div class="input-group">
@@ -395,7 +408,7 @@
             <button class="close-modal" onclick="closeCalc('modal-cap')">×</button>
             <h3>Código de Condensadores</h3>
             <div class="input-group">
-                <label>Introduce el código numérico (Ej: 104, 222, 471):</label>
+                <label>Introduce el código numérico (Ej: 104, 222):</label>
                 <input type="text" id="cap-code" placeholder="Código..." maxlength="4">
             </div>
             <button class="btn-calc" onclick="calcularCapacitancia()">Decodificar</button>
@@ -423,7 +436,7 @@
     </nav>
 
     <script>
-        // CONTROL DE VENTANAS FLOTANTES
+        // CONTROL DE VENTANAS FLOTANTES CORREGIDO
         function openCalc(id) {
             document.getElementById(id).style.display = 'flex';
         }
@@ -432,7 +445,7 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        // CÁLCULO SMD CON RECOMENDACIÓN AUTOMÁTICA
+        // CÁLCULO SMD
         function calcularSMD() {
             let code = document.getElementById('smd-code').value.trim();
             let resBox = document.getElementById('result-smd');
@@ -509,16 +522,4 @@
             let ohm = valorBase * mult;
 
             document.getElementById('result-6bands').innerText = 
-                `Valor: ${formatearOhms(ohm)} al ±${tol}% (${ppm} ppm/K)`;
-        }
-
-        // LEY DE OHM
-        function calcularOhm() {
-            let v = parseFloat(document.getElementById('ohm-v').value);
-            let i = parseFloat(document.getElementById('ohm-i').value);
-            let r = parseFloat(document.getElementById('ohm-r').value);
-            let resBox = document.getElementById('result-ohm');
-
-            if (!isNaN(v) && !isNaN(i) && isNaN(r)) {
-                resBox.innerText = `Resistencia (R) = ${(v / i).toFixed(2)} Ω`;
-            } else if (!isNaN(v) && isNaN(i) && !isNaN(r))
+                `Valor: ${formatearOhms(ohm)} al ±${tol}
