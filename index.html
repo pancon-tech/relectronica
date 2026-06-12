@@ -466,7 +466,7 @@
             localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
         }
 
-        async function sendMessage() {
+                async function sendMessage() {
             const query = inputField.value.trim();
             if (!query && !selectedImageBase64) return;
 
@@ -505,6 +505,9 @@
                 if (response.ok) {
                     appendMessageToDOM('bot', data.text);
                     saveMessageToHistory('bot', data.text);
+                    
+                    // ¡LISTO! Aquí quedó agregada la línea para que hable automáticamente
+                    hablarTexto(data.text);
                 } else {
                     appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
                 }
