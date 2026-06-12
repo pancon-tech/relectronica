@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba Rápida</title>
+    <style>
+        body { background: #0b131f; color: white; text-align: center; padding: 50px; font-family: sans-serif; }
+        .btn { background: #7928ca; padding: 15px; margin: 10px; display: inline-block; cursor: pointer; border-radius: 8px; }
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; }
+    </style>
+</head>
+<body>
+
+    <h2>Si esto no abre, el problema es la caché del celular:</h2>
+    
+    <div class="btn" onclick="openCalc('m1')">Abrir Calculadora 1</div>
+    <div class="btn" onclick="openCalc('m2')">Abrir Calculadora 2</div>
+
+    <div id="m1" class="modal" onclick="closeCalc('m1')"><h1>Calculadora 1 Abierta (Toca para cerrar)</h1></div>
+    <div id="m2" class="modal" onclick="closeCalc('m2')"><h1>Calculadora 2 Abierta (Toca para cerrar)</h1></div>
+
+    <script>
+        function openCalc(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeCalc(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>
