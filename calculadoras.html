@@ -75,7 +75,6 @@
             font-weight: 600;
         }
 
-        /* DISEÑO DE MATRIZ DE BOTONES TIPO APP */
         .apps-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -120,7 +119,6 @@
             color: #e2e8f0;
         }
 
-        /* DISEÑO DE VENTANAS EMERGENTES (MODALS) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -167,7 +165,6 @@
             padding-right: 25px;
         }
 
-        /* ENTRADAS Y FORMULARIOS */
         .input-group {
             display: flex;
             flex-direction: column;
@@ -221,7 +218,6 @@
             font-weight: bold;
         }
 
-        /* NAVEGACIÓN INFERIOR */
         nav.nav-tabs {
             position: fixed;
             bottom: 0;
@@ -272,39 +268,13 @@
 
     <div class="main-content">
         <h2 class="section-title">Asistente de Laboratorio</h2>
-
         <div class="apps-grid">
-            
-            <div class="app-button" onclick="openCalc('modal-smd')">
-                <div class="app-icon">📟</div>
-                <h3>Lector SMD</h3>
-            </div>
-
-            <div class="app-button" onclick="openCalc('modal-colores')">
-                <div class="app-icon">🎨</div>
-                <h3>6 Franjas</h3>
-            </div>
-
-            <div class="app-button" onclick="openCalc('modal-ohm')">
-                <div class="app-icon">⚡</div>
-                <h3>Ley de Ohm</h3>
-            </div>
-
-            <div class="app-button" onclick="openCalc('modal-asoc')">
-                <div class="app-icon">🔗</div>
-                <h3>Serie / Paralelo</h3>
-            </div>
-
-            <div class="app-button" onclick="openCalc('modal-divisor')">
-                <div class="app-icon">📉</div>
-                <h3>Divisor Voltaje</h3>
-            </div>
-
-            <div class="app-button" onclick="openCalc('modal-cap')">
-                <div class="app-icon">🔋</div>
-                <h3>Condensadores</h3>
-            </div>
-
+            <div class="app-button" onclick="openCalc('modal-smd')"><div class="app-icon">📟</div><h3>Lector SMD</h3></div>
+            <div class="app-button" onclick="openCalc('modal-colores')"><div class="app-icon">🎨</div><h3>6 Franjas</h3></div>
+            <div class="app-button" onclick="openCalc('modal-ohm')"><div class="app-icon">⚡</div><h3>Ley de Ohm</h3></div>
+            <div class="app-button" onclick="openCalc('modal-asoc')"><div class="app-icon">🔗</div><h3>Serie / Paralelo</h3></div>
+            <div class="app-button" onclick="openCalc('modal-divisor')"><div class="app-icon">📉</div><h3>Divisor Voltaje</h3></div>
+            <div class="app-button" onclick="openCalc('modal-cap')"><div class="app-icon">🔋</div><h3>Condensadores</h3></div>
         </div>
     </div>
 
@@ -313,7 +283,7 @@
             <button class="close-modal" onclick="closeCalc('modal-smd')">×</button>
             <h3>Lector de Resistencias SMD</h3>
             <div class="input-group">
-                <label for="smd-code">Introduce el código (Ej: 103, 4R7):</label>
+                <label for="smd-code">Introduce el código:</label>
                 <input type="text" id="smd-code" placeholder="Código SMD..." maxlength="5">
             </div>
             <button class="btn-calc" onclick="calcularSMD()">Decodificar</button>
@@ -321,19 +291,18 @@
             <div class="result-box" id="recomienda-smd" style="display:none; border-left-color: #3b82f6; margin-top: 8px; font-size: 0.85rem;"></div>
         </div>
     </div>
-
-    <div id="modal-colores" class="modal-overlay">
+    
+        <div id="modal-colores" class="modal-overlay">
         <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
             <button class="close-modal" onclick="closeCalc('modal-colores')">×</button>
             <h3>Código de Colores (6 Franjas)</h3>
             <div class="input-group">
-                <label>Selecciona los colores en orden:</label>
                 <select id="band1" class="band-select"><option value="0">1ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
                 <select id="band2" class="band-select"><option value="0">2ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
                 <select id="band3" class="band-select"><option value="0">3ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
                 <select id="multiplier" class="band-select"><option value="1">Multiplicador: Negro (x1)</option><option value="10">Marrón (x10)</option><option value="100">Rojo (x100)</option><option value="1000">Naranja (x1k)</option><option value="10000">Amarillo (x10k)</option><option value="100000">Verde (x100k)</option><option value="1000000">Azul (x1M)</option><option value="0.1">Dorado (x0.1)</option><option value="0.01">Plateado (x0.01)</option></select>
                 <select id="tolerance" class="band-select"><option value="1">Tolerancia: Marrón (±1%)</option><option value="2">Rojo (±2%)</option><option value="0.5">Verde (±0.5%)</option><option value="0.25">Azul (±0.25%)</option><option value="0.1">Violeta (±0.1%)</option><option value="5">Dorado (±5%)</option><option value="10">Plateado (±10%)</option></select>
-                <select id="ppm" class="band-select"><option value="250">Coef. Temperatura: Negro (250 ppm)</option><option value="100">Marrón (100 ppm)</option><option value="50">Rojo (50 ppm)</option><option value="15">Naranja (15 ppm)</option><option value="25">Amarillo (25 ppm)</option><option value="20">Verde (20 ppm)</option><option value="10">Azul (10 ppm)</option></select>
+                <select id="ppm" class="band-select"><option value="250">Negro (250 ppm)</option><option value="100">Marrón (100 ppm)</option><option value="50">Rojo (50 ppm)</option><option value="15">Naranja (15 ppm)</option><option value="25">Amarillo (25 ppm)</option><option value="20">Verde (20 ppm)</option><option value="10">Azul (10 ppm)</option></select>
             </div>
             <button class="btn-calc" onclick="calcularSeisFranjas()">Calcular Resistencia</button>
             <div class="result-box" id="result-6bands">Resultado: --</div>
@@ -344,14 +313,10 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeCalc('modal-ohm')">×</button>
             <h3>Calculadora de Ley de Ohm</h3>
-            <p style="font-size: 0.72rem; color:#a0aec0; margin-bottom: 10px;">Coloca 2 valores y deja vacío el que quieras calcular.</p>
             <div class="input-group">
-                <label>Voltaje (V):</label>
-                <input type="number" id="ohm-v" placeholder="Voltios (V)">
-                <label>Corriente (I):</label>
-                <input type="number" id="ohm-i" placeholder="Amperios (A)">
-                <label>Resistencia (R):</label>
-                <input type="number" id="ohm-r" placeholder="Ohmios (Ω)">
+                <label>Voltaje (V):</label><input type="number" id="ohm-v" placeholder="Voltios (V)">
+                <label>Corriente (I):</label><input type="number" id="ohm-i" placeholder="Amperios (A)">
+                <label>Resistencia (R):</label><input type="number" id="ohm-r" placeholder="Ohmios (Ω)">
             </div>
             <button class="btn-calc" onclick="calcularOhm()">Calcular Parámetro</button>
             <div class="result-box" id="result-ohm">Resultado: --</div>
@@ -363,10 +328,8 @@
             <button class="close-modal" onclick="closeCalc('modal-asoc')">×</button>
             <h3>Asociación de Resistencias</h3>
             <div class="input-group">
-                <label>Resistencia 1 (Ω):</label>
-                <input type="number" id="asoc-r1" placeholder="Valor R1">
-                <label>Resistencia 2 (Ω):</label>
-                <input type="number" id="asoc-r2" placeholder="Valor R2">
+                <label>Resistencia 1 (Ω):</label><input type="number" id="asoc-r1" placeholder="R1">
+                <label>Resistencia 2 (Ω):</label><input type="number" id="asoc-r2" placeholder="R2">
             </div>
             <button class="btn-calc" onclick="calcularAsociacion()">Calcular Totales</button>
             <div class="result-box" id="result-asoc">Serie: -- <br>Paralelo: --</div>
@@ -378,12 +341,9 @@
             <button class="close-modal" onclick="closeCalc('modal-divisor')">×</button>
             <h3>Divisor de Voltaje</h3>
             <div class="input-group">
-                <label>Voltaje de Entrada (Vin):</label>
-                <input type="number" id="div-vin" placeholder="Ej: 12">
-                <label>Resistencia de Arriba R1 (Ω):</label>
-                <input type="number" id="div-r1" placeholder="Ej: 10000">
-                <label>Resistencia de Abajo R2 (Ω):</label>
-                <input type="number" id="div-r2" placeholder="Ej: 3300">
+                <label>Vin:</label><input type="number" id="div-vin" placeholder="Ej: 12">
+                <label>R1 (Ω):</label><input type="number" id="div-r1" placeholder="Ej: 10000">
+                <label>R2 (Ω):</label><input type="number" id="div-r2" placeholder="Ej: 3300">
             </div>
             <button class="btn-calc" onclick="calcularDivisor()">Calcular Vout</button>
             <div class="result-box" id="result-divisor">Voltaje de Salida: --</div>
@@ -395,8 +355,8 @@
             <button class="close-modal" onclick="closeCalc('modal-cap')">×</button>
             <h3>Código de Condensadores</h3>
             <div class="input-group">
-                <label>Introduce el código numérico (Ej: 104, 222):</label>
-                <input type="text" id="cap-code" placeholder="Código..." maxlength="4">
+                <label>Introduce el código:</label>
+                <input type="text" id="cap-code" placeholder="Ej: 104, 222" maxlength="4">
             </div>
             <button class="btn-calc" onclick="calcularCapacitancia()">Decodificar</button>
             <div class="result-box" id="result-cap">Capacitancia: --</div>
@@ -404,171 +364,82 @@
     </div>
 
     <nav class="nav-tabs">
-        <a href="index.html" class="nav-item">
-            <span class="nav-icon">💬</span>
-            <span>Chat Técnico</span>
-        </a>
-        <a href="biblioteca.html" class="nav-item">
-            <span class="nav-icon">📘</span>
-            <span>Biblioteca</span>
-        </a>
-        <a href="hardware.html" class="nav-item">
-            <span class="nav-icon">🖼️</span>
-            <span>Hardware</span>
-        </a>
-        <a href="calculadoras.html" class="nav-item active">
-            <span class="nav-icon">🧮</span>
-            <span>Cálculos</span>
-        </a>
+        <a href="index.html" class="nav-item"><span class="nav-icon">💬</span><span>Chat</span></a>
+        <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
+        <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
+        <a href="calculadoras.html" class="nav-item active"><span class="nav-icon">🧮</span><span>Cálculos</span></a>
     </nav>
 
     <script>
-        // CONTROL DE VENTANAS FLOTANTES (IGUAL AL ORIGINAL)
-        function openCalc(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
+        function openCalc(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeCalc(id) { document.getElementById(id).style.display = 'none'; }
 
-        function closeCalc(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // CÁLCULO SMD CON RECOMENDACIÓN AUTOMÁTICA
         function calcularSMD() {
             let code = document.getElementById('smd-code').value.trim();
             let resBox = document.getElementById('result-smd');
             let recBox = document.getElementById('recomienda-smd');
-            
-            if(code === "") { 
-                resBox.innerText = "Introduce un código"; 
-                recBox.style.display = "none";
-                return; 
-            }
-
-            const colores = ["Negro", "Marrón", "Rojo", "Naranja", "Amarillo", "Verde", "Azul", "Violeta", "Gris", "Blanco"];
-
+            if(code === "") { resBox.innerText = "Introduce un código"; recBox.style.display = "none"; return; }
+            const col = ["Negro", "Marrón", "Rojo", "Naranja", "Amarillo", "Verde", "Azul", "Violeta", "Gris", "Blanco"];
             if(code.includes('R') || code.includes('r')) {
-                let parsed = code.replace(',', '.').toUpperCase();
-                let valor = parsed.replace('R', '.');
+                let valor = code.toUpperCase().replace('R', '.');
                 if(valor.startsWith('.')) valor = "0" + valor;
-                if(valor.endsWith('.')) valor = valor + "0";
-                
                 resBox.innerText = `Valor: ${valor} Ω`;
-                recBox.innerHTML = `💡 <b>Reemplazo:</b> Puedes usar una resistencia convencional de <b>${valor} Ω</b>.`;
-                recBox.style.display = "block";
-                return;
+                recBox.innerHTML = `💡 <b>Reemplazo:</b> Usa una convencional de <b>${valor} Ω</b>.`;
+                recBox.style.display = "block"; return;
             }
-
             if(/^\d+$/.test(code)) {
-                if(code.length < 3 || code.length > 4) {
-                    resBox.innerText = "Código inválido (3 o 4 dígitos)";
-                    recBox.style.display = "none";
-                    return;
-                }
-                
-                let digito1 = parseInt(code.charAt(0));
-                let digito2 = parseInt(code.charAt(1));
-                let multiplicador = parseInt(code.substring(code.length - 1));
-                
-                let digitosBase = code.substring(0, code.length - 1);
-                let valorBase = parseInt(digitosBase);
-                let ohm = valorBase * Math.pow(10, multiplicador);
-                
+                let d1 = parseInt(code.charAt(0)), d2 = parseInt(code.charAt(1)), m = parseInt(code.substring(code.length - 1));
+                let base = parseInt(code.substring(0, code.length - 1));
+                let ohm = base * Math.pow(10, m);
                 resBox.innerText = `Valor: ${formatearOhms(ohm)}`;
-
-                let banda1 = colores[digito1];
-                let banda2 = colores[digito2];
-                let banda3; 
-
-                let multAjustado = (code.length === 4) ? multiplicador + 1 : multiplicador;
-
-                if (multAjustado < colores.length) {
-                    banda3 = colores[multAjustado];
-                } else {
-                    banda3 = "Especial";
-                }
-
-                recBox.innerHTML = `💡 <b>Reemplazo convencional:</b> Si no encuentras la SMD, usa una resistencia de <b>${banda1}, ${banda2} y ${banda3}</b>.`;
+                let b3 = (code.length === 4) ? col[m + 1] : col[m];
+                recBox.innerHTML = `💡 <b>Reemplazo:</b> Convencional de <b>${col[d1]}, ${col[d2]} y ${b3}</b>.`;
                 recBox.style.display = "block";
-
-            } else {
-                resBox.innerText = "Código no soportado o inválido";
-                recBox.style.display = "none";
-            }
+            } else { resBox.innerText = "Código inválido"; recBox.style.display = "none"; }
         }
 
-        // CÁLCULO 6 FRANJAS
         function calcularSeisFranjas() {
-            let b1 = document.getElementById('band1').value;
-            let b2 = document.getElementById('band2').value;
-            let b3 = document.getElementById('band3').value;
-            let mult = parseFloat(document.getElementById('multiplier').value);
-            let tol = document.getElementById('tolerance').value;
-            let ppm = document.getElementById('ppm').value;
-
-            let valorBase = parseInt(b1 + b2 + b3);
-            let ohm = valorBase * mult;
-
-            document.getElementById('result-6bands').innerText = 
-                `Valor: ${formatearOhms(ohm)} al ±${tol}% (${ppm} ppm/K)`;
+            let b1 = document.getElementById('band1').value, b2 = document.getElementById('band2').value, b3 = document.getElementById('band3').value;
+            let mult = parseFloat(document.getElementById('multiplier').value), tol = document.getElementById('tolerance').value, ppm = document.getElementById('ppm').value;
+            let ohm = parseInt(b1 + b2 + b3) * mult;
+            document.getElementById('result-6bands').innerText = `Valor: ${formatearOhms(ohm)} al ±${tol}% (${ppm} ppm/K)`;
         }
 
-        // LEY DE OHM
         function calcularOhm() {
-            let v = parseFloat(document.getElementById('ohm-v').value);
-            let i = parseFloat(document.getElementById('ohm-i').value);
-            let r = parseFloat(document.getElementById('ohm-r').value);
+            let v = parseFloat(document.getElementById('ohm-v').value), i = parseFloat(document.getElementById('ohm-i').value), r = parseFloat(document.getElementById('ohm-r').value);
             let resBox = document.getElementById('result-ohm');
-
-            if (!isNaN(v) && !isNaN(i) && isNaN(r)) {
-                resBox.innerText = `Resistencia (R) = ${(v / i).toFixed(2)} Ω`;
-            } else if (!isNaN(v) && isNaN(i) && !isNaN(r)) {
-                resBox.innerText = `Corriente (I) = ${(v / r).toFixed(4)} A (${(v / r * 1000).toFixed(1)} mA)`;
-            } else if (isNaN(v) && !isNaN(i) && !isNaN(r)) {
-                resBox.innerText = `Voltaje (V) = ${(i * r).toFixed(2)} V`;
-            } else {
-                resBox.innerText = "Error: Rellena exactamente 2 campos.";
-            }
+            if (!isNaN(v) && !isNaN(i) && isNaN(r)) resBox.innerText = `Resistencia (R) = ${(v / i).toFixed(2)} Ω`;
+            else if (!isNaN(v) && isNaN(i) && !isNaN(r)) resBox.innerText = `Corriente (I) = ${(v / r).toFixed(4)} A (${(v / r * 1000).toFixed(1)} mA)`;
+            else if (isNaN(v) && !isNaN(i) && !isNaN(r)) resBox.innerText = `Voltaje (V) = ${(i * r).toFixed(2)} V`;
+            else resBox.innerText = "Error: Rellena 2 campos.";
         }
 
-        // NUEVA FUNCIÓN: SERIE / PARALELO
         function calcularAsociacion() {
-            let r1 = parseFloat(document.getElementById('asoc-r1').value);
-            let r2 = parseFloat(document.getElementById('asoc-r2').value);
+            let r1 = parseFloat(document.getElementById('asoc-r1').value), r2 = parseFloat(document.getElementById('asoc-r2').value);
             let resBox = document.getElementById('result-asoc');
             if(isNaN(r1) || isNaN(r2)) { resBox.innerText = "Rellena ambos campos."; return; }
-            let serie = r1 + r2;
-            let paralelo = (r1 * r2) / (r1 + r2);
-            resBox.innerHTML = `Serie: ${formatearOhms(serie)} <br>Paralelo: ${formatearOhms(paralelo)}`;
+            resBox.innerHTML = `Serie: ${formatearOhms(r1 + r2)} <br>Paralelo: ${formatearOhms((r1 * r2) / (r1 + r2))}`;
         }
 
-        // NUEVA FUNCIÓN: DIVISOR DE VOLTAJE
         function calcularDivisor() {
-            let vin = parseFloat(document.getElementById('div-vin').value);
-            let r1 = parseFloat(document.getElementById('div-r1').value);
-            let r2 = parseFloat(document.getElementById('div-r2').value);
+            let vin = parseFloat(document.getElementById('div-vin').value), r1 = parseFloat(document.getElementById('div-r1').value), r2 = parseFloat(document.getElementById('div-r2').value);
             let resBox = document.getElementById('result-divisor');
             if(isNaN(vin) || isNaN(r1) || isNaN(r2)) { resBox.innerText = "Faltan parámetros."; return; }
-            let vout = vin * (r2 / (r1 + r2));
-            resBox.innerText = `Voltaje de Salida (Vout) = ${vout.toFixed(2)} V`;
+            resBox.innerText = `Voltaje de Salida (Vout) = ${(vin * (r2 / (r1 + r2))).toFixed(2)} V`;
         }
 
-        // NUEVA FUNCIÓN: CONDENSADORES
         function calcularCapacitancia() {
             let code = document.getElementById('cap-code').value.trim();
             let resBox = document.getElementById('result-cap');
             if(code === "" || !/^\d+$/.test(code) || code.length < 3) { resBox.innerText = "Código inválido."; return; }
             let pf = parseInt(code.substring(0, 2)) * Math.pow(10, parseInt(code.substring(2, 3)));
-            resBox.innerHTML = ${(pf / 1000).toFixed(2)} + " nF <br>" + ${(pf / 1000000).toFixed(4)} + " µF <br>" + pf.toLocaleString() + " pF";
+            resBox.innerHTML = `${(pf / 1000).toFixed(2)} nF <br>${(pf / 1000000).toFixed(4)} µF <br>${pf.toLocaleString()} pF`;
         }
 
         function formatearOhms(ohm) {
-            if (ohm >= 1000000) {
-                return (ohm / 1000000).toFixed(2) + " MΩ";
-            } else if (ohm >= 1000) {
-                return (ohm / 1000).toFixed(2) + " kΩ";
-            } else {
-                return ohm.toFixed(1) + " Ω";
-            }
+            if (ohm >= 1000000) return (ohm / 1000000).toFixed(2) + " MΩ";
+            if (ohm >= 1000) return (ohm / 1000).toFixed(2) + " kΩ";
+            return ohm.toFixed(1) + " Ω";
         }
     </script>
 </body>
