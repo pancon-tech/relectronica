@@ -124,12 +124,12 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh; /* Forzar que cubra toda la altura de la pantalla del celular */
-            background-color: rgba(11, 19, 31, 0.98); /* Fondo oscuro sólido para tapar los botones de atrás */
+            height: 100vh;
+            background-color: rgba(11, 19, 31, 0.98);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 9999; /* Forzar que se ponga por encima de cualquier otro elemento */
+            z-index: 9999;
             padding: 20px;
         }
 
@@ -265,8 +265,7 @@
             <h1>Relectrónica</h1>
         </div>
     </header>
-
-    <div class="main-content">
+        <div class="main-content">
         <h2 class="section-title">Asistente de Laboratorio</h2>
         <div class="apps-grid">
             <div class="app-button" onclick="openCalc('modal-smd')"><div class="app-icon">📟</div><h3>Lector SMD</h3></div>
@@ -275,6 +274,7 @@
             <div class="app-button" onclick="openCalc('modal-asoc')"><div class="app-icon">🔗</div><h3>Serie / Paralelo</h3></div>
             <div class="app-button" onclick="openCalc('modal-divisor')"><div class="app-icon">📉</div><h3>Divisor Voltaje</h3></div>
             <div class="app-button" onclick="openCalc('modal-cap')"><div class="app-icon">🔋</div><h3>Condensadores</h3></div>
+            <div class="app-button" onclick="openCalc('modal-tcon')"><div class="app-icon">📺</div><h3>Voltajes T-CON</h3></div>
         </div>
     </div>
 
@@ -292,7 +292,7 @@
         </div>
     </div>
     
-        <div id="modal-colores" class="modal-overlay">
+    <div id="modal-colores" class="modal-overlay">
         <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
             <button class="close-modal" onclick="closeCalc('modal-colores')">×</button>
             <h3>Código de Colores (6 Franjas)</h3>
@@ -308,8 +308,7 @@
             <div class="result-box" id="result-6bands">Resultado: --</div>
         </div>
     </div>
-
-    <div id="modal-ohm" class="modal-overlay">
+        <div id="modal-ohm" class="modal-overlay">
         <div class="modal-content">
             <button class="close-modal" onclick="closeCalc('modal-ohm')">×</button>
             <h3>Calculadora de Ley de Ohm</h3>
@@ -363,14 +362,53 @@
         </div>
     </div>
 
+    <div id="modal-tcon" class="modal-overlay">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+            <button class="close-modal" onclick="closeCalc('modal-tcon')">×</button>
+            <h3>Análisis de Voltajes T-CON</h3>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 15px; text-align: center;">
+                Coloca la punta negra a GND y mide los puntos clave. Deja en blanco si no mediste un punto.
+            </p>
+            
+            <div class="input-group">
+                <label>VCC / VDD (Lógica básica):</label>
+                <input type="number" id="tcon-vcc" step="0.1" placeholder="Ej: 3.3">
+            </div>
+
+            <div class="input-group">
+                <label>VGH / VON (Encendido TFT):</label>
+                <input type="number" id="tcon-vgh" step="0.1" placeholder="Ej: 26">
+            </div>
+
+            <div class="input-group">
+                <label>VGL / VOFF (Apagado TFT):</label>
+                <input type="number" id="tcon-vgl" step="0.1" placeholder="Ej: -7">
+            </div>
+
+            <div class="input-group">
+                <label>AVDD (Alimentación Analógica):</label>
+                <input type="number" id="tcon-avdd" step="0.1" placeholder="Ej: 15">
+            </div>
+
+            <div class="input-group">
+                <label>VCOM (Voltaje Común):</label>
+                <input type="number" id="tcon-vcom" step="0.1" placeholder="Ej: 6">
+            </div>
+
+            <button class="btn-calc" onclick="analizarVoltajesTCON()">Diagnosticar Falla</button>
+            <div class="result-box" id="result-tcon" style="text-align: left; font-size: 0.85rem; line-height: 1.4; max-height: 180px; overflow-y: auto; font-weight: normal;">
+                Resultado del análisis técnico aquí...
+            </div>
+        </div>
+    </div>
+
     <nav class="nav-tabs">
         <a href="index.html" class="nav-item"><span class="nav-icon">💬</span><span>Chat</span></a>
         <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
         <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
         <a href="calculadoras.html" class="nav-item active"><span class="nav-icon">🧮</span><span>Cálculos</span></a>
     </nav>
-
-    <script>
+        <script>
         function openCalc(id) { document.getElementById(id).style.display = 'flex'; }
         function closeCalc(id) { document.getElementById(id).style.display = 'none'; }
 
@@ -434,6 +472,85 @@
             if(code === "" || !/^\d+$/.test(code) || code.length < 3) { resBox.innerText = "Código inválido."; return; }
             let pf = parseInt(code.substring(0, 2)) * Math.pow(10, parseInt(code.substring(2, 3)));
             resBox.innerHTML = `${(pf / 1000).toFixed(2)} nF <br>${(pf / 1000000).toFixed(4)} µF <br>${pf.toLocaleString()} pF`;
+        }
+
+        function analizarVoltajesTCON() {
+            const vccInput = document.getElementById('tcon-vcc').value;
+            const vghInput = document.getElementById('tcon-vgh').value;
+            const vglInput = document.getElementById('tcon-vgl').value;
+            const avddInput = document.getElementById('tcon-avdd').value;
+            const vcomInput = document.getElementById('tcon-vcom').value;
+            const resBox = document.getElementById('result-tcon');
+
+            let diagnosticoHTML = "";
+            let conteoCampos = 0;
+
+            if (vccInput !== "") {
+                conteoCampos++;
+                const vcc = parseFloat(vccInput);
+                if (vcc <= 0) {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ VCC (${vcc}V):</span> Fusible de T-CON abierto o corto total en el integrado conversor. Pantalla muerta.<br><br>`;
+                } else if ((vcc >= 1.6 && vcc <= 2.0) || (vcc >= 3.0 && vcc <= 3.6)) {
+                    diagnosticoHTML += `<span style="color:#10b981; font-weight:bold;">✅ VCC (${vcc}V):</span> Correcto. La lógica digital de control está activa.<br><br>`;
+                } else {
+                    diagnosticoHTML += `<span style="color:#f59e0b; font-weight:bold;">⚠️ VCC (${vcc}V):</span> Alterado. Debería medir cerca de 3.3V o 1.8V. Revisa capacitores de filtrado.<br><br>`;
+                }
+            }
+
+            if (vghInput !== "") {
+                conteoCampos++;
+                const vgh = parseFloat(vghInput);
+                if (vgh <= 0) {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ VGH (${vgh}V):</span> Ausente o negativo. Falla en circuito elevador o capacitores SMD en corto. Pantalla negra con backlight encendido o video desvanecido.<br><br>`;
+                } else if (vgh >= 20 && vgh <= 33) {
+                    diagnosticoHTML += `<span style="color:#10b981; font-weight:bold;">✅ VGH (${vgh}V):</span> Correcto. Voltaje de activación estable de compuertas TFT.<br><br>`;
+                } else {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ VGH (${vgh}V):</span> ¡Voltaje peligroso! Si supera los 35V corres riesgo de quemar los chips COF del cristal.<br><br>`;
+                }
+            }
+
+            if (vglInput !== "") {
+                conteoCampos++;
+                const rgl = parseFloat(vglInput);
+                if (rgl >= 0) {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ VGL (${rgl}V):</span> ¡Error crítico! Debe ser NEGATIVO. Al ser positivo los transistores del cristal no cierran. Causa pantalla blanca, líneas de retraso o imagen congelada.<br><br>`;
+                } else if (rgl <= -4 && rgl >= -11) {
+                    diagnosticoHTML += `<span style="color:#10b981; font-weight:bold;">✅ VGL (${rgl}V):</span> Correcto. Voltaje negativo de apagado estable de compuertas.<br><br>`;
+                } else {
+                    diagnosticoHTML += `<span style="color:#f59e0b; font-weight:bold;">⚠️ VGL (${rgl}V):</span> Inestable o bajo. Puede causar pérdida de contraste o fantasmas en la imagen.<br><br>`;
+                }
+            }
+
+            if (avddInput !== "") {
+                conteoCampos++;
+                const avdd = parseFloat(avddInput);
+                if (avdd <= 5) {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ AVDD (${avdd}V):</span> Caído o ausente. Corto en la línea analógica (diodos o capacitores de la fuente). Pantalla gris plana o sin contraste.<br><br>`;
+                } else if (avdd >= 12.5 && avdd <= 17.5) {
+                    diagnosticoHTML += `<span style="color:#10b981; font-weight:bold;">✅ AVDD (${avdd}V):</span> Correcto. Energía para circuitos Gamma y escaladores correcta.<br><br>`;
+                } else {
+                    diagnosticoHTML += `<span style="color:#f59e0b; font-weight:bold;">⚠️ AVDD (${avdd}V):</span> Fuera del rango estándar de operación.<br><br>`;
+                }
+            }
+
+            if (vcomInput !== "") {
+                conteoCampos++;
+                const vcom = parseFloat(vcomInput);
+                if (vcom <= 0) {
+                    diagnosticoHTML += `<span style="color:#ef4444; font-weight:bold;">❌ VCOM (${vcom}V):</span> Ausente. Ocasiona pantalla blanca completa o inversión severa de colores (efecto negativo).<br><br>`;
+                } else if (vcom >= 4.5 && vcom <= 8) {
+                    diagnosticoHTML += `<span style="color:#10b981; font-weight:bold;">✅ VCOM (${vcom}V):</span> Correcto. Voltaje de referencia común del panel equilibrado.<br><br>`;
+                } else {
+                    diagnosticoHTML += `<span style="color:#f59e0b; font-weight:bold;">⚠️ VCOM (${vcom}V):</span> Descalibrado. Causará un parpadeo molesto en el brillo general (flicker).<br><br>`;
+                }
+            }
+
+            if (conteoCampos === 0) {
+                resBox.innerHTML = "Introduce la medición de al menos un punto de prueba.";
+                return;
+            }
+
+            resBox.innerHTML = diagnosticoHTML;
         }
 
         function formatearOhms(ohm) {
