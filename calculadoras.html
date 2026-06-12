@@ -1,1 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Calculadoras Técnicas</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+            --input-bg: #080d16;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-bottom: 65px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #a855f7;
+            font-weight: 600;
+        }
+
+        /* DISEÑO DE TARJETAS DE CÁLCULO */
+        .calc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .calc-card h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-calc {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-calc:hover {
+            opacity: 0.9;
+        }
+
+        .result-box {
+            margin-top: 12px;
+            background-color: var(--input-bg);
+            border-left: 4px solid #a855f7;
+            padding: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        /* ESTILOS ESPECÍFICOS PARA LAS FRANJAS DE COLORES */
+        .band-select {
+            font-weight: bold;
+        }
+        .band-select option {
+            background-color: var(--input-bg);
+            color: white;
+        }
+
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.75rem;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <h2 class="section-title">Asistente de Laboratorio</h2>
+
+        <div class="calc-card">
+            <h3>1. Lector de Resistencias SMD</h3>
+            <div class="input-group">
+                <label for="smd-code">Introduce el código (Ej: 103, 4R7, 1002):</label>
+                <input type="text" id="smd-code" placeholder="Código SMD..." maxlength="5">
+            </div>
+            <button class="btn-calc" onclick="calcularSMD()">Decodificar</button>
+            <div class="result-box" id="result-smd">Resultado: --</div>
+        </div>
+
+        <div class="calc-card">
+            <h3>2. Código de Colores (6 Franjas)</h3>
+            <div class="input-group">
+                <label>Selecciona los colores en orden:</label>
+                <select id="band1" class="band-select"><option value="0">1ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
+                <select id="band2" class="band-select"><option value="0">2ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
+                <select id="band3" class="band-select"><option value="0">3ª Banda: Negro</option><option value="1">Marrón</option><option value="2">Rojo</option><option value="3">Naranja</option><option value="4">Amarillo</option><option value="5">Verde</option><option value="6">Azul</option><option value="7">Violeta</option><option value="8">Gris</option><option value="9">Blanco</option></select>
+                <select id="multiplier" class="band-select"><option value="1">Multiplicador: Negro (x1)</option><option value="10">Marrón (x10)</option><option value="100">Rojo (x100)</option><option value="1000">Naranja (x1k)</option><option value="10000">Amarillo (x10k)</option><option value="100000">Verde (x100k)</option><option value="1000000">Azul (x1M)</option><option value="0.1">Dorado (x0.1)</option><option value="0.01">Plateado (x0.01)</option></select>
+                <select id="tolerance" class="band-select"><option value="1">Tolerancia: Marrón (±1%)</option><option value="2">Rojo (±2%)</option><option value="0.5">Verde (±0.5%)</option><option value="0.25">Azul (±0.25%)</option><option value="0.1">Violeta (±0.1%)</option><option value="5">Dorado (±5%)</option><option value="10">Plateado (±10%)</option></select>
+                <select id="ppm" class="band-select"><option value="250">Coef. Temperatura: Negro (250 ppm)</option><option value="100">Marrón (100 ppm)</option><option value="50">Rojo (50 ppm)</option><option value="15">Naranja (15 ppm)</option><option value="25">Amarillo (25 ppm)</option><option value="20">Verde (20 ppm)</option><option value="10">Azul (10 ppm)</option></select>
+            </div>
+            <button class="btn-calc" onclick="calcularSeisFranjas()">Calcular Resistencia</button>
+            <div class="result-box" id="result-6bands">Resultado: --</div>
+        </div>
+
+        <div class="calc-card">
+            <h3>3. Calculadora de Ley de Ohm</h3>
+            <p style="font-size: 0.75rem; color:#a0aec0; margin-bottom: 10px;">Coloca 2 valores cualesquiera y deja el que deseas calcular en blanco.</p>
+            <div class="input-group">
+                <label>Voltaje (V):</label>
+                <input type="number" id="ohm-v" placeholder="Voltios (V)">
+                <label>Corriente (I):</label>
+                <input type="number" id="ohm-i" placeholder="Amperios (A)">
+                <label>Resistencia (R):</label>
+                <input type="number" id="ohm-r" placeholder="Ohmios (Ω)">
+            </div>
+            <button class="btn-calc" onclick="calcularOhm()">Calcular Parámetro</button>
+            <div class="result-box" id="result-ohm">Resultado: --</div>
+        </div>
+    </div>
+
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>Chat Técnico</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item">
+            <span class="nav-icon">📘</span>
+            <span>Biblioteca</span>
+        </a>
+        <a href="hardware.html" class="nav-item">
+            <span class="nav-icon">🖼️</span>
+            <span>Hardware</span>
+        </a>
+        <a href="calculadoras.html" class="nav-item active">
+            <span class="nav-icon">🧮</span>
+            <span>Cálculos</span>
+        </a>
+    </nav>
+
+    <script>
+        // LÓGICA DE DECODIFICACIÓN SMD
+        function calcularSMD() {
+            let code = document.getElementById('smd-code').value.trim();
+            let resBox = document.getElementById('result-smd');
+            
+            if(code === "") { resBox.innerText = "Introduce un código"; return; }
+
+            // Caso de que incluya una R (punto decimal)
+            if(code.includes('R') || code.includes('r')) {
+                let parsed = code.replace(',', '.').toUpperCase();
+                let valor = parsed.replace('R', '.');
+                if(valor.startsWith('.')) valor = "0" + valor;
+                if(valor.endsWith('.')) valor = valor + "0";
+                resBox.innerText = `Valor: ${valor} Ω`;
+                return;
+            }
+
+            // Códigos estándar de 3 o 4 números
+            if(/^\d+$/.test(code)) {
+                if(code.length < 3 || code.length > 4) {
+                    resBox.innerText = "Código inválido (Debe tener 3 o 4 dígitos)";
+                    return;
+                }
+                let digitos = code.substring(0, code.length - 1);
+                let multiplicador = parseInt(code.substring(code.length - 1));
+                let valorBase = parseInt(digitos);
+                let ohm = valorBase * Math.pow(10, multiplicador);
+                
+                resBox.innerText = `Valor: ${formatearOhms(ohm)}`;
+            } else {
+                resBox.innerText = "Código no soportado o inválido";
+            }
+        }
+
+        // LÓGICA PARA FRANJAS DE COLORES (6 FRANJAS)
+        function calcularSeisFranjas() {
+            let b1 = document.getElementById('band1').value;
+            let b2 = document.getElementById('band2').value;
+            let b3 = document.getElementById('band3').value;
+            let mult = parseFloat(document.getElementById('multiplier').value);
+            let tol = document.getElementById('tolerance').value;
+            let ppm = document.getElementById('ppm').value;
+
+            let valorBase = parseInt(b1 + b2 + b3);
+            let ohm = valorBase * mult;
+
+            document.getElementById('result-6bands').innerText = 
+                `Valor: ${formatearOhms(ohm)} al ±${tol}% (${ppm} ppm/K)`;
+        }
+
+        // LÓGICA LEY DE OHM
+        function calcularOhm() {
+            let v = parseFloat(document.getElementById('ohm-v').value);
+            let i = parseFloat(document.getElementById('ohm-i').value);
+            let r = parseFloat(document.getElementById('ohm-r').value);
+            let resBox = document.getElementById('result-ohm');
+
+            if (!isNaN(v) && !isNaN(i) && isNaN(r)) {
+                resBox.innerText = `Resistencia (R) = ${(v / i).toFixed(2)} Ω`;
+            } else if (!isNaN(v) && isNaN(i) && !isNaN(r)) {
+                resBox.innerText = `Corriente (I) = ${(v / r).toFixed(4)} A (${(v / r * 1000).toFixed(1)} mA)`;
+            } else if (isNaN(v) && !isNaN(i) && !isNaN(r)) {
+                resBox.innerText = `Voltaje (V) = ${(i * r).toFixed(2)} V`;
+            } else {
+                resBox.innerText = "Error: Rellena exactamente 2 campos.";
+            }
+        }
+
+        // Función auxiliar para pasar de Ohms a KiloOhms o MegaOhms automáticamente
+        function formatearOhms(ohm) {
+            if (ohm >= 1000000) {
+                return (ohm / 1000000).toFixed(2) + " MΩ";
+            } else if (ohm >= 1000) {
+                return (ohm / 1000).toFixed(2) + " kΩ";
+            } else {
+                return ohm.toFixed(1) + " Ω";
+            }
+        }
+    </script>
+</body>
+  </html>
+  
