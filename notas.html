@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<header>
+    </header>
+
+<div style="display: flex; gap: 10px; padding: 15px; background: #111c2c;">
+    <button onclick="exportarNotas()" class="btn-calc" style="background:#10b981; flex:1;">💾 Exportar Backup</button>
+    <button onclick="document.getElementById('importFile').click()" class="btn-calc" style="background:#64748b; flex:1;">📂 Importar Backup</button>
+    <input type="file" id="importFile" style="display:none" onchange="importarNotas(event)">
+</div>
+<div id="notes-list-container">
+   ...
+</div>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relectrónica - Mis Notas de Taller</title>
@@ -407,6 +419,40 @@
                 mostrarNotas();
             }
         }
+            // EXPORTAR: Crea un archivo .json con tus notas
+function exportarNotas() {
+    const notas = localStorage.getItem('relectronica_notas');
+    if (!notas) {
+        alert("No hay notas para exportar.");
+        return;
+    }
+    const blob = new Blob([notas], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_relectronica_notas.json';
+    a.click();
+}
+
+// IMPORTAR: Lee un archivo .json y actualiza tus notas
+function importarNotas(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const notas = JSON.parse(e.target.result);
+            localStorage.setItem('relectronica_notas', JSON.stringify(notas));
+            mostrarNotas(); // Refresca la vista automáticamente
+            alert("¡Backup importado con éxito!");
+        } catch (err) {
+            alert("Error al importar: el archivo no es válido.");
+        }
+    };
+    reader.readAsText(file);
+}
+            
     </script>
 </body>
 </html>
