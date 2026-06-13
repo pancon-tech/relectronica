@@ -2,9 +2,27 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="estilo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relectrónica - Mis Notas de Taller</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+            --input-bg: #080d16;
+            --success-color: #10b981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: var(--chat-bg); padding: 15px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); gap: 15px; }
+        .logo-container { width: 50px; height: 50px; background: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        /* Añadimos estilo para los botones de backup */
+        .backup-container { display: flex; gap: 10px; padding: 15px; background: #111c2c; }
+        .btn-backup { padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; flex: 1; font-weight: bold; }
+    </style>
 </head>
 <body>
 
@@ -13,9 +31,9 @@
         <h1>Mis Notas de Taller</h1>
     </header>
 
-    <div style="display: flex; gap: 10px; padding: 15px; background: #111c2c;">
-        <button onclick="exportarNotas()" class="btn-calc" style="background:#10b981; flex:1;">💾 Exportar</button>
-        <button onclick="document.getElementById('importFile').click()" class="btn-calc" style="background:#64748b; flex:1;">📂 Importar</button>
+    <div class="backup-container">
+        <button onclick="exportarNotas()" class="btn-backup" style="background:#10b981;">💾 Exportar</button>
+        <button onclick="document.getElementById('importFile').click()" class="btn-backup" style="background:#64748b;">📂 Importar</button>
         <input type="file" id="importFile" style="display:none" onchange="importarNotas(event)">
     </div>
 
@@ -23,26 +41,21 @@
         </div>
 
     <script>
-        // --- 1. LÓGICA DE NOTAS (Mostrar y Eliminar) ---
+        // --- TU LÓGICA ORIGINAL ---
         function mostrarNotas() {
             const contenedor = document.getElementById('notes-list-container');
             const notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
-            
             contenedor.innerHTML = ""; 
             notas.forEach(nota => {
                 const div = document.createElement('div');
                 div.className = 'tech-card';
-                div.innerHTML = `
-                    <h3>${nota.titulo || 'Sin título'}</h3>
-                    <p>${nota.contenido || ''}</p>
-                    <button onclick="eliminarNota(${nota.id})" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:4px; margin-top:10px;">Eliminar</button>
-                `;
+                div.innerHTML = `<h3>${nota.titulo || 'Sin título'}</h3><p>${nota.contenido || ''}</p><button onclick="eliminarNota(${nota.id})">Eliminar</button>`;
                 contenedor.appendChild(div);
             });
         }
 
         function eliminarNota(id) {
-            if (confirm("¿Estás seguro de que quieres borrar esta nota?")) {
+            if (confirm("¿Estás seguro de que quieres borrar esta solución de tu bitácora?")) {
                 let notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
                 notas = notas.filter(nota => nota.id !== id);
                 localStorage.setItem('relectronica_notas', JSON.stringify(notas));
@@ -50,13 +63,10 @@
             }
         }
 
-        // --- 2. LÓGICA DE BACKUP ---
+        // --- LÓGICA DE BACKUP ---
         function exportarNotas() {
             const notas = localStorage.getItem('relectronica_notas');
-            if (!notas) {
-                alert("No hay notas para exportar.");
-                return;
-            }
+            if (!notas) { alert("No hay notas para exportar."); return; }
             const blob = new Blob([notas], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -71,18 +81,14 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const notas = JSON.parse(e.target.result);
-                    localStorage.setItem('relectronica_notas', JSON.stringify(notas));
+                    localStorage.setItem('relectronica_notas', e.target.result);
+                    mostrarNotas();
                     alert("¡Backup importado con éxito!");
-                    location.reload(); 
-                } catch (err) {
-                    alert("Error al importar: el archivo no es válido.");
-                }
+                } catch (err) { alert("Error al importar."); }
             };
             reader.readAsText(file);
         }
 
-        // Cargar notas al iniciar
         mostrarNotas();
     </script>
 </body>
