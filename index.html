@@ -217,6 +217,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        /* NUEVO: Efecto pulsante en rojo para cuando el micrófono esté activo */
+        .mic-escuchando {
+            background-color: #ef4444 !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 12px #ef4444;
+            animation: pulsoMic 1.5s infinite;
+        }
+
+        @keyframes pulsoMic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
         }
 
         #send-btn {
@@ -331,31 +346,31 @@
             <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
         </div>
 
-                <div class="input-container">
+        <div class="input-container">
             <input type="file" id="file-input" accept="image/*" style="display: none;">
             <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
             
-            <button class="icon-btn" id="mic-btn" title="Hablar con el Bot" onclick="activarMicrofono()">🎙️</button>
+            <button class="icon-btn" id="mic-btn" title="Hablar con el Bot" onclick="alternarMicrofono()">🎙️</button>
                     
-            <input type="text" id="input-field" placeholder="Escribe la falla o adjunta una foto..." autocomplete="off">
+            <input type="text" id="input-field" placeholder="Escribe la falla o habla con manos libres..." autocomplete="off">
             <button id="send-btn">Enviar</button>
         </div>
     </div>
 
-        <nav class="nav-tabs">
-        <a href="index.html" class="nav-item">
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item active">
             <span class="nav-icon">💬</span>
             <span>Chat Técnico</span>
         </a>
         <a href="notas.html" class="nav-item">
-    <span class="nav-icon">📝</span>
-    <span>Mis Notas</span>
+            <span class="nav-icon">📝</span>
+            <span>Mis Notas</span>
         </a>
         <a href="biblioteca.html" class="nav-item">
             <span class="nav-icon">📘</span>
             <span>Biblioteca</span>
         </a>
-        <a href="hardware.html" class="nav-item active">
+        <a href="hardware.html" class="nav-item">
             <span class="nav-icon">🖼️</span>
             <span>Hardware</span>
         </a>
@@ -363,14 +378,12 @@
             <span class="nav-icon">🛠️</span>
             <span>Casos de Falla</span>
         </a>
-        <a href="calculadoras.html" class="nav-item active">
+        <a href="calculadoras.html" class="nav-item">
             <span class="nav-icon">🧮</span>
             <span>Cálculos</span>
         </a>
-    </nav>
-
-
-    <script>
+                                        </nav>
+                                            <script>
         const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
         
         const chatContainer = document.getElementById('chat-container');
@@ -382,9 +395,12 @@
         const imagePreview = document.getElementById('image-preview');
         const cancelImageBtn = document.getElementById('cancel-image-btn');
         const clearBtn = document.getElementById('clear-btn');
+        const micBtn = document.getElementById('mic-btn');
 
         let selectedImageBase64 = null;
         let chatHistory = [];
+        let reconocimientoVoz = null;
+        let estaEscuchando = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedChat = localStorage.getItem('relectronica_chat_history');
@@ -398,6 +414,8 @@
                 appendMessageToDOM('bot', welcomeText);
                 saveMessageToHistory('bot', welcomeText);
             }
+            // Inicializar motor de voz del celular
+            inicializarReconocimientoVoz();
         });
 
         attachBtn.addEventListener('click', () => fileInput.click());
@@ -423,6 +441,7 @@
 
         clearBtn.addEventListener('click', () => {
             if (confirm('¿Quieres vaciar toda la conversación actual?')) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                 localStorage.removeItem('relectronica_chat_history');
                 chatHistory = [];
                 chatContainer.innerHTML = '';
@@ -471,7 +490,7 @@
             localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
         }
 
-                async function sendMessage() {
+        async function sendMessage() {
             const query = inputField.value.trim();
             if (!query && !selectedImageBase64) return;
 
@@ -511,7 +530,7 @@
                     appendMessageToDOM('bot', data.text);
                     saveMessageToHistory('bot', data.text);
                     
-                    // ¡LISTO! Aquí quedó agregada la línea para que hable automáticamente
+                    // Lee automáticamente la respuesta de Cohere en voz alta
                     hablarTexto(data.text);
                 } else {
                     appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
@@ -527,75 +546,102 @@
                 inputField.focus();
             }
         }
-                sendBtn.addEventListener('click', sendMessage);
+
+        sendBtn.addEventListener('click', sendMessage);
 
         inputField.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
-        // 1. ESCUCHAR TU VOZ Y CONVERTIRLA A TEXTO
-        function activarMicrofono() {
+
+        // ==========================================================
+        // MOTOR REVISADO Y OPTIMIZADO PARA MANOS LIBRES POR VOZ
+        // ==========================================================
+
+        function inicializarReconocimientoVoz() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             
             if (!SpeechRecognition) {
+                console.log("El navegador no soporta SpeechRecognition de forma nativo.");
+                return;
+            }
+
+            reconocimientoVoz = new SpeechRecognition();
+            reconocimientoVoz.lang = 'es-VE'; // Dialecto de Venezuela
+            reconocimientoVoz.continuous = false;
+            reconocimientoVoz.interimResults = false;
+
+            reconocimientoVoz.onstart = () => {
+                estaEscuchando = true;
+                micBtn.classList.add('mic-escuchando');
+                micBtn.innerHTML = "🛑";
+                inputField.placeholder = "Escuchando diagnóstico...";
+            };
+
+            reconocimientoVoz.onerror = (event) => {
+                console.error("Error de voz detectado:", event.error);
+                forzarApagadoMic();
+            };
+
+            reconocimientoVoz.onend = () => {
+                forzarApagadoMic();
+            };
+
+            reconocimientoVoz.onresult = function(event) {
+                const textoEscuchado = event.results[0][0].transcript;
+                if (textoEscuchado.trim() !== "") {
+                    inputField.value = textoEscuchado;
+                    // Auto-envío en silencio inmediato
+                    sendMessage();
+                }
+            };
+        }
+
+        function alternarMicrofono() {
+            if (!reconocimientoVoz) {
                 alert("Tu dispositivo o navegador no soporta el reconocimiento de voz.");
                 return;
             }
 
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'es-ES'; // Configuración para español
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            const micBtn = document.getElementById('mic-btn');
-            micBtn.innerText = "🐼"; // Cambia el icono para avisar que está escuchando
-            micBtn.style.borderColor = "#ef4444"; // Cambia el borde a rojo de grabación
-
-            recognition.start();
-
-            recognition.onresult = function(event) {
-                const textoEscuchado = event.results[0][0].transcript;
-                document.getElementById('input-field').value = textoEscuchado; // Pone el texto en la entrada
-            };
-
-            recognition.onend = function() {
-                micBtn.innerText = "🎙️"; // Regresa al icono original
-                micBtn.style.borderColor = "var(--border-color)";
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Error en reconocimiento:", event.error);
-                micBtn.innerText = "🎙️";
-                micBtn.style.borderColor = "var(--border-color)";
-            };
+            if (estaEscuchando) {
+                reconocimientoVoz.stop();
+            } else {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // Mudece al bot si estaba hablando antes
+                reconocimientoVoz.start();
+            }
         }
 
-        // 2. HACER QUE EL BOT HABLE CON VOZ PERSONALIZADA DEL CELULAR
+        function forzarApagadoMic() {
+            estaEscuchando = false;
+            micBtn.classList.remove('mic-escuchando');
+            micBtn.innerHTML = "🎙️";
+            inputField.placeholder = "Escribe la falla o habla con manos libres...";
+        }
+
         function hablarTexto(texto) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Detiene cualquier audio previo
+                window.speechSynthesis.cancel(); // Frena lecturas colgadas
                 
-                // Limpiar el texto de emojis o caracteres extraños para que hable mejor
-                const textoLimpio = texto.replace(/[⚡|⚠️|💡|📟|🎨|🔗|📉|🔋]/g, '');
+                // Remueve caracteres innecesarios o técnicos de pantalla para que la voz no se tranque
+                const textoLimpio = texto.replace(/[*#_⚡|⚠️|💡|📟|🎨|🔗|📉|🔋\[\]\(\)]/g, '');
                 const utterance = new SpeechSynthesisUtterance(textoLimpio);
                 utterance.lang = 'es-ES';
                 
-                // Intentar buscar una voz en español premium del dispositivo
                 const voces = window.speechSynthesis.getVoices();
                 const vocesEspanol = voces.filter(voz => voz.lang.startsWith('es'));
                 
                 if (vocesEspanol.length > 0) {
+                    // Busca una voz estable en español del sistema operativo
                     utterance.voice = vocesEspanol[0]; 
                 }
 
-                utterance.rate = 1.0;  // Velocidad normal
-                utterance.pitch = 1.0; // Tono normal
+                utterance.rate = 1.05; // Un toque más dinámico para no aburrir
+                utterance.pitch = 1.0; 
 
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // Evento obligatorio para cargar correctamente las voces del sistema en algunos móviles
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = function() {
                 window.speechSynthesis.getVoices();
