@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Registro de Recepción</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --bot-msg-bg: #1a273a;
+            --border-color: #22344d;
+        }
+        body.light-mode {
+            --bg-color: #f3f4f6;
+            --chat-bg: #ffffff;
+            --text-color: #1f2937;
+            --bot-msg-bg: #e5e7eb;
+            --border-color: #d1d5db;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--chat-bg); padding: 12px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); gap: 12px; }
+        .logo-container { width: 45px; height: 45px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.1rem; }
+        .main-content { flex: 1; padding: 20px; margin-top: 70px; margin-bottom: 75px; max-width: 700px; width: 100%; align-self: center; display: flex; flex-direction: column; gap: 15px; }
+        .formulario-taller, .resultado-container, .seccion-historial { background: var(--chat-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+        .grupo-campo { margin-bottom: 12px; }
+        .grupo-campo label { font-size: 0.8rem; color: #a0aec0; display: block; margin-bottom: 4px; }
+        .input-wrapper { display: flex; gap: 8px; }
+        input, select, textarea { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; }
+        .btn-input-mic { background: var(--bot-msg-bg); border: 1px solid var(--border-color); width: 38px; border-radius: 8px; cursor: pointer; }
+        .btn-principal { background: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 8px; }
+        .resultado-container { display: none; }
+        .ficha-orden { background: var(--bg-color); padding: 12px; border-radius: 8px; }
+        .seccion-historial { margin-top: 10px; }
+        .lista-ordenes { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .item-orden-guardada { padding: 10px; border-radius: 8px; border-left: 4px solid; background: var(--bg-color); }
+        .status-diagnostico { border-left-color: #2563eb; }
+        .status-repuesto { border-left-color: #d97706; }
+        .status-reparado { border-left-color: #16a34a; }
+        .status-sin-solucion { border-left-color: #dc2626; }
+        .item-orden-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #a0aec0; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; margin-bottom: 6px; }
+        .bloque-botones-item { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-recopiar { background: #2d3748; border: none; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; }
+        .select-cambiar-status { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 4px; border-radius: 6px; font-size: 0.7rem; }
+        nav.nav-tabs { position: fixed; bottom: 0; left: 0; width: 100%; height: 58px; background: var(--chat-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #a0aec0; text-decoration: none; font-size: 0.7rem; flex: 1; justify-content: center; gap: 2px; }
+        .nav-item.active { color: #a855f7; }
+        .nav-icon { font-size: 1.3rem; }
+        .badge-estatus-dinamico { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; }
+        .bg-diag { background: #2563eb; }
+        .bg-rep { background: #d97706; }
+        .bg-repado { background: #16a34a; }
+        .bg-sinsol { background: #dc2626; }
+        .editable-area [contenteditable="true"] { background: rgba(255,255,255,0.05); border-radius: 4px; padding: 0 2px; display: inline-block; min-width: 60px; }
+        .header-buttons { display: flex; gap: 8px; margin-left: auto; }
+        .theme-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container"><img src="logo.png" alt="Logo" onerror="this.style.display='none'"></div>
+        <div class="header-info"><h1>Relectrónica - Recepción</h1></div>
+        <div class="header-buttons"><button id="themeToggle" class="theme-btn">🌓</button></div>
+    </header>
+    <div class="main-content">
+        <div class="formulario-taller">
+            <div class="grupo-campo"><label>N° Servicio / Ticket:</label><input type="text" id="input-ticket" placeholder="Opcional, auto-genera"></div>
+            <div class="grupo-campo"><label>Fabricante:</label><div class="input-wrapper"><input type="text" id="input-fabricante"><button class="btn-input-mic" onclick="escucharCampo('input-fabricante')">🎙️</button></div></div>
+            <div class="grupo-campo"><label>Modelo:</label><div class="input-wrapper"><input type="text" id="input-modelo"><button class="btn-input-mic" onclick="escucharCampo('input-modelo')">🎙️</button></div></div>
+            <div class="grupo-campo"><label>N° Serie:</label><div class="input-wrapper"><input type="text" id="input-serial"><button class="btn-input-mic" onclick="escucharCampo('input-serial')">🎙️</button></div></div>
+            <div class="grupo-campo"><label>Falla / Síntoma:</label><div class="input-wrapper"><textarea id="input-falla" rows="2"></textarea><button class="btn-input-mic" onclick="escucharCampo('input-falla')">🎙️</button></div></div>
+            <div class="grupo-campo"><label>Estatus:</label><select id="input-estatus"><option>En Diagnóstico</option><option>Esperando Repuesto</option><option>Reparado</option><option>Sin Solución</option></select></div>
+            <button class="btn-principal" onclick="procesarNuevaOrden()">Generar Ficha de Recepción</button>
+        </div>
+        <div class="resultado-container" id="resultado-container"><div class="ficha-orden" id="ficha-render"></div><button class="btn-principal" id="btn-copiar" style="background:#2563eb;">📋 Copiar para WhatsApp</button></div>
+        <div class="seccion-historial"><div class="header-historial-acciones"><h3>Órdenes Guardadas</h3><button class="btn-principal" style="background:#dc2626; width:auto; padding:6px 12px;" onclick="limpiarTodoElHistorial()">Vaciar Todo</button></div><input type="text" id="buscador" class="buscador-historial" placeholder="🔍 Buscar..." oninput="filtrarHistorial()"><div class="lista-ordenes" id="lista-ordenes-container"></div></div>
+    </div>
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item"><span class="nav-icon">💬</span><span>Chat</span></a>
+        <a href="notas.html" class="nav-item"><span class="nav-icon">📝</span><span>Notas</span></a>
+        <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
+        <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
+        <a href="calculadoras.html" class="nav-item"><span class="nav-icon">🧮</span><span>Cálculos</span></a>
+        <a href="fallas.html" class="nav-item"><span class="nav-icon">🛠️</span><span>Casos</span></a>
+        <a href="recepcion.html" class="nav-item active"><span class="nav-icon">📋</span><span>Recepción</span></a>
+    </nav>
+    <script>
+        // Tema oscuro/claro
+        const themeToggle = document.getElementById('themeToggle');
+        function applyTheme(theme) { if(theme==='light') document.body.classList.add('light-mode'); else document.body.classList.remove('light-mode'); localStorage.setItem('relectronica_theme', theme); }
+        const savedTheme = localStorage.getItem('relectronica_theme') || 'dark';
+        applyTheme(savedTheme);
+        themeToggle.addEventListener('click', () => { const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light'; applyTheme(newTheme); });
+
+        // Variables globales
+        let reconocimientoVoz = null, campoActivoId = null, estaEscuchando = false;
+
+        function inicializarVoz() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!SR) return;
+            reconocimientoVoz = new SR();
+            reconocimientoVoz.lang = 'es-VE';
+            reconocimientoVoz.continuous = false;
+            reconocimientoVoz.onstart = () => { estaEscuchando=true; if(campoActivoId){ let btn = document.querySelector(`#${campoActivoId} ~ .btn-input-mic`); if(btn){ btn.classList.add('mic-activo'); btn.innerHTML='🛑'; } } };
+            reconocimientoVoz.onend = () => forzarApagadoMic();
+            reconocimientoVoz.onresult = (e) => { const txt = e.results[0][0].transcript; if(txt && campoActivoId) document.getElementById(campoActivoId).value += (document.getElementById(campoActivoId).value ? ' ' + txt : txt); };
+        }
+        function escucharCampo(id) { if(!reconocimientoVoz){ alert("Voz no soportada"); return; } if(estaEscuchando) reconocimientoVoz.stop(); campoActivoId=id; reconocimientoVoz.start(); }
+        function forzarApagadoMic() { estaEscuchando=false; document.querySelectorAll('.btn-input-mic').forEach(b=>{ b.classList.remove('mic-activo'); b.innerHTML='🎙️'; }); campoActivoId=null; }
+        inicializarVoz();
+
+        // Funciones de órdenes
+        function obtenerClaseBadge(estatus) { return { "En Diagnóstico":"bg-diag", "Esperando Repuesto":"bg-rep", "Reparado":"bg-repado", "Sin Solución":"bg-sinsol" }[estatus] || "bg-diag"; }
+        function obtenerClaseTarjeta(estatus) { return { "En Diagnóstico":"status-diagnostico", "Esperando Repuesto":"status-repuesto", "Reparado":"status-reparado", "Sin Solución":"status-sin-solucion" }[estatus] || ""; }
+
+        function procesarNuevaOrden() {
+            const ticketManual = document.getElementById('input-ticket').value.trim();
+            const fabricante = document.getElementById('input-fabricante').value.trim();
+            const modelo = document.getElementById('input-modelo').value.trim();
+            const serial = document.getElementById('input-serial').value.trim();
+            const falla = document.getElementById('input-falla').value.trim();
+            const estatus = document.getElementById('input-estatus').value;
+            if(!fabricante || !modelo) { alert("Marca y modelo son obligatorios"); return; }
+            const fecha = new Date().toLocaleDateString('es-VE');
+            const prefijo = ticketManual || ('RE-'+Math.floor(1000+Math.random()*9000));
+            const txtWhatsApp = `📋 RELECTRÓNICA - ORDEN #${prefijo}\nFecha: ${fecha}\n${fabricante} ${modelo}\nS/N: ${serial||'N/A'}\nFalla: ${falla||'Por revisar'}\nEstatus: ${estatus}`;
+            document.getElementById('ficha-render').innerHTML = `<div><strong>#${prefijo}</strong> | ${fecha}<br>${fabricante} ${modelo}<br>Falla: ${falla}<br>Estatus: <span class="badge-estatus-dinamico ${obtenerClaseBadge(estatus)}">${estatus}</span></div>`;
+            document.getElementById('resultado-container').style.display = 'block';
+            const btnCopiar = document.getElementById('btn-copiar');
+            const newBtn = btnCopiar.cloneNode(true);
+            btnCopiar.parentNode.replaceChild(newBtn, btnCopiar);
+            newBtn.addEventListener('click', () => { navigator.clipboard.writeText(txtWhatsApp); guardarEnHistorial({ prefijoOrden:prefijo, fechaVal:fecha, fabricante, modelo, serial, falla, estatus, txtWhatsApp }); alert("Guardado y copiado"); limpiarFormulario(); });
+        }
+        function limpiarFormulario() { document.getElementById('input-ticket').value=''; document.getElementById('input-fabricante').value=''; document.getElementById('input-modelo').value=''; document.getElementById('input-serial').value=''; document.getElementById('input-falla').value=''; document.getElementById('resultado-container').style.display='none'; }
+
+        function guardarEnHistorial(orden) { let h = JSON.parse(localStorage.getItem('relectronica_ordenes_historial')||'[]'); h.unshift(orden); localStorage.setItem('relectronica_ordenes_historial', JSON.stringify(h)); renderizarHistorial(); }
+        function renderizarHistorial() { let h = JSON.parse(localStorage.getItem('relectronica_ordenes_historial')||'[]'); const container = document.getElementById('lista-ordenes-container'); if(!h.length){ container.innerHTML='<p style="text-align:center">Sin órdenes</p>'; return; } container.innerHTML=''; h.forEach((ord, idx)=>{ const item = document.createElement('div'); item.className=`item-orden-guardada ${obtenerClaseTarjeta(ord.estatus)}`; item.innerHTML=`<div class="item-orden-header"><span>#${ord.prefijoOrden}</span><span>${ord.fechaVal}</span></div><div class="editable-area" data-idx="${idx}"><strong contenteditable="true" class="edit-fabricante">${ord.fabricante}</strong> <strong contenteditable="true" class="edit-modelo">${ord.modelo}</strong><br>S/N: <span contenteditable="true" class="edit-serial">${ord.serial||'N/A'}</span><br>Falla: <span contenteditable="true" class="edit-falla">${ord.falla||'Por revisar'}</span><br><span class="badge-estatus-dinamico ${obtenerClaseBadge(ord.estatus)}">${ord.estatus}</span></div><div class="bloque-botones-item"><button class="btn-recopiar" onclick="copiarOrden(${idx})">📋 Copiar</button><button class="btn-recopiar" onclick="buscarSolucionEnNotas('${ord.modelo.replace(/'/g,"\\'")}','${ord.falla.replace(/'/g,"\\'")}')">🔍 Buscar Nota</button><button class="btn-recopiar" onclick="guardarEdicionOrden(${idx})">💾 Guardar</button><select class="select-cambiar-status" onchange="actualizarEstatusOrden(${idx}, this.value)"><option>Cambiar estado</option><option>En Diagnóstico</option><option>Esperando Repuesto</option><option>Reparado</option><option>Sin Solución</option></select></div>`; container.appendChild(item); }); }
+        function copiarOrden(idx) { let h=JSON.parse(localStorage.getItem('relectronica_ordenes_historial')||'[]'); if(h[idx]) navigator.clipboard.writeText(h[idx].txtWhatsApp); alert("Copiado"); }
+        function guardarEdicionOrden(idx) { let h=JSON.parse(localStorage.getItem('relectronica_ordenes_historial')||'[]'); const tarjeta = document.querySelectorAll('.item-orden-guardada')[idx]; if(!tarjeta) return; h[idx].fabricante = tarjeta.querySelector('.edit-fabricante').innerText; h[idx].modelo = tarjeta.querySelector('.edit-modelo').innerText; h[idx].serial = tarjeta.querySelector('.edit-serial').innerText; h[idx].falla = tarjeta.querySelector('.edit-falla').innerText; h[idx].txtWhatsApp = `📋 RELECTRÓNICA - ORDEN #${h[idx].prefijoOrden}\nFecha: ${h[idx].fechaVal}\n${h[idx].fabricante} ${h[idx].modelo}\nS/N: ${h[idx].serial||'N/A'}\nFalla: ${h[idx].falla}\nEstatus: ${h[idx].estatus}`; localStorage.setItem('relectronica_ordenes_historial', JSON.stringify(h)); renderizarHistorial(); alert("Orden actualizada"); }
+        function actualizarEstatusOrden(idx, nuevo) { let h=JSON.parse(localStorage.getItem('relectronica_ordenes_historial')||'[]'); if(h[idx]){ h[idx].estatus=nuevo; h[idx].txtWhatsApp = `📋 RELECTRÓNICA - ORDEN #${h[idx].prefijoOrden}\nFecha: ${h[idx].fechaVal}\n${h[idx].fabricante} ${h[idx].modelo}\nS/N: ${h[idx].serial||'N/A'}\nFalla: ${h[idx].falla}\nEstatus: ${nuevo}`; localStorage.setItem('relectronica_ordenes_historial', JSON.stringify(h)); renderizarHistorial(); } }
+        function buscarSolucionEnNotas(modelo, falla) { let notas = JSON.parse(localStorage.getItem('relectronica_notas')||'[]'); let matches = notas.filter(n=> n.modelo.toLowerCase().includes(modelo.toLowerCase()) || n.falla.toLowerCase().includes(falla.toLowerCase())); if(!matches.length) { alert("No hay notas relacionadas"); return; } let msg = "📓 Soluciones encontradas:\n\n"; matches.forEach(n=>{ msg+=`📺 ${n.modelo}\n⚠️ ${n.falla}\n✅ ${n.solucion}\n\n`; }); alert(msg); }
+        function filtrarHistorial() { const term = document.getElementById('buscador').value.toLowerCase(); document.querySelectorAll('.item-orden-guardada').forEach(card=>{ card.style.display = card.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; }); }
+        function limpiarTodoElHistorial() { if(confirm("¿Eliminar todas las órdenes?")){ localStorage.removeItem('relectronica_ordenes_historial'); renderizarHistorial(); } }
+        renderizarHistorial();
+    </script>
+</body>
+</html>
