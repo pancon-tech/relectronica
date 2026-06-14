@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Relectrónica - Chat Técnico</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --bot-msg-bg: #1a273a;
+            --user-msg-bg: #7928ca;
+            --border-color: #22344d;
+        }
+
+        body.light-mode {
+            --bg-color: #f0f2f5;
+            --chat-bg: #ffffff;
+            --text-color: #1a202c;
+            --bot-msg-bg: #e2e8f0;
+            --user-msg-bg: #7928ca;
+            --border-color: #cbd5e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .logo-container {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            font-size: 0.75rem;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #a855f7;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .clear-btn, .theme-btn, .mute-btn, .backup-btn {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+        }
+
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 65px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .bot-message {
+            background-color: var(--bot-msg-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-message {
+            background-color: var(--user-msg-bg);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-meta {
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .bot-meta {
+            color: #a855f7;
+        }
+
+        .user-meta {
+            color: #e2e8f0;
+        }
+
+        .chat-image {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .error-message {
+            background-color: #2d191e;
+            border: 1px solid #f56565;
+            color: #fc8181;
+        }
+
+        .footer-controls {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            background-color: var(--chat-bg);
+            z-index: 90;
+        }
+
+        .input-container {
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        #input-field {
+            flex: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .icon-btn {
+            background-color: var(--bot-msg-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-escuchando {
+            background-color: #ef4444 !important;
+            animation: pulseMic 1.5s infinite;
+        }
+
+        @keyframes pulseMic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #send-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 18px;
+            height: 42px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #image-preview-container {
+            display: none;
+            background-color: var(--bot-msg-bg);
+            padding: 8px 12px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-box {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 58px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.7rem;
+            flex: 1;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+
+        #loading-spinner {
+            text-align: center;
+            padding: 12px;
+            color: #a855f7;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerText='📡'">
+    </div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Línea Técnica</p>
+    </div>
+    <div class="header-buttons">
+        <button id="themeToggleBtn" class="theme-btn" title="Modo claro/oscuro">🌓</button>
+        <button id="muteVoiceBtn" class="mute-btn" title="Silenciar voz">🔊</button>
+        <button id="backupExportBtn" class="backup-btn" title="Exportar backup completo">💾</button>
+        <button id="backupImportBtn" class="backup-btn" title="Importar backup">📂</button>
+        <button id="clearChatBtn" class="clear-btn" title="Borrar historial">🗑️</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none">
+    </div>
+</header>
+
+<div id="chat-container"></div>
+
+<div class="footer-controls">
+    <div id="image-preview-container">
+        <div class="preview-box">
+            <img id="image-preview" src="" alt="Preview">
+            <button class="remove-preview" id="cancel-image-btn">×</button>
+        </div>
+        <span style="font-size: 0.75rem;">Imagen adjunta</span>
+    </div>
+    <div class="input-container">
+        <input type="file" id="file-input" accept="image/*" style="display:none">
+        <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
+        <button class="icon-btn" id="mic-btn" title="Hablar con el bot">🎙️</button>
+        <input type="text" id="input-field" placeholder="Escribe o habla la falla..." autocomplete="off">
+        <button id="send-btn">Enviar</button>
+    </div>
+</div>
+
+<nav class="nav-tabs">
+    <a href="index.html" class="nav-item active"><span class="nav-icon">💬</span><span>Chat</span></a>
+    <a href="notas.html" class="nav-item"><span class="nav-icon">📝</span><span>Notas</span></a>
+    <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
+    <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
+    <a href="calculadoras.html" class="nav-item"><span class="nav-icon">🧮</span><span>Cálculos</span></a>
+    <a href="fallas.html" class="nav-item"><span class="nav-icon">🛠️</span><span>Casos</span></a>
+    <a href="recepcion.html" class="nav-item"><span class="nav-icon">📋</span><span>Recepción</span></a>
+</nav>
+
+<script>
+// ==================== CONFIGURACIÓN GLOBAL ====================
+const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL";
+let chatHistory = [];
+let selectedImageBase64 = null;
+let reconocimientoVoz = null;
+let estaEscuchando = false;
+let voiceMuted = localStorage.getItem('relectronica_voice_muted') === 'true';
+let currentTheme = localStorage.getItem('relectronica_theme') || 'dark';
+
+// Elementos DOM
+const chatContainer = document.getElementById('chat-container');
+const inputField = document.getElementById('input-field');
+const sendBtn = document.getElementById('send-btn');
+const fileInput = document.getElementById('file-input');
+const attachBtn = document.getElementById('attach-btn');
+const imagePreview = document.getElementById('image-preview');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const cancelImageBtn = document.getElementById('cancel-image-btn');
+const clearChatBtn = document.getElementById('clearChatBtn');
+const micBtn = document.getElementById('mic-btn');
+const themeToggle = document.getElementById('themeToggleBtn');
+const muteBtn = document.getElementById('muteVoiceBtn');
+const exportBtn = document.getElementById('backupExportBtn');
+const importBtn = document.getElementById('backupImportBtn');
+const importFileInput = document.getElementById('importFileInput');
+
+// ==================== TEMA OSCURO/CLARO ====================
+function applyTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+    }
+    localStorage.setItem('relectronica_theme', theme);
+    themeToggle.innerHTML = theme === 'light' ? '🌙' : '🌓';
+}
+
+applyTheme(currentTheme);
+themeToggle.addEventListener('click', () => {
+    const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+    applyTheme(newTheme);
+});
+
+// ==================== CONTROL DE VOZ (MUTE) ====================
+muteBtn.innerHTML = voiceMuted ? '🔇' : '🔊';
+muteBtn.addEventListener('click', () => {
+    voiceMuted = !voiceMuted;
+    localStorage.setItem('relectronica_voice_muted', voiceMuted);
+    muteBtn.innerHTML = voiceMuted ? '🔇' : '🔊';
+    if (voiceMuted && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+});
+
+// ==================== SPINNER DE CARGA ====================
+function showSpinner() {
+    const spinner = document.createElement('div');
+    spinner.id = 'loading-spinner';
+    spinner.innerHTML = '⏳ Relectrónica procesa tu consulta...';
+    chatContainer.appendChild(spinner);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function hideSpinner() {
+    const el = document.getElementById('loading-spinner');
+    if (el) el.remove();
+}
+
+// ==================== MENSAJES DOM ====================
+function appendMessageToDOM(sender, text, isError = false, imageSrc = null) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
+    if (isError) msgDiv.classList.add('error-message');
+
+    const metaSpan = document.createElement('span');
+    metaSpan.classList.add('msg-meta', sender === 'bot' ? 'bot-meta' : 'user-meta');
+    metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica:' : 'Técnico:';
+    msgDiv.appendChild(metaSpan);
+
+    if (text) {
+        const lines = text.split('\n');
+        lines.forEach((line, idx) => {
+            msgDiv.appendChild(document.createTextNode(line));
+            if (idx < lines.length - 1) msgDiv.appendChild(document.createElement('br'));
+        });
+    }
+
+    if (imageSrc) {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.classList.add('chat-image');
+        msgDiv.appendChild(img);
+    }
+
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
+    chatHistory.push({ sender, text, isError, imageSrc });
+    localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
+}
+
+// ==================== BÚSQUEDA EN NOTAS LOCALES ====================
+function buscarEnNotas(query) {
+    const notas = JSON.parse(localStorage.getItem('relectronica_notas') || '[]');
+    if (!query || notas.length === 0) return null;
+    const queryLower = query.toLowerCase();
+    const coincidencias = notas.filter(n =>
+        n.modelo.toLowerCase().includes(queryLower) ||
+        n.falla.toLowerCase().includes(queryLower) ||
+        n.solucion.toLowerCase().includes(queryLower)
+    );
+    if (coincidencias.length === 0) return null;
+    return coincidencias.slice(0, 3).map(n => `- ${n.modelo}: ${n.falla} → Solución: ${n.solucion}`).join('\n');
+}
+// ==================== ENVÍO DE MENSAJE CON CONTEXTO ====================
+async function sendMessage() {
+    const query = inputField.value.trim();
+    if (!query && !selectedImageBase64) return;
+
+    const currentImageSrc = imagePreview.src;
+    const activeImageBase64 = selectedImageBase64;
+
+    // Mostrar mensaje del usuario
+    appendMessageToDOM('user', query || "📷 Imagen adjunta", false, activeImageBase64 ? currentImageSrc : null);
+    saveMessageToHistory('user', query || "Imagen enviada", false, activeImageBase64 ? currentImageSrc : null);
+
+    // Limpiar input
+    inputField.value = '';
+    selectedImageBase64 = null;
+    fileInput.value = '';
+    imagePreviewContainer.style.display = 'none';
+
+    // Deshabilitar botones durante la carga
+    sendBtn.disabled = true;
+    attachBtn.disabled = true;
+    micBtn.disabled = true;
+    showSpinner();
+
+    // Buscar en notas locales
+    const notasContext = buscarEnNotas(query);
+    const contextoExtra = notasContext ? `\n\n[INFORMACIÓN DE LA BITÁCORA DEL TÉCNICO]\n${notasContext}\n\nUtiliza esta información si es relevante para responder.` : '';
+
+    // Historial para Cohere (últimos 10 mensajes)
+    const historyForCohere = chatHistory.slice(-10).map(msg => ({
+        role: msg.sender === 'user' ? 'USER' : 'CHATBOT',
+        message: msg.text || ''
+    })).filter(m => m.message);
+
+    try {
+        const response = await fetch('https://api.cohere.ai/v1/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${COHERE_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'command-r-08-2024',
+                message: query + contextoExtra,
+                chat_history: historyForCohere,
+                preamble: "Eres un asistente técnico experto en electrónica, hardware, diagnóstico de tarjetas PCB y reparación de pantallas LED. Responde de forma precisa y profesional a Jefferson. Si encuentras información en la bitácora del técnico, úsala para ayudar."
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            appendMessageToDOM('bot', data.text);
+            saveMessageToHistory('bot', data.text);
+            if (!voiceMuted) {
+                const utterance = new SpeechSynthesisUtterance(data.text.replace(/[*#_⚡|⚠️|💡|📟|🎨|🔗|📉|🔋\[\]\(\)]/g, ''));
+                utterance.lang = 'es-ES';
+                utterance.rate = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+        } else {
+            appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
+        }
+    } catch (error) {
+        appendMessageToDOM('bot', '⚠️ Error de red: No se pudo conectar con el servidor.', true);
+        console.error(error);
+    } finally {
+        hideSpinner();
+        sendBtn.disabled = false;
+        attachBtn.disabled = false;
+        micBtn.disabled = false;
+        inputField.focus();
+    }
+}
+
+// Eventos de envío
+sendBtn.addEventListener('click', sendMessage);
+inputField.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+// ==================== RECONOCIMIENTO DE VOZ ====================
+function inicializarReconocimientoVoz() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.warn("Voz no soportada");
+        micBtn.disabled = true;
+        micBtn.title = "Tu navegador no soporta reconocimiento de voz";
+        micBtn.style.opacity = 0.5;
+        return;
+    }
+    reconocimientoVoz = new SpeechRecognition();
+    reconocimientoVoz.lang = 'es-ES';
+    reconocimientoVoz.continuous = false;
+    reconocimientoVoz.interimResults = false;
+
+    reconocimientoVoz.onstart = () => {
+        estaEscuchando = true;
+        micBtn.classList.add('mic-escuchando');
+        micBtn.innerHTML = '🛑';
+        inputField.placeholder = "Escuchando...";
+    };
+
+    reconocimientoVoz.onerror = () => forzarApagadoMic();
+    reconocimientoVoz.onend = () => forzarApagadoMic();
+
+    reconocimientoVoz.onresult = (event) => {
+        const textoEscuchado = event.results[0][0].transcript;
+        if (textoEscuchado.trim() !== "") {
+            inputField.value = textoEscuchado;
+            sendMessage();
+        }
+    };
+}
+
+function forzarApagadoMic() {
+    estaEscuchando = false;
+    micBtn.classList.remove('mic-escuchando');
+    micBtn.innerHTML = '🎙️';
+    inputField.placeholder = "Escribe o habla la falla...";
+}
+
+micBtn.addEventListener('click', () => {
+    if (!reconocimientoVoz) {
+        alert("Tu navegador no soporta entrada de voz.");
+        return;
+    }
+    if (estaEscuchando) {
+        reconocimientoVoz.stop();
+    } else {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        reconocimientoVoz.start();
+    }
+});
+
+// ==================== BACKUP COMPLETO ====================
+function exportarBackupCompleto() {
+    const backup = {
+        notas: localStorage.getItem('relectronica_notas'),
+        ordenes: localStorage.getItem('relectronica_ordenes_historial'),
+        chat: localStorage.getItem('relectronica_chat_history'),
+        biblioteca: localStorage.getItem('relectronica_biblioteca'),
+        preferencias: {
+            voiceMuted: localStorage.getItem('relectronica_voice_muted'),
+            theme: localStorage.getItem('relectronica_theme')
+        }
+    };
+    const dataStr = JSON.stringify(backup, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relectronica_backup_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importarBackupCompleto(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.notas) localStorage.setItem('relectronica_notas', data.notas);
+            if (data.ordenes) localStorage.setItem('relectronica_ordenes_historial', data.ordenes);
+            if (data.chat) localStorage.setItem('relectronica_chat_history', data.chat);
+            if (data.biblioteca) localStorage.setItem('relectronica_biblioteca', data.biblioteca);
+            if (data.preferencias) {
+                if (data.preferencias.voiceMuted !== undefined) {
+                    voiceMuted = data.preferencias.voiceMuted === 'true';
+                    muteBtn.innerHTML = voiceMuted ? '🔇' : '🔊';
+                    localStorage.setItem('relectronica_voice_muted', voiceMuted);
+                }
+                if (data.preferencias.theme) applyTheme(data.preferencias.theme);
+            }
+            alert("Backup restaurado correctamente. Recarga la página para ver el chat.");
+        } catch (err) {
+            alert("Archivo inválido o corrupto.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+exportBtn.addEventListener('click', exportarBackupCompleto);
+importBtn.addEventListener('click', () => importFileInput.click());
+importFileInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) importarBackupCompleto(e.target.files[0]);
+    e.target.value = '';
+});
+
+// ==================== ADJUNTAR IMAGEN ====================
+attachBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        selectedImageBase64 = event.target.result.split(',')[1];
+        imagePreview.src = event.target.result;
+        imagePreviewContainer.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+});
+
+cancelImageBtn.addEventListener('click', () => {
+    selectedImageBase64 = null;
+    fileInput.value = '';
+    imagePreviewContainer.style.display = 'none';
+});
+
+// ==================== BORRAR CHAT ====================
+clearChatBtn.addEventListener('click', () => {
+    if (confirm('¿Quieres vaciar toda la conversación actual?')) {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        localStorage.removeItem('relectronica_chat_history');
+        chatHistory = [];
+        chatContainer.innerHTML = '';
+        const welcomeText = 'Hola Jefferson. Soy tu asistente técnico. Puedo buscar en tus notas, diagnosticar fallas y ayudarte con electrónica. Cuéntame qué equipo estás reparando.';
+        appendMessageToDOM('bot', welcomeText);
+        saveMessageToHistory('bot', welcomeText);
+    }
+});
+
+// ==================== CARGA INICIAL DEL HISTORIAL ====================
+const savedChat = localStorage.getItem('relectronica_chat_history');
+if (savedChat) {
+    chatHistory = JSON.parse(savedChat);
+    chatHistory.forEach(msg => {
+        appendMessageToDOM(msg.sender, msg.text, msg.isError, msg.imageSrc);
+    });
+} else {
+    const welcomeText = 'Hola Jefferson. Soy tu asistente técnico. Puedo buscar en tus notas, diagnosticar fallas y ayudarte con electrónica. Cuéntame qué equipo estás reparando.';
+    appendMessageToDOM('bot', welcomeText);
+    saveMessageToHistory('bot', welcomeText);
+}
+
+// Inicializar voz
+inicializarReconocimientoVoz();
+</script>
+</body>
+</html>
