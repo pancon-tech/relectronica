@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Relectrónica - Biblioteca Técnica Ultimate</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #0a0f1a;
+            --surface: #111827;
+            --card-bg: #1a2332;
+            --border: #2a3a4e;
+            --primary: #a855f7;
+            --primary-glow: #c084fc;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-amber: #f59e0b;
+            --success: #10b981;
+            --favorite: #fbbf24;
+            --stats-card: #1e293b;
+        }
+        [data-theme="light"] {
+            --bg-deep: #f0f4f8;
+            --surface: #ffffff;
+            --card-bg: #eef2f6;
+            --border: #cbd5e1;
+            --text-main: #1e293b;
+            --text-dim: #475569;
+            --primary: #7928ca;
+            --stats-card: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s;
+        }
+        .app-header {
+            background: var(--surface);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .logo-box {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(145deg, #1e2a3a, #0f172a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--primary);
+        }
+        .logo-box span { font-size: 24px; }
+        .header-info { flex: 1; }
+        .header-info h1 { font-size: 1.2rem; font-weight: 700; }
+        .header-info p { font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+        .status-led { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
+        .header-actions { display: flex; gap: 8px; }
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .icon-btn:hover { background: var(--primary); }
+        .library-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 70px 16px;
+        }
+        .search-section {
+            position: sticky;
+            top: 0;
+            background: var(--bg-deep);
+            z-index: 10;
+            padding-bottom: 12px;
+        }
+        .search-wrapper { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-container { flex: 1; position: relative; min-width: 150px; }
+        .search-bar {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-height: 180px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+}
+.suggestions-box.active { display: block; }
+.suggestion-item { padding: 8px 14px; cursor: pointer; font-size: 0.85rem; }
+.suggestion-item:hover { background: var(--primary); color: white; }
+.clear-btn, .view-toggle-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 40px;
+    border-radius: 40px;
+    cursor: pointer;
+}
+.filter-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-chip {
+    background: var(--card-bg);
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    border: 1px solid var(--border);
+}
+.filter-chip.active, .filter-chip:hover { background: var(--primary); color: white; }
+.stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.stats-cards {
+    display: flex;
+    gap: 12px;
+    background: var(--stats-card);
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.stat-item { text-align: center; }
+.stat-number { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+.stat-label { font-size: 0.7rem; color: var(--text-dim); }
+.favorites-toggle-btn, .sort-select {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+}
+.favorites-toggle-btn.active { background: var(--favorite); color: #1e293b; }
+.dict-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+}
+.grid-view .dict-card { margin-bottom: 0; }
+.dict-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.card-header {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+.term-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
+.term-badge {
+    background: #2d3b4f;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    color: var(--accent-cyan);
+}
+.favorite-star, .read-aloud-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text-dim);
+    padding: 4px;
+}
+.favorite-star.active { color: var(--favorite); }
+.expand-icon { transition: transform 0.2s; font-size: 0.8rem; }
+.dict-card.expanded .expand-icon { transform: rotate(180deg); }
+        .card-content {
+            display: none;
+            padding: 0 16px 16px 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-dim);
+        }
+        .card-content p { margin-top: 10px; }
+        .insight-box {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 12px;
+            margin: 10px 0 6px;
+            border-left: 3px solid var(--accent-amber);
+        }
+        .diagram-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 8px;
+        }
+        .related-concepts {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+            font-size: 0.75rem;
+        }
+        .related-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 15px;
+            margin: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .personal-note {
+            margin-top: 12px;
+            background: rgba(0,0,0,0.15);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .personal-note textarea {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--surface);
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            padding: 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .small-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0 10px;
+            border-top: 1px solid var(--border);
+            z-index: 20;
+        }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .nav-link.active { color: var(--primary); }
+        .no-results { text-align: center; padding: 40px; }
+        .library-container::-webkit-scrollbar { width: 4px; }
+        .library-container::-webkit-scrollbar-track { background: var(--bg-deep); }
+        .library-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        @media (max-width: 500px) { .stats-cards { gap: 8px; } .stat-number { font-size: 1.2rem; } }
+    </style>
+</head>
+<body>
+<header class="app-header">
+    <div class="logo-box"><span>🔧📘</span></div>
+    <div class="header-info">
+        <h1>Relectrónica · Biblioteca Ultimate</h1>
+        <p><span class="status-led"></span> 10 funcionalidades | Offline | Estadísticas</p>
+    </div>
+    <div class="header-actions">
+        <button id="themeToggle" class="icon-btn"><i class="fas fa-moon"></i></button>
+        <button id="exportPdfBtn" class="icon-btn"><i class="fas fa-file-pdf"></i></button>
+        <button id="fullscreenModeBtn" class="icon-btn"><i class="fas fa-expand"></i></button>
+        <button id="importExportBtn" class="icon-btn"><i class="fas fa-database"></i></button>
+    </div>
+</header>
+<div class="library-container" id="libraryContainer">
+    <div class="search-section">
+        <div class="search-wrapper">
+            <div class="search-container">
+                <input type="text" id="globalSearch" class="search-bar" placeholder="🔍 Buscar concepto...">
+                <div id="suggestionsBox" class="suggestions-box"></div>
+            </div>
+            <button id="clearSearchBtn" class="clear-btn"><i class="fas fa-times"></i></button>
+            <button id="viewToggleBtn" class="view-toggle-btn" title="Vista lista/cuadrícula"><i class="fas fa-th-large"></i></button>
+            <select id="sortSelect" class="sort-select" style="width:auto; padding:0 10px;">
+                <option value="name">📝 Nombre A-Z</option>
+                <option value="category">📂 Categoría</option>
+                <option value="views">👁️ Más vistos</option>
+            </select>
+        </div>
+                <div class="filter-group" id="filterGroup">
+            <button data-cat="all" class="filter-chip active">📚 Todas</button>
+            <button data-cat="voltajes" class="filter-chip">⚡ Voltajes</button>
+            <button data-cat="componentes" class="filter-chip">🔩 Componentes</button>
+            <button data-cat="semiconductores" class="filter-chip">💎 Semiconductores</button>
+            <button data-cat="medicion" class="filter-chip">📏 Mediciones</button>
+            <button data-cat="fallas" class="filter-chip">⚠️ Fallas</button>
+        </div>
+        <div class="stats-cards" id="statsCards">
+            <div class="stat-item"><div class="stat-number" id="totalConcepts">0</div><div class="stat-label">Conceptos</div></div>
+            <div class="stat-item"><div class="stat-number" id="favoritesCount">0</div><div class="stat-label">Favoritos</div></div>
+            <div class="stat-item"><div class="stat-number" id="studiedCount">0</div><div class="stat-label">Estudiados</div></div>
+            <div class="stat-item"><div class="stat-number" id="streakDays">0</div><div class="stat-label">Racha (días)</div></div>
+        </div>
+        <div class="stats-bar">
+            <span id="resultsCount">0 conceptos</span>
+            <div style="display: flex; gap: 8px;">
+                <button id="showFavoritesOnly" class="favorites-toggle-btn"><i class="far fa-star"></i> Favoritos</button>
+            </div>
+        </div>
+    </div>
+    <div id="cardsContainer"></div>
+</div>
+
+<!-- Modal Import/Export -->
+<div id="importExportModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>💾 Importar / Exportar Datos</h3>
+        <p>Respaldar tus favoritos, notas personales y estadísticas</p>
+        <button id="exportDataBtn" class="small-btn">📤 Exportar a JSON</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button id="importDataBtn" class="small-btn">📥 Importar desde JSON</button>
+        <p style="margin-top:10px; font-size:0.7rem;">⚠️ La importación reemplazará tus datos actuales</p>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-link">💬<span>Chat</span></a>
+    <a href="notas.html" class="nav-link">📝<span>Notas</span></a>
+    <a href="biblioteca.html" class="nav-link active">📘<span>Biblioteca</span></a>
+    <a href="hardware.html" class="nav-link">🖼️<span>Hardware</span></a>
+    <a href="fallas.html" class="nav-link">🛠️<span>Casos</span></a>
+    <a href="recepcion.html" class="nav-link">📋<span>Recepción</span></a>
+</nav>
+
+<script>
+// ==================== BASE DE DATOS COMPLETA ====================
+const dictionaryEntries = [
+    { id: 1, term: "VGH", category: "voltajes", description: "Voltaje positivo alto (+20V a +30V). Enciende los TFT del panel LCD.", tip: "Medir en T-CON cerca del DC-DC. Si falta: pantalla blanca.", extra: "Síntoma típico: imagen fantasmal.", diagram: "🔌 VGH > +20V", related: ["VGL","VCOM","T-CON"] },
+    { id: 2, term: "VGL", category: "voltajes", description: "Voltaje negativo (-5V a -10V). Apaga los TFT para refrescar.", tip: "VGL inestable produce parpadeos.", extra: "Debe estar cerca de -8V.", diagram: "🔌 VGL ~ -5V a -10V", related: ["VGH","VCOM"] },
+    { id: 3, term: "VCOM", category: "voltajes", description: "Voltaje de referencia para cristales líquidos (~6-8V).", tip: "Desbalanceado causa flicker vertical.", diagram: "⚡ VCOM ~ 6-8V", related: ["VGH","VGL"] },
+    { id: 4, term: "VDD/VCC", category: "voltajes", description: "Alimentación digital (3.3V o 12V).", tip: "Sin VDD: pantalla negra con retroiluminación.", related: ["T-CON"] },
+    { id: 5, term: "Resistencia SMD", category: "componentes", description: "Montaje superficial. Limita corriente.", tip: "Medir fuera del circuito.", extra: "Shunt 0.1Ω falla abierta.", diagram: "📏 Código numérico", related: ["MOSFET","Shunt"] },
+    { id: 6, term: "Capacitor Electrolítico", category: "componentes", description: "Filtra rizado. Alta capacidad.", tip: "Reemplazar si está hinchado.", extra: "Medir ESR.", diagram: "🔋 Polarizado", related: ["ESR","Fuente"] },
+    { id: 7, term: "MOSFET", category: "semiconductores", description: "Interruptor controlado por tensión.", tip: "Falla común: drenaje-fuente en corto.", extra: "Sustituir por referencia equivalente.", diagram: "🔘 G-D-S", related: ["Fuente","PWM"] },
+    { id: 8, term: "Transistor BJT", category: "semiconductores", description: "Bipolar NPN/PNP.", tip: "Medir junturas (~0.6V).", diagram: "🔘 NPN/PNP", related: ["Amplificador"] },
+    { id: 9, term: "Diodo Schottky", category: "semiconductores", description: "Baja caída (0.2-0.4V).", tip: "Fallo: corto o fuga.", related: ["Rectificador"] },
+    { id: 10, term: "IC PWM", category: "semiconductores", description: "Genera señal modulada. Ej: TL494.", tip: "Verificar VCC y referencia 5V.", related: ["MOSFET","Fuente"] },
+    { id: 11, term: "Optoacoplador", category: "semiconductores", description: "Aísla con luz infrarroja.", tip: "Medir led interno (1.2V).", related: ["Realimentación"] },
+    { id: 12, term: "Puente H", category: "semiconductores", description: "Controla motores DC.", tip: "Evitar cortos cruzados.", diagram: "🔄 H-Bridge", related: ["Motor"] },
+    { id: 13, term: "Medición en circuito", category: "medicion", description: "Lecturas falsas por paralelo.", tip: "Medir Shunt con una pata al aire.", related: ["Multímetro"] },
+    { id: 14, term: "Modo diodo", category: "medicion", description: "Prueba de juntura PN.", tip: "0.4-0.6V normal; 0V corto; OL abierto.", related: ["Multímetro","MOSFET"] },
+    { id: 15, term: "Pantalla blanca", category: "fallas", description: "Falla en VGH o VGL ausente.", tip: "Medir fusible en T-CON.", related: ["VGH","VGL","T-CON"] },
+    { id: 16, term: "Fuente protegida", category: "fallas", description: "Corto en secundario o MOSFET primario.", tip: "Desconectar carga para aislar.", related: ["MOSFET","PWM"] },
+    { id: 17, term: "Equipo no enciende", category: "fallas", description: "Falla en 5VSB o corto en primario.", tip: "Medir puente de diodos y fusible.", related: ["Fuente"] },
+    { id: 18, term: "T-CON", category: "componentes", description: "Tarjeta de control del panel LCD.", tip: "Genera VGH, VGL, VCOM.", related: ["VGH","VGL","VCOM"] },
+    { id: 19, term: "ESR", category: "medicion", description: "Resistencia serie equivalente en capacitores.", tip: "ESR alto causa rizado.", related: ["Capacitor Electrolítico"] },
+    { id: 20, term: "Shunt", category: "componentes", description: "Resistencia de muy bajo valor para medir corriente.", tip: "Falla abierta tras corto.", related: ["Resistencia SMD","MOSFET"] }
+];
+// ==================== VARIABLES GLOBALES ====================
+let favorites = JSON.parse(localStorage.getItem('relectronica_favorites') || '[]');
+let personalNotes = JSON.parse(localStorage.getItem('relectronica_notes') || '{}');
+let viewCounts = JSON.parse(localStorage.getItem('relectronica_views') || '{}');
+let studyStreak = JSON.parse(localStorage.getItem('relectronica_streak') || { lastDate: null, count: 0 });
+let showOnlyFavorites = false;
+let currentTheme = localStorage.getItem('relectronica_theme') || 'dark';
+let isGridView = localStorage.getItem('relectronica_view') === 'grid';
+let currentSort = localStorage.getItem('relectronica_sort') || 'name';
+let fullscreenActive = false;
+
+function getCatLabel(cat) {
+    const labels = {'voltajes':'⚡ Voltajes','componentes':'🔩 Pasivos','semiconductores':'💎 Semis','medicion':'📏 Medición','fallas':'⚠️ Fallas'};
+    return labels[cat] || '📘';
+}
+function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m=='&'?'&amp;':m=='<'?'&lt;':'&gt;'); }
+function isFavorite(id) { return favorites.includes(id); }
+function updateStreak() {
+    const today = new Date().toDateString();
+    if(studyStreak.lastDate === today) return studyStreak.count;
+    if(studyStreak.lastDate === new Date(Date.now() - 86400000).toDateString()) studyStreak.count++;
+    else studyStreak.count = 1;
+    studyStreak.lastDate = today;
+    localStorage.setItem('relectronica_streak', JSON.stringify(studyStreak));
+    return studyStreak.count;
+}
+function incrementView(id) {
+    viewCounts[id] = (viewCounts[id] || 0) + 1;
+    localStorage.setItem('relectronica_views', JSON.stringify(viewCounts));
+}
+function sortEntries(entries) {
+    const sorted = [...entries];
+    if(currentSort === 'name') sorted.sort((a,b) => a.term.localeCompare(b.term));
+    else if(currentSort === 'category') sorted.sort((a,b) => a.category.localeCompare(b.category));
+    else if(currentSort === 'views') sorted.sort((a,b) => (viewCounts[b.id]||0) - (viewCounts[a.id]||0));
+    return sorted;
+}
+function getRelatedConcepts(entry) {
+    if(!entry.related) return [];
+    return dictionaryEntries.filter(e => entry.related.includes(e.term)).slice(0,3);
+}
+function toggleFavorite(id, e) {
+    e.stopPropagation();
+    if(favorites.includes(id)) favorites = favorites.filter(f=>f!==id);
+    else favorites.push(id);
+    localStorage.setItem('relectronica_favorites', JSON.stringify(favorites));
+    updateStats();
+    renderLibrary();
+}
+function savePersonalNote(id, note) {
+    personalNotes[id] = note;
+    localStorage.setItem('relectronica_notes', JSON.stringify(personalNotes));
+}
+function readAloud(text) {
+    if('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.9;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+    } else alert('Su navegador no soporta texto a voz');
+}
+function updateStats() {
+    document.getElementById('totalConcepts').innerText = dictionaryEntries.length;
+    document.getElementById('favoritesCount').innerText = favorites.length;
+    document.getElementById('studiedCount').innerText = Object.keys(viewCounts).length;
+    document.getElementById('streakDays').innerText = updateStreak();
+}
+function renderLibrary() {
+    const searchTerm = document.getElementById('globalSearch')?.value.toLowerCase() || '';
+    const activeCat = document.querySelector('.filter-chip.active')?.getAttribute('data-cat') || 'all';
+    let filtered = [...dictionaryEntries];
+    if(showOnlyFavorites) filtered = filtered.filter(e=>favorites.includes(e.id));
+    if(activeCat !== 'all') filtered = filtered.filter(e=>e.category === activeCat);
+    if(searchTerm) filtered = filtered.filter(e=>e.term.toLowerCase().includes(searchTerm)||e.description.toLowerCase().includes(searchTerm)||(e.tip&&e.tip.toLowerCase().includes(searchTerm)));
+    filtered = sortEntries(filtered);
+    const container = document.getElementById('cardsContainer');
+    const resultsSpan = document.getElementById('resultsCount');
+    if(resultsSpan) resultsSpan.innerText = `${filtered.length} concepto${filtered.length!==1?'s':''}`;
+    if(!container) return;
+    if(filtered.length===0) { container.innerHTML = '<div class="no-results">🔎 No se encontraron conceptos</div>'; return; }
+    let html = '';
+    filtered.forEach(entry=>{
+        const catEmoji = {voltajes:'⚡',componentes:'🔩',semiconductores:'💎',medicion:'📏',fallas:'⚠️'}[entry.category]||'📘';
+        const isFav = isFavorite(entry.id);
+        const personalNote = personalNotes[entry.id] || '';
+        const related = getRelatedConcepts(entry);
+        html += `<div class="dict-card" data-id="${entry.id}">
+            <div class="card-header">
+                <div style="display:flex;align-items:center;gap:6px;flex:1;">
+                    <button class="favorite-star ${isFav?'active':''}" data-id="${entry.id}"><i class="${isFav?'fas':'far'} fa-star"></i></button>
+                    <button class="read-aloud-btn" data-text="${escapeHtml(entry.description + ' ' + (entry.tip||'') + ' ' + (entry.extra||''))}"><i class="fas fa-volume-up"></i></button>
+                    <div class="term-name"><span>${catEmoji}</span><strong>${escapeHtml(entry.term)}</strong><span class="term-badge">${getCatLabel(entry.category)}</span></div>
+                </div>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="card-content">
+                <p>📖 <strong>Definición:</strong> ${escapeHtml(entry.description)}</p>
+                ${entry.tip?`<div class="insight-box">🔧 <strong>Tip de taller:</strong> ${escapeHtml(entry.tip)}</div>`:''}
+                ${entry.extra?`<div class="insight-box">📌 <strong>Nota adicional:</strong> ${escapeHtml(entry.extra)}</div>`:''}
+                ${entry.diagram?`<div class="diagram-icon"><i class="fas fa-microchip"></i> ${escapeHtml(entry.diagram)}</div>`:''}
+                ${related.length?`<div class="related-concepts"><strong>🔗 Relacionados:</strong> ${related.map(r=>`<span class="related-tag" data-term="${r.term}">${r.term}</span>`).join('')}</div>`:''}
+                <div class="personal-note">
+                    <textarea class="note-textarea" data-id="${entry.id}" placeholder="Agrega tu nota personal aquí..." rows="2">${escapeHtml(personalNote)}</textarea>
+                </div>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+    if(isGridView) container.classList.add('grid-view');
+    else container.classList.remove('grid-view');
+    document.querySelectorAll('.favorite-star').forEach(btn=>{ btn.addEventListener('click',(e)=>{ toggleFavorite(parseInt(btn.dataset.id), e); }); });
+    document.querySelectorAll('.read-aloud-btn').forEach(btn=>{ btn.addEventListener('click',(e)=>{ e.stopPropagation(); readAloud(btn.dataset.text); }); });
+    document.querySelectorAll('.note-textarea').forEach(ta=>{ ta.addEventListener('blur',()=>{ savePersonalNote(parseInt(ta.dataset.id), ta.value); }); });
+    document.querySelectorAll('.related-tag').forEach(tag=>{ tag.addEventListener('click',(e)=>{ e.stopPropagation(); document.getElementById('globalSearch').value = tag.dataset.term; renderLibrary(); }); });
+    document.querySelectorAll('.dict-card .card-header').forEach(header=>{ header.addEventListener('click',(e)=>{ if(!e.target.closest('.favorite-star') && !e.target.closest('.read-aloud-btn')) toggleCard(header.closest('.dict-card')); }); });
+}
+function toggleCard(card){ 
+    const c=card.querySelector('.card-content'); 
+    const exp=card.classList.contains('expanded'); 
+    const id = parseInt(card.dataset.id);
+    if(!exp) incrementView(id);
+    card.classList.toggle('expanded',!exp); 
+    if(c) c.style.display=exp?'none':'block'; 
+}
+function applyTheme(theme){
+    if(theme==='light'){ document.documentElement.setAttribute('data-theme','light'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-sun"></i>'; }
+    else { document.documentElement.removeAttribute('data-theme'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-moon"></i>'; }
+    localStorage.setItem('relectronica_theme',theme);
+    currentTheme=theme;
+}
+function exportToPDF(){ html2pdf().set({margin:[0.5,0.5,0.5,0.5],filename:'relectronica_biblioteca.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{unit:'in',format:'letter',orientation:'portrait'}}).from(document.getElementById('cardsContainer')).save(); }
+function exportData() {
+    const data = { favorites, personalNotes, viewCounts, studyStreak };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relectronica_backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if(data.favorites) favorites = data.favorites;
+            if(data.personalNotes) personalNotes = data.personalNotes;
+            if(data.viewCounts) viewCounts = data.viewCounts;
+            if(data.studyStreak) studyStreak = data.studyStreak;
+            localStorage.setItem('relectronica_favorites', JSON.stringify(favorites));
+            localStorage.setItem('relectronica_notes', JSON.stringify(personalNotes));
+            localStorage.setItem('relectronica_views', JSON.stringify(viewCounts));
+            localStorage.setItem('relectronica_streak', JSON.stringify(studyStreak));
+            updateStats();
+            renderLibrary();
+            alert('✅ Datos importados correctamente');
+        } catch(err) { alert('Error al importar: archivo inválido'); }
+    };
+    reader.readAsText(file);
+}
+function toggleFullscreen() {
+    if(!fullscreenActive) {
+        document.documentElement.requestFullscreen();
+        document.getElementById('fullscreenModeBtn').innerHTML = '<i class="fas fa-compress"></i>';
+    } else {
+        document.exitFullscreen();
+        document.getElementById('fullscreenModeBtn').innerHTML = '<i class="fas fa-expand"></i>';
+    }
+    fullscreenActive = !fullscreenActive;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+    applyTheme(currentTheme);
+    updateStats();
+    document.querySelectorAll('.filter-chip').forEach(btn=>{
+        btn.addEventListener('click',function(){
+            document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+            this.classList.add('active');
+            renderLibrary();
+        });
+    });
+    const search=document.getElementById('globalSearch');
+    search.addEventListener('input',()=>{ renderLibrary(); });
+    document.getElementById('clearSearchBtn')?.addEventListener('click',()=>{ search.value=''; renderLibrary(); });
+    document.getElementById('showFavoritesOnly')?.addEventListener('click',function(){ showOnlyFavorites=!showOnlyFavorites; this.classList.toggle('active',showOnlyFavorites); renderLibrary(); });
+    document.getElementById('themeToggle')?.addEventListener('click',()=>{ currentTheme=currentTheme==='dark'?'light':'dark'; applyTheme(currentTheme); });
+    document.getElementById('exportPdfBtn')?.addEventListener('click',exportToPDF);
+    document.getElementById('viewToggleBtn')?.addEventListener('click',()=>{ isGridView = !isGridView; localStorage.setItem('relectronica_view', isGridView ? 'grid' : 'list'); renderLibrary(); });
+    document.getElementById('sortSelect')?.addEventListener('change',(e)=>{ currentSort = e.target.value; localStorage.setItem('relectronica_sort', currentSort); renderLibrary(); });
+    document.getElementById('fullscreenModeBtn')?.addEventListener('click',toggleFullscreen);
+    const modal = document.getElementById('importExportModal');
+    document.getElementById('importExportBtn')?.addEventListener('click',()=>{ modal.classList.add('active'); });
+    document.querySelector('.close-modal')?.addEventListener('click',()=>{ modal.classList.remove('active'); });
+    modal?.addEventListener('click',(e)=>{ if(e.target === modal) modal.classList.remove('active'); });
+    document.getElementById('exportDataBtn')?.addEventListener('click',exportData);
+    document.getElementById('importDataBtn')?.addEventListener('click',()=>{ document.getElementById('importFileInput').click(); });
+    document.getElementById('importFileInput')?.addEventListener('change',(e)=>{ if(e.target.files[0]) importData(e.target.files[0]); });
+    renderLibrary();
+});
+</script>
+</body>
+</html>
