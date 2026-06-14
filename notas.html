@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Mis Notas</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+        }
+        body.light-mode {
+            --bg-color: #f3f4f6;
+            --chat-bg: #ffffff;
+            --text-color: #1f2937;
+            --card-bg: #e5e7eb;
+            --border-color: #d1d5db;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--chat-bg); padding: 12px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); gap: 12px; }
+        .logo-container { width: 45px; height: 45px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); }
+        .main-content { flex: 1; padding: 20px; margin-bottom: 75px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .form-container, .notes-list { background: var(--chat-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; }
+        input, textarea { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px; border-radius: 8px; }
+        .btn-save { background: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
+        .backup-buttons { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-backup { flex:1; background: #2d3748; border: none; color: white; padding: 6px; border-radius: 6px; cursor: pointer; }
+        .note-card { background: var(--card-bg); border-left: 4px solid var(--primary-color); padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0; position: relative; }
+        .btn-delete { position: absolute; top: 5px; right: 8px; background: none; border: none; color: #ef4444; font-size: 1.2rem; cursor: pointer; }
+        nav.nav-tabs { position: fixed; bottom: 0; left: 0; width: 100%; height: 58px; background: var(--chat-bg); border-top: 1px solid var(--border-color); display: flex; z-index: 100; }
+        .nav-item { flex:1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #a0aec0; font-size: 0.7rem; gap: 2px; }
+        .nav-item.active { color: #a855f7; }
+        .nav-icon { font-size: 1.3rem; }
+        .header-buttons { margin-left: auto; display: flex; gap: 8px; }
+        .theme-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container"><img src="logo.png" onerror="this.style.display='none'"></div>
+        <div class="header-info"><h1>Mis Notas Técnicas</h1></div>
+        <div class="header-buttons"><button id="themeToggle" class="theme-btn">🌓</button></div>
+    </header>
+    <div class="main-content">
+        <div class="form-container">
+            <div class="input-group"><label>Modelo / Tarjeta:</label><input type="text" id="note-model" placeholder="Ej: LG 42LB5610"></div>
+            <div class="input-group"><label>Falla / Síntoma:</label><textarea id="note-fault" rows="2"></textarea></div>
+            <div class="input-group"><label>Solución aplicada:</label><textarea id="note-solution" rows="2"></textarea></div>
+            <button class="btn-save" onclick="guardarNota()">Guardar en Bitácora</button>
+            <div class="backup-buttons"><button class="btn-backup" onclick="exportarNotas()">📤 Exportar</button><button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 Importar</button><input type="file" id="importFile" accept=".json" style="display:none"></div>
+        </div>
+        <div class="form-container"><input type="text" id="searchNotas" placeholder="🔍 Buscar en notas..." oninput="filtrarNotas()"></div>
+        <div class="notes-list" id="notes-list"></div>
+    </div>
+    <nav class="nav-tabs">
+        <a href="index.html" class="nav-item"><span class="nav-icon">💬</span><span>Chat</span></a>
+        <a href="notas.html" class="nav-item active"><span class="nav-icon">📝</span><span>Notas</span></a>
+        <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
+        <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
+        <a href="calculadoras.html" class="nav-item"><span class="nav-icon">🧮</span><span>Cálculos</span></a>
+        <a href="fallas.html" class="nav-item"><span class="nav-icon">🛠️</span><span>Casos</span></a>
+        <a href="recepcion.html" class="nav-item"><span class="nav-icon">📋</span><span>Recepción</span></a>
+    </nav>
+    <script>
+        function applyTheme(theme) { if(theme==='light') document.body.classList.add('light-mode'); else document.body.classList.remove('light-mode'); localStorage.setItem('relectronica_theme', theme); }
+        const savedTheme = localStorage.getItem('relectronica_theme')||'dark';
+        applyTheme(savedTheme);
+        document.getElementById('themeToggle').addEventListener('click',()=>{ applyTheme(document.body.classList.contains('light-mode')?'dark':'light'); });
+
+        function guardarNota() {
+            let modelo = document.getElementById('note-model').value.trim();
+            let falla = document.getElementById('note-fault').value.trim();
+            let solucion = document.getElementById('note-solution').value.trim();
+            if(!modelo || !falla || !solucion) { alert("Completa todos los campos"); return; }
+            let notas = JSON.parse(localStorage.getItem('relectronica_notas')||'[]');
+            notas.unshift({ id: Date.now(), modelo, falla, solucion });
+            localStorage.setItem('relectronica_notas', JSON.stringify(notas));
+            document.getElementById('note-model').value = '';
+            document.getElementById('note-fault').value = '';
+            document.getElementById('note-solution').value = '';
+            mostrarNotas();
+        }
+        function mostrarNotas() {
+            let notas = JSON.parse(localStorage.getItem('relectronica_notas')||'[]');
+            let container = document.getElementById('notes-list');
+            if(!notas.length) { container.innerHTML = '<p>No hay notas guardadas.</p>'; return; }
+            container.innerHTML = notas.map(n => `<div class="note-card" data-id="${n.id}"><button class="btn-delete" onclick="eliminarNota(${n.id})">×</button><strong>📺 ${escapeHtml(n.modelo)}</strong><br><span style="color:#f59e0b">⚠️ ${escapeHtml(n.falla)}</span><br><span style="color:#10b981">✅ ${escapeHtml(n.solucion)}</span></div>`).join('');
+        }
+        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        function eliminarNota(id) { let notas = JSON.parse(localStorage.getItem('relectronica_notas')||'[]'); notas = notas.filter(n=> n.id !== id); localStorage.setItem('relectronica_notas', JSON.stringify(notas)); mostrarNotas(); }
+        function filtrarNotas() { let term = document.getElementById('searchNotas').value.toLowerCase(); document.querySelectorAll('.note-card').forEach(card=>{ card.style.display = card.innerText.toLowerCase().includes(term) ? 'block' : 'none'; }); }
+        function exportarNotas() { let notas = localStorage.getItem('relectronica_notas'); if(!notas) return alert("No hay notas"); let blob = new Blob([notas], {type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`notas_${Date.now()}.json`; a.click(); }
+        document.getElementById('importFile').addEventListener('change', function(e){ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let data=JSON.parse(ev.target.result); if(Array.isArray(data)){ localStorage.setItem('relectronica_notas', JSON.stringify(data)); mostrarNotas(); alert("Importado"); } else throw new Error(); } catch(e){ alert("Archivo inválido"); } }; reader.readAsText(file); e.target.value=''; });
+        mostrarNotas();
+    </script>
+</body>
+</html>
