@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Calculadoras Técnicas</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+            --input-bg: #080d16;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--primary-color);
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: #10b981;
+        }
+        .calc-container {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 90px;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.selector-calculadora {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    margin-bottom: 20px;
+    outline: none;
+}
+
+.calculator-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.calculator-card h3 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.grupo-input {
+    margin-bottom: 15px;
+}
+
+.grupo-input label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    color: #cbd5e1;
+}
+
+.calc-input, select.calc-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.calc-input:focus {
+    border-color: var(--primary-color);
+}
+
+.calc-input.valid {
+    border-color: var(--success);
+    box-shadow: 0 0 0 1px var(--success);
+}
+.calc-input.invalid {
+    border-color: var(--error);
+    box-shadow: 0 0 0 1px var(--error);
+}
+
+.btn-calc {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+.btn-calc:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background-color: #2d3a4e;
+    margin-top: 8px;
+}
+
+.result-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 6px;
+    background-color: var(--input-bg);
+    border: 1px dashed var(--border-color);
+    min-height: 50px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.accordion {
+    background-color: var(--chat-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+.accordion summary {
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #a78bfa;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.accordion summary::-webkit-details-marker {
+    display: none;
+}
+.accordion summary::before {
+    content: "▶";
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+}
+.accordion[open] summary::before {
+    content: "▼";
+}
+.accordion-content {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+}
+        .progress-bar-container {
+            background-color: var(--input-bg);
+            border-radius: 20px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: var(--success);
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .action-buttons button {
+            flex: 1;
+            background-color: #2d3a4e;
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .action-buttons button:hover {
+            background-color: #3b4a60;
+        }
+
+        .gamma-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 500px) {
+            .gamma-inputs-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--chat-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            width: 16%;
+            text-align: center;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            margin-bottom: 2px;
+        }
+        
+        .nav-item span:last-child {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .badge {
+            background-color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .highlight-field {
+            border: 2px solid var(--warning) !important;
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .glosario-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 8px 12px;
+            font-size: 0.85rem;
+        }
+        .glosario-grid b {
+            color: #a78bfa;
+        }
+        .glosario-grid span {
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">R</div>
+    </div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p>● Línea Técnica Inteligente</p>
+    </div>
+</header>
+
+<div class="calc-container">
+    <select class="selector-calculadora" id="calc-menu-selector" onchange="alternarCalculadora(this.value)">
+        <option value="smd">🎛️ Lector de Resistencias SMD</option>
+        <option value="6bandas">🎨 Código de Colores (6 Bandas)</option>
+        <option value="ohm">⚡ Calculadora de Ley de Ohm</option>
+        <option value="series-paralelo">⛓️ Circuitos Serie y Paralelo</option>
+        <option value="divisor">📉 Divisor de Voltaje / Tensión</option>
+        <option value="voltajes" selected>🖥️ Diagnóstico Maestro de Paneles LCD / T-CON</option>
+        <option value="fuentes">🔌 Diagnóstico de Fuentes SMPS</option>
+    </select>
+    <!-- LECTOR SMD -->
+<div id="calc-smd" class="calculator-card" style="display:none;">
+    <h3>🎛️ Lector de Resistencias SMD</h3>
+    <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 12px;">Soporta códigos estándar de 3 dígitos, 4 dígitos y codificación de precisión EIA-96:</p>
+    <div class="grupo-input">
+        <label>Código impreso en el componente:</label>
+        <input type="text" id="smd-code-input" class="calc-input" placeholder="Ej: 103, 4702, 01A, R22" style="text-transform: uppercase;">
+    </div>
+    <button class="btn-calc" onclick="calcularResistenciaSMD()">Interpretar Código</button>
+    <div class="result-box" id="smd-res-box">El valor calculado aparecerá aquí...</div>
+</div>
+
+<!-- CÓDIGO DE COLORES 6 BANDAS -->
+<div id="calc-6bandas" class="calculator-card" style="display:none;">
+    <h3>🎨 Código de Colores (6 Bandas)</h3>
+    <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 12px;">Selecciona el color de cada franja para calcular el valor y su coeficiente térmico:</p>
+    <div class="color-preview-bar" id="color-preview-bar" style="display: flex; height: 25px; border-radius: 6px; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border-color);">
+        <div id="prev-b1" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+        <div id="prev-b2" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+        <div id="prev-b3" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+        <div id="prev-b4" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+        <div id="prev-b5" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+        <div id="prev-b6" class="preview-segment" style="flex:1; background-color:#334155;"></div>
+    </div>
+        <div class="band-selector-container" style="display: grid; grid-template-columns: repeat(2,1fr); gap: 10px;">
+        <div class="grupo-input">
+            <label>1ª Banda:</label>
+            <select id="b1-select" class="select-banda calc-input"></select>
+        </div>
+        <div class="grupo-input">
+            <label>2ª Banda:</label>
+            <select id="b2-select" class="select-banda calc-input"></select>
+        </div>
+        <div class="grupo-input">
+            <label>3ª Banda:</label>
+            <select id="b3-select" class="select-banda calc-input"></select>
+        </div>
+        <div class="grupo-input">
+            <label>Multiplicador:</label>
+            <select id="b4-select" class="select-banda calc-input"></select>
+        </div>
+        <div class="grupo-input">
+            <label>Tolerancia:</label>
+            <select id="b5-select" class="select-banda calc-input"></select>
+        </div>
+        <div class="grupo-input">
+            <label>Coef. Térmico:</label>
+            <select id="b6-select" class="select-banda calc-input"></select>
+        </div>
+    </div>
+    <button class="btn-calc" onclick="calcularCodigoSeisBandas()">Calcular Resistencia</button>
+    <div class="result-box" id="6b-res-box">El valor e información térmica se reflejarán aquí...</div>
+</div>
+
+<!-- LEY DE OHM -->
+<div id="calc-ohm" class="calculator-card" style="display:none;">
+    <h3>⚡ Calculadora de Ley de Ohm</h3>
+    <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 12px;">Introduce dos valores conocidos para calcular los campos vacíos de forma automática:</p>
+    <div class="grupo-input">
+        <label>Voltaje (V) en Voltios:</label>
+        <input type="number" step="any" id="ohm-v" class="calc-input" placeholder="Ej: 12">
+    </div>
+        <div class="grupo-input">
+        <label>Corriente (I) en Amperios o miliAmperios:</label>
+        <div style="display:flex; gap:8px;">
+            <input type="number" step="any" id="ohm-i" class="calc-input" placeholder="Ej: 0.5 o 500" style="flex:1;">
+            <select id="unit-i" class="calc-input" style="width:85px; padding:5px;">
+                <option value="A">A</option>
+                <option value="mA">mA</option>
+            </select>
+        </div>
+    </div>
+    <div class="grupo-input">
+        <label>Resistencia (R) en Ohmios:</label>
+        <input type="number" step="any" id="ohm-r" class="calc-input" placeholder="Ej: 24">
+    </div>
+    <button class="btn-calc" onclick="calcularLeyOhm()">Calcular Parámetros</button>
+    <div class="result-box" id="ohm-res-box">Los datos calculados y la potencia disipada aparecerán aquí...</div>
+</div>
+
+<!-- SERIE Y PARALELO -->
+<div id="calc-series-paralelo" class="calculator-card" style="display:none;">
+    <h3>⛓️ Circuitos Serie y Paralelo</h3>
+    <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 12px;">Introduce los valores separados por comas para calcular equivalencias:</p>
+    <div class="grupo-input">
+        <label>Valores de Componentes (Separados por comas):</label>
+        <input type="text" id="sp-values-input" class="calc-input" placeholder="Ej: 10, 22, 47, 100">
+    </div>
+    <div class="grupo-input">
+        <label>Tipo de Componente bajo análisis:</label>
+        <select id="sp-type-select" class="calc-input">
+            <option value="resistencias">Resistencias o Resistores (Ω)</option>
+            <option value="capacitores">Capacitores o Condensadores (µF)</option>
+            <option value="inductores">Inductores o Bobinas (mH)</option>
+        </select>
+    </div>
+    <button class="btn-calc" onclick="calcularAsociaciones()">Calcular Equivalencias</button>
+    <div class="result-box" id="sp-res-box">Los resultados equivalentes para ambas configuraciones aparecerán aquí...</div>
+</div>
+<!-- DIVISOR DE VOLTAJE -->
+<div id="calc-divisor" class="calculator-card" style="display:none;">
+    <h3>📉 Divisor de Voltaje / Tensión</h3>
+    <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 12px;">Calcula el voltaje de salida (Vout) generado en un nodo resistivo:</p>
+    <div class="grupo-input">
+        <label>Voltaje de Entrada (Vin) en Voltios:</label>
+        <input type="number" step="any" id="div-vin" class="calc-input" placeholder="Ej: 12">
+    </div>
+    <div class="grupo-input">
+        <label>Resistencia R1 (Superior) en Ohmios:</label>
+        <input type="number" step="any" id="div-r1" class="calc-input" placeholder="Ej: 10000">
+    </div>
+    <div class="grupo-input">
+        <label>Resistencia R2 (Conectada a GND) en Ohmios:</label>
+        <input type="number" step="any" id="div-r2" class="calc-input" placeholder="Ej: 5000">
+    </div>
+    <button class="btn-calc" onclick="calcularDivisorVoltaje()">Calcular Voltaje de Salida</button>
+    <div class="result-box" id="div-res-box">El voltaje remanente calculado en el nodo central aparecerá aquí...</div>
+</div>
+
+<!-- DIAGNÓSTICO AVANZADO DE PANEL (VERSIÓN PRO) -->
+<div id="calc-voltajes" class="calculator-card" style="display:block;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <h3 style="margin: 0; color: #a855f7;">🖥️ Diagnóstico Maestro de Paneles LCD / T-CON</h3>
+        <span class="badge">v3.0 PRO</span>
+    </div>
+
+    <div class="accordion" open>
+        <summary>📋 Configuración y Síntomas</summary>
+        <div class="accordion-content">
+            <div class="grupo-input">
+                <label>Tipo de Panel:</label>
+                <select id="panel-tipo" class="calc-input" onchange="cargarValoresReferencia(); actualizarValidacionesTiempoReal();">
+                    <option value="tv">TV LED/LCD (estándar)</option>
+                    <option value="monitor">Monitor PC</option>
+                    <option value="laptop">Laptop / Notebook</option>
+                    <option value="oled">OLED (nuevos rangos)</option>
+                </select>
+            </div>
+                    <div class="grupo-input">
+            <label>🔍 Síntoma Visual en la Pantalla:</label>
+            <select id="sintoma-visual" class="calc-input" onchange="analizarSintomaVisual()">
+                <option value="">-- Selecciona un síntoma --</option>
+                <option value="blanca">Pantalla completamente Blanca o Gris</option>
+                <option value="lenta">Imagen en cámara lenta / congelada</option>
+                <option value="lavada">Imagen Lavada, sin contraste</option>
+                <option value="negativo">Colores distorsionados / Negativo</option>
+                <option value="intermitente">Parpadeo / doble imagen</option>
+                <option value="oscura">Pantalla se desvanece a negro</option>
+            </select>
+            <div id="guia-sintoma-box" style="margin-top: 8px; padding: 8px; background: rgba(37,99,235,0.1); border-left: 4px solid #2563eb; border-radius: 4px; font-size: 0.8rem; color: #cbd5e1; display: none;"></div>
+        </div>
+        <div class="action-buttons">
+            <button onclick="cargarValoresReferencia()">📥 Cargar valores de referencia</button>
+            <button onclick="guardarLecturaActual()">💾 Guardar esta medición</button>
+            <button onclick="compararConGuardada()">🔄 Comparar con guardada</button>
+        </div>
+    </div>
+</div>
+
+<div class="accordion" open>
+    <summary>⚡ Voltajes Críticos DC-DC</summary>
+    <div class="accordion-content">
+        <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 10px;">
+            <div class="grupo-input"><label>VCC / VDD (Lógica):</label><input type="number" step="0.01" id="vcc-input" class="calc-input" placeholder="Ej: 3.3" oninput="validarCampoEnTiempoReal('vcc-input')"></div>
+            <div class="grupo-input"><label>AVDD (Analógico):</label><input type="number" step="0.01" id="avdd-input" class="calc-input" placeholder="Ej: 15.4" oninput="validarCampoEnTiempoReal('avdd-input')"></div>
+            <div class="grupo-input"><label>VCOM (Común):</label><input type="number" step="0.01" id="vcom-input" class="calc-input" placeholder="Ej: 6.2" oninput="validarCampoEnTiempoReal('vcom-input')"></div>
+            <div class="grupo-input"><label>VGH / VON (TFT ON):</label><input type="number" step="0.01" id="vgh-input" class="calc-input" placeholder="Ej: 28.1" oninput="validarCampoEnTiempoReal('vgh-input')"></div>
+            <div class="grupo-input" style="grid-column: span 2;"><label>VGL / VOFF (TFT OFF):</label><input type="number" step="0.01" id="vgl-input" class="calc-input" placeholder="Ej: -7.5" oninput="validarCampoEnTiempoReal('vgl-input')"></div>
+        </div>
+    </div>
+</div>
+    <div class="accordion">
+        <summary>🎨 Análisis de Corrección Gamma</summary>
+        <div class="accordion-content">
+            <div class="gamma-inputs-grid">
+                <input type="number" step="0.1" id="vg-alto" class="calc-input" placeholder="Alto (14.5)" oninput="validarCampoEnTiempoReal('vg-alto')">
+                <input type="number" step="0.1" id="vg-medio" class="calc-input" placeholder="Medio (9.2)" oninput="validarCampoEnTiempoReal('vg-medio')">
+                <input type="number" step="0.1" id="vg-bajo" class="calc-input" placeholder="Bajo (3.1)" oninput="validarCampoEnTiempoReal('vg-bajo')">
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion">
+        <summary>⏱️ Banco de Señales de Reloj (CKV)</summary>
+        <div class="accordion-content">
+            <select id="linea-ckv" class="calc-input">
+                <option value="correcta">Impedancia Alta o MegaOhmios (Correcto)</option>
+                <option value="corto_tierra">Corto Directo a Tierra (&lt; 500 Ω)</option>
+                <option value="corto_entre_si">Corto entre CKV1 y CKV2</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="accordion">
+        <summary>🔌 Corriente de T-CON</summary>
+        <div class="accordion-content">
+            <div class="grupo-input">
+                <label>Corriente consumida (mA):</label>
+                <input type="number" id="tcon-current" class="calc-input" placeholder="Ej: 230" oninput="validarCampoEnTiempoReal('tcon-current')">
+                <small style="color:#a0aec0;">Umbral normal: &lt; 350 mA</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion">
+        <summary>📐 Mapa de puntos de prueba</summary>
+        <div class="accordion-content">
+            <ul style="margin-left: 20px; font-size: 0.8rem; color: #cbd5e1;">
+                <li><b>VCC/VDD:</b> Se mide en la entrada del regulador o pin de alimentación del IC DC-DC.</li>
+                <li><b>AVDD:</b> Generalmente en el positivo del capacitor de salida del boost.</li>
+                <li><b>VCOM:</b> En el pin de salida del buffer de VCOM o en la pista que va al panel.</li>
+                <li><b>VGH/VON:</b> En el cátodo del diodo de la bomba de carga.</li>
+                <li><b>VGL/VOFF:</b> En el ánodo del diodo negativo o pin correspondiente del DC-DC.</li>
+                <li><b>Gamma:</b> En los pines del IC corrector (ej. AS15-F, RM5101).</li>
+                <li><b>CKV:</b> En los pads de prueba cerca del conector del flex.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="action-buttons">
+        <button onclick="copiarReporte()">📋 Copiar reporte</button>
+        <button onclick="exportarReporteTXT()">📁 Exportar a TXT</button>
+    </div>
+    <button class="btn-calc" onclick="ejecutarDiagnosticoMaestroPanel()" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">🚀 Analizar Todo y Generar Reporte</button>
+    <div class="result-box" id="panel-res-box" style="margin-top:15px;">Los resultados del análisis maestro se reflejarán aquí...</div>
+</div>
+<!-- DIAGNÓSTICO DE FUENTES SMPS -->
+<div id="calc-fuentes" class="calculator-card" style="display:none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <h3 style="margin: 0; color: #f59e0b;">🔌 Diagnóstico de Fuentes SMPS (TV/Monitores)</h3>
+        <span class="badge">v1.0 PRO</span>
+    </div>
+
+    <details class="accordion" open>
+        <summary>📖 Glosario de términos técnicos</summary>
+        <div class="accordion-content">
+            <div class="glosario-grid">
+                <b>TL431:</b> <span>Regulador shunt programable de precisión. Su pin REF debe medir <b>2.495V</b>.</span>
+                <b>Optoacoplador:</b> <span>Aísla primario/secundario. Transmite la señal de error mediante luz infrarroja.</span>
+                <b>PWM IC:</b> <span>Genera la señal para conmutar el MOSFET. Sin VCC (12-18V) no arranca.</span>
+                <b>ESR:</b> <span>Resistencia serie equivalente de un capacitor. Alto ESR causa fallos bajo carga.</span>
+                <b>5VSB (Standby):</b> <span>Voltaje siempre presente aunque el TV esté apagado.</span>
+                <b>PS-ON:</b> <span>Pin que la placa principal pone a tierra (0V) para encender la fuente.</span>
+                <b>R sense:</b> <span>Resistencia de bajo valor (0.1Ω a 1Ω) que detecta la corriente del MOSFET.</span>
+                <b>Schottky:</b> <span>Diodo de alta velocidad en el secundario. Caída 0.2-0.4V.</span>
+            </div>
+        </div>
+    </details>
+
+    <div class="accordion" open>
+        <summary>🔍 Síntoma del equipo</summary>
+        <div class="accordion-content">
+            <div class="grupo-input">
+                <label>Selecciona la falla principal:</label>
+                <select id="sintoma-fuente" class="calc-input" onchange="actualizarArbolDiagnosticoFuente()">
+                    <option value="muerto">🔌 Equipo completamente muerto (sin LED, sin reacción)</option>
+                    <option value="standby">💡 LED standby encendido pero no enciende</option>
+                    <option value="parpadea">🔄 Parpadeo o reinicio continuo</option>
+                    <option value="ruido">🔊 Zumbido o ruido audible</option>
+                    <option value="todo_bien">✅ Todo mide bien pero no enciende</option>
+                </select>
+            </div>
+            <div id="guia-fuente-box" style="margin-top: 8px; padding: 8px; background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 0.8rem; color: #fde68a; display: none;"></div>
+        </div>
+    </div>
+            <div class="accordion" open>
+            <summary>📋 Diagnóstico paso a paso</summary>
+            <div class="accordion-content" id="arbol-diagnostico-fuente">
+                <div id="paso-actual-fuente"><p style="color: #a0aec0;">Selecciona un síntoma para comenzar el diagnóstico guiado.</p></div>
+                <div id="opciones-paso" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <summary>📐 Calculadora de TL431 (Realimentación)</summary>
+            <div class="accordion-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="grupo-input"><label>R1 (superior, en kΩ):</label><input type="number" id="tl431-r1" class="calc-input" placeholder="Ej: 10" step="0.1"></div>
+                    <div class="grupo-input"><label>R2 (inferior, en kΩ):</label><input type="number" id="tl431-r2" class="calc-input" placeholder="Ej: 2.2" step="0.1"></div>
+                </div>
+                <button class="btn-calc btn-secondary" onclick="calcularTL431()">Calcular Vout teórico</button>
+                <div id="tl431-resultado" class="result-box" style="margin-top: 10px;">Vout = ? V</div>
+                <small>Fórmula: Vout = Vref × (1 + R1/R2) con Vref = 2.495V</small>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <summary>⚡ Calculadora de carga ficticia</summary>
+            <div class="accordion-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="grupo-input"><label>Voltaje del rail (V):</label><input type="number" id="carga-voltaje" class="calc-input" placeholder="Ej: 12" step="1"></div>
+                    <div class="grupo-input"><label>Corriente deseada (A):</label><input type="number" id="carga-corriente" class="calc-input" placeholder="Ej: 1" step="0.1"></div>
+                </div>
+                <button class="btn-calc btn-secondary" onclick="calcularCargaFicticia()">Calcular resistencia</button>
+                <div id="carga-resultado" class="result-box" style="margin-top: 10px;">Resistor necesario: ? Ω (potencia mínima: ? W)</div>
+            </div>
+        </div>
+
+        <details class="accordion">
+            <summary>📊 Tabla de voltajes típicos por tipo de TV</summary>
+            <div class="accordion-content">
+                <div class="glosario-grid">
+                    <b>TV LED pequeño (32")</b> <span>5VSB, 5V, 12V, 24V (backlight), 3.3V</span>
+                    <b>TV LED grande (55")</b> <span>5VSB, 12V, 24V, 56V (backlight LED), 3.3V</span>
+                    <b>Monitor PC</b> <span>5VSB, 5V, 12V, 18V (backlight CCFL)</span>
+                    <b>Placa principal</b> <span>3.3V, 1.8V, 1.2V (VDD_CORE), 1.5V (DRAM)</span>
+                </div>
+            </div>
+        </details>
+
+        <div class="action-buttons">
+            <button onclick="reiniciarDiagnosticoFuente()">🔄 Reiniciar diagnóstico</button>
+            <button onclick="copiarReporteFuente()">📋 Copiar reporte</button>
+        </div>
+        <button class="btn-calc" onclick="generarReporteFinalFuente()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">📝 Generar Reporte Final</button>
+        <div class="result-box" id="fuente-res-box" style="margin-top:15px;">Los resultados del diagnóstico aparecerán aquí...</div>
+    </div>
+</div>
+<nav>
+    <a href="index.html" class="nav-item"><span class="nav-icon">💬</span><span>Chat Técnico</span></a>
+    <a href="notas.html" class="nav-item"><span class="nav-icon">📝</span><span>Mis Notas</span></a>
+    <a href="biblioteca.html" class="nav-item"><span class="nav-icon">📘</span><span>Biblioteca</span></a>
+    <a href="hardware.html" class="nav-item"><span class="nav-icon">🖼️</span><span>Hardware</span></a>
+    <a href="fallas.html" class="nav-item"><span class="nav-icon">🛠️</span><span>Casos de Falla</span></a>
+    <a href="recepcion.html" class="nav-item"><span class="nav-icon">📋</span><span>Recepción</span></a>
+</nav>
+
+<script>
+    // Alternar calculadoras
+    function alternarCalculadora(idSeleccionada) {
+        const IDs = ['calc-smd', 'calc-6bandas', 'calc-ohm', 'calc-series-paralelo', 'calc-divisor', 'calc-voltajes', 'calc-fuentes'];
+        IDs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = (id === 'calc-' + idSeleccionada) ? 'block' : 'none';
+        });
+    }
+
+    // SMD
+    function calcularResistenciaSMD() {
+        const code = document.getElementById('smd-code-input').value.trim().toUpperCase();
+        const resBox = document.getElementById('smd-res-box');
+        if (!code) { resBox.innerHTML = "Introduce un código válido."; return; }
+        if (/^\d{3,4}$/.test(code)) {
+            const len = code.length;
+            const valBase = parseInt(code.substring(0, len - 1));
+            const mult = parseInt(code.charAt(len - 1));
+            const ohms = valBase * Math.pow(10, mult);
+            resBox.innerHTML = `<b>Resistencia:</b> ${formatearOhms(ohms)}<br><small>Código estándar de ${len} dígitos.</small>`;
+            return;
+        }
+        if (code.includes('R')) {
+            const ohms = parseFloat(code.replace('R', '.'));
+            if (!isNaN(ohms)) { resBox.innerHTML = `<b>Resistencia:</b> ${ohms} Ω<br><small>Código con punto decimal flotante (R).</small>`; return; }
+        }
+        const eia96Codes = {"01":100,"02":102,"03":105,"04":107,"05":110,"06":113,"07":115,"08":118,"09":121,"10":124,"11":127,"12":130,"13":133,"14":137,"15":140,"16":143,"17":147,"18":150,"47":301,"48":309,"49":316,"50":324,"51":332,"70":523,"80":665,"90":845};
+        const eia96Mult = {"A":1,"B":10,"C":100,"D":1000,"E":10000,"F":100000,"X":0.1,"Y":0.01,"Z":0.001};
+        if (code.length === 3 && /^\d{2}[A-Z]$/.test(code)) {
+            const numPart = code.substring(0,2), letPart = code.charAt(2);
+            if (eia96Codes[numPart] && eia96Mult[letPart]) {
+                const ohms = eia96Codes[numPart] * eia96Mult[letPart];
+                resBox.innerHTML = `<b>Resistencia:</b> ${formatearOhms(ohms)} (Tolerancia: ±1%)<br><small>EIA-96.</small>`;
+                return;
+            }
+        }
+        resBox.innerHTML = "⚠️ Código no reconocido.";
+    }
+    const listadoColores6B = [
+    { nombre: "Negro", color: "#000000", txt: "#fff", val: 0, m: 1, t: null, tc: 250 },
+    { nombre: "Marrón", color: "#8B4513", txt: "#fff", val: 1, m: 10, t: 1, tc: 100 },
+    { nombre: "Rojo", color: "#FF0000", txt: "#fff", val: 2, m: 100, t: 2, tc: 50 },
+    { nombre: "Naranja", color: "#FFA500", txt: "#000", val: 3, m: 1000, t: null, tc: 15 },
+    { nombre: "Amarillo", color: "#FFFF00", txt: "#000", val: 4, m: 10000, t: null, tc: 25 },
+    { nombre: "Verde", color: "#008000", txt: "#fff", val: 5, m: 100000, t: 0.5, tc: 20 },
+    { nombre: "Azul", color: "#0000FF", txt: "#fff", val: 6, m: 1000000, t: 0.25, tc: 10 },
+    { nombre: "Violeta", color: "#EE82EE", txt: "#000", val: 7, m: 10000000, t: 0.1, tc: 5 },
+    { nombre: "Gris", color: "#808080", txt: "#fff", val: 8, m: null, t: 0.05, tc: 1 },
+    { nombre: "Blanco", color: "#FFFFFF", txt: "#000", val: 9, m: null, t: null, tc: null },
+    { nombre: "Oro", color: "#D4AF37", txt: "#000", val: null, m: 0.1, t: 5, tc: null },
+    { nombre: "Plata", color: "#C0C0C0", txt: "#000", val: null, m: 0.01, t: 10, tc: null }
+];
+
+function inicializarSelectoresColores() {
+    const selects = ['b1-select','b2-select','b3-select','b4-select','b5-select','b6-select'];
+    selects.forEach((id, idx) => {
+        const elem = document.getElementById(id);
+        if(!elem) return;
+        elem.innerHTML = '';
+        listadoColores6B.forEach((c, index) => {
+            if(idx<3 && c.val===null) return;
+            if(idx===3 && c.m===null) return;
+            if(idx===4 && c.t===null) return;
+            if(idx===5 && c.tc===null) return;
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = c.nombre;
+            elem.appendChild(opt);
+        });
+    });
+    actualizarPrevisualizacionColores();
+}
+
+function actualizarPrevisualizacionColores() {
+    const s1 = listadoColores6B[document.getElementById('b1-select')?.value||0];
+    const s2 = listadoColores6B[document.getElementById('b2-select')?.value||0];
+    const s3 = listadoColores6B[document.getElementById('b3-select')?.value||0];
+    const s4 = listadoColores6B[document.getElementById('b4-select')?.value||0];
+    const s5 = listadoColores6B[document.getElementById('b5-select')?.value||1];
+    const s6 = listadoColores6B[document.getElementById('b6-select')?.value||0];
+    if(document.getElementById('prev-b1')) document.getElementById('prev-b1').style.backgroundColor = s1.color;
+    if(document.getElementById('prev-b2')) document.getElementById('prev-b2').style.backgroundColor = s2.color;
+    if(document.getElementById('prev-b3')) document.getElementById('prev-b3').style.backgroundColor = s3.color;
+    if(document.getElementById('prev-b4')) document.getElementById('prev-b4').style.backgroundColor = s4.color;
+    if(document.getElementById('prev-b5')) document.getElementById('prev-b5').style.backgroundColor = s5.color;
+    if(document.getElementById('prev-b6')) document.getElementById('prev-b6').style.backgroundColor = s6.color;
+}
+
+function calcularCodigoSeisBandas() {
+    const s1 = listadoColores6B[document.getElementById('b1-select').value];
+    const s2 = listadoColores6B[document.getElementById('b2-select').value];
+    const s3 = listadoColores6B[document.getElementById('b3-select').value];
+    const s4 = listadoColores6B[document.getElementById('b4-select').value];
+    const s5 = listadoColores6B[document.getElementById('b5-select').value];
+    const s6 = listadoColores6B[document.getElementById('b6-select').value];
+    const baseVal = (s1.val * 100) + (s2.val * 10) + s3.val;
+    const ohms = baseVal * s4.m;
+    document.getElementById('6b-res-box').innerHTML = `<b>Resistencia:</b> ${formatearOhms(ohms)}<br><b>Tolerancia:</b> ±${s5.t}%<br><b>Coeficiente:</b> ${s6.tc} ppm/K`;
+}
+
+function calcularLeyOhm() {
+    let v = parseFloat(document.getElementById('ohm-v').value);
+    let i = parseFloat(document.getElementById('ohm-i').value);
+    let r = parseFloat(document.getElementById('ohm-r').value);
+    const unitI = document.getElementById('unit-i').value;
+    const resBox = document.getElementById('ohm-res-box');
+    if (!isNaN(i) && unitI === 'mA') i = i / 1000;
+    let c=0; if(!isNaN(v)) c++; if(!isNaN(i)) c++; if(!isNaN(r)) c++;
+    if(c<2){resBox.innerHTML="Introduce al menos dos campos."; return;}
+    if(isNaN(v)) v = i*r;
+    else if(isNaN(i)) i = v/r;
+    else if(isNaN(r)) r = v/i;
+    const w = v*i;
+    resBox.innerHTML = `<b>Voltaje:</b> ${v.toFixed(3)} V<br><b>Corriente:</b> ${(i*1000).toFixed(2)} mA<br><b>Resistencia:</b> ${r.toFixed(2)} Ω<br><b>Potencia:</b> ${w.toFixed(3)} W`;
+}
+
+function calcularAsociaciones() {
+    const raw = document.getElementById('sp-values-input').value;
+    const type = document.getElementById('sp-type-select').value;
+    const resBox = document.getElementById('sp-res-box');
+    if(!raw){resBox.innerHTML="Ingresa valores."; return;}
+    const vals = raw.split(',').map(v=>parseFloat(v.trim())).filter(v=>!isNaN(v)&&v>0);
+    if(vals.length===0){resBox.innerHTML="Valores inválidos."; return;}
+    let sumSerie=0, sumInv=0;
+    vals.forEach(v=>{sumSerie+=v; sumInv+=1/v;});
+    const resParalelo=1/sumInv;
+    if(type==='resistencias'||type==='inductores') resBox.innerHTML = `<b>Serie:</b> ${sumSerie.toFixed(2)}<br><b>Paralelo:</b> ${resParalelo.toFixed(2)}`;
+    else resBox.innerHTML = `<b>Serie (Cap):</b> ${resParalelo.toFixed(3)} µF<br><b>Paralelo (Cap):</b> ${sumSerie.toFixed(2)} µF`;
+}
+
+function calcularDivisorVoltaje() {
+    const vin = parseFloat(document.getElementById('div-vin').value);
+    const r1 = parseFloat(document.getElementById('div-r1').value);
+    const r2 = parseFloat(document.getElementById('div-r2').value);
+    const resBox = document.getElementById('div-res-box');
+    if(isNaN(vin)||isNaN(r1)||isNaN(r2)||(r1+r2===0)){resBox.innerHTML="Completa todos los campos."; return;}
+    const vout = vin * (r2/(r1+r2));
+    resBox.innerHTML = `<b>Vout:</b> ${vout.toFixed(3)} V<br><small>Corriente: ${(vin/(r1+r2)*1000).toFixed(2)} mA</small>`;
+}
+
+function formatearOhms(ohm) {
+    if(ohm>=1000000) return (ohm/1000000).toFixed(2)+" MΩ";
+    if(ohm>=1000) return (ohm/1000).toFixed(2)+" kΩ";
+    return ohm.toFixed(2)+" Ω";
+}
+        // Panel
+        const rangosPanel = {
+            tv: { vcc:[3.0,3.6], avdd:[13.5,17], vcom:[4.5,8], vgh:[22,32], vgl:[-12,-5], gamma_desc:true, current_max:350 },
+            monitor: { vcc:[3.0,3.6], avdd:[12,15], vcom:[5,7], vgh:[20,30], vgl:[-10,-5], gamma_desc:true, current_max:300 },
+            laptop: { vcc:[1.8,3.3], avdd:[8,12], vcom:[3,5], vgh:[15,22], vgl:[-8,-4], gamma_desc:true, current_max:250 },
+            oled: { vcc:[1.8,2.0], avdd:[4.5,5.5], vcom:[3.0,3.6], vgh:[6.5,7.5], vgl:[-3.5,-2.5], gamma_desc:false, current_max:400 }
+        };
+        function obtenerRangosActuales(){ return rangosPanel[document.getElementById('panel-tipo')?.value]||rangosPanel.tv; }
+        function validarCampoEnTiempoReal(campoId){
+            const input=document.getElementById(campoId); if(!input) return;
+            const val=parseFloat(input.value); if(isNaN(val)){input.classList.remove('valid','invalid'); return;}
+            const r=obtenerRangosActuales(); let ok=false;
+            switch(campoId){
+                case 'vcc-input': ok=val>=r.vcc[0]&&val<=r.vcc[1]; break;
+                case 'avdd-input': ok=val>=r.avdd[0]&&val<=r.avdd[1]; break;
+                case 'vcom-input': ok=val>=r.vcom[0]&&val<=r.vcom[1]; break;
+                case 'vgh-input': ok=val>=r.vgh[0]&&val<=r.vgh[1]; break;
+                case 'vgl-input': ok=val>=r.vgl[0]&&val<=r.vgl[1]; break;
+                case 'tcon-current': ok=val<=r.current_max; break;
+                default: return;
+            }
+            input.classList.remove('valid','invalid');
+            input.classList.add(ok?'valid':'invalid');
+        }
+        function actualizarValidacionesTiempoReal(){ ['vcc-input','avdd-input','vcom-input','vgh-input','vgl-input','tcon-current'].forEach(c=>validarCampoEnTiempoReal(c)); actualizarBarraProgreso(); }
+        function cargarValoresReferencia(){
+            const r=obtenerRangosActuales();
+            document.getElementById('vcc-input').value=((r.vcc[0]+r.vcc[1])/2).toFixed(1);
+            document.getElementById('avdd-input').value=((r.avdd[0]+r.avdd[1])/2).toFixed(1);
+            document.getElementById('vcom-input').value=((r.vcom[0]+r.vcom[1])/2).toFixed(1);
+            document.getElementById('vgh-input').value=((r.vgh[0]+r.vgh[1])/2).toFixed(1);
+            document.getElementById('vgl-input').value=((r.vgl[0]+r.vgl[1])/2).toFixed(1);
+            document.getElementById('tcon-current').value=(r.current_max*0.7).toFixed(0);
+            if(r.gamma_desc){ document.getElementById('vg-alto').value="14.5"; document.getElementById('vg-medio').value="9.2"; document.getElementById('vg-bajo').value="3.1"; }
+            else{ document.getElementById('vg-alto').value="4.2"; document.getElementById('vg-medio').value="2.8"; document.getElementById('vg-bajo').value="1.1"; }
+            actualizarValidacionesTiempoReal();
+        }
+        function guardarLecturaActual(){
+            const lectura={ vcc:document.getElementById('vcc-input').value, avdd:document.getElementById('avdd-input').value, vcom:document.getElementById('vcom-input').value, vgh:document.getElementById('vgh-input').value, vgl:document.getElementById('vgl-input').value, gammaAlto:document.getElementById('vg-alto').value, gammaMedio:document.getElementById('vg-medio').value, gammaBajo:document.getElementById('vg-bajo').value, ckv:document.getElementById('linea-ckv').value, current:document.getElementById('tcon-current').value, tipoPanel:document.getElementById('panel-tipo').value, fecha:new Date().toLocaleString() };
+            localStorage.setItem('ultimaLecturaPanel',JSON.stringify(lectura)); alert("Guardada");
+        }
+        function compararConGuardada(){
+            const g=localStorage.getItem('ultimaLecturaPanel'); if(!g){alert("No hay guardada"); return;}
+            const guardada=JSON.parse(g); const actual={ vcc:document.getElementById('vcc-input').value, avdd:document.getElementById('avdd-input').value, vcom:document.getElementById('vcom-input').value, vgh:document.getElementById('vgh-input').value, vgl:document.getElementById('vgl-input').value, current:document.getElementById('tcon-current').value };
+            let diff="<b>Comparativa ("+guardada.fecha+"):</b><br>";
+            ['vcc','avdd','vcom','vgh','vgl','current'].forEach(c=>{ if(actual[c]&&guardada[c]){ let a=parseFloat(actual[c]), gv=parseFloat(guardada[c]), d=(a-gv).toFixed(2); diff+=`${c.toUpperCase()}: ${gv} → ${a} (${d>=0?'+':''}${d})<br>`; } });
+            document.getElementById('panel-res-box').innerHTML=diff+"<hr>"+document.getElementById('panel-res-box').innerHTML;
+        }
+        function copiarReporte(){ navigator.clipboard.writeText(document.getElementById('panel-res-box').innerText).then(()=>alert("Copiado")); }
+        function exportarReporteTXT(){ const blob=new Blob([document.getElementById('panel-res-box').innerText],{type:"text/plain"}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="diagnostico_panel.txt"; a.click(); URL.revokeObjectURL(a.href); }
+        function analizarPatrones(vcc,avdd,vgh,vgl,current){ let p=""; if(vcc!==null&&avdd!==null&&avdd===0&&vcc>0) p+="⚠️ AVDD ausente con VCC presente → Revisar DC-DC.<br>"; if(vgh!==null&&avdd!==null&&vgh<20&&avdd>12) p+="🔧 VGH bajo con AVDD normal → Bomba de carga de VGH.<br>"; if(vgl!==null&&vgl>-5&&vcc!==null&&vcc>0) p+="⚠️ VGL alto → Corto en línea negativa.<br>"; if(current!==null&&current>400) p+="🔥 Corriente excesiva → Corto en capacitor o Gamma.<br>"; return p; }
+        function actualizarBarraProgreso(){
+            const r=obtenerRangosActuales(); let total=0, ok=0;
+            const check=(id,min,max)=>{ let v=parseFloat(document.getElementById(id)?.value); if(!isNaN(v)){ total++; if(v>=min&&v<=max) ok++; } };
+            check('vcc-input',r.vcc[0],r.vcc[1]); check('avdd-input',r.avdd[0],r.avdd[1]); check('vcom-input',r.vcom[0],r.vcom[1]); check('vgh-input',r.vgh[0],r.vgh[1]); check('vgl-input',r.vgl[0],r.vgl[1]);
+            let cur=parseFloat(document.getElementById('tcon-current')?.value); if(!isNaN(cur)){ total++; if(cur<=r.current_max) ok++; }
+            document.getElementById('progress-bar').style.width=(total===0?0:(ok/total)*100)+"%";
+        }
+        function analizarSintomaVisual(){
+            const s=document.getElementById('sintoma-visual').value, box=document.getElementById('guia-sintoma-box');
+            const campos={ blanca:['vcc-input','avdd-input'], lenta:['vgh-input'], lavada:['vcom-input','vgl-input'], negativo:['vg-alto','vg-medio','vg-bajo'], intermitente:['linea-ckv'], oscura:['vgh-input'] };
+            document.querySelectorAll('.highlight-field').forEach(el=>el.classList.remove('highlight-field'));
+            if(s&&campos[s]) campos[s].forEach(id=>{ let el=document.getElementById(id); if(el) el.classList.add('highlight-field'); });
+            if(!s){ box.style.display='none'; return; }
+            box.style.display='block';
+            let guia="";
+            switch(s){ case 'blanca': guia="Pantalla Blanca → Mide VCC y AVDD."; break; case 'lenta': guia="Cámara lenta → Mide VGH."; break; case 'lavada': guia="Imagen lavada → Verifica VCOM y VGL."; break; case 'negativo': guia="Negativo → IC Gamma dañado."; break; case 'intermitente': guia="Parpadeo → Corto en CKV."; break; case 'oscura': guia="Se apaga → VGH se cae."; break; }
+            box.innerHTML="💡 "+guia;
+        }
+        function ejecutarDiagnosticoMaestroPanel(){
+            const vcc=parseFloat(document.getElementById('vcc-input')?.value), avdd=parseFloat(document.getElementById('avdd-input')?.value), vcom=parseFloat(document.getElementById('vcom-input')?.value), vgh=parseFloat(document.getElementById('vgh-input')?.value), vgl=parseFloat(document.getElementById('vgl-input')?.value), vgAlto=parseFloat(document.getElementById('vg-alto')?.value), vgMedio=parseFloat(document.getElementById('vg-medio')?.value), vgBajo=parseFloat(document.getElementById('vg-bajo')?.value), estadoCkv=document.getElementById('linea-ckv')?.value, current=parseFloat(document.getElementById('tcon-current')?.value), tipoPanel=document.getElementById('panel-tipo')?.value||'tv', rangos=obtenerRangosActuales();
+            let html=`<h4 style="color:#a855f7;">📋 REPORTE (${tipoPanel.toUpperCase()})</h4>`, alertas=0, soluciones="";
+            const evalC=(n,v,r,un="V")=>{ if(isNaN(v)) return `<span style="color:#6b7280;">${n}: No medido</span><br>`; if(v>=r[0]&&v<=r[1]) return `<span style="color:#10b981;">✅ ${n}: ${v}${un}</span><br>`; else{ alertas++; return `<span style="color:#ef4444;">❌ ${n}: ${v}${un} (${r[0]}-${r[1]}${un})</span><br>`; } };
+            html+=evalC("VCC/VDD",vcc,rangos.vcc); html+=evalC("AVDD",avdd,rangos.avdd); html+=evalC("VCOM",vcom,rangos.vcom); html+=evalC("VGH/VON",vgh,rangos.vgh); html+=evalC("VGL/VOFF",vgl,rangos.vgl);
+            if(!isNaN(current)){ if(current<=rangos.current_max) html+=`<span style="color:#10b981;">✅ Corriente: ${current} mA</span><br>`; else{ html+=`<span style="color:#ef4444;">❌ Corriente: ${current} mA (excede ${rangos.current_max} mA)</span><br>`; alertas++; } }
+            if(!isNaN(vgAlto)&&!isNaN(vgMedio)&&!isNaN(vgBajo)){ if(vgAlto>vgMedio&&vgMedio>vgBajo) html+=`<span style="color:#10b981;">✅ Gamma descendente (${vgAlto}>${vgMedio}>${vgBajo})</span><br>`; else{ html+=`<span style="color:#ef4444;">❌ Secuencia Gamma anormal - IC dañado</span><br>`; alertas++; soluciones+="• Reemplazar IC Gamma.<br>"; } }
+            if(estadoCkv!=="correcta"){ html+=`<span style="color:#ef4444;">❌ CKV: ${estadoCkv==="corto_tierra"?"Corto a tierra":"Corto entre líneas"}</span><br>`; alertas++; soluciones+="• Aislar líneas CKV con cinta.<br>"; } else html+=`<span style="color:#10b981;">✅ CKV correctas</span><br>`;
+            const patron=analizarPatrones(vcc,avdd,vgh,vgl,current); if(patron){ html+=`<br><span style="color:#f59e0b;">🔍 Patrones:</span><br>${patron}`; soluciones+=patron; }
+            if(alertas>0&&soluciones) html+=`<div style="background:rgba(239,68,68,0.1); padding:10px; border-radius:6px; margin-top:10px;"><b>🛠️ REPARACIÓN:</b><br>${soluciones}</div>`;
+            else if(alertas===0&&!isNaN(vcc)) html+=`<div style="background:rgba(16,185,129,0.1); padding:10px; border-radius:6px; margin-top:10px; color:#10b981;">✅ Todo correcto</div>`;
+            document.getElementById('panel-res-box').innerHTML=html; actualizarBarraProgreso();
+        }
+
+        // Fuentes SMPS
+        let pasoActualFuente=0, respuestasFuente=[];
+        function actualizarArbolDiagnosticoFuente(){
+            const s=document.getElementById('sintoma-fuente').value, gb=document.getElementById('guia-fuente-box'), pasoDiv=document.getElementById('paso-actual-fuente'), opDiv=document.getElementById('opciones-paso');
+            if(!s){ gb.style.display='none'; pasoDiv.innerHTML='<p style="color:#a0aec0;">Selecciona un síntoma.</p>'; opDiv.innerHTML=''; return; }
+            respuestasFuente=[]; pasoActualFuente=0;
+            let guia=""; switch(s){ case 'muerto': guia="🔌 Completamente muerto → Mediremos fusible."; break; case 'standby': guia="💡 Standby pero no enciende → Verificaremos voltajes."; break; case 'parpadea': guia="🔄 Parpadeo → Posible realimentación."; break; case 'ruido': guia="🔊 Zumbido → Revisar capacitores."; break; case 'todo_bien': guia="✅ Todo bien pero no enciende → Fallo avanzado."; break; }
+            gb.style.display='block'; gb.innerHTML=guia;
+            mostrarPasoFuente(s);
+        }
+        function mostrarPasoFuente(s){
+            const pasoDiv=document.getElementById('paso-actual-fuente'), opDiv=document.getElementById('opciones-paso');
+            const pasos={ muerto:[ {t:"1. Mide el fusible de entrada (continuidad). ¿Está bueno?", o:["Bueno","Roto"]}, {t:"2. Mide el voltaje DC en el capacitor grande (400V). ¿Valor?", o:["330-340V","150-170V","0V"]}, {t:"3. Mide el VCC del IC PWM (12-18V). ¿Presente?", o:["Sí","No"]} ], standby:[ {t:"1. ¿El 5VSB está presente y estable?", o:["Sí","No"]}, {t:"2. Al encender, ¿PS-ON baja a 0V?", o:["Sí","No"]}, {t:"3. ¿Los voltajes principales (12V,24V) aparecen?", o:["Sí todos","Algunos","Ninguno"]} ], parpadea:[ {t:"1. ¿Qué hace exactamente?", o:["Parpadea","Se reinicia","Clic y se apaga"]}, {t:"2. ¿Los voltajes se mantienen estables?", o:["Sí","Caen","Desaparecen"]} ], ruido:[ {t:"1. ¿De dónde viene el ruido?", o:["Transformador","Inductor","Capacitor"]}, {t:"2. ¿El capacitor grande tiene voltaje correcto?", o:["Sí","No"]} ], todo_bien:[ {t:"1. ¿Tienes medidor ESR? ¿Qué mides?", o:["ESR alto","ESR normal","No tengo"]}, {t:"2. ¿Has probado con carga ficticia?", o:["Sí y falla","Sí y funciona","No he probado"]}, {t:"3. ¿Hay cortos en la placa principal?", o:["Sí hay corto","No hay corto","No revisé"]} ] };
+            const p=pasos[s]; if(!p||pasoActualFuente>=p.length){ generarReporteFinalFuente(); return; }
+            pasoDiv.innerHTML=`<p><b>${p[pasoActualFuente].t}</b></p>`;
+            opDiv.innerHTML=''; p[pasoActualFuente].o.forEach(op=>{ let btn=document.createElement('button'); btn.innerText=op; btn.className='btn-calc btn-secondary'; btn.style.marginRight='10px'; btn.onclick=()=>{ respuestasFuente.push({pregunta:p[pasoActualFuente].t, respuesta:op}); pasoActualFuente++; mostrarPasoFuente(s); }; opDiv.appendChild(btn); });
+        }
+        function calcularTL431(){
+            const r1=parseFloat(document.getElementById('tl431-r1').value), r2=parseFloat(document.getElementById('tl431-r2').value);
+            if(isNaN(r1)||isNaN(r2)||r2===0){ document.getElementById('tl431-resultado').innerHTML="Introduce valores válidos."; return; }
+            const vout=2.495*(1+(r1/r2)); document.getElementById('tl431-resultado').innerHTML=`Vout teórico = ${vout.toFixed(2)} V<br><small>Si difiere >5%, revisa resistencias o TL431.</small>`;
+        }
+        function calcularCargaFicticia(){
+            const v=parseFloat(document.getElementById('carga-voltaje').value), i=parseFloat(document.getElementById('carga-corriente').value);
+            if(isNaN(v)||isNaN(i)||i<=0){ document.getElementById('carga-resultado').innerHTML="Introduce voltaje y corriente válidos."; return; }
+            const r=v/i, p=v*i; document.getElementById('carga-resultado').innerHTML=`Resistor: ${r.toFixed(1)} Ω (mínimo ${p.toFixed(1)} W, recomienda ${(p*1.5).toFixed(1)}W)`;
+        }
+        function reiniciarDiagnosticoFuente(){ pasoActualFuente=0; respuestasFuente=[]; document.getElementById('sintoma-fuente').value=""; document.getElementById('guia-fuente-box').style.display='none'; document.getElementById('paso-actual-fuente').innerHTML='<p style="color:#a0aec0;">Selecciona un síntoma.</p>'; document.getElementById('opciones-paso').innerHTML=''; document.getElementById('fuente-res-box').innerHTML='Diagnóstico reiniciado.'; }
+        function copiarReporteFuente(){ navigator.clipboard.writeText(document.getElementById('fuente-res-box').innerText).then(()=>alert("Reporte copiado")); }
+        function generarReporteFinalFuente(){
+            const s=document.getElementById('sintoma-fuente').value; const st=document.querySelector(`#sintoma-fuente option[value="${s}"]`)?.innerText||s;
+            let r=`<h4 style="color:#f59e0b;">🔍 DIAGNÓSTICO DE FUENTE</h4><b>Síntoma:</b> ${st}<br><br><b>📋 Mediciones:</b><br>`;
+            if(respuestasFuente.length) respuestasFuente.forEach((x,i)=>r+=`${i+1}. ${x.pregunta}<br>&nbsp;&nbsp;→ ${x.respuesta}<br>`);
+            else r+=`<span style="color:#a0aec0;">No hay mediciones.</span><br>`;
+            r+=`<br><b>🛠️ RECOMENDACIONES:</b><br>`;
+            let has=false;
+            if(s==='muerto'){ let fus=respuestasFuente.find(x=>x.pregunta.includes("fusible"))?.respuesta; if(fus==="Roto"){ r+="• ⚠️ Fusible roto → Reemplázalo. Mide continuidad a tierra en puente y MOSFET.<br>"; has=true; } let cap=respuestasFuente.find(x=>x.pregunta.includes("capacitor"))?.respuesta; if(cap==="0V"){ r+="• ⚠️ Voltaje 0V en capacitor → Revisa puente rectificador y termistor NTC.<br>"; has=true; } let vcc=respuestasFuente.find(x=>x.pregunta.includes("VCC"))?.respuesta; if(vcc==="No"){ r+="• ⚠️ VCC PWM ausente → Revisa resistencia de arranque (100k-470k) y diodo.<br>"; has=true; } }
+            else if(s==='todo_bien'){ let esr=respuestasFuente.find(x=>x.pregunta.includes("ESR"))?.respuesta; if(esr==="ESR alto"){ r+="• 🔧 ESR alto → Reemplaza capacitores de salida (baja ESR, 105°C).<br>"; has=true; } let carga=respuestasFuente.find(x=>x.pregunta.includes("carga ficticia"))?.respuesta; if(carga==="Sí y falla"){ r+="• 🔧 Falla bajo carga → Revisa transformador, diodo Schottky y capacitor.<br>"; has=true; } let corto=respuestasFuente.find(x=>x.pregunta.includes("cortos"))?.respuesta; if(corto==="Sí hay corto"){ r+="• 🔧 Corto en placa principal → Mide continuidad a tierra en cada rail.<br>"; has=true; } if(!has) r+="• 🔧 Sin fallas evidentes → Aplica aire frío a componentes (PWM, opto, TL431).<br>• 🔧 Mide con osciloscopio la salida del PWM y optoacoplador.<br>"; }
+            else if(s==='standby'){ r+="• 🔧 Verifica 5VSB y PS-ON. Si PS-ON no baja a 0V, falla en placa principal.<br>"; has=true; }
+            else if(s==='parpadea'){ r+="• 🔧 Reemplaza capacitores del secundario (cerca del transformador).<br>• 🔧 Revisa diodo de salida y optoacoplador.<br>"; has=true; }
+            else if(s==='ruido'){ r+="• 🔧 Revisa capacitor grande de 400V y el inductor PFC.<br>"; has=true; }
+            if(!has) r+="• ✅ No se encontraron anomalías. Revisa la placa principal o el panel.<br>";
+            document.getElementById('fuente-res-box').innerHTML=r;
+        }
+
+        window.onload=function(){
+            inicializarSelectoresColores();
+            cargarValoresReferencia();
+            ['vcc-input','avdd-input','vcom-input','vgh-input','vgl-input','tcon-current'].forEach(id=>{ let el=document.getElementById(id); if(el) el.addEventListener('input',()=>validarCampoEnTiempoReal(id)); });
+            document.getElementById('panel-tipo')?.addEventListener('change',()=>{ cargarValoresReferencia(); actualizarValidacionesTiempoReal(); });
+        };
+    </script>
+</body>
+</html>
