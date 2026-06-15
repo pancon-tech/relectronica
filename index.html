@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica Bot - Línea Técnica Premium</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --bot-msg-bg: #1a273a;
+            --user-msg-bg: #7928ca;
+            --border-color: #22344d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .header-info p {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #a855f7;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.sync-btn {
+    background: none;
+    border: none;
+    color: #10b981;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#chat-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+    margin-bottom: 65px;
+}
+
+#chat-container::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background-image: url('logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.04;
+    pointer-events: none;
+}
+
+.message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.bot-message {
+    background-color: var(--bot-msg-bg);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.user-message {
+    background-color: var(--user-msg-bg);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.msg-meta {
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.bot-meta { color: #a855f7; }
+.user-meta { color: #e2e8f0; }
+
+.chat-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 8px;
+    display: block;
+}
+
+.error-message {
+    background-color: #2d191e;
+    border: 1px solid #f56565;
+    color: #fc8181;
+}
+
+.footer-controls {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    width: 100%;
+    background-color: var(--chat-bg);
+    z-index: 90;
+}
+
+.input-container {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+    align-items: center;
+}
+
+#input-field {
+    flex: 1;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+#input-field:focus {
+    border-color: var(--primary-color);
+}
+.icon-btn {
+    background-color: var(--bot-msg-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mic-escuchando {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 12px #ef4444;
+    animation: pulsoMic 1.5s infinite;
+}
+
+@keyframes pulsoMic {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}
+
+#send-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    height: 45px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#image-preview-container {
+    display: none;
+    background-color: var(--bot-msg-bg);
+    padding: 10px 15px;
+    border-top: 1px solid var(--border-color);
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-box {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.remove-preview {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+}
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.75rem;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Línea Técnica Personalizada</p>
+        </div>
+        <div class="header-actions">
+            <button class="sync-btn" id="sync-btn" title="Sincronizar base local">🔄</button>
+            <button class="clear-btn" id="clear-btn" title="Borrar Historial">🗑️</button>
+        </div>
+    </header>
+
+    <div id="chat-container"></div>
+
+    <div class="footer-controls">
+        <div id="image-preview-container">
+            <div class="preview-box">
+                <img id="image-preview" src="" alt="Preview">
+                <button class="remove-preview" id="cancel-image-btn">×</button>
+            </div>
+            <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
+        </div>
+
+        <div class="input-container">
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
+            <button class="icon-btn" id="mic-btn" title="Hablar con el Bot">🎙️</button>
+            <input type="text" id="input-field" placeholder="Escribe la falla o habla con manos libres..." autocomplete="off">
+            <button id="send-btn">Enviar</button>
+        </div>
+    </div>
+    <nav class="nav-tabs">
+    <a href="index.html" class="nav-item active">
+        <span class="nav-icon">💬</span>
+        <span>Chat Técnico</span>
+    </a>
+    <a href="notas.html" class="nav-item">
+        <span class="nav-icon">📝</span>
+        <span>Mis Notas</span>
+    </a>
+    <a href="biblioteca.html" class="nav-item">
+        <span class="nav-icon">📘</span>
+        <span>Biblioteca</span>
+    </a>
+    <a href="hardware.html" class="nav-item">
+        <span class="nav-icon">🖼️</span>
+        <span>Hardware</span>
+    </a>
+    <a href="calculadoras.html" class="nav-item">
+        <span class="nav-icon">🧮</span>
+        <span>Cálculos</span>
+    </a>
+    <a href="fallas.html" class="nav-item">
+        <span class="nav-icon">🛠️</span>
+        <span>Casos de Falla</span>
+    </a>
+    <a href="recepcion.html" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span>Recepción</span>
+    </a>
+</nav>
+
+<script>
+    const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
+    
+    const chatContainer = document.getElementById('chat-container');
+    const inputField = document.getElementById('input-field');
+    const sendBtn = document.getElementById('send-btn');
+    const fileInput = document.getElementById('file-input');
+    const attachBtn = document.getElementById('attach-btn');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const cancelImageBtn = document.getElementById('cancel-image-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const syncBtn = document.getElementById('sync-btn');
+    const micBtn = document.getElementById('mic-btn');
+
+    let selectedImageBase64 = null;
+    let chatHistory = [];
+    let reconocimientoVoz = null;
+    let estaEscuchando = false;
+    
+    // Variables para la base de conocimiento local
+    let dictionaryEntries = [];
+    let fallasPredefinidas = [];
+    // ==========================================================
+// CARGA DINÁMICA DE BIBLIOTECA (desde biblioteca.html)
+// ==========================================================
+
+async function cargarBiblioteca() {
+    try {
+        // Intentar cargar desde localStorage primero (caché)
+        const bibliotecaCache = localStorage.getItem('relectronica_biblioteca_cache');
+        if (bibliotecaCache && bibliotecaCache !== '[]') {
+            dictionaryEntries = JSON.parse(bibliotecaCache);
+            console.log(`📚 Biblioteca cargada desde caché: ${dictionaryEntries.length} términos`);
+            return true;
+        }
+        
+        // Si no hay caché, intentar cargar desde biblioteca.html
+        console.log("Cargando biblioteca desde archivo...");
+        const response = await fetch('biblioteca.html');
+        if (!response.ok) throw new Error('No se pudo cargar biblioteca.html');
+        
+        const html = await response.text();
+        
+        // Buscar el array dictionaryEntries en el script
+        const regex = /const dictionaryEntries = (\[[\s\S]*?\]);/;
+        const match = html.match(regex);
+        
+        if (match && match[1]) {
+            try {
+                // Usar Function en lugar de eval para mayor seguridad
+                const evalFunc = new Function('return ' + match[1]);
+                dictionaryEntries = evalFunc();
+                localStorage.setItem('relectronica_biblioteca_cache', JSON.stringify(dictionaryEntries));
+                console.log(`📚 Biblioteca cargada desde archivo: ${dictionaryEntries.length} términos`);
+                return true;
+            } catch(e) {
+                console.error("Error parsing dictionary:", e);
+            }
+        } else {
+            console.warn("No se encontró dictionaryEntries en biblioteca.html");
+        }
+        return false;
+    } catch (error) {
+        console.error('Error cargando biblioteca:', error);
+        return false;
+    }
+}
+
+// ==========================================================
+// CARGA DINÁMICA DE CASOS DE FALLA (desde fallas.html)
+// ==========================================================
+
+async function cargarCasosDeFalla() {
+    try {
+        // Intentar cargar desde localStorage primero
+        const fallasCache = localStorage.getItem('relectronica_fallas_cache');
+        if (fallasCache && fallasCache !== '[]') {
+            fallasPredefinidas = JSON.parse(fallasCache);
+            console.log(`🛠️ Casos cargados desde caché: ${fallasPredefinidas.length} casos`);
+            return true;
+        }
+        
+        console.log("Cargando casos de falla desde archivo...");
+        const response = await fetch('fallas.html');
+        if (!response.ok) throw new Error('No se pudo cargar fallas.html');
+        
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const techCards = doc.querySelectorAll('.tech-card');
+        
+        fallasPredefinidas = [];
+        techCards.forEach((card, index) => {
+            const tituloElem = card.querySelector('h3');
+            const contenidoElem = card.querySelector('.tech-card-content');
+            
+            if (tituloElem && contenidoElem) {
+                let titulo = tituloElem.innerText.trim();
+                let contenido = contenidoElem.innerText.trim();
+                
+                let falla = "";
+                let solucion = "";
+                
+                const fallaMatch = contenido.match(/S[íi]ntoma:?\s*(.*?)(?=Soluci[óo]n:|$)/i);
+                const solucionMatch = contenido.match(/Soluci[óo]n:?\s*(.*?)$/i);
+                
+                falla = fallaMatch ? fallaMatch[1].trim() : titulo;
+                solucion = solucionMatch ? solucionMatch[1].trim() : contenido;
+                
+                fallasPredefinidas.push({
+                    id: index + 1,
+                    term: titulo.split('-')[0].trim(),
+                    falla: falla,
+                    solucion: solucion
+                });
+            }
+        });
+        
+        localStorage.setItem('relectronica_fallas_cache', JSON.stringify(fallasPredefinidas));
+        console.log(`🛠️ Casos cargados desde archivo: ${fallasPredefinidas.length} casos`);
+        return true;
+        
+    } catch (error) {
+        console.error('Error cargando casos de falla:', error);
+        return false;
+    }
+}
+// ==========================================================
+// OBTENER NOTAS DEL USUARIO
+// ==========================================================
+
+function obtenerNotasUsuario() {
+    try {
+        const notas = localStorage.getItem('relectronica_notas');
+        if (notas) return JSON.parse(notas);
+    } catch(e) {}
+    return [];
+}
+
+// ==========================================================
+// BÚSQUEDA EN BASE LOCAL
+// ==========================================================
+
+function buscarEnBaseLocal(query) {
+    const resultados = [];
+    const queryLower = query.toLowerCase();
+    
+    // Buscar en biblioteca técnica
+    for (const entry of dictionaryEntries) {
+        if (entry.term && entry.term.toLowerCase().includes(queryLower) ||
+            (entry.description && entry.description.toLowerCase().includes(queryLower)) ||
+            (entry.tip && entry.tip.toLowerCase().includes(queryLower)) ||
+            (entry.extra && entry.extra.toLowerCase().includes(queryLower))) {
+            resultados.push({
+                fuente: "📘 Biblioteca Técnica",
+                titulo: entry.term,
+                contenido: `**${entry.term}**: ${entry.description || ''}\n🔧 Tip: ${entry.tip || 'No disponible'}${entry.extra ? '\n📌 Extra: ' + entry.extra : ''}`,
+                relevancia: 10
+            });
+        }
+    }
+    
+    // Buscar en casos de falla
+    for (const falla of fallasPredefinidas) {
+        if (falla.term && falla.term.toLowerCase().includes(queryLower) ||
+            (falla.falla && falla.falla.toLowerCase().includes(queryLower)) ||
+            (falla.solucion && falla.solucion.toLowerCase().includes(queryLower))) {
+            resultados.push({
+                fuente: "🛠️ Casos de Falla",
+                titulo: (falla.falla || falla.term).substring(0, 50),
+                contenido: `**Caso**: ${falla.falla || falla.term}\n✅ **Solución**: ${falla.solucion || ''}`,
+                relevancia: 9
+            });
+        }
+    }
+    
+    // Buscar en notas del usuario
+    const notas = obtenerNotasUsuario();
+    for (const nota of notas) {
+        if ((nota.modelo && nota.modelo.toLowerCase().includes(queryLower)) ||
+            (nota.falla && nota.falla.toLowerCase().includes(queryLower)) ||
+            (nota.solucion && nota.solucion.toLowerCase().includes(queryLower))) {
+            resultados.push({
+                fuente: "📝 Tus Notas",
+                titulo: nota.modelo || "Nota guardada",
+                contenido: `**Modelo**: ${nota.modelo || 'N/A'}\n⚠️ **Falla**: ${nota.falla || ''}\n✅ **Tu Solución**: ${nota.solucion || ''}`,
+                relevancia: 8
+            });
+        }
+    }
+    
+    return resultados;
+}
+
+function construirContextoLocal(query) {
+    const resultados = buscarEnBaseLocal(query);
+    if (resultados.length === 0) return null;
+    
+    let contexto = "📚 **INFORMACIÓN ENCONTRADA EN TU BASE LOCAL**:\n\n";
+    for (let i = 0; i < Math.min(resultados.length, 5); i++) {
+        const r = resultados[i];
+        contexto += `**[${r.fuente}] ${r.titulo}**\n${r.contenido}\n\n---\n\n`;
+    }
+    contexto += "Basándote en esta información técnica local (prioritaria) y en tus conocimientos de electrónica, responde la consulta.";
+    return contexto;
+}
+// ==========================================================
+// FUNCIONES PRINCIPALES DEL CHAT
+// ==========================================================
+
+window.addEventListener('DOMContentLoaded', async () => {
+    // Mostrar mensaje de carga
+    appendMessageToDOM('bot', '🔧 **Inicializando Relectrónica Bot...**\n\nCargando base de conocimiento local...');
+    
+    // Cargar biblioteca y casos de falla
+    await Promise.all([cargarBiblioteca(), cargarCasosDeFalla()]);
+    
+    // Cargar historial guardado
+    const savedChat = localStorage.getItem('relectronica_chat_history');
+    if (savedChat) {
+        chatHistory = JSON.parse(savedChat);
+        chatContainer.innerHTML = '';
+        chatHistory.forEach(msg => {
+            appendMessageToDOM(msg.sender, msg.text, msg.isError, msg.imageSrc);
+        });
+    } else {
+        const welcomeText = `🔧 **Relectrónica Bot Premium**\n\n✅ **Base local cargada:**\n• 📘 ${dictionaryEntries.length} términos técnicos\n• 🛠️ ${fallasPredefinidas.length} casos de falla\n• 📝 Tus notas personales (automático)\n\n💡 **Ahora puedes:**\n• Preguntar sobre componentes y fallas\n• Usar el micrófono para manos libres\n• Adjuntar imágenes para análisis\n\n**¡Los nuevos casos que agregues a fallas.html o biblioteca.html se detectarán solos!**`;
+        appendMessageToDOM('bot', welcomeText);
+        saveMessageToHistory('bot', welcomeText);
+    }
+    
+    inicializarReconocimientoVoz();
+});
+
+function appendMessageToDOM(sender, text, isError = false, imageSrc = null) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+    if (isError) msgDiv.classList.add('error-message');
+    
+    const metaSpan = document.createElement('span');
+    metaSpan.classList.add('msg-meta');
+    metaSpan.classList.add(sender === 'bot' ? 'bot-meta' : 'user-meta');
+    metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica Bot:' : 'Jefferson:';
+    
+    msgDiv.appendChild(metaSpan);
+    
+    if (text) {
+        const lines = text.split('\n');
+        lines.forEach((line, index) => {
+            let processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            if (processedLine.includes('<strong>')) {
+                const span = document.createElement('span');
+                span.innerHTML = processedLine;
+                msgDiv.appendChild(span);
+            } else {
+                msgDiv.appendChild(document.createTextNode(line));
+            }
+            if (index < lines.length - 1) msgDiv.appendChild(document.createElement('br'));
+        });
+    }
+    
+    if (imageSrc) {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.classList.add('chat-image');
+        msgDiv.appendChild(img);
+    }
+    
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
+    chatHistory.push({ sender, text, isError, imageSrc });
+    if (chatHistory.length > 100) chatHistory.shift();
+    localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
+}
+
+// Función para sincronizar manualmente
+async function sincronizarBaseLocal() {
+    appendMessageToDOM('bot', '🔄 **Sincronizando base de conocimiento...**\n\nBuscando nuevos términos y casos...');
+    
+    localStorage.removeItem('relectronica_biblioteca_cache');
+    localStorage.removeItem('relectronica_fallas_cache');
+    
+    await Promise.all([cargarBiblioteca(), cargarCasosDeFalla()]);
+    
+    appendMessageToDOM('bot', `✅ **Sincronización completada**\n\n📘 ${dictionaryEntries.length} términos técnicos disponibles\n🛠️ ${fallasPredefinidas.length} casos de falla disponibles\n\n¡Ahora puedo ayudarte con la información actualizada!`);
+}
+        async function sendMessage() {
+            const query = inputField.value.trim();
+            if (!query && !selectedImageBase64) return;
+            
+            const currentImageSrc = imagePreview.src;
+            const activeImageBase64 = selectedImageBase64;
+            
+            appendMessageToDOM('user', query, false, activeImageBase64 ? currentImageSrc : null);
+            saveMessageToHistory('user', query, false, activeImageBase64 ? currentImageSrc : null);
+            
+            inputField.value = '';
+            selectedImageBase64 = null;
+            fileInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+            
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+            attachBtn.disabled = true;
+            
+            try {
+                const contextoLocal = construirContextoLocal(query);
+                let respuestaFinal = "";
+                let usóLocal = false;
+                
+                if (contextoLocal) {
+                    respuestaFinal = "🔍 **Encontré esto en tu base técnica local:**\n\n" + 
+                        contextoLocal.replace("Basándote en esta información técnica local (prioritaria) y en tus conocimientos de electrónica, responde la consulta.", 
+                        "✅ **Respuesta basada en tu conocimiento local:**\n\n");
+                    usóLocal = true;
+                }
+                
+                if (!usóLocal || query.toLowerCase().includes("internet") || query.toLowerCase().includes("online")) {
+                    const mensajeParaCohere = usóLocal 
+                        ? `El usuario preguntó: "${query}". Ya tengo esta información local: ${contextoLocal}. Proporciona una respuesta completa combinando tu conocimiento técnico.`
+                        : query;
+                    
+                    const response = await fetch('https://api.cohere.ai/v1/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${COHERE_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: 'command-r-08-2024',
+                            message: mensajeParaCohere,
+                            preamble: "Eres un asistente técnico experto en electrónica. Usa la información local como prioridad."
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        if (usóLocal) respuestaFinal += "\n\n🤖 **Información adicional:**\n\n" + data.text;
+                        else respuestaFinal = data.text;
+                    } else if (!usóLocal) {
+                        respuestaFinal = "⚠️ Error de conexión. Intenta de nuevo.";
+                    }
+                }
+                
+                if (respuestaFinal) {
+                    appendMessageToDOM('bot', respuestaFinal);
+                    saveMessageToHistory('bot', respuestaFinal);
+                    hablarTexto(respuestaFinal);
+                } else {
+                    appendMessageToDOM('bot', "No encontré información en tu base local.", true);
+                }
+            } catch (error) {
+                appendMessageToDOM('bot', '⚠️ Error de red.', true);
+            } finally {
+                inputField.disabled = false;
+                sendBtn.disabled = false;
+                attachBtn.disabled = false;
+                inputField.focus();
+            }
+        }
+        
+        // Event Listeners
+        sendBtn.addEventListener('click', sendMessage);
+        inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        attachBtn.addEventListener('click', () => fileInput.click());
+        syncBtn.addEventListener('click', () => sincronizarBaseLocal());
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                selectedImageBase64 = event.target.result.split(',')[1];
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        cancelImageBtn.addEventListener('click', () => {
+            selectedImageBase64 = null;
+            fileInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            if (confirm('¿Borrar toda la conversación?')) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                localStorage.removeItem('relectronica_chat_history');
+                chatHistory = [];
+                chatContainer.innerHTML = '';
+                appendMessageToDOM('bot', 'Historial borrado. ¡Estoy listo para ayudarte!');
+                saveMessageToHistory('bot', 'Historial borrado. ¡Estoy listo para ayudarte!');
+            }
+        });
+        
+        // Reconocimiento de voz
+        function inicializarReconocimientoVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
+            reconocimientoVoz = new SpeechRecognition();
+            reconocimientoVoz.lang = 'es-VE';
+            reconocimientoVoz.continuous = false;
+            reconocimientoVoz.interimResults = false;
+            reconocimientoVoz.onstart = () => {
+                estaEscuchando = true;
+                micBtn.classList.add('mic-escuchando');
+                micBtn.innerHTML = "🛑";
+                inputField.placeholder = "Escuchando...";
+            };
+            reconocimientoVoz.onerror = () => forzarApagadoMic();
+            reconocimientoVoz.onend = () => forzarApagadoMic();
+            reconocimientoVoz.onresult = (event) => {
+                const texto = event.results[0][0].transcript;
+                if (texto.trim()) {
+                    inputField.value = texto;
+                    sendMessage();
+                }
+            };
+        }
+        
+        function forzarApagadoMic() {
+            estaEscuchando = false;
+            micBtn.classList.remove('mic-escuchando');
+            micBtn.innerHTML = "🎙️";
+            inputField.placeholder = "Escribe la falla o habla con manos libres...";
+        }
+        
+        function hablarTexto(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(texto.replace(/[*#_⚡|]/g, ''));
+                utterance.lang = 'es-ES';
+                utterance.rate = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        window.alternarMicrofono = function() {
+            if (!reconocimientoVoz) {
+                alert("Voz no soportada");
+                return;
+            }
+            if (estaEscuchando) reconocimientoVoz.stop();
+            else {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                reconocimientoVoz.start();
+            }
+        };
+    </script>
+</body>
+</html>
