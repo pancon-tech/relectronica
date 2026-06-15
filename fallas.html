@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="stylesheet" href="estilo.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Casos de Falla</title>
+    
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Base de Casos Resueltos</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" id="cases-search" placeholder="Buscar por marca o componente...">
+        <h2 class="section-title">Historial de Soluciones Exitosas</h2>
+        
+        <div class="tech-card" onclick="toggleCard(this)">
+            <h3>Samsung / LG - Reinicio constante o Líneas</h3>
+            <div class="tech-card-content">
+                <span class="tech-badge">FALLA DE PANEL / T-CON</span><br>
+                <strong>Síntoma:</strong> El televisor muestra el logo brevemente, se reinicia en bucle o da líneas de colores fijas.<br><br>
+                <strong>Solución:</strong> Método de aislamiento. Colocar una cinta plástica delgada (2mm a 4mm) sobre los pines de señales de reloj (CLK) en el cable flex defectuoso para anular el sector en corto.
+            </div>
+        </div>
+
+        <div class="tech-card" onclick="toggleCard(this)">
+            <h3>Smart TV - Hay Audio pero no da Imagen</h3>
+            <div class="tech-card-content">
+                <span class="tech-badge">FALLA DE BACKLIGHT</span><br>
+                <strong>Prueba rápido:</strong> Iluminar con linterna de cerca. Si hay siluetas de fondo, las tarjetas están bien.<br><br>
+                <strong>Solución:</strong> Reemplazar la tira LED completa del backlight y bajar la corriente del inversor desde el modo de servicio para evitar fallas futuras.
+            </div>
+        </div>
+    </div>
+
+                <nav class="nav-tabs">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>Chat Técnico</span>
+        </a>
+        <a href="notas.html" class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span>Mis Notas</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item">
+            <span class="nav-icon">📘</span>
+            <span>Biblioteca</span>
+        </a>
+        <a href="hardware.html" class="nav-item">
+            <span class="nav-icon">🖼️</span>
+            <span>Hardware</span>
+        </a>
+        <a href="fallas.html" class="nav-item">
+            <span class="nav-icon">🛠️</span>
+            <span>Casos de Falla</span>
+        </a>
+        <a href="recepcion.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Recepción</span>
+        </a>
+    </nav>
+
+    
+    <script>
+        function toggleCard(card) {
+            card.classList.toggle('expanded');
+            const content = card.querySelector('.tech-card-content');
+            if (content) {
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        document.getElementById('cases-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.tech-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
