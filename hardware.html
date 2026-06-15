@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="stylesheet" href="estilo.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Hardware Vista Grande</title>
+    
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Reconocimiento de Hardware</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas o componentes...">
+        
+        <h2 class="section-title">Galería de Hardware Técnico</h2>
+        
+        <div class="hardware-grid">
+
+            <div class="hardware-card" onclick="openImage('imagenes/TconTT5461B032C1.png', 'TCON TT5461B03-2-C-1 - Voltajes Clave')">
+                <div class="image-container">
+                    <img src="imagenes/TconTT5461B032C1.png" alt="TCON TT5461B03-2-C-1">
+                </div>
+                <div class="card-info">
+                    <h3>TCON TT5461B03-2-C-1</h3>
+                    <span class="card-tag"></span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/fuente.jpg', 'Fuente Conmutada (SMPS)')">
+                <div class="image-container">
+                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada">
+                </div>
+                <div class="card-info">
+                    <h3>Fuente Conmutada</h3>
+                    <span class="card-tag">Potencia</span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/regulador.jpg', 'Regulador de Voltaje TO-220')">
+                <div class="image-container">
+                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje">
+                </div>
+                <div class="card-info">
+                    <h3>Regulador TO-220</h3>
+                    <span class="card-tag">Semiconductores</span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/display.jpg', 'Estructura Interna Display LCD')">
+                <div class="image-container">
+                    <img src="imagenes/display.jpg" alt="Display LCD">
+                </div>
+                <div class="card-info">
+                    <h3>Panel LCD / Display</h3>
+                    <span class="card-tag">Componentes</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="myModal" class="image-modal" onclick="closeImage()">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content-container" onclick="event.stopPropagation()">
+            <img id="imgExpanded" src="" alt="Imagen ampliada">
+            <div id="modalTitle" class="modal-title"></div>
+        </div>
+    </div>
+
+        <nav class="nav-tabs">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>Chat Técnico</span>
+        </a>
+        <a href="notas.html" class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span>Mis Notas</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item">
+            <span class="nav-icon">📘</span>
+            <span>Biblioteca</span>
+        </a>
+        <a href="hardware.html" class="nav-item">
+            <span class="nav-icon">🖼️</span>
+            <span>Hardware</span>
+        </a>
+        <a href="fallas.html" class="nav-item">
+            <span class="nav-icon">🛠️</span>
+            <span>Casos de Falla</span>
+        </a>
+        <a href="recepcion.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Recepción</span>
+        </a>
+    </nav>
+
+
+    <script>
+        // Función inteligente para abrir cualquier imagen en grande
+        function openImage(imgSrc, titleText) {
+            const modal = document.getElementById("myModal");
+            const expandedImg = document.getElementById("imgExpanded");
+            const modalTitle = document.getElementById("modalTitle");
+            
+            expandedImg.src = imgSrc;
+            modalTitle.innerText = titleText;
+            modal.style.display = "flex";
+        }
+
+        // Función para cerrar el visor
+        function closeImage() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Buscador interactivo en tiempo real
+        document.getElementById('hardware-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.hardware-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+    </html>
+    
