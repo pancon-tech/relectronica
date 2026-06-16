@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Relectrónica - Biblioteca Técnica Premium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+<header class="app-header">
+    <div class="logo-box"><span>🔧📘</span></div>
+    <div class="header-info">
+        <h1>Relectrónica · Diccionario Técnico Premium</h1>
+        <p><span class="status-led"></span> Biblioteca | Favoritos | Exportar PDF</p>
+    </div>
+    <div class="header-actions">
+        <button id="themeToggle" class="icon-btn"><i class="fas fa-moon"></i></button>
+        <button id="exportPdfBtn" class="icon-btn"><i class="fas fa-file-pdf"></i></button>
+    </div>
+</header>
+<div class="library-container" id="libraryContainer">
+    <div class="search-section">
+        <div class="search-wrapper">
+            <div class="search-container">
+                <input type="text" id="globalSearch" class="search-bar" placeholder="🔍 Buscar concepto...">
+                <div id="suggestionsBox" class="suggestions-box"></div>
+            </div>
+            <button id="clearSearchBtn" class="clear-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="filter-group" id="filterGroup">
+            <button data-cat="all" class="filter-chip active">📚 Todas</button>
+            <button data-cat="voltajes" class="filter-chip">⚡ Voltajes</button>
+            <button data-cat="componentes" class="filter-chip">🔩 Componentes</button>
+            <button data-cat="semiconductores" class="filter-chip">💎 Semiconductores</button>
+            <button data-cat="medicion" class="filter-chip">📏 Mediciones</button>
+            <button data-cat="fallas" class="filter-chip">⚠️ Fallas</button>
+        </div>
+        <div class="stats-bar">
+            <span id="resultsCount">0 conceptos</span>
+            <button id="showFavoritesOnly" class="favorites-toggle-btn"><i class="far fa-star"></i> Favoritos</button>
+        </div>
+    </div>
+    <div id="cardsContainer"></div>
+</div>
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-link">💬<span>Chat</span></a>
+    <a href="notas.html" class="nav-link">📝<span>Notas</span></a>
+    <a href="biblioteca.html" class="nav-link active">📘<span>Biblioteca</span></a>
+    <a href="hardware.html" class="nav-link">🖼️<span>Hardware</span></a>
+    <a href="fallas.html" class="nav-link">🛠️<span>Casos</span></a>
+    <a href="recepcion.html" class="nav-link">📋<span>Recepción</span></a>
+</nav>
+<script>
+const dictionaryEntries = [
+    { id: 1, term: "VGH", category: "voltajes", description: "Voltaje positivo alto (+20V a +30V). Enciende los TFT del panel LCD.", tip: "Medir en T-CON cerca del DC-DC. Si falta: pantalla blanca.", extra: "Síntoma típico: imagen fantasmal.", diagram: "🔌 VGH > +20V" },
+    { id: 2, term: "VGL", category: "voltajes", description: "Voltaje negativo (-5V a -10V). Apaga los TFT para refrescar.", tip: "VGL inestable produce parpadeos.", extra: "Debe estar cerca de -8V.", diagram: "🔌 VGL ~ -5V a -10V" },
+    { id: 3, term: "VCOM", category: "voltajes", description: "Voltaje de referencia para cristales líquidos (~6-8V).", tip: "Desbalanceado causa flicker vertical.", diagram: "⚡ VCOM ~ 6-8V" },
+    { id: 4, term: "VDD/VCC", category: "voltajes", description: "Alimentación digital (3.3V o 12V).", tip: "Sin VDD: pantalla negra con retroiluminación." },
+    { id: 5, term: "Resistencia SMD", category: "componentes", description: "Montaje superficial. Limita corriente.", tip: "Medir fuera del circuito.", extra: "Shunt 0.1Ω falla abierta.", diagram: "📏 Código numérico" },
+    { id: 6, term: "Capacitor Electrolítico", category: "componentes", description: "Filtra rizado. Alta capacidad.", tip: "Reemplazar si está hinchado.", extra: "Medir ESR.", diagram: "🔋 Polarizado" },
+    { id: 7, term: "Capacitor MLCC", category: "componentes", description: "Alta frecuencia, baja ESR.", tip: "Corto se calienta; usar cámara térmica." },
+    { id: 8, term: "Bobina/Inductor", category: "componentes", description: "Almacena energía magnética.", tip: "Zumbido indica saturación." },
+    { id: 9, term: "MOSFET", category: "semiconductores", description: "Interruptor controlado por tensión.", tip: "Falla común: drenaje-fuente en corto.", extra: "Sustituir por referencia equivalente.", diagram: "🔘 G-D-S" },
+    { id: 10, term: "Transistor BJT", category: "semiconductores", description: "Bipolar NPN/PNP. Controlado por corriente.", tip: "Medir junturas (~0.6V).", diagram: "🔘 NPN/PNP" },
+    { id: 11, term: "Diodo Schottky", category: "semiconductores", description: "Baja caída (0.2-0.4V).", tip: "Fallo: corto o fuga." },
+    { id: 12, term: "IC PWM", category: "semiconductores", description: "Genera señal modulada. Ej: TL494.", tip: "Verificar VCC y referencia 5V." },
+    { id: 13, term: "Optoacoplador", category: "semiconductores", description: "Aísla con luz infrarroja.", tip: "Medir led interno (1.2V)." },
+    { id: 14, term: "Puente H", category: "semiconductores", description: "Controla motores DC en ambos sentidos.", tip: "Evitar cortos cruzados.", diagram: "🔄 H-Bridge" },
+    { id: 15, term: "Medición en circuito", category: "medicion", description: "Lecturas falsas por paralelo.", tip: "Medir Shunt con una pata al aire." },
+    { id: 16, term: "Modo diodo", category: "medicion", description: "Prueba de juntura PN.", tip: "0.4-0.6V normal; 0V corto; OL abierto." },
+    { id: 17, term: "Inyección de voltaje", category: "medicion", description: "Aplicar 1-3V para encontrar cortos.", tip: "Usar cámara termográfica o alcohol." },
+    { id: 18, term: "Pantalla blanca", category: "fallas", description: "Falla en VGH o VGL ausente.", tip: "Medir fusible en T-CON." },
+    { id: 19, term: "Fuente protegida", category: "fallas", description: "Corto en secundario o MOSFET primario.", tip: "Desconectar carga para aislar." },
+    { id: 20, term: "Equipo no enciende", category: "fallas", description: "Falla en 5VSB o corto en primario.", tip: "Medir puente de diodos y fusible." }
+];
+let favorites = JSON.parse(localStorage.getItem('relectronica_favorites') || '[]');
+let showOnlyFavorites = false;
+let currentTheme = localStorage.getItem('relectronica_theme') || 'dark';
+function getCatLabel(cat) {
+    const labels = {'voltajes':'⚡ Voltajes','componentes':'🔩 Pasivos','semiconductores':'💎 Semis','medicion':'📏 Medición','fallas':'⚠️ Fallas'};
+    return labels[cat] || '📘';
+}
+function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m=='&'?'&amp;':m=='<'?'&lt;':'&gt;'); }
+function isFavorite(id) { return favorites.includes(id); }
+function toggleFavorite(id, e) {
+    e.stopPropagation();
+    if(favorites.includes(id)) favorites = favorites.filter(f=>f!==id);
+    else favorites.push(id);
+    localStorage.setItem('relectronica_favorites', JSON.stringify(favorites));
+    renderLibrary();
+}
+function getSuggestions(q) {
+    if(!q) return [];
+    return dictionaryEntries.filter(e=>e.term.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+}
+function showSuggestions(sugs) {
+    const box = document.getElementById('suggestionsBox');
+    if(!box) return;
+    if(sugs.length===0) { box.classList.remove('active'); return; }
+    box.innerHTML = sugs.map(s=>`<div class="suggestion-item" data-term="${escapeHtml(s.term)}">${escapeHtml(s.term)}</div>`).join('');
+    box.classList.add('active');
+    document.querySelectorAll('.suggestion-item').forEach(item=>{
+        item.addEventListener('click',()=>{
+            document.getElementById('globalSearch').value = item.dataset.term;
+            box.classList.remove('active');
+            renderLibrary();
+        });
+    });
+}
+function renderLibrary() {
+    const searchTerm = document.getElementById('globalSearch')?.value.toLowerCase() || '';
+    const activeCat = document.querySelector('.filter-chip.active')?.getAttribute('data-cat') || 'all';
+    let filtered = [...dictionaryEntries];
+    if(showOnlyFavorites) filtered = filtered.filter(e=>favorites.includes(e.id));
+    if(activeCat !== 'all') filtered = filtered.filter(e=>e.category === activeCat);
+    if(searchTerm) filtered = filtered.filter(e=>e.term.toLowerCase().includes(searchTerm)||e.description.toLowerCase().includes(searchTerm)||(e.tip&&e.tip.toLowerCase().includes(searchTerm)));
+    const container = document.getElementById('cardsContainer');
+    const resultsSpan = document.getElementById('resultsCount');
+    if(resultsSpan) resultsSpan.innerText = `${filtered.length} concepto${filtered.length!==1?'s':''}`;
+    if(!container) return;
+    if(filtered.length===0) { container.innerHTML = '<div class="no-results">🔎 No se encontraron conceptos</div>'; return; }
+    let html = '';
+    filtered.forEach(entry=>{
+        const catEmoji = {voltajes:'⚡',componentes:'🔩',semiconductores:'💎',medicion:'📏',fallas:'⚠️'}[entry.category]||'📘';
+        const isFav = isFavorite(entry.id);
+        html += `<div class="dict-card"><div class="card-header"><div style="display:flex;align-items:center;gap:8px;flex:1;"><button class="favorite-star ${isFav?'active':''}" data-id="${entry.id}"><i class="${isFav?'fas':'far'} fa-star"></i></button><div class="term-name"><span>${catEmoji}</span><strong>${escapeHtml(entry.term)}</strong><span class="term-badge">${getCatLabel(entry.category)}</span></div></div><span class="expand-icon">▼</span></div><div class="card-content"><p>📖 <strong>Definición:</strong> ${escapeHtml(entry.description)}</p>${entry.tip?`<div class="insight-box">🔧 ${escapeHtml(entry.tip)}</div>`:''}${entry.extra?`<div class="insight-box">📌 ${escapeHtml(entry.extra)}</div>`:''}${entry.diagram?`<div class="diagram-icon"><i class="fas fa-microchip"></i> ${escapeHtml(entry.diagram)}</div>`:''}</div></div>`;
+    });
+    container.innerHTML = html;
+    document.querySelectorAll('.favorite-star').forEach(btn=>{ btn.addEventListener('click',(e)=>{ toggleFavorite(parseInt(btn.dataset.id), e); }); });
+}
+function toggleCard(card){ const c=card.querySelector('.card-content'); const exp=card.classList.contains('expanded'); card.classList.toggle('expanded',!exp); if(c) c.style.display=exp?'none':'block'; }
+function applyTheme(theme){ if(theme==='light'){ document.documentElement.setAttribute('data-theme','light'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-sun"></i>'; } else { document.documentElement.removeAttribute('data-theme'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-moon"></i>'; } localStorage.setItem('relectronica_theme',theme); }
+function exportToPDF(){ html2pdf().set({margin:[0.5,0.5,0.5,0.5],filename:'relectronica_biblioteca.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{unit:'in',format:'letter',orientation:'portrait'}}).from(document.getElementById('cardsContainer')).save(); }
+document.addEventListener('click',function(e){ const h=e.target.closest('.card-header'); if(h&&!e.target.closest('.favorite-star')) toggleCard(h.closest('.dict-card')); });
+document.addEventListener('DOMContentLoaded',()=>{
+    applyTheme(currentTheme);
+    document.querySelectorAll('.filter-chip').forEach(btn=>{ btn.addEventListener('click',function(){ document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active')); this.classList.add('active'); renderLibrary(); }); });
+    const search=document.getElementById('globalSearch');
+    search.addEventListener('input',(e)=>{ showSuggestions(getSuggestions(e.target.value)); renderLibrary(); });
+    document.getElementById('clearSearchBtn')?.addEventListener('click',()=>{ search.value=''; document.getElementById('suggestionsBox')?.classList.remove('active'); renderLibrary(); });
+    document.addEventListener('click',(e)=>{ if(!e.target.closest('.search-container')) document.getElementById('suggestionsBox')?.classList.remove('active'); });
+    document.getElementById('showFavoritesOnly')?.addEventListener('click',function(){ showOnlyFavorites=!showOnlyFavorites; this.classList.toggle('active',showOnlyFavorites); renderLibrary(); });
+    document.getElementById('themeToggle')?.addEventListener('click',()=>{ currentTheme=currentTheme==='dark'?'light':'dark'; applyTheme(currentTheme); });
+    document.getElementById('exportPdfBtn')?.addEventListener('click',exportToPDF);
+    renderLibrary();
+});
+</script>
+</body>
+</html>
