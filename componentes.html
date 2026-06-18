@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Buscador de Componentes</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --bot-msg-bg: #1a273a;
+            --border-color: #22344d;
+            --card-bg: #162235;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --accent: #a855f7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo-container {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--primary-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        /* TABS */
+        .mode-tabs {
+            display: flex;
+            margin: 18px 16px 0;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #a0aec0;
+            transition: all 0.25s ease;
+            border: none;
+            background: none;
+        }
+
+        .mode-tab.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* SEARCH AREA */
+        .search-section {
+            margin: 14px 16px 0;
+        }
+
+        .search-label {
+            font-size: 0.78rem;
+            color: #a0aec0;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 13px 14px;
+            border-radius: 9px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.04em;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-input::placeholder {
+            color: #4a5568;
+        }
+
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 9px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 52px;
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* HINT CHIPS */
+        .hint-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: #a0aec0;
+            padding: 5px 11px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* RESULT AREA */
+        .result-area {
+            margin: 16px 16px 0;
+            display: none;
+        }
+
+        .result-area.visible {
+            display: block;
+        }
+
+        /* LOADING */
+        .loading-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .loading-card.visible {
+            display: block;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
+        /* RESULT CARD */
+        .result-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            animation: fadeUp 0.35s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #1e0a3c, #2d1060);
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-header .badge {
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .result-header .query-display {
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: #e2d9f3;
+        }
+
+        .result-body {
+            padding: 16px;
+        }
+
+        /* SECTIONS inside result */
+        .info-section {
+            margin-bottom: 18px;
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+
+        /* Component name */
+        .comp-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .comp-type {
+            font-size: 0.82rem;
+            color: #a0aec0;
+        }
+
+        /* Params grid */
+        .params-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .param-item {
+            background-color: var(--bot-msg-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 9px 11px;
+        }
+
+        .param-label {
+            font-size: 0.7rem;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+
+        .param-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Equivalents */
+        .equiv-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .equiv-item {
+            background-color: var(--bot-msg-bg);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 10px 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .equiv-left .equiv-name {
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: #e2d9f3;
+        }
+
+        .equiv-left .equiv-note {
+            font-size: 0.78rem;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .compat-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            white-space: nowrap;
+            align-self: flex-start;
+        }
+
+        .compat-high   { background-color: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .compat-medium { background-color: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .compat-low    { background-color: rgba(239,68,68,0.2);  color: #ef4444; border: 1px solid #ef4444; }
+
+        /* Notes / warnings */
+        .note-box {
+            background-color: rgba(168,85,247,0.08);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 8px;
+            padding: 11px 13px;
+            font-size: 0.84rem;
+            color: #c4b5fd;
+            line-height: 1.5;
+        }
+
+        .warning-box {
+            background-color: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 8px;
+            padding: 11px 13px;
+            font-size: 0.84rem;
+            color: #fcd34d;
+            line-height: 1.5;
+        }
+
+        /* Error state */
+        .error-card {
+            background-color: #1e0a0a;
+            border: 1px solid var(--error);
+            border-radius: 12px;
+            padding: 18px 16px;
+            color: #fc8181;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .error-card.visible {
+            display: block;
+        }
+
+        /* HISTORY */
+        .history-section {
+            margin: 16px 16px 0;
+        }
+
+        .history-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #4a5568;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .history-chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: #718096;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s;
+        }
+
+        .history-chip:hover {
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* NAV */
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.68rem;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 14px 0;
+        }
+    
+        /* ── FAB MENÚ ── */
+        .fab-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7928ca, #a855f7);
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: transform 0.25s ease;
+        }
+        .fab-toggle.open { transform: rotate(90deg); }
+        .fab-items {
+            position: fixed;
+            bottom: 82px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+        }
+        .fab-items.open { pointer-events: all; opacity: 1; }
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .fab-item-label {
+            background-color: #1a273a;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #22344d;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .fab-item-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #1a273a;
+            border: 1px solid #22344d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
+        .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
+        .fab-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(0,0,0,0.5);
+        }
+        .fab-overlay.open { display: block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="logo.png" alt="Relectrónica Logo">
+    </div>
+    <div class="header-info">
+        <h1>🔍 Buscador de Componentes</h1>
+        <p>Código SMD · Equivalencias · Parámetros</p>
+    </div>
+</header>
+
+<!-- MODE TABS -->
+<div class="mode-tabs">
+    <button class="mode-tab active" id="tab-smd" onclick="setMode('smd')">📦 Código SMD</button>
+    <button class="mode-tab" id="tab-equiv" onclick="setMode('equiv')">🔄 Equivalencia</button>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+    <span class="search-label" id="search-label">Ingresa el código impreso en el componente</span>
+    <div class="search-box">
+        <input type="text" class="search-input" id="search-input"
+               placeholder="Ej: 4A6, Y1, 3A, A7W..."
+               autocomplete="off" autocorrect="off" autocapitalize="characters"
+               onkeydown="if(event.key==='Enter') buscar()">
+        <button class="search-btn" id="search-btn" onclick="buscar()">🔎</button>
+    </div>
+    <div class="hint-chips" id="hint-chips">
+        <!-- filled by JS -->
+    </div>
+</div>
+
+<!-- LOADING -->
+<div class="result-area" id="result-area">
+    <div class="loading-card" id="loading-card">
+        <div class="spinner"></div>
+        <p class="loading-text" id="loading-text">Analizando componente...</p>
+    </div>
+    <div class="error-card" id="error-card">
+        ⚠️ <span id="error-msg"></span>
+    </div>
+    <div id="result-card-container"></div>
+</div>
+
+<!-- RECENT HISTORY -->
+<div class="history-section" id="history-section" style="display:none">
+    <p class="history-title">Búsquedas recientes</p>
+    <div class="history-list" id="history-list"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+    <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+    <div class="fab-items" id="fab-items">
+        <a href="recepcion.html" class="fab-item">
+            <span class="fab-item-label">Recepción</span>
+            <span class="fab-item-btn">📋</span>
+        </a>
+        <a href="fallas.html" class="fab-item">
+            <span class="fab-item-label">Casos de Falla</span>
+            <span class="fab-item-btn">🛠️</span>
+        </a>
+        <a href="componentes.html" class="fab-item active">
+            <span class="fab-item-label">Componentes</span>
+            <span class="fab-item-btn">🔍</span>
+        </a>
+        <a href="calculadoras.html" class="fab-item">
+            <span class="fab-item-label">Cálculos</span>
+            <span class="fab-item-btn">🧮</span>
+        </a>
+        <a href="hardware.html" class="fab-item">
+            <span class="fab-item-label">Hardware</span>
+            <span class="fab-item-btn">🖼️</span>
+        </a>
+        <a href="biblioteca.html" class="fab-item">
+            <span class="fab-item-label">Biblioteca</span>
+            <span class="fab-item-btn">📘</span>
+        </a>
+        <a href="notas.html" class="fab-item">
+            <span class="fab-item-label">Mis Notas</span>
+            <span class="fab-item-btn">📝</span>
+        </a>
+        <a href="index.html" class="fab-item">
+            <span class="fab-item-label">Chat Técnico</span>
+            <span class="fab-item-btn">💬</span>
+        </a>
+    </div>
+    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
+<script>
+    // ─── CONFIG ────────────────────────────────────────────────
+    const COHERE_API_KEY = '594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL';
+
+    const HINTS = {
+        smd:   ['4A6','Y1','3A','A7W','6A','2F','B772','J3Y','S8050','702'],
+        equiv: ['2N3904','BC547','IRF840','IRF3205','TIP31C','LM7805','NE555','TL431','PC817','UC3842']
+    };
+
+    let currentMode = 'smd';
+    let searchHistory = JSON.parse(localStorage.getItem('comp_history') || '[]');
+
+    // ─── INIT ───────────────────────────────────────────────────
+    setMode('smd');
+    renderHistory();
+
+    // ─── MODE SWITCH ────────────────────────────────────────────
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('tab-smd').classList.toggle('active', mode === 'smd');
+        document.getElementById('tab-equiv').classList.toggle('active', mode === 'equiv');
+
+        const input = document.getElementById('search-input');
+        const label = document.getElementById('search-label');
+
+        if (mode === 'smd') {
+            label.textContent = 'Ingresa el código impreso en el componente';
+            input.placeholder = 'Ej: 4A6, Y1, 3A, A7W...';
+        } else {
+            label.textContent = 'Ingresa el número de parte del componente';
+            input.placeholder = 'Ej: IRF840, 2N3904, TL431, BC547...';
+        }
+
+        // render hint chips
+        const chips = document.getElementById('hint-chips');
+        chips.innerHTML = '';
+        HINTS[mode].forEach(h => {
+            const c = document.createElement('span');
+            c.className = 'chip';
+            c.textContent = h;
+            c.onclick = () => { input.value = h; buscar(); };
+            chips.appendChild(c);
+        });
+
+        // clear results
+        clearResult();
+        input.value = '';
+        input.focus();
+    }
+
+    // ─── SEARCH ─────────────────────────────────────────────────
+    async function buscar() {
+        const query = document.getElementById('search-input').value.trim().toUpperCase();
+        if (!query) return;
+
+        showLoading(true);
+        clearResult();
+
+        const prompt = currentMode === 'smd' ? buildSMDPrompt(query) : buildEquivPrompt(query);
+
+        try {
+            const res = await fetch('https://api.cohere.ai/v1/chat', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${COHERE_API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'command-r-08-2024',
+                    message: prompt,
+                    preamble: 'Eres un ingeniero electrónico experto en componentes SMD, transistores, MOSFETs, ICs y componentes discretos. Respondes SIEMPRE con un objeto JSON válido y nada más. Sin comentarios, sin bloques de código markdown, solo el JSON puro.'
+                })
+            });
+
+            const data = await res.json();
+            showLoading(false);
+
+            if (!res.ok) {
+                showError('Error de API: ' + (data.message || 'Respuesta inválida'));
+                return;
+            }
+
+            const raw = data.text || '';
+            let parsed;
+            try {
+                const clean = raw.replace(/```json|```/g, '').trim();
+                parsed = JSON.parse(clean);
+            } catch {
+                showError('No se pudo interpretar la respuesta. Intenta con otro código.');
+                return;
+            }
+
+            if (currentMode === 'smd') renderSMDResult(query, parsed);
+            else renderEquivResult(query, parsed);
+
+            saveHistory(query);
+
+        } catch (err) {
+            showLoading(false);
+            showError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+            console.error(err);
+        }
+    }
+
+    // ─── PROMPTS ─────────────────────────────────────────────────
+    function buildSMDPrompt(code) {
+        return `El código SMD marcado en el componente es: "${code}"
+
+Responde con este JSON exacto:
+{
+  "encontrado": true/false,
+  "componente": "nombre completo del componente (ej: BC847B)",
+  "tipo": "tipo de componente (ej: Transistor NPN, MOSFET Canal-N, Regulador LDO...)",
+  "descripcion": "descripción breve en español (máx 2 oraciones)",
+  "parametros": [
+    { "nombre": "Etiqueta", "valor": "valor con unidad" }
+  ],
+  "encapsulado": "encapsulado SMD (ej: SOT-23, SOT-363, SO-8...)",
+  "aplicaciones": "usos comunes en español",
+  "equivalentes": [
+    { "parte": "NUMERO_PARTE", "nota": "diferencia clave", "compatibilidad": "Alta/Media/Baja" }
+  ],
+  "advertencia": "advertencia técnica importante si aplica, o null",
+  "nota_tecnica": "consejo de reemplazo o manipulación, o null"
+}
+
+Si el código no existe o es inválido, responde con encontrado: false y un campo "mensaje" explicando por qué.`;
+    }
+
+    function buildEquivPrompt(part) {
+        return `El técnico necesita encontrar equivalentes para el componente: "${part}"
+
+Responde con este JSON exacto:
+{
+  "encontrado": true/false,
+  "componente": "nombre completo",
+  "tipo": "tipo de componente",
+  "descripcion": "descripción breve en español",
+  "parametros_clave": [
+    { "nombre": "Etiqueta", "valor": "valor con unidad" }
+  ],
+  "encapsulado_original": "encapsulado",
+  "equivalentes": [
+    {
+      "parte": "NUMERO_PARTE",
+      "fabricante": "fabricante si conocido",
+      "nota": "diferencias clave respecto al original",
+      "compatibilidad": "Alta/Media/Baja",
+      "disponibilidad": "Común/Moderada/Rara"
+    }
+  ],
+  "advertencia": "advertencia si el reemplazo requiere cuidado especial, o null",
+  "nota_tecnica": "consejo de sustitución, o null"
+}
+
+Si el componente no existe, pon encontrado: false con mensaje.`;
+    }
+
+    // ─── RENDER SMD RESULT ───────────────────────────────────────
+    function renderSMDResult(query, d) {
+        const container = document.getElementById('result-card-container');
+
+        if (!d.encontrado) {
+            container.innerHTML = `
+            <div class="result-card">
+              <div class="result-header">
+                <span class="badge">SMD</span>
+                <span class="query-display">${query}</span>
+              </div>
+              <div class="result-body">
+                <div class="warning-box">⚠️ ${d.mensaje || 'No se encontró información para este código.'}</div>
+              </div>
+            </div>`;
+            showResultArea();
+            return;
+        }
+
+        let paramsHTML = '';
+        if (d.parametros?.length) {
+            paramsHTML = `<div class="params-grid">` +
+                d.parametros.map(p => `
+                <div class="param-item">
+                    <div class="param-label">${p.nombre}</div>
+                    <div class="param-value">${p.valor}</div>
+                </div>`).join('') +
+            `</div>`;
+        }
+
+        let equivHTML = '';
+        if (d.equivalentes?.length) {
+            equivHTML = `<div class="info-section">
+                <div class="section-title">🔄 Equivalentes directos</div>
+                <div class="equiv-list">` +
+                d.equivalentes.map(e => `
+                <div class="equiv-item">
+                    <div class="equiv-left">
+                        <div class="equiv-name">${e.parte}</div>
+                        <div class="equiv-note">${e.nota}</div>
+                    </div>
+                    <span class="compat-badge ${compatClass(e.compatibilidad)}">${e.compatibilidad}</span>
+                </div>`).join('') +
+                `</div></div>`;
+        }
+
+        container.innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <span class="badge">SMD · ${d.encapsulado || ''}</span>
+            <span class="query-display">${query}</span>
+          </div>
+          <div class="result-body">
+
+            <div class="info-section">
+              <div class="section-title">🧩 Componente identificado</div>
+              <div class="comp-name">${d.componente}</div>
+              <div class="comp-type">${d.tipo}</div>
+              ${d.descripcion ? `<hr class="divider"><p style="font-size:0.85rem;color:#a0aec0;line-height:1.5">${d.descripcion}</p>` : ''}
+            </div>
+
+            ${paramsHTML ? `<div class="info-section"><div class="section-title">⚡ Parámetros principales</div>${paramsHTML}</div>` : ''}
+            ${d.aplicaciones ? `<div class="info-section"><div class="section-title">🎯 Aplicaciones típicas</div><p style="font-size:0.85rem;color:#a0aec0">${d.aplicaciones}</p></div>` : ''}
+            ${equivHTML}
+            ${d.advertencia ? `<div class="warning-box">⚠️ ${d.advertencia}</div>` : ''}
+            ${d.nota_tecnica ? `<div class="note-box" style="margin-top:10px">💡 ${d.nota_tecnica}</div>` : ''}
+
+          </div>
+        </div>`;
+
+        showResultArea();
+    }
+
+    // ─── RENDER EQUIV RESULT ─────────────────────────────────────
+    function renderEquivResult(query, d) {
+        const container = document.getElementById('result-card-container');
+
+        if (!d.encontrado) {
+            container.innerHTML = `
+            <div class="result-card">
+              <div class="result-header">
+                <span class="badge">Equiv</span>
+                <span class="query-display">${query}</span>
+              </div>
+              <div class="result-body">
+                <div class="warning-box">⚠️ ${d.mensaje || 'Componente no encontrado.'}</div>
+              </div>
+            </div>`;
+            showResultArea();
+            return;
+        }
+
+        let paramsHTML = '';
+        if (d.parametros_clave?.length) {
+            paramsHTML = `<div class="info-section">
+                <div class="section-title">⚡ Parámetros del original</div>
+                <div class="params-grid">` +
+                d.parametros_clave.map(p => `
+                <div class="param-item">
+                    <div class="param-label">${p.nombre}</div>
+                    <div class="param-value">${p.valor}</div>
+                </div>`).join('') +
+                `</div></div>`;
+        }
+
+        let equivHTML = '';
+        if (d.equivalentes?.length) {
+            equivHTML = `<div class="info-section">
+                <div class="section-title">🔄 Sustitutos recomendados</div>
+                <div class="equiv-list">` +
+                d.equivalentes.map(e => `
+                <div class="equiv-item">
+                    <div class="equiv-left">
+                        <div class="equiv-name">${e.parte}</div>
+                        <div class="equiv-note">${e.nota}${e.disponibilidad ? ` · <span style="color:#718096">${e.disponibilidad}</span>` : ''}</div>
+                    </div>
+                    <span class="compat-badge ${compatClass(e.compatibilidad)}">${e.compatibilidad}</span>
+                </div>`).join('') +
+                `</div></div>`;
+        }
+
+        container.innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <span class="badge">Equiv · ${d.encapsulado_original || ''}</span>
+            <span class="query-display">${query}</span>
+          </div>
+          <div class="result-body">
+
+            <div class="info-section">
+              <div class="section-title">🧩 Componente original</div>
+              <div class="comp-name">${d.componente}</div>
+              <div class="comp-type">${d.tipo}</div>
+              ${d.descripcion ? `<hr class="divider"><p style="font-size:0.85rem;color:#a0aec0;line-height:1.5">${d.descripcion}</p>` : ''}
+            </div>
+
+            ${paramsHTML}
+            ${equivHTML}
+            ${d.advertencia ? `<div class="warning-box">⚠️ ${d.advertencia}</div>` : ''}
+            ${d.nota_tecnica ? `<div class="note-box" style="margin-top:10px">💡 ${d.nota_tecnica}</div>` : ''}
+
+          </div>
+        </div>`;
+
+        showResultArea();
+    }
+
+    // ─── HELPERS ─────────────────────────────────────────────────
+    function compatClass(c) {
+        if (!c) return 'compat-medium';
+        const l = c.toLowerCase();
+        if (l.includes('alta') || l.includes('high')) return 'compat-high';
+        if (l.includes('baja') || l.includes('low'))  return 'compat-low';
+        return 'compat-medium';
+    }
+
+    function showLoading(show) {
+        document.getElementById('result-area').classList.toggle('visible', show);
+        document.getElementById('loading-card').classList.toggle('visible', show);
+        document.getElementById('search-btn').disabled = show;
+        if (show) {
+            document.getElementById('loading-text').textContent =
+                currentMode === 'smd' ? 'Identificando código SMD...' : 'Buscando equivalentes...';
+        }
+    }
+
+    function clearResult() {
+        document.getElementById('error-card').classList.remove('visible');
+        document.getElementById('result-card-container').innerHTML = '';
+        document.getElementById('loading-card').classList.remove('visible');
+    }
+
+    function showError(msg) {
+        document.getElementById('error-msg').textContent = msg;
+        document.getElementById('error-card').classList.add('visible');
+        document.getElementById('result-area').classList.add('visible');
+    }
+
+    function showResultArea() {
+        document.getElementById('result-area').classList.add('visible');
+    }
+
+    function saveHistory(query) {
+        searchHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 10);
+        localStorage.setItem('comp_history', JSON.stringify(searchHistory));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const section = document.getElementById('history-section');
+        const list    = document.getElementById('history-list');
+        if (!searchHistory.length) { section.style.display = 'none'; return; }
+        section.style.display = 'block';
+        list.innerHTML = searchHistory.map(h => `
+            <span class="history-chip" onclick="document.getElementById('search-input').value='${h}';buscar()">${h}</span>
+        `).join('');
+    }
+</script>
+
+<script>
+function toggleFAB() {
+    const items = document.getElementById('fab-items');
+    const overlay = document.getElementById('fab-overlay');
+    const btn = document.getElementById('fab-toggle');
+    const open = items.classList.toggle('open');
+    overlay.classList.toggle('open', open);
+    if (btn) btn.classList.toggle('open', open);
+}
+</script>
+</body>
+</html>
