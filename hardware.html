@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Hardware Vista Grande</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --border-color: #22344d;
+            --card-bg: #162235;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #a855f7;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 65px;
+        }
+
+        .search-bar {
+            width: 100%;
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #a855f7;
+            font-weight: 600;
+        }
+
+        /* DISEÑO DE LA REJILLA DE IMÁGENES */
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .hardware-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .hardware-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 130px;
+            background-color: #080d16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .card-info h3 {
+            font-size: 0.9rem;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .card-tag {
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            background-color: #1e1b4b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            align-self: flex-start;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* ─── VENTANA MODAL (PANTALLA COMPLETA PARA AMPLIAR FOTO) ─── */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(5, 9, 15, 0.95);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content-container {
+            max-width: 95%;
+            max-height: 85%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .image-modal img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #a0aec0;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        /* NAVEGACIÓN INFERIOR */
+        nav.nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.75rem;
+            background: none;
+            border: none;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+    
+        /* ── FAB MENÚ ── */
+        .fab-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7928ca, #a855f7);
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: transform 0.25s ease;
+        }
+        .fab-toggle.open { transform: rotate(90deg); }
+        .fab-items {
+            position: fixed;
+            bottom: 82px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+        }
+        .fab-items.open { pointer-events: all; opacity: 1; }
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .fab-item-label {
+            background-color: #1a273a;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #22344d;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .fab-item-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #1a273a;
+            border: 1px solid #22344d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
+        .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
+        .fab-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(0,0,0,0.5);
+        }
+        .fab-overlay.open { display: block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Reconocimiento de Hardware</p>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas o componentes...">
+        
+        <h2 class="section-title">Galería de Hardware Técnico</h2>
+        
+        <div class="hardware-grid">
+
+            <div class="hardware-card" onclick="openImage('imagenes/TconTT5461B032C1.png', 'TCON TT5461B03-2-C-1 - Voltajes Clave')">
+                <div class="image-container">
+                    <img src="imagenes/TconTT5461B032C1.png" alt="TCON TT5461B03-2-C-1">
+                </div>
+                <div class="card-info">
+                    <h3>TCON TT5461B03-2-C-1</h3>
+                    <span class="card-tag"></span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/fuente.jpg', 'Fuente Conmutada (SMPS)')">
+                <div class="image-container">
+                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada">
+                </div>
+                <div class="card-info">
+                    <h3>Fuente Conmutada</h3>
+                    <span class="card-tag">Potencia</span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/regulador.jpg', 'Regulador de Voltaje TO-220')">
+                <div class="image-container">
+                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje">
+                </div>
+                <div class="card-info">
+                    <h3>Regulador TO-220</h3>
+                    <span class="card-tag">Semiconductores</span>
+                </div>
+            </div>
+
+            <div class="hardware-card" onclick="openImage('imagenes/display.jpg', 'Estructura Interna Display LCD')">
+                <div class="image-container">
+                    <img src="imagenes/display.jpg" alt="Display LCD">
+                </div>
+                <div class="card-info">
+                    <h3>Panel LCD / Display</h3>
+                    <span class="card-tag">Componentes</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="myModal" class="image-modal" onclick="closeImage()">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content-container" onclick="event.stopPropagation()">
+            <img id="imgExpanded" src="" alt="Imagen ampliada">
+            <div id="modalTitle" class="modal-title"></div>
+        </div>
+    </div>
+
+            <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+    <div class="fab-items" id="fab-items">
+        <a href="recepcion.html" class="fab-item">
+            <span class="fab-item-label">Recepción</span>
+            <span class="fab-item-btn">📋</span>
+        </a>
+        <a href="fallas.html" class="fab-item">
+            <span class="fab-item-label">Casos de Falla</span>
+            <span class="fab-item-btn">🛠️</span>
+        </a>
+        <a href="componentes.html" class="fab-item">
+            <span class="fab-item-label">Componentes</span>
+            <span class="fab-item-btn">🔍</span>
+        </a>
+        <a href="calculadoras.html" class="fab-item">
+            <span class="fab-item-label">Cálculos</span>
+            <span class="fab-item-btn">🧮</span>
+        </a>
+        <a href="hardware.html" class="fab-item active">
+            <span class="fab-item-label">Hardware</span>
+            <span class="fab-item-btn">🖼️</span>
+        </a>
+        <a href="biblioteca.html" class="fab-item">
+            <span class="fab-item-label">Biblioteca</span>
+            <span class="fab-item-btn">📘</span>
+        </a>
+        <a href="notas.html" class="fab-item">
+            <span class="fab-item-label">Mis Notas</span>
+            <span class="fab-item-btn">📝</span>
+        </a>
+        <a href="index.html" class="fab-item">
+            <span class="fab-item-label">Chat Técnico</span>
+            <span class="fab-item-btn">💬</span>
+        </a>
+    </div>
+    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
+
+    <script>
+        // Función inteligente para abrir cualquier imagen en grande
+        function openImage(imgSrc, titleText) {
+            const modal = document.getElementById("myModal");
+            const expandedImg = document.getElementById("imgExpanded");
+            const modalTitle = document.getElementById("modalTitle");
+            
+            expandedImg.src = imgSrc;
+            modalTitle.innerText = titleText;
+            modal.style.display = "flex";
+        }
+
+        // Función para cerrar el visor
+        function closeImage() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Buscador interactivo en tiempo real
+        document.getElementById('hardware-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.hardware-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+    </html>
+    
