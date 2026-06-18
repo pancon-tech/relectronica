@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica Bot - Línea Técnica</title>
+    <style>
+        :root {
+            --bg-color: #0b131f;
+            --chat-bg: #111c2c;
+            --text-color: #ffffff;
+            --primary-color: #7928ca;
+            --bot-msg-bg: #1a273a;
+            --user-msg-bg: #7928ca;
+            --border-color: #22344d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--chat-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #a855f7;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            margin-bottom: 65px;
+        }
+
+        #chat-container::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background-image: url('logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.04;
+            pointer-events: none;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background-color: var(--bot-msg-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-message {
+            background-color: var(--user-msg-bg);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-meta {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .bot-meta { color: #a855f7; }
+        .user-meta { color: #e2e8f0; }
+
+        .chat-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .error-message {
+            background-color: #2d191e;
+            border: 1px solid #f56565;
+            color: #fc8181;
+        }
+
+        .footer-controls {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            background-color: var(--chat-bg);
+            z-index: 10000;
+        }
+
+        .input-container {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        #input-field {
+            flex: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        #input-field:focus {
+            border-color: var(--primary-color);
+        }
+
+        .icon-btn {
+            background-color: var(--bot-msg-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        /* NUEVO: Efecto pulsante en rojo para cuando el micrófono esté activo */
+        .mic-escuchando {
+            background-color: #ef4444 !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 12px #ef4444;
+            animation: pulsoMic 1.5s infinite;
+        }
+
+        @keyframes pulsoMic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
+        }
+
+        #send-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            height: 45px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #image-preview-container {
+            display: none;
+            background-color: var(--bot-msg-bg);
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-box {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+        }
+
+        
+    
+        /* ── FAB MENÚ ── */
+        .fab-items {
+            position: fixed;
+            bottom: 80px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+        }
+        .fab-items.open { pointer-events: all; opacity: 1; }
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .fab-item-label {
+            background-color: #1a273a;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #22344d;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .fab-item-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #1a273a;
+            border: 1px solid #22344d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
+        .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
+        .fab-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(0,0,0,0.5);
+        }
+        .fab-overlay.open { display: block; }
+        .fab-toggle {
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="Relectrónica Logo">
+        </div>
+        <div class="header-info">
+            <h1>Relectrónica</h1>
+            <p><span class="status-dot"></span> Línea Técnica Personalizada</p>
+        </div>
+        <button class="clear-btn" id="clear-btn" title="Borrar Historial">🗑️</button>
+    </header>
+
+    <div id="chat-container"></div>
+
+    
+    <!-- FAB overlay -->
+    <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+    <!-- FAB items -->
+    <div class="fab-items" id="fab-items">
+        <a href="recepcion.html" class="fab-item">
+            <span class="fab-item-label">Recepción</span>
+            <span class="fab-item-btn">📋</span>
+        </a>
+        <a href="fallas.html" class="fab-item">
+            <span class="fab-item-label">Casos de Falla</span>
+            <span class="fab-item-btn">🛠️</span>
+        </a>
+        <a href="componentes.html" class="fab-item">
+            <span class="fab-item-label">Componentes</span>
+            <span class="fab-item-btn">🔍</span>
+        </a>
+        <a href="calculadoras.html" class="fab-item">
+            <span class="fab-item-label">Cálculos</span>
+            <span class="fab-item-btn">🧮</span>
+        </a>
+        <a href="hardware.html" class="fab-item">
+            <span class="fab-item-label">Hardware</span>
+            <span class="fab-item-btn">🖼️</span>
+        </a>
+        <a href="biblioteca.html" class="fab-item">
+            <span class="fab-item-label">Biblioteca</span>
+            <span class="fab-item-btn">📘</span>
+        </a>
+        <a href="notas.html" class="fab-item">
+            <span class="fab-item-label">Mis Notas</span>
+            <span class="fab-item-btn">📝</span>
+        </a>
+        <a href="index.html" class="fab-item active">
+            <span class="fab-item-label">Chat Técnico</span>
+            <span class="fab-item-btn">💬</span>
+        </a>
+    </div>
+    <div class="footer-controls">
+        <div id="image-preview-container">
+            <div class="preview-box">
+                <img id="image-preview" src="" alt="Preview">
+                <button class="remove-preview" id="cancel-image-btn">×</button>
+            </div>
+            <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
+        </div>
+
+        <div class="input-container">
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button class="icon-btn" id="attach-btn" title="Adjuntar imagen">📎</button>
+            
+            <button class="icon-btn" id="mic-btn" title="Hablar con el Bot" onclick="alternarMicrofono()">🎙️</button>
+                    
+            <input type="text" id="input-field" placeholder="Escribe la falla o habla con manos libres..." autocomplete="off">
+            <button class="fab-toggle" onclick="toggleFAB()" title="Menú">☰</button>
+            <button id="send-btn">Enviar</button>
+        </div>
+    </div>
+
+    
+
+                                        </nav>
+                                            <script>
+        const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
+        
+        const chatContainer = document.getElementById('chat-container');
+        const inputField = document.getElementById('input-field');
+        const sendBtn = document.getElementById('send-btn');
+        const fileInput = document.getElementById('file-input');
+        const attachBtn = document.getElementById('attach-btn');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const cancelImageBtn = document.getElementById('cancel-image-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const micBtn = document.getElementById('mic-btn');
+
+        let selectedImageBase64 = null;
+        let chatHistory = [];
+        let reconocimientoVoz = null;
+        let estaEscuchando = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedChat = localStorage.getItem('relectronica_chat_history');
+            if (savedChat) {
+                chatHistory = JSON.parse(savedChat);
+                chatHistory.forEach(msg => {
+                    appendMessageToDOM(msg.sender, msg.text, msg.isError, msg.imageSrc);
+                });
+            } else {
+                const welcomeText = 'Bienvenido a Relectrónica. Asistencia técnica abierta a cualquier consulta sobre reparaciones eléctricas y electrónicas: mediciones, componentes, esquemas o calibración. El sistema está disponible para resolver dudas técnicas con precisión.';
+                appendMessageToDOM('bot', welcomeText);
+                saveMessageToHistory('bot', welcomeText);
+            }
+            // Inicializar motor de voz del celular
+            inicializarReconocimientoVoz();
+        });
+
+        attachBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                selectedImageBase64 = event.target.result.split(',')[1];
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        cancelImageBtn.addEventListener('click', () => {
+            selectedImageBase64 = null;
+            fileInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+        });
+
+        clearBtn.addEventListener('click', () => {
+            if (confirm('¿Quieres vaciar toda la conversación actual?')) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                localStorage.removeItem('relectronica_chat_history');
+                chatHistory = [];
+                chatContainer.innerHTML = '';
+                const welcomeText = '¡Excelente Jefferson! Tu logo oficial ha sido integrado como marca de agua en el fondo del chat y en el encabezado. Chatea normalmente y verás cómo los mensajes flotan por encima sin ocultarlo.';
+                appendMessageToDOM('bot', welcomeText);
+                saveMessageToHistory('bot', welcomeText);
+            }
+        });
+
+        function appendMessageToDOM(sender, text, isError = false, imageSrc = null) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+            if (isError) msgDiv.classList.add('error-message');
+
+            const metaSpan = document.createElement('span');
+            metaSpan.classList.add('msg-meta');
+            metaSpan.classList.add(sender === 'bot' ? 'bot-meta' : 'user-meta');
+            metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica Bot:' : 'Jefferson:';
+
+            msgDiv.appendChild(metaSpan);
+            
+            if (text) {
+                const formattedText = text.split('\n');
+                formattedText.forEach((line, index) => {
+                    msgDiv.appendChild(document.createTextNode(line));
+                    if (index < formattedText.length - 1) {
+                        msgDiv.appendChild(document.createElement('br'));
+                    }
+                });
+            }
+
+            if (imageSrc) {
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                img.classList.add('chat-image');
+                msgDiv.appendChild(img);
+            }
+
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
+            chatHistory.push({ sender, text, isError, imageSrc });
+            localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
+        }
+
+        async function sendMessage() {
+            const query = inputField.value.trim();
+            if (!query && !selectedImageBase64) return;
+
+            const currentImageSrc = imagePreview.src;
+            const activeImageBase64 = selectedImageBase64;
+            
+            appendMessageToDOM('user', query, false, activeImageBase64 ? currentImageSrc : null);
+            saveMessageToHistory('user', query, false, activeImageBase64 ? currentImageSrc : null);
+            
+            inputField.value = '';
+            selectedImageBase64 = null;
+            fileInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+            attachBtn.disabled = true;
+
+            try {
+                const response = await fetch('https://api.cohere.ai/v1/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${COHERE_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'command-r-08-2024',
+                        message: query || "Por favor analiza la imagen que te adjunto para esta consulta técnica.",
+                        preamble: `Eres "Relectrónica", ingeniero electrónico senior. Tu tono es técnico, directo, didáctico y profesional. Tu objetivo es asistir en el diagnóstico y reparación de equipos electrónicos.
+
+Reglas de interacción:
+- Saludo inicial: Si el usuario solo saluda, responde: "¿Qué equipo necesitas diagnosticar?".
+- Protocolo de seguridad (Obligatorio):
+  "⚠️ ADVERTENCIA: Descarga condensadores principales (400V+) con resistencia de 10kΩ/5W antes de manipular."
+- Metodología de diagnóstico:
+  - Exige datos concretos: modelo, voltajes medidos (especifica escala DC/AC), fotos de la placa.
+  - Si el usuario no da mediciones, pregúntale: "Mide la tensión en el pin de drenaje del MOSFET principal respecto a GND. ¿Qué valor da?".
+  - Sugiere buscar manuales de servicio o esquemáticos.
+  - Si no hay mediciones, recomienda limpieza y resoldado de puntos críticos (soldaduras frías).
+  - Analiza por bloques: entrada (rectificador/filtro), conmutación (PWM/MOSFET), Driver LED (inversor de retroiluminación) y salida (diodos/reguladores).
+  - Prioriza causas: 80% condensadores electrolíticos secos en fuente auxiliar o LEDs abiertos en tiras, 15% optoacoplador/TL431, 5% IC PWM o microcontrolador principal.
+- Formato de respuesta (Obligatorio):
+  🔴 ALERTA DE SEGURIDAD: (Advertencia estándar)
+  📋 DIAGNÓSTICO PRELIMINAR: (Interpretación técnica)
+  🔧 LISTA DE VERIFICACIÓN: (Pasos y mediciones)
+  💡 POSIBLES CAUSAS: (Priorizadas por %)
+  ⚙️ PROCEDIMIENTO: (Sustitución/reparación)
+  ✅ PRUEBA FINAL: (Validación o comprobación)
+- Límites técnicos:
+  - No modificar shunts para aumentar potencia bajo ningún concepto (riesgo de incendio).
+  - Si el microcontrolador/procesador principal está dañado, sugiere cambio de placa.
+  - No des consejos para alta tensión industrial trifásica (>440V AC) sin supervisión de un eléctrico colegiado.
+- Didáctica: Explica la función de cada componente técnico mencionado entre paréntesis.`
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    appendMessageToDOM('bot', data.text);
+                    saveMessageToHistory('bot', data.text);
+                    
+                    // Lee automáticamente la respuesta de Cohere en voz alta
+                    hablarTexto(data.text);
+                } else {
+                    appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
+                }
+
+            } catch (error) {
+                appendMessageToDOM('bot', '⚠️ Error de red: No se pudo conectar con el servidor.', true);
+                console.error(error);
+            } finally {
+                inputField.disabled = false;
+                sendBtn.disabled = false;
+                attachBtn.disabled = false;
+                inputField.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+
+        // ==========================================================
+        // MOTOR REVISADO Y OPTIMIZADO PARA MANOS LIBRES POR VOZ
+        // ==========================================================
+
+        function inicializarReconocimientoVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                console.log("El navegador no soporta SpeechRecognition de forma nativo.");
+                return;
+            }
+
+            reconocimientoVoz = new SpeechRecognition();
+            reconocimientoVoz.lang = 'es-VE'; // Dialecto de Venezuela
+            reconocimientoVoz.continuous = false;
+            reconocimientoVoz.interimResults = false;
+
+            reconocimientoVoz.onstart = () => {
+                estaEscuchando = true;
+                micBtn.classList.add('mic-escuchando');
+                micBtn.innerHTML = "🛑";
+                inputField.placeholder = "Escuchando diagnóstico...";
+            };
+
+            reconocimientoVoz.onerror = (event) => {
+                console.error("Error de voz detectado:", event.error);
+                forzarApagadoMic();
+            };
+
+            reconocimientoVoz.onend = () => {
+                forzarApagadoMic();
+            };
+
+            reconocimientoVoz.onresult = function(event) {
+                const textoEscuchado = event.results[0][0].transcript;
+                if (textoEscuchado.trim() !== "") {
+                    inputField.value = textoEscuchado;
+                    // Auto-envío en silencio inmediato
+                    sendMessage();
+                }
+            };
+        }
+
+        function alternarMicrofono() {
+            if (!reconocimientoVoz) {
+                alert("Tu dispositivo o navegador no soporta el reconocimiento de voz.");
+                return;
+            }
+
+            if (estaEscuchando) {
+                reconocimientoVoz.stop();
+            } else {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel(); // Mudece al bot si estaba hablando antes
+                reconocimientoVoz.start();
+            }
+        }
+
+        function forzarApagadoMic() {
+            estaEscuchando = false;
+            micBtn.classList.remove('mic-escuchando');
+            micBtn.innerHTML = "🎙️";
+            inputField.placeholder = "Escribe la falla o habla con manos libres...";
+        }
+
+        function hablarTexto(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Frena lecturas colgadas
+                
+                // Remueve caracteres innecesarios o técnicos de pantalla para que la voz no se tranque
+                const textoLimpio = texto.replace(/[*#_⚡|⚠️|💡|📟|🎨|🔗|📉|🔋\[\]\(\)]/g, '');
+                const utterance = new SpeechSynthesisUtterance(textoLimpio);
+                utterance.lang = 'es-ES';
+                
+                const voces = window.speechSynthesis.getVoices();
+                const vocesEspanol = voces.filter(voz => voz.lang.startsWith('es'));
+                
+                if (vocesEspanol.length > 0) {
+                    // Busca una voz estable en español del sistema operativo
+                    utterance.voice = vocesEspanol[0]; 
+                }
+
+                utterance.rate = 1.05; // Un toque más dinámico para no aburrir
+                utterance.pitch = 1.0; 
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.speechSynthesis.getVoices();
+            };
+        }
+    
+        function toggleFAB() {
+            const items = document.getElementById('fab-items');
+            const overlay = document.getElementById('fab-overlay');
+            const btn = document.querySelector('.fab-toggle');
+            const open = items.classList.toggle('open');
+            overlay.classList.toggle('open', open);
+            btn.style.background = open ? 'linear-gradient(135deg,#a855f7,#7928ca)' : '';
+        }
+    </script>
+</body>
+</html>
