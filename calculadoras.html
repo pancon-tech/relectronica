@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Calculadoras Técnicas</title>
+<style>
+:root{--bg:#0b131f;--chat:#111c2c;--fg:#ffffff;--pri:#7928ca;--brd:#22344d;--card:#162235;--inp:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--fg);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat);padding:15px;display:flex;align-items:center;border-bottom:1px solid var(--brd);gap:15px}
+.logo{width:50px;height:50px;border-radius:8px;background:#000;display:flex;align-items:center;justify-content:center;border:2px solid var(--pri);font-size:24px;font-weight:bold;color:var(--pri);flex-shrink:0}
+.hinfo h1{font-size:1.2rem;font-weight:bold}.hinfo p{font-size:.85rem;color:var(--ok)}
+.cc{flex:1;padding:20px;padding-bottom:90px;max-width:700px;width:100%;margin:0 auto}
+.sel-c{width:100%;padding:12px;border-radius:8px;background:var(--card);color:var(--fg);border:1px solid var(--brd);font-size:1rem;margin-bottom:20px;outline:none}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.card h3{margin-bottom:15px;font-size:1.1rem;border-bottom:1px solid var(--brd);padding-bottom:8px}
+.gi{margin-bottom:14px}.gi label{display:block;font-size:.9rem;margin-bottom:6px;color:#cbd5e1}
+.gi small{display:block;margin-top:3px;font-size:.75rem;color:#6b7280}
+input.ci,select.ci,textarea.ci{width:100%;padding:10px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#fff;font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
+input.ci:focus,select.ci:focus,textarea.ci:focus{border-color:var(--pri)}
+input.ci.ok{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
+.btn{width:100%;padding:12px;border:none;border-radius:6px;background:var(--pri);color:#fff;font-size:1rem;font-weight:bold;cursor:pointer;margin-top:10px}
+.btn:hover{opacity:.9}.btn2{background:#2d3a4e}
+.rb{margin-top:16px;padding:14px;border-radius:6px;background:var(--inp);border:1px dashed var(--brd);min-height:44px;font-size:.92rem;line-height:1.75}
+.acc{background:var(--chat);border:1px solid var(--brd);border-radius:8px;margin-bottom:12px}
+.acc summary{padding:12px;font-weight:bold;cursor:pointer;color:#a78bfa;list-style:none;display:flex;align-items:center;gap:8px}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::before{content:"▶";font-size:.8rem}
+.acc[open] summary::before{content:"▼"}
+.acc-body{padding:12px;border-top:1px solid var(--brd)}
+.pb-w{background:var(--inp);border-radius:20px;height:8px;margin:8px 0;overflow:hidden}
+.pb{background:var(--ok);width:0%;height:100%;transition:width .3s}
+.abts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.abts button{flex:1;min-width:110px;background:#2d3a4e;border:none;color:white;padding:8px;border-radius:6px;cursor:pointer;font-size:.8rem}
+.abts button:hover{background:#3b4a60}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.badge{background:var(--pri);padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
+.badge-ok{background:#065f46;color:#6ee7b7;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
+.badge-err{background:#7f1d1d;color:#fca5a5;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
+.hl{border:2px solid var(--warn)!important;background:rgba(245,158,11,.08)}
+.chk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #1e2f45;font-size:.85rem}
+.chk-item:last-child{border-bottom:none}
+.chk-item input[type=checkbox]{margin-top:2px;width:16px;height:16px;accent-color:var(--pri);cursor:pointer;flex-shrink:0}
+.chk-item label{cursor:pointer;flex:1;color:#cbd5e1}
+.chk-item input:checked+label{text-decoration:line-through;color:#6b7280}
+.ict{width:100%;border-collapse:collapse;font-size:.78rem}
+.ict th{background:#1a2e47;padding:7px 8px;text-align:left;color:#a78bfa;border-bottom:1px solid var(--brd)}
+.ict td{padding:6px 8px;border-bottom:1px solid #1a2636;color:#cbd5e1}
+.ict tr:hover td{background:#1a2e47}
+.zg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.zb{padding:8px 4px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#94a3b8;font-size:.75rem;cursor:pointer;text-align:center;transition:all .2s}
+.zb.sel{background:rgba(121,40,202,.3);border-color:var(--pri);color:#d8b4fe}
+.zb.corto{background:rgba(239,68,68,.15);border-color:var(--err);color:#fca5a5}
+.zb.ok{background:rgba(16,185,129,.1);border-color:var(--ok);color:#6ee7b7}
+.hi-item{background:var(--inp);border:1px solid var(--brd);border-radius:6px;padding:10px;margin-bottom:8px;font-size:.8rem}
+.hi-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hi-vals{display:flex;flex-wrap:wrap;gap:6px}
+.hchip{background:#1a2e47;padding:2px 8px;border-radius:10px;font-size:.75rem}
+.hchip.bad{background:rgba(239,68,68,.15);color:#fca5a5}
+.hchip.good{background:rgba(16,185,129,.1);color:#6ee7b7}
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#94a3b8;cursor:pointer;font-size:.82rem;transition:all .15s}
+.tab.active{background:rgba(121,40,202,.3);border-color:var(--pri);color:#d8b4fe}
+.tp-pane{display:none}.tp-pane.active{display:block}
+.e-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.e-chip{background:#1a2e47;padding:4px 10px;border-radius:12px;font-size:.8rem;color:#cbd5e1}
+.e-chip.best{background:rgba(121,40,202,.3);border:1px solid var(--pri);color:#d8b4fe;font-weight:bold}
+.nota{background:rgba(59,130,246,.08);border-left:3px solid var(--info);padding:8px 10px;border-radius:0 6px 6px 0;font-size:.8rem;color:#93c5fd;margin-bottom:10px;line-height:1.6}
+.sw{display:inline-block;width:18px;height:18px;border-radius:3px;border:1px solid rgba(255,255,255,.2);vertical-align:middle;margin-right:4px}
+.fab-toggle{position:fixed;bottom:20px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7928ca,#a855f7);border:none;color:white;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(121,40,202,.6);display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .25s ease}
+.fab-toggle.open{transform:rotate(90deg)}
+.fab-items{position:fixed;bottom:82px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:9999}
+.fab-items.open{pointer-events:all;opacity:1}
+.fab-item{display:flex;align-items:center;gap:10px;text-decoration:none}
+.fab-item-label{background:#1a273a;color:#e2e8f0;font-size:.82rem;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid #22344d;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.fab-item-btn{width:44px;height:44px;border-radius:50%;background:#1a273a;border:1px solid #22344d;display:flex;align-items:center;justify-content:center;font-size:1.15rem;box-shadow:0 2px 10px rgba(0,0,0,.4);flex-shrink:0}
+.fab-item.active .fab-item-btn{background:linear-gradient(135deg,#7928ca,#a855f7);border-color:#a855f7}
+.fab-item.active .fab-item-label{color:#c4b5fd;border-color:#7928ca}
+.fab-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5)}
+.fab-overlay.open{display:block}
+.fab-items.open .fab-item:nth-child(1){animation:fi .18s ease 0s both}
+.fab-items.open .fab-item:nth-child(2){animation:fi .18s ease .04s both}
+.fab-items.open .fab-item:nth-child(3){animation:fi .18s ease .08s both}
+.fab-items.open .fab-item:nth-child(4){animation:fi .18s ease .12s both}
+.fab-items.open .fab-item:nth-child(5){animation:fi .18s ease .16s both}
+.fab-items.open .fab-item:nth-child(6){animation:fi .18s ease .2s both}
+.fab-items.open .fab-item:nth-child(7){animation:fi .18s ease .24s both}
+.fab-items.open .fab-item:nth-child(8){animation:fi .18s ease .28s both}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:500px){.g2,.g3,.g4{grid-template-columns:1fr}.zg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">R</div>
+  <div class="hinfo"><h1>Relectrónica</h1><p>● Línea Técnica Inteligente</p></div>
+</header>
+<div class="cc">
+<select class="sel-c" id="menu" onchange="swC(this.value)">
+  <option value="smd">🎛️ Resistencias SMD</option>
+  <option value="col">🎨 Código de Colores (4/5/6 Bandas)</option>
+  <option value="ohm">⚡ Ley de Ohm + Potencia</option>
+  <option value="sp">⛓️ Serie / Paralelo + Reactancia</option>
+  <option value="div">📉 Divisor de Voltaje</option>
+  <option value="lcd" selected>🖥️ Diagnóstico Maestro LCD / T-CON</option>
+</select>
+
+<!-- SMD -->
+<div id="calc-smd" class="card" style="display:none">
+  <h3>🎛️ Resistencias SMD</h3>
+  <div class="tabs">
+    <div class="tab active" onclick="swT('smd','leer',this)">Código → Valor</div>
+    <div class="tab" onclick="swT('smd','inv',this)">Valor → Código</div>
+    <div class="tab" onclick="swT('smd','eser',this)">Series E</div>
+  </div>
+  <div id="smd-leer" class="tp-pane active">
+    <div class="nota">Soporta: 3 dígitos (103) · 4 dígitos (4702) · EIA-96 (01A) · flotante (R22, 4R7)</div>
+    <div class="gi"><label>Código impreso:</label><input type="text" id="smd-cod" class="ci" placeholder="103 · 4702 · 01A · R22 · 4R7" style="text-transform:uppercase"></div>
+    <button class="btn" onclick="calcSMD()">Interpretar Código</button>
+    <div class="rb" id="smd-rb">El resultado aparecerá aquí…</div>
+  </div>
+  <div id="smd-inv" class="tp-pane">
+    <div class="nota">Introduce el valor en Ω para obtener los códigos SMD de 3 y 4 dígitos más cercanos, más el código EIA-96.</div>
+    <div class="g2">
+      <div class="gi"><label>Valor (Ω):</label><input type="number" step="any" id="smd-iv" class="ci" placeholder="Ej: 4700"></div>
+      <div class="gi"><label>Serie preferida:</label>
+        <select id="smd-is" class="ci"><option value="E24">E24 (±5%)</option><option value="E48">E48 (±2%)</option><option value="E96">E96 (±1%)</option></select>
+      </div>
+    </div>
+    <button class="btn" onclick="smdInv()">Buscar Código</button>
+    <div class="rb" id="smd-irb">El código aparecerá aquí…</div>
+  </div>
+  <div id="smd-eser" class="tp-pane">
+    <div class="nota">Encuentra el valor normalizado más cercano en la serie seleccionada. Ideal para sustituciones.</div>
+    <div class="g2">
+      <div class="gi"><label>Valor objetivo (Ω):</label><input type="number" step="any" id="e-val" class="ci" placeholder="Ej: 3300"></div>
+      <div class="gi"><label>Serie E:</label>
+        <select id="e-ser" class="ci"><option value="E12">E12 (±10%)</option><option value="E24">E24 (±5%)</option><option value="E48">E48 (±2%)</option><option value="E96">E96 (±1%)</option></select>
+      </div>
+    </div>
+    <button class="btn" onclick="buscaE()">Buscar Valores Normalizados</button>
+    <div class="rb" id="e-rb">Los valores más próximos aparecerán aquí…</div>
+  </div>
+</div>
+
+<!-- COLORES -->
+<div id="calc-col" class="card" style="display:none">
+  <h3>🎨 Código de Colores de Resistencias</h3>
+  <div class="tabs">
+    <div class="tab active" onclick="swT('col','leer',this)">Colores → Valor</div>
+    <div class="tab" onclick="swT('col','inv',this)">Valor → Colores</div>
+    <div class="tab" onclick="swT('col','ref',this)">Tabla de Referencia</div>
+  </div>
+  <div id="col-leer" class="tp-pane active">
+    <div class="gi"><label>Número de bandas:</label>
+      <select id="col-nb" class="ci" onchange="initCol()">
+        <option value="4">4 Bandas (tolerancia ±5%/±10%)</option>
+        <option value="5">5 Bandas (tolerancia ±1%/±2%)</option>
+        <option value="6" selected>6 Bandas (+ Coef. Temperatura)</option>
+      </select>
+    </div>
+    <div id="col-prev" style="display:flex;height:28px;border-radius:6px;overflow:hidden;margin-bottom:14px;border:1px solid var(--brd)">
+      <div id="cb1" style="flex:1;background:#334155"></div><div id="cb2" style="flex:1;background:#334155"></div>
+      <div id="cb3" style="flex:1;background:#334155"></div><div id="cb4" style="flex:1;background:#334155"></div>
+      <div id="cb5" style="flex:1;background:#334155"></div><div id="cb6" style="flex:1;background:#334155"></div>
+    </div>
+    <div id="col-sels" class="g2"></div>
+    <button class="btn" onclick="calcCol()">Calcular Valor</button>
+    <div class="rb" id="col-rb">El valor aparecerá aquí…</div>
+  </div>
+  <div id="col-inv" class="tp-pane">
+    <div class="nota">Introduce un valor y obtén la combinación de colores para 4, 5 y 6 bandas.</div>
+    <div class="g2">
+      <div class="gi"><label>Valor (Ω):</label><input type="number" step="any" id="col-iv" class="ci" placeholder="Ej: 4700"></div>
+      <div class="gi"><label>Tolerancia:</label>
+        <select id="col-it" class="ci"><option value="5">±5% (Oro)</option><option value="2">±2% (Rojo)</option><option value="1">±1% (Marrón)</option><option value="0.5">±0.5% (Verde)</option><option value="10">±10% (Plata)</option></select>
+      </div>
+    </div>
+    <button class="btn" onclick="colInv()">Obtener Colores</button>
+    <div class="rb" id="col-irb">Los colores aparecerán aquí…</div>
+  </div>
+  <div id="col-ref" class="tp-pane">
+    <table class="ict"><thead><tr><th>Color</th><th>Dígito</th><th>Multiplicador</th><th>Tolerancia</th><th>PPM/°C</th></tr></thead>
+    <tbody id="col-ref-tb"></tbody></table>
+  </div>
+</div>
+
+<!-- OHM -->
+<div id="calc-ohm" class="card" style="display:none">
+  <h3>⚡ Ley de Ohm + Potencia</h3>
+  <div class="nota">Introduce <b>dos</b> valores conocidos (cualquier combinación de V, I, R, P) y calcula los demás.</div>
+  <div class="g2">
+    <div class="gi"><label>Voltaje V (Voltios):</label><input type="number" step="any" id="ov" class="ci" placeholder="Ej: 12"></div>
+    <div class="gi"><label>Corriente I:</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" step="any" id="oi" class="ci" placeholder="Ej: 500" style="flex:1">
+        <select id="oiu" class="ci" style="width:70px;padding:6px"><option value="A">A</option><option value="mA" selected>mA</option><option value="uA">µA</option></select>
+      </div>
+    </div>
+    <div class="gi"><label>Resistencia R (Ω):</label><input type="number" step="any" id="or" class="ci" placeholder="Ej: 24"></div>
+    <div class="gi"><label>Potencia P:</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" step="any" id="op" class="ci" placeholder="Ej: 6" style="flex:1">
+        <select id="opu" class="ci" style="width:70px;padding:6px"><option value="W">W</option><option value="mW">mW</option></select>
+      </div>
+    </div>
+  </div>
+  <button class="btn" onclick="calcOhm()">Calcular</button>
+  <button class="btn btn2" style="margin-top:6px" onclick="limpOhm()">🧹 Limpiar</button>
+  <div class="rb" id="ohm-rb">Los resultados aparecerán aquí…</div>
+  <details class="acc" style="margin-top:14px">
+    <summary>📦 Wattaje recomendado de resistencia</summary>
+    <div class="acc-body">
+      <div class="nota">Introduce la potencia calculada arriba para saber qué wattaje de resistencia usar con factor de seguridad ×2.</div>
+      <div class="gi"><label>Potencia disipada (mW):</label><input type="number" id="ow-pw" class="ci" placeholder="Ej: 250"></div>
+      <button class="btn" onclick="recomW()">Recomendar Wattaje</button>
+      <div class="rb" id="ow-rb" style="margin-top:10px"></div>
+    </div>
+  </details>
+  <details class="acc" style="margin-top:8px">
+    <summary>🔋 Energía en Capacitor</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>Capacitancia (µF):</label><input type="number" step="any" id="oc-c" class="ci" placeholder="Ej: 1000"></div>
+        <div class="gi"><label>Voltaje (V):</label><input type="number" step="any" id="oc-v" class="ci" placeholder="Ej: 400"></div>
+      </div>
+      <button class="btn" onclick="calcCap()">Calcular Energía</button>
+      <div class="rb" id="oc-rb" style="margin-top:10px"></div>
+    </div>
+  </details>
+  <details class="acc" style="margin-top:8px">
+    <summary>🌡️ Variación de Resistencia por Temperatura</summary>
+    <div class="acc-body">
+      <div class="nota">Calcula cuánto cambia el valor de una resistencia al cambiar la temperatura (usando TCR).</div>
+      <div class="g3">
+        <div class="gi"><label>R nominal (Ω):</label><input type="number" step="any" id="otcr-r" class="ci" placeholder="1000"></div>
+        <div class="gi"><label>TCR (ppm/°C):</label><input type="number" step="any" id="otcr-tcr" class="ci" placeholder="100"></div>
+        <div class="gi"><label>ΔT (°C):</label><input type="number" step="any" id="otcr-dt" class="ci" placeholder="50"></div>
+      </div>
+      <button class="btn" onclick="calcTCR()">Calcular Variación</button>
+      <div class="rb" id="otcr-rb" style="margin-top:10px"></div>
+    </div>
+  </details>
+</div>
+
+<!-- SERIE / PARALELO -->
+<div id="calc-sp" class="card" style="display:none">
+  <h3>⛓️ Serie / Paralelo + Reactancia</h3>
+  <div class="nota">Introduce valores separados por comas. Ej: <b>10, 22, 47, 100</b></div>
+  <div class="gi"><label>Valores:</label><input type="text" id="sp-v" class="ci" placeholder="10, 22, 47, 100"></div>
+  <div class="g2">
+    <div class="gi"><label>Componente:</label>
+      <select id="sp-t" class="ci" onchange="togFreq()">
+        <option value="R">Resistencias (Ω)</option>
+        <option value="C">Capacitores (µF)</option>
+        <option value="L">Inductores (mH)</option>
+      </select>
+    </div>
+    <div class="gi" id="sp-fr" style="display:none"><label>Frecuencia (Hz):</label><input type="number" step="any" id="sp-freq" class="ci" placeholder="1000"></div>
+  </div>
+  <button class="btn" onclick="calcSP()">Calcular</button>
+  <div class="rb" id="sp-rb">Los resultados aparecerán aquí…</div>
+  <details class="acc" style="margin-top:14px">
+    <summary>📻 Resonancia LC</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>L (mH):</label><input type="number" step="any" id="lc-l" class="ci" placeholder="10"></div>
+        <div class="gi"><label>C (µF):</label><input type="number" step="any" id="lc-c" class="ci" placeholder="100"></div>
+      </div>
+      <button class="btn" onclick="calcLC()">Calcular Resonancia</button>
+      <div class="rb" id="lc-rb" style="margin-top:10px"></div>
+    </div>
+  </details>
+  <details class="acc" style="margin-top:8px">
+    <summary>⚡ Combinación de 2 Resistencias para un valor exacto</summary>
+    <div class="acc-body">
+      <div class="nota">Introduce el valor objetivo en Ω y encuentra la mejor combinación de 2 resistencias de la serie E24.</div>
+      <div class="gi"><label>Valor objetivo (Ω):</label><input type="number" step="any" id="comb-v" class="ci" placeholder="Ej: 8500"></div>
+      <button class="btn" onclick="calcComb()">Buscar Combinación E24</button>
+      <div class="rb" id="comb-rb" style="margin-top:10px"></div>
+    </div>
+  </details>
+</div>
+
+<!-- DIVISOR -->
+<div id="calc-div" class="card" style="display:none">
+  <h3>📉 Divisor de Voltaje</h3>
+  <div class="tabs">
+    <div class="tab active" onclick="swT('div','norm',this)">Normal (Vout)</div>
+    <div class="tab" onclick="swT('div','inv',this)">Inverso (calcular R)</div>
+    <div class="tab" onclick="swT('div','bjt',this)">Polarización BJT</div>
+  </div>
+  <div id="div-norm" class="tp-pane active">
+    <div class="nota">Calcula Vout a partir de Vin, R1 y R2. Puedes añadir resistencia de carga RL.</div>
+    <div class="g2">
+      <div class="gi"><label>Vin (V):</label><input type="number" step="any" id="dn-vi" class="ci" placeholder="12"></div>
+      <div class="gi"><label>R1 – Superior (Ω):</label><input type="number" step="any" id="dn-r1" class="ci" placeholder="10000"></div>
+      <div class="gi"><label>R2 – a GND (Ω):</label><input type="number" step="any" id="dn-r2" class="ci" placeholder="5000"></div>
+      <div class="gi"><label>Carga RL (Ω) — opcional:</label><input type="number" step="any" id="dn-rl" class="ci" placeholder="Vacío = sin carga"></div>
+    </div>
+    <button class="btn" onclick="calcDN()">Calcular Vout</button>
+    <div class="rb" id="dn-rb"></div>
+  </div>
+  <div id="div-inv" class="tp-pane">
+    <div class="nota">Conoces Vin y Vout. Deja vacío R1 o R2 para que se calcule automáticamente.</div>
+    <div class="g2">
+      <div class="gi"><label>Vin (V):</label><input type="number" step="any" id="di-vi" class="ci" placeholder="12"></div>
+      <div class="gi"><label>Vout deseado (V):</label><input type="number" step="any" id="di-vo" class="ci" placeholder="5"></div>
+      <div class="gi"><label>R1 conocido (Ω) — o vacío:</label><input type="number" step="any" id="di-r1" class="ci" placeholder="10000"></div>
+      <div class="gi"><label>R2 conocido (Ω) — o vacío:</label><input type="number" step="any" id="di-r2" class="ci" placeholder="5000"></div>
+    </div>
+    <button class="btn" onclick="calcDI()">Calcular R faltante</button>
+    <div class="rb" id="di-rb"></div>
+  </div>
+  <div id="div-bjt" class="tp-pane">
+    <div class="nota">Calcula R1 y R2 del divisor de polarización de base para un BJT NPN.</div>
+    <div class="g2">
+      <div class="gi"><label>VCC (V):</label><input type="number" step="any" id="bjt-vcc" class="ci" placeholder="12"></div>
+      <div class="gi"><label>VBE (V):</label><input type="number" step="any" id="bjt-vbe" class="ci" value="0.7"></div>
+      <div class="gi"><label>IC deseado (mA):</label><input type="number" step="any" id="bjt-ic" class="ci" placeholder="10"></div>
+      <div class="gi"><label>hFE (β):</label><input type="number" step="any" id="bjt-hfe" class="ci" placeholder="100"></div>
+      <div class="gi"><label>RE emisor (Ω):</label><input type="number" step="any" id="bjt-re" class="ci" placeholder="470"></div>
+    </div>
+    <button class="btn" onclick="calcBJT()">Calcular Polarización</button>
+    <div class="rb" id="bjt-rb"></div>
+  </div>
+</div>
+
+<!-- LCD / T-CON -->
+<div id="calc-lcd" class="card" style="display:block">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--brd);padding-bottom:8px">
+    <h3 style="margin:0;color:#a855f7">🖥️ Diagnóstico Maestro LCD / T-CON</h3>
+    <span class="badge">v5.0 PRO</span>
+  </div>
+
+  <details class="acc" open>
+    <summary>📋 Configuración y Síntoma Visual</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>Tipo de Panel:</label>
+          <select id="pt" class="ci" onchange="carRef();valAll()">
+            <option value="tv">TV LED/LCD</option><option value="monitor">Monitor PC</option>
+            <option value="laptop">Laptop / Notebook</option><option value="oled">OLED / AMOLED</option><option value="tablet">Tablet / iPad</option>
+          </select>
+        </div>
+        <div class="gi"><label>Señal de Video:</label>
+          <select id="ps" class="ci">
+            <option value="lvds">LVDS (6/8 bit)</option><option value="edp">eDP (Embedded DisplayPort)</option>
+            <option value="mipi">MIPI DSI (mobile)</option><option value="vbo">V-by-One HS (4K/8K)</option>
+          </select>
+        </div>
+        <div class="gi"><label>Marca referencia:</label>
+          <select id="pmarca" class="ci" onchange="notaMarca()">
+            <option value="">— Genérico —</option><option value="samsung">Samsung (BN44/BN95)</option>
+            <option value="lg">LG (EAX/EBR)</option><option value="tcl">TCL / Thomson</option>
+            <option value="hisense">Hisense / Sharp</option><option value="sony">Sony (A-board)</option>
+            <option value="aoc">AOC / Philips Monitor</option>
+          </select>
+        </div>
+        <div class="gi"><label>Resolución:</label>
+          <select id="pres" class="ci">
+            <option value="hd">HD 1366×768</option><option value="fhd">FHD 1920×1080</option>
+            <option value="4k">4K UHD 3840×2160</option><option value="8k">8K 7680×4320</option>
+          </select>
+        </div>
+      </div>
+      <div id="nota-marca" class="nota" style="display:none"></div>
+      <div class="gi"><label>🔍 Síntoma Visual:</label>
+        <select id="sint" class="ci" onchange="guiaSint()">
+          <option value="">— Selecciona el síntoma —</option>
+          <option value="blanca">🟧 Pantalla Blanca / Gris total</option>
+          <option value="negra">⬛ Pantalla negra (backlight activo)</option>
+          <option value="lenta">🐢 Imagen en cámara lenta / congelada</option>
+          <option value="lavada">🌫️ Imagen lavada / sin contraste</option>
+          <option value="negativo">🔄 Colores negativos / invertidos</option>
+          <option value="intermitente">⚡ Parpadeo / ghosting / doble imagen</option>
+          <option value="oscura">🌑 Se apaga a negro segundos después</option>
+          <option value="lineas_h">📏 Líneas horizontales</option>
+          <option value="lineas_v">📐 Líneas verticales por zona</option>
+          <option value="manchas">🟤 Manchas o zonas oscuras</option>
+          <option value="ruido">📺 Imagen ruidosa / pixelada</option>
+          <option value="mitad">✂️ Mitad de pantalla sin imagen</option>
+          <option value="arco_iris">🌈 Franjas de colores / arco iris</option>
+          <option value="sin_bl">🔦 Sin backlight (imagen con linterna)</option>
+        </select>
+        <div id="guia-sint" style="margin-top:8px;padding:10px;background:rgba(37,99,235,.1);border-left:4px solid var(--info);border-radius:0 6px 6px 0;font-size:.82rem;color:#cbd5e1;display:none;line-height:1.7"></div>
+      </div>
+      <div class="abts">
+        <button onclick="carRef()">📥 Referencia</button>
+        <button onclick="guardarLec()">💾 Guardar</button>
+        <button onclick="compararLec()">🔄 Comparar</button>
+        <button onclick="togHist()">📜 Historial</button>
+      </div>
+      <div id="hist-box" style="display:none;margin-top:10px"></div>
+    </div>
+  </details>
+
+  <details class="acc" open>
+    <summary>⚡ Voltajes DC-DC</summary>
+    <div class="acc-body">
+      <p style="font-size:.75rem;color:#6b7280;margin-bottom:8px">Borde verde = en rango · rojo = fuera de rango para el panel seleccionado.</p>
+      <div class="g2">
+        <div class="gi"><label>VCC / VDD (lógica):</label><input type="number" step=".01" id="vcc" class="ci" placeholder="3.3 V" oninput="vld('vcc')"><small id="h-vcc"></small></div>
+        <div class="gi"><label>AVDD (analógico):</label><input type="number" step=".01" id="avdd" class="ci" placeholder="15 V" oninput="vld('avdd')"><small id="h-avdd"></small></div>
+        <div class="gi"><label>VCOM (común TFT):</label><input type="number" step=".01" id="vcom" class="ci" placeholder="6 V" oninput="vld('vcom')"><small id="h-vcom"></small></div>
+        <div class="gi"><label>VGH / VON (gate ON):</label><input type="number" step=".01" id="vgh" class="ci" placeholder="28 V" oninput="vld('vgh')"><small id="h-vgh"></small></div>
+        <div class="gi"><label>VGL / VOFF (gate OFF):</label><input type="number" step=".01" id="vgl" class="ci" placeholder="-7.5 V" oninput="vld('vgl')"><small id="h-vgl"></small></div>
+        <div class="gi"><label>VREF (referencia IC):</label><input type="number" step=".01" id="vref" class="ci" placeholder="2.5 V" oninput="vld('vref')"><small id="h-vref"></small></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.75rem;color:#6b7280">Integridad:</span><span id="v-score" style="font-size:.75rem;color:#6b7280">—</span></div>
+      <div class="pb-w"><div class="pb" id="pb"></div></div>
+      <details class="acc" style="margin-top:10px">
+        <summary style="font-size:.85rem">🧮 Calculadora de VCOM por divisor resistivo</summary>
+        <div class="acc-body">
+          <div class="nota">VCOM = AVDD × R_baja / (R_alta + R_baja). Útil para ajustar el potenciómetro o calcular resistencias de feedback.</div>
+          <div class="g3">
+            <div class="gi"><label>AVDD (V):</label><input type="number" step=".1" id="vc-a" class="ci" placeholder="15"></div>
+            <div class="gi"><label>R alta (Ω):</label><input type="number" id="vc-rh" class="ci" placeholder="100000"></div>
+            <div class="gi"><label>R baja (Ω):</label><input type="number" id="vc-rl" class="ci" placeholder="60000"></div>
+          </div>
+          <button class="btn" onclick="calcVCOM()">Calcular VCOM</button>
+          <div class="rb" id="vc-rb" style="margin-top:8px"></div>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>🔌 Corriente, Resistencia y Estado Térmico</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>Corriente (mA):</label><input type="number" id="curr" class="ci" placeholder="230 mA" oninput="vld('curr')"><small id="h-curr"></small></div>
+        <div class="gi"><label>Resistencia a GND (Ω):</label><input type="number" id="rgnd" class="ci" placeholder="1500 Ω"><small>&lt;100 Ω = corto activo</small></div>
+        <div class="gi"><label>Voltaje entrada T-CON (V):</label><input type="number" step=".1" id="tvin" class="ci" placeholder="12 V"></div>
+        <div class="gi"><label>Temperatura IC:</label>
+          <select id="ttemp" class="ci">
+            <option value="normal">Templado &lt;50°C (normal)</option>
+            <option value="caliente">Caliente 50–70°C (revisar)</option>
+            <option value="quema">Quema &gt;70°C (desconectar)</option>
+            <option value="frio">Frío total (sin energía)</option>
+          </select>
+        </div>
+        <div class="gi"><label>Condensadores electrolíticos:</label>
+          <select id="cap-est" class="ci">
+            <option value="ok">✅ Todos planos / sin deformación</option>
+            <option value="hinch">❌ Uno o más hinchados / abombados</option>
+            <option value="fuga">❌ Electrolito seco o fuga</option>
+            <option value="nr">— No revisado</option>
+          </select>
+        </div>
+        <div class="gi"><label>Resistencias fusibles / 0Ω:</label>
+          <select id="rfuse" class="ci">
+            <option value="ok">✅ Continuidad en todas</option>
+            <option value="ab">❌ Una o más en circuito abierto</option>
+            <option value="nr">— No revisado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>🎨 Corrección Gamma</summary>
+    <div class="acc-body">
+      <p style="font-size:.75rem;color:#a0aec0;margin-bottom:8px">Los 3 valores deben ser <b>estrictamente descendentes</b>: Alto → Medio → Bajo.</p>
+      <div class="g3">
+        <div><label style="font-size:.8rem;color:#94a3b8">Alto (Vγ+)</label><input type="number" step=".1" id="vghi" class="ci" placeholder="14.5 V" oninput="valGamma()"></div>
+        <div><label style="font-size:.8rem;color:#94a3b8">Medio</label><input type="number" step=".1" id="vgmid" class="ci" placeholder="9.2 V" oninput="valGamma()"></div>
+        <div><label style="font-size:.8rem;color:#94a3b8">Bajo (Vγ-)</label><input type="number" step=".1" id="vglo" class="ci" placeholder="3.1 V" oninput="valGamma()"></div>
+      </div>
+      <div id="gamma-st" style="margin-top:8px;font-size:.82rem"></div>
+      <div class="g2" style="margin-top:10px">
+        <div class="gi"><label>IC Gamma:</label>
+          <select id="gic" class="ci">
+            <option value="as15f">AS15-F (Samsung/LG — más común)</option>
+            <option value="as15g">AS15-G (variante)</option>
+            <option value="rm5101">RM5101 (Chimei / AUO)</option>
+            <option value="max9668">MAX9668 (Maxim)</option>
+            <option value="opa3691">OPA3691 (buffer amplificador)</option>
+            <option value="otro">Otro / desconocido</option>
+          </select>
+        </div>
+        <div class="gi"><label>Estado físico del IC:</label>
+          <select id="gest" class="ci">
+            <option value="ok">✅ Sin daño visible</option>
+            <option value="quem">❌ Quemado / ampolla visible</option>
+            <option value="remp">🔁 Ya reemplazado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>⏱️ Señales CKV, STV, OE, STH y XDON</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>CKV (Gate Clock):</label>
+          <select id="ckv" class="ci">
+            <option value="ok">✅ Impedancia MΩ (correcto)</option>
+            <option value="cgnd">❌ Corto a GND (&lt;500 Ω)</option>
+            <option value="ccru">❌ CKV1 en corto con CKV2</option>
+            <option value="ab">⚠️ Circuito abierto</option>
+          </select>
+        </div>
+        <div class="gi"><label>Datos LVDS / eDP / MIPI:</label>
+          <select id="sdat" class="ci">
+            <option value="ok">✅ Presente y limpia</option>
+            <option value="aus">❌ Ausente</option>
+            <option value="ruid">⚠️ Con ruido / distorsionada</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+        <div class="gi"><label>STV (Start Vertical ~1 Hz):</label>
+          <select id="sstv" class="ci">
+            <option value="ok">✅ Pulso correcto</option>
+            <option value="aus">❌ Ausente</option>
+            <option value="fijo">⚠️ Nivel fijo (sin pulso)</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+        <div class="gi"><label>OE (Output Enable PWM):</label>
+          <select id="soe" class="ci">
+            <option value="ok">✅ PWM activo</option>
+            <option value="aus">❌ Ausente</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+        <div class="gi"><label>STH / CPH (Start Horizontal):</label>
+          <select id="ssth" class="ci">
+            <option value="ok">✅ Pulso correcto</option>
+            <option value="aus">❌ Ausente</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+        <div class="gi"><label>XDON (Display Enable):</label>
+          <select id="xdon" class="ci">
+            <option value="hi">✅ Alto (habilitado)</option>
+            <option value="lo">❌ Bajo (display deshabilitado)</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>🗺️ Localización de Cortocircuitos por Zona</summary>
+    <div class="acc-body">
+      <p style="font-size:.75rem;color:#a0aec0;margin-bottom:8px">Toca para ciclar: sin marcar → 🟣 Sospechosa → 🔴 Corto confirmado → 🟢 OK</p>
+      <div class="zg">
+        <button class="zb" onclick="tzn(this,'A1')">A1<br><small>Izq-Sup</small></button>
+        <button class="zb" onclick="tzn(this,'B1')">B1<br><small>Ctr-Sup</small></button>
+        <button class="zb" onclick="tzn(this,'C1')">C1<br><small>Der-Sup</small></button>
+        <button class="zb" onclick="tzn(this,'D1')">D1<br><small>Flex-Sup</small></button>
+        <button class="zb" onclick="tzn(this,'A2')">A2<br><small>Izq-Med</small></button>
+        <button class="zb" onclick="tzn(this,'B2')">B2<br><small>Centro</small></button>
+        <button class="zb" onclick="tzn(this,'C2')">C2<br><small>Der-Med</small></button>
+        <button class="zb" onclick="tzn(this,'D2')">D2<br><small>Flex-Med</small></button>
+        <button class="zb" onclick="tzn(this,'A3')">A3<br><small>Izq-Inf</small></button>
+        <button class="zb" onclick="tzn(this,'B3')">B3<br><small>Ctr-Inf</small></button>
+        <button class="zb" onclick="tzn(this,'C3')">C3<br><small>Der-Inf</small></button>
+        <button class="zb" onclick="tzn(this,'D3')">D3<br><small>Flex-Inf</small></button>
+      </div>
+      <div class="gi"><label>Resultado al desconectar flex:</label>
+        <select id="zres" class="ci" onchange="actZona()">
+          <option value="persiste">Corto persiste → fallo en T-CON</option>
+          <option value="desap">Corto desaparece → fallo en panel/flex</option>
+          <option value="mejora">Mejora parcial → daño mixto</option>
+          <option value="np">No probado</option>
+        </select>
+      </div>
+      <div id="z-diag" style="margin-top:8px;font-size:.82rem;display:none"></div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>💡 Diagnóstico de Backlight / Driver LED</summary>
+    <div class="acc-body">
+      <div class="g2">
+        <div class="gi"><label>Tipo:</label>
+          <select id="bl-t" class="ci">
+            <option value="led_dir">LED directo (array)</option><option value="led_edge">LED edge (bordes)</option>
+            <option value="ccfl">CCFL (tubos)</option><option value="mini">Mini-LED / MicroLED</option>
+          </select>
+        </div>
+        <div class="gi"><label>Voltaje Boost (V):</label><input type="number" step=".1" id="bl-v" class="ci" placeholder="65 V"><small>TV: 50–90V · Monitor: 30–70V · Laptop: 20–40V</small></div>
+        <div class="gi"><label>Estado:</label>
+          <select id="bl-est" class="ci">
+            <option value="ok">✅ Enciende y mantiene brillo</option>
+            <option value="no">❌ No enciende</option>
+            <option value="parp">⚠️ Parpadea y apaga</option>
+            <option value="tenue">⚠️ Muy tenue</option>
+            <option value="zon">⚠️ Zonas oscuras (tiras abiertas)</option>
+          </select>
+        </div>
+        <div class="gi"><label>Resistencia tiras LED (Ω):</label><input type="number" id="bl-res" class="ci" placeholder="2500 Ω"><small>Desconectado del driver. &lt;50 Ω = corto</small></div>
+        <div class="gi"><label>ENABLE del driver:</label>
+          <select id="bl-en" class="ci">
+            <option value="hi">✅ Alto (driver habilitado)</option>
+            <option value="lo">❌ Bajo (bloqueado por protección)</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+        <div class="gi"><label>PWM de brillo:</label>
+          <select id="bl-pwm" class="ci">
+            <option value="ok">✅ PWM variable presente</option>
+            <option value="fijo">⚠️ Nivel fijo (sin PWM)</option>
+            <option value="aus">❌ Ausente</option>
+            <option value="nm">— No medido</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>✅ Checklist de Diagnóstico (18 pasos)</summary>
+    <div class="acc-body">
+      <div id="chk-cont">
+        <div class="chk-item"><input type="checkbox" id="c1" onchange="svChk()"><label for="c1">1. Inspección visual: quemados, ampollados, condensadores hinchados, pistas levantadas.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c2" onchange="svChk()"><label for="c2">2. Fusible de entrada y resistencia NTC inrush verificados.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c3" onchange="svChk()"><label for="c3">3. Resistencias fusibles (0Ω / en serie) verificadas con continuidad.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c4" onchange="svChk()"><label for="c4">4. Voltaje de entrada al T-CON medido (12V / 5V según modelo).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c5" onchange="svChk()"><label for="c5">5. VCC/VDD del IC DC-DC medido.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c6" onchange="svChk()"><label for="c6">6. AVDD medido en el capacitor de salida del boost.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c7" onchange="svChk()"><label for="c7">7. VGH y VGL medidos (bombas de carga positiva y negativa).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c8" onchange="svChk()"><label for="c8">8. VCOM medido en el pin de salida del buffer.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c9" onchange="svChk()"><label for="c9">9. Corriente total del T-CON medida con amperímetro en serie.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c10" onchange="svChk()"><label for="c10">10. Resistencia de líneas CKV a GND (con panel desconectado).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c11" onchange="svChk()"><label for="c11">11. Voltajes Gamma medidos en el IC (3 puntos descendentes).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c12" onchange="svChk()"><label for="c12">12. Señal LVDS/eDP verificada entre placa principal y T-CON.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c13" onchange="svChk()"><label for="c13">13. Señal STV (Start Vertical) verificada (~1 Hz).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c14" onchange="svChk()"><label for="c14">14. Señal OE (Output Enable) con actividad PWM verificada.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c15" onchange="svChk()"><label for="c15">15. Flex laterales desconectados para aislar zona de cortocircuito.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c16" onchange="svChk()"><label for="c16">16. Backlight probado independientemente con fuente variable.</label></div>
+        <div class="chk-item"><input type="checkbox" id="c17" onchange="svChk()"><label for="c17">17. Señal ENABLE del driver LED verificada (debe ser HIGH).</label></div>
+        <div class="chk-item"><input type="checkbox" id="c18" onchange="svChk()"><label for="c18">18. Prueba con señal interna del panel (modo servicio / test pattern).</label></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+        <button onclick="rstChk()" style="background:#2d3a4e;border:none;color:white;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.8rem">🔄 Reiniciar</button>
+        <span id="chk-pg" style="font-size:.8rem;color:#a0aec0"></span>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>🔬 ICs Comunes (T-CON / Gamma / Driver / LVDS)</summary>
+    <div class="acc-body">
+      <div class="gi"><label>Filtrar:</label>
+        <select id="ic-fil" class="ci" onchange="filtIC()">
+          <option value="">Todos</option><option value="dcdc">DC-DC / Power</option>
+          <option value="gamma">Gamma / Buffer</option><option value="tcon">T-CON Procesador</option>
+          <option value="lvds">LVDS / eDP / Señal</option><option value="bl">Backlight Driver</option>
+        </select>
+      </div>
+      <table class="ict"><thead><tr><th>IC</th><th>Función</th><th>VCC</th><th>Salidas</th><th>Marca TV</th></tr></thead>
+      <tbody id="ic-tb"></tbody></table>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>📐 Puntos de Prueba y Ubicaciones</summary>
+    <div class="acc-body">
+      <div class="gi"><label>Filtrar:</label>
+        <select id="tp-fil" class="ci" onchange="filtTP()">
+          <option value="">Todos</option><option value="volt">Voltajes DC</option>
+          <option value="sig">Señales digitales</option><option value="bl">Backlight</option>
+        </select>
+      </div>
+      <div id="tp-list"></div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>📝 Notas del Técnico</summary>
+    <div class="acc-body">
+      <div class="gi"><label>Observaciones (se guardan automáticamente):</label>
+        <textarea id="notas" class="ci" rows="4" placeholder="Ej: Condensador C204 hinchado. VGH baja a 18V con panel conectado…" oninput="svNotas()"></textarea>
+      </div>
+      <div id="notas-st" style="font-size:.75rem;color:#6b7280;margin-top:4px"></div>
+    </div>
+  </details>
+
+  <div class="abts" style="margin-top:14px">
+    <button onclick="copRep()">📋 Copiar</button>
+    <button onclick="expTXT()">📁 Exportar .TXT</button>
+    <button onclick="limpLCD()">🗑️ Limpiar</button>
+  </div>
+  <button class="btn" onclick="diagLCD()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);margin-top:14px">🚀 Generar Reporte Completo</button>
+  <div class="rb" id="lcd-rb" style="margin-top:15px;line-height:1.75">El reporte aparecerá aquí…</div>
+</div><!-- fin lcd -->
+</div><!-- fin cc -->
+
+<!-- FAB -->
+<div class="fab-overlay" id="fab-ov" onclick="tFAB()"></div>
+<div class="fab-items" id="fab-it">
+  <a href="recepcion.html" class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+  <a href="fallas.html" class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+  <a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+  <a href="calculadoras.html" class="fab-item active"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+  <a href="hardware.html" class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+  <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+  <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+  <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-btn" onclick="tFAB()">☰</button>
+<script>
+// ═══════════════════════════
+//  NAVEGACIÓN PRINCIPAL
+// ═══════════════════════════
+function swC(v) {
+  const ids = ['calc-smd','calc-col','calc-ohm','calc-sp','calc-div','calc-lcd'];
+  ids.forEach(id => { const e = document.getElementById(id); if(e) e.style.display = 'none'; });
+  const map = {smd:'calc-smd', col:'calc-col', ohm:'calc-ohm', sp:'calc-sp', div:'calc-div', lcd:'calc-lcd'};
+  const el = document.getElementById(map[v]);
+  if(el) el.style.display = 'block';
+}
+
+// Pestañas internas - busca panes hijos de la misma card
+function swT(ns, tab, clickedEl) {
+  const card = clickedEl.closest('.card');
+  // desactivar todas las tabs y panes dentro de esta card
+  card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  card.querySelectorAll('.tp-pane').forEach(p => p.classList.remove('active'));
+  // activar la tab clickeada
+  clickedEl.classList.add('active');
+  // activar el pane correspondiente - buscar por prefijo dentro de la card
+  const paneId = ns + '-' + tab;
+  const pane = card.querySelector('#' + paneId);
+  if(pane) pane.classList.add('active');
+}
+
+// ═══════════════════════════
+//  UTILIDADES
+// ═══════════════════════════
+function fO(o) {
+  if(isNaN(o)||!isFinite(o)) return '∞';
+  if(o >= 1e6) return (o/1e6).toFixed(3) + ' MΩ';
+  if(o >= 1e3) return (o/1e3).toFixed(3) + ' kΩ';
+  return o.toFixed(3) + ' Ω';
+}
+function fP(w) {
+  if(w < 1e-6) return (w*1e9).toFixed(1) + ' nW';
+  if(w < 1e-3) return (w*1e6).toFixed(1) + ' µW';
+  if(w < 1)    return (w*1e3).toFixed(2) + ' mW';
+  return w.toFixed(3) + ' W';
+}
+function fF(f) {
+  if(f >= 1e6) return (f/1e6).toFixed(3) + ' MHz';
+  if(f >= 1e3) return (f/1e3).toFixed(2) + ' kHz';
+  return f.toFixed(2) + ' Hz';
+}
+
+// ═══════════════════════════
+//  SMD
+// ═══════════════════════════
+const EIA96 = [100,102,105,107,110,113,115,118,121,124,127,130,133,137,140,143,147,150,154,158,162,165,169,174,178,182,187,191,196,200,205,210,215,221,226,232,237,243,249,255,261,267,274,280,287,294,301,309,316,324,332,340,348,357,365,374,383,392,402,412,422,432,442,453,464,475,487,499,511,523,536,549,562,576,590,604,619,634,649,665,681,698,715,732,750,768,787,806,825,845,866,887,909,931,953,976];
+const EIA96M = {A:1, B:10, C:100, D:1000, E:10000, F:100000, X:0.1, Y:0.01, Z:0.001};
+
+function calcSMD() {
+  const c = document.getElementById('smd-cod').value.trim().toUpperCase();
+  const rb = document.getElementById('smd-rb');
+  if(!c) { rb.innerHTML = 'Introduce un código.'; return; }
+  // flotante R
+  if(/^\d+R\d*$/.test(c) || /^R\d+$/.test(c)) {
+    const o = parseFloat(c.replace('R', '.'));
+    if(!isNaN(o)) { rb.innerHTML = `<b>Resistencia:</b> ${fO(o)}<br><small>Código flotante: R = punto decimal.</small>`; return; }
+  }
+  // 3-4 dígitos
+  if(/^\d{3,4}$/.test(c)) {
+    const d = c.length - 1, base = parseInt(c.slice(0, d)), exp = parseInt(c.slice(-1));
+    const o = base * Math.pow(10, exp);
+    rb.innerHTML = `<b>Resistencia:</b> ${fO(o)}<br><small>Código ${c.length}-dígitos: ${base} × 10^${exp}</small>`;
+    return;
+  }
+  // EIA-96
+  if(/^\d{2}[A-Z]$/.test(c)) {
+    const n = parseInt(c.slice(0,2)), l = c[2];
+    if(EIA96[n-1] && EIA96M[l]) {
+      const o = EIA96[n-1] * EIA96M[l];
+      rb.innerHTML = `<b>Resistencia:</b> ${fO(o)} <span class="badge-ok">±1% EIA-96</span><br><small>Índice ${n} = ${EIA96[n-1]} × ${EIA96M[l]}</small>`;
+      return;
+    }
+  }
+  rb.innerHTML = '⚠️ Código no reconocido. Formatos válidos: 103 · 4702 · 01A · R22 · 4R7';
+}
+
+function smdInv() {
+  const val = parseFloat(document.getElementById('smd-iv').value);
+  const rb = document.getElementById('smd-irb');
+  if(isNaN(val) || val <= 0) { rb.innerHTML = 'Introduce un valor válido en Ω.'; return; }
+  function cod3(o) { for(let e=0; e<=9; e++) { const b=Math.round(o/Math.pow(10,e)); if(b>=1&&b<=99) return b+''+e; } return '???'; }
+  function cod4(o) { for(let e=0; e<=9; e++) { const b=Math.round(o/Math.pow(10,e)); if(b>=100&&b<=999) return b+''+e; } return '???'; }
+  let bestEIA = '', bd = Infinity;
+  EIA96.forEach((b,i) => { Object.entries(EIA96M).forEach(([l,m]) => { const v=b*m; const d=Math.abs(v-val)/val; if(d<bd){bd=d; bestEIA=`${String(i+1).padStart(2,'0')}${l} = ${fO(v)} (${(d*100).toFixed(2)}% error)`;} }); });
+  rb.innerHTML = `<b>Código 3 dígitos:</b> <code style="background:#1a2e47;padding:2px 8px;border-radius:4px">${cod3(val)}</code><br>
+<b>Código 4 dígitos:</b> <code style="background:#1a2e47;padding:2px 8px;border-radius:4px">${cod4(val)}</code><br>
+<b>EIA-96 más cercano:</b> ${bestEIA}`;
+}
+
+const ES = {
+  E12:[1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2],
+  E24:[1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1],
+  E48:[1.00,1.05,1.10,1.15,1.21,1.27,1.33,1.40,1.47,1.54,1.62,1.69,1.78,1.87,1.96,2.05,2.15,2.26,2.37,2.49,2.61,2.74,2.87,3.01,3.16,3.32,3.48,3.65,3.83,4.02,4.22,4.42,4.64,4.87,5.11,5.36,5.62,5.90,6.19,6.49,6.81,7.15,7.50,7.87,8.25,8.66,9.09,9.53],
+  E96:[1.00,1.02,1.05,1.07,1.10,1.13,1.15,1.18,1.21,1.24,1.27,1.30,1.33,1.37,1.40,1.43,1.47,1.50,1.54,1.58,1.62,1.65,1.69,1.74,1.78,1.82,1.87,1.91,1.96,2.00,2.05,2.10,2.15,2.21,2.26,2.32,2.37,2.43,2.49,2.55,2.61,2.67,2.74,2.80,2.87,2.94,3.01,3.09,3.16,3.24,3.32,3.40,3.48,3.57,3.65,3.74,3.83,3.92,4.02,4.12,4.22,4.32,4.42,4.53,4.64,4.75,4.87,4.99,5.11,5.23,5.36,5.49,5.62,5.76,5.90,6.04,6.19,6.34,6.49,6.65,6.81,6.98,7.15,7.32,7.50,7.68,7.87,8.06,8.25,8.45,8.66,8.87,9.09,9.31,9.53,9.76]
+};
+
+function buscaE() {
+  const val = parseFloat(document.getElementById('e-val').value);
+  const ser = document.getElementById('e-ser').value;
+  const rb = document.getElementById('e-rb');
+  if(isNaN(val)||val<=0) { rb.innerHTML='Introduce un valor válido.'; return; }
+  const s = ES[ser];
+  const cands = [];
+  for(let e=-2; e<=9; e++) s.forEach(v => { const o=v*Math.pow(10,e); cands.push({v:o, er:Math.abs(o-val)/val*100}); });
+  cands.sort((a,b) => a.er - b.er);
+  rb.innerHTML = `<b>Valores ${ser} más cercanos a ${fO(val)}:</b><div class="e-list">${cands.slice(0,6).map((c,i)=>`<span class="e-chip ${i===0?'best':''}">${fO(c.v)} <small>(${c.er.toFixed(1)}%)</small></span>`).join('')}</div>`;
+}
+
+function nearE24(val) {
+  let best=null, bd=Infinity;
+  for(let e=-2; e<=8; e++) ES.E24.forEach(v => { const o=v*Math.pow(10,e); const d=Math.abs(o-val)/val; if(d<bd){bd=d;best={v:o,er:d};} });
+  return best;
+}
+
+// ═══════════════════════════
+//  CÓDIGO DE COLORES
+// ═══════════════════════════
+const CD = [
+  {n:'Negro',   c:'#222222', v:0, m:1,       t:null, tc:250},
+  {n:'Marrón',  c:'#8B4513', v:1, m:10,      t:1,    tc:100},
+  {n:'Rojo',    c:'#CC0000', v:2, m:100,     t:2,    tc:50},
+  {n:'Naranja', c:'#FF6600', v:3, m:1000,    t:null, tc:15},
+  {n:'Amarillo',c:'#FFD700', v:4, m:10000,   t:null, tc:25},
+  {n:'Verde',   c:'#006600', v:5, m:100000,  t:0.5,  tc:20},
+  {n:'Azul',    c:'#0000CC', v:6, m:1000000, t:0.25, tc:10},
+  {n:'Violeta', c:'#8800FF', v:7, m:1e7,     t:0.1,  tc:5},
+  {n:'Gris',    c:'#808080', v:8, m:null,    t:0.05, tc:1},
+  {n:'Blanco',  c:'#DDDDDD', v:9, m:null,    t:null, tc:null},
+  {n:'Oro',     c:'#DAA520', v:null, m:0.1,  t:5,    tc:null},
+  {n:'Plata',   c:'#A8A8A8', v:null, m:0.01, t:10,   tc:null}
+];
+
+function initCol() {
+  const nb = parseInt(document.getElementById('col-nb').value);
+  const cont = document.getElementById('col-sels');
+  cont.innerHTML = '';
+  const configs = {
+    4: [{label:'1ª Banda',  filter:cd=>cd.v!==null},
+        {label:'2ª Banda',  filter:cd=>cd.v!==null},
+        {label:'Multiplicador', filter:cd=>cd.m!==null},
+        {label:'Tolerancia', filter:cd=>cd.t!==null}],
+    5: [{label:'1ª Banda',  filter:cd=>cd.v!==null},
+        {label:'2ª Banda',  filter:cd=>cd.v!==null},
+        {label:'3ª Banda',  filter:cd=>cd.v!==null},
+        {label:'Multiplicador', filter:cd=>cd.m!==null},
+        {label:'Tolerancia', filter:cd=>cd.t!==null}],
+    6: [{label:'1ª Banda',  filter:cd=>cd.v!==null},
+        {label:'2ª Banda',  filter:cd=>cd.v!==null},
+        {label:'3ª Banda',  filter:cd=>cd.v!==null},
+        {label:'Multiplicador', filter:cd=>cd.m!==null},
+        {label:'Tolerancia', filter:cd=>cd.t!==null},
+        {label:'Coef. Térmico', filter:cd=>cd.tc!==null}]
+  };
+  configs[nb].forEach((cfg, idx) => {
+    const div = document.createElement('div'); div.className = 'gi';
+    const label = document.createElement('label'); label.textContent = cfg.label;
+    const sel = document.createElement('select'); sel.className = 'ci'; sel.id = 'cs'+idx;
+    sel.addEventListener('change', updPrev);
+    CD.forEach((cd, ci) => { if(cfg.filter(cd)) { const o=document.createElement('option'); o.value=ci; o.text=cd.n; sel.appendChild(o); } });
+    div.appendChild(label); div.appendChild(sel); cont.appendChild(div);
+  });
+  for(let i=1; i<=6; i++) {
+    const el = document.getElementById('cb'+i);
+    if(el) el.style.display = i<=nb ? 'block' : 'none';
+  }
+  updPrev();
+  fillColRef();
+}
+
+function updPrev() {
+  const nb = parseInt(document.getElementById('col-nb').value);
+  for(let i=0; i<nb; i++) {
+    const sel = document.getElementById('cs'+i);
+    const el = document.getElementById('cb'+(i+1));
+    if(sel && el) el.style.backgroundColor = CD[sel.value].c;
+  }
+}
+
+function calcCol() {
+  const nb = parseInt(document.getElementById('col-nb').value);
+  const g = i => CD[document.getElementById('cs'+i).value];
+  let ohms, tol, tc = null;
+  if(nb===4) { const c=[g(0),g(1),g(2),g(3)]; ohms=(c[0].v*10+c[1].v)*c[2].m; tol=c[3].t; }
+  else if(nb===5) { const c=[g(0),g(1),g(2),g(3),g(4)]; ohms=(c[0].v*100+c[1].v*10+c[2].v)*c[3].m; tol=c[4].t; }
+  else { const c=[g(0),g(1),g(2),g(3),g(4),g(5)]; ohms=(c[0].v*100+c[1].v*10+c[2].v)*c[3].m; tol=c[4].t; tc=c[5].tc; }
+  const mn=ohms*(1-tol/100), mx=ohms*(1+tol/100);
+  document.getElementById('col-rb').innerHTML = `<b>Resistencia:</b> ${fO(ohms)}<br>
+<b>Tolerancia:</b> ±${tol}% → Rango: ${fO(mn)} – ${fO(mx)}<br>
+${tc ? `<b>Coef. Temperatura:</b> ${tc} ppm/°C<br><small>Variación a ΔT=50°C: ±${(ohms*tc*50/1e6).toFixed(2)} Ω</small>` : ''}`;
+}
+
+function colInv() {
+  const val = parseFloat(document.getElementById('col-iv').value);
+  const tol = parseFloat(document.getElementById('col-it').value);
+  const rb = document.getElementById('col-irb');
+  if(isNaN(val)||val<=0) { rb.innerHTML='Introduce un valor.'; return; }
+  let best=null, bd=Infinity;
+  for(let exp=-2; exp<=9; exp++) {
+    const man = val / Math.pow(10,exp);
+    if(man>=1 && man<1000) {
+      const d1=Math.floor(man/100), d2=Math.floor((man%100)/10), d3=Math.round(man%10);
+      const o=(d1*100+d2*10+d3)*Math.pow(10,exp);
+      const er=Math.abs(o-val)/val*100;
+      if(er<bd){bd=er;best={d1,d2,d3,exp,o};}
+    }
+  }
+  if(!best){rb.innerHTML='No representable en colores.';return;}
+  const tolCD = CD.find(c=>c.t==tol)||CD[10];
+  const expCD = CD.find(c=>c.m===Math.pow(10,best.exp));
+  const sw = d => `<span class="sw" style="background:${CD[d]?.c||'#333'}"></span>${CD[d]?.n||'?'}`;
+  const swC = cd => cd ? `<span class="sw" style="background:${cd.c}"></span>${cd.n}` : '?';
+  rb.innerHTML = `<b>Valor más cercano:</b> ${fO(best.o)} (error: ${bd.toFixed(2)}%)<br>
+<b>4 Bandas:</b> ${sw(best.d1)} – ${sw(best.d2)} – ${swC(expCD)} – ${swC(tolCD)}<br>
+<b>5 Bandas:</b> ${sw(best.d1)} – ${sw(best.d2)} – ${sw(best.d3)} – ${swC(expCD)} – ${swC(tolCD)}<br>
+<b>6 Bandas:</b> ${sw(best.d1)} – ${sw(best.d2)} – ${sw(best.d3)} – ${swC(expCD)} – ${swC(tolCD)} – <span style="color:#6b7280">Coef. a elegir</span>`;
+}
+
+function fillColRef() {
+  const tb = document.getElementById('col-ref-tb');
+  if(!tb) return;
+  tb.innerHTML = CD.map(c => `<tr>
+    <td><span class="sw" style="background:${c.c}"></span>${c.n}</td>
+    <td>${c.v!==null?c.v:'—'}</td>
+    <td>${c.m!==null?'×'+c.m:'—'}</td>
+    <td>${c.t!==null?'±'+c.t+'%':'—'}</td>
+    <td>${c.tc||'—'}</td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════
+//  LEY DE OHM
+// ═══════════════════════════
+function calcOhm() {
+  const rb = document.getElementById('ohm-rb');
+  let v = parseFloat(document.getElementById('ov').value);
+  let i = parseFloat(document.getElementById('oi').value);
+  let r = parseFloat(document.getElementById('or').value);
+  let p = parseFloat(document.getElementById('op').value);
+  const ui = document.getElementById('oiu').value;
+  const up = document.getElementById('opu').value;
+  if(!isNaN(i)) { if(ui==='mA') i/=1000; if(ui==='uA') i/=1e6; }
+  if(!isNaN(p) && up==='mW') p/=1000;
+  const known = [!isNaN(v),!isNaN(i),!isNaN(r),!isNaN(p)].filter(Boolean).length;
+  if(known < 2) { rb.innerHTML='⚠️ Introduce al menos 2 valores (V, I, R o P).'; return; }
+  // Resolver
+  if(isNaN(v)) { if(!isNaN(i)&&!isNaN(r)) v=i*r; else if(!isNaN(p)&&!isNaN(i)) v=p/i; else if(!isNaN(p)&&!isNaN(r)) v=Math.sqrt(p*r); }
+  if(isNaN(i)) { if(!isNaN(v)&&!isNaN(r)) i=v/r; else if(!isNaN(p)&&!isNaN(v)) i=p/v; else if(!isNaN(p)&&!isNaN(r)) i=Math.sqrt(p/r); }
+  if(isNaN(r) && !isNaN(v)&&!isNaN(i) && i!==0) r=v/i;
+  if(isNaN(p) && !isNaN(v)&&!isNaN(i)) p=v*i;
+  const e24 = (!isNaN(r)&&r>0) ? nearE24(r) : null;
+  rb.innerHTML = `<b>Voltaje V:</b> ${v.toFixed(4)} V<br>
+<b>Corriente I:</b> ${(i*1e6).toFixed(1)} µA &nbsp;= <b>${(i*1000).toFixed(3)} mA</b> &nbsp;= ${i.toFixed(6)} A<br>
+<b>Resistencia R:</b> ${fO(r)}${e24?` <span style="color:#6b7280;font-size:.8rem">(E24 cercano: ${fO(e24.v)}, ${(e24.er*100).toFixed(1)}% err)</span>`:''}<br>
+<b>Potencia P:</b> ${fP(p)}<hr style="border-color:#1e2f45;margin:8px 0">
+<span style="color:#94a3b8;font-size:.85rem"><b>Energía en 1h:</b> ${(p*3600).toFixed(2)} J &nbsp;= ${(p*1000).toFixed(4)} mWh</span>`;
+}
+
+function limpOhm() {
+  ['ov','oi','or','op'].forEach(id => { document.getElementById(id).value=''; });
+  document.getElementById('ohm-rb').innerHTML='Los resultados aparecerán aquí…';
+}
+
+function recomW() {
+  const p = parseFloat(document.getElementById('ow-pw').value);
+  const rb = document.getElementById('ow-rb');
+  if(isNaN(p)) { rb.innerHTML='Introduce la potencia en mW.'; return; }
+  const w=p/1000, min=w*2;
+  const est=[0.0625,0.1,0.125,0.25,0.5,1,2,3,5,10];
+  const rec = est.find(e=>e>=min)||10;
+  rb.innerHTML = `<b>Disipada:</b> ${fP(w)}<br><b>Mínimo con ×2 seguridad:</b> ${fP(min)}<br><b>Wattaje recomendado: <span style="color:var(--ok)">${rec} W</span></b><br><small style="color:#6b7280">Estándares: 1/16 · 1/10 · 1/8 · 1/4 · 1/2 · 1 · 2 · 3 · 5 · 10 W</small>`;
+}
+
+function calcCap() {
+  const c = parseFloat(document.getElementById('oc-c').value);
+  const v = parseFloat(document.getElementById('oc-v').value);
+  const rb = document.getElementById('oc-rb');
+  if(isNaN(c)||isNaN(v)) { rb.innerHTML='Introduce capacitancia y voltaje.'; return; }
+  const cf=c/1e6, E=0.5*cf*v*v, Q=cf*v;
+  rb.innerHTML = `<b>Energía:</b> ${fP(E)}<br><b>Carga Q:</b> ${(Q*1e6).toFixed(1)} µC<br>
+<small style="color:var(--err)">⚠️ Capacitores de alta tensión son peligrosos. Descargar con resistencia antes de tocar.</small>`;
+}
+
+function calcTCR() {
+  const r=parseFloat(document.getElementById('otcr-r').value);
+  const tcr=parseFloat(document.getElementById('otcr-tcr').value);
+  const dt=parseFloat(document.getElementById('otcr-dt').value);
+  const rb=document.getElementById('otcr-rb');
+  if(isNaN(r)||isNaN(tcr)||isNaN(dt)) { rb.innerHTML='Completa los 3 campos.'; return; }
+  const dr=r*tcr*dt/1e6;
+  rb.innerHTML=`<b>Variación ΔR:</b> ${dr>=0?'+':''}${fO(dr)}<br><b>R final a T+${dt}°C:</b> ${fO(r+dr)}<br>
+<small>ΔR = R × TCR × ΔT / 1,000,000 = ${r} × ${tcr} × ${dt} / 1e6</small>`;
+}
+
+// ═══════════════════════════
+//  SERIE / PARALELO
+// ═══════════════════════════
+function togFreq() {
+  const t = document.getElementById('sp-t').value;
+  document.getElementById('sp-fr').style.display = (t==='C'||t==='L') ? 'block' : 'none';
+}
+
+function calcSP() {
+  const raw = document.getElementById('sp-v').value;
+  const tipo = document.getElementById('sp-t').value;
+  const freq = parseFloat(document.getElementById('sp-freq').value);
+  const rb = document.getElementById('sp-rb');
+  if(!raw) { rb.innerHTML='Introduce valores separados por comas.'; return; }
+  const vals = raw.split(',').map(v=>parseFloat(v.trim())).filter(v=>!isNaN(v)&&v>0);
+  if(!vals.length) { rb.innerHTML='No se encontraron valores válidos.'; return; }
+  const sS = vals.reduce((a,b)=>a+b, 0);
+  const rP = 1/vals.reduce((a,b)=>a+1/b, 0);
+  let html = '';
+  if(tipo==='R') {
+    html = `<b>Serie:</b> ${fO(sS)}<br><b>Paralelo:</b> ${fO(rP)}<br>`;
+    if(vals.length===2) html += `<small>Fórmula 2R: ${fO(vals[0])} × ${fO(vals[1])} / (${fO(vals[0])} + ${fO(vals[1])}) = ${fO(vals[0]*vals[1]/(vals[0]+vals[1]))}</small>`;
+  } else if(tipo==='C') {
+    html = `<b>Capacitores en Serie (Ctotal):</b> ${rP.toFixed(5)} µF<br><b>Capacitores en Paralelo (Ctotal):</b> ${sS.toFixed(5)} µF<br>`;
+    if(!isNaN(freq)&&freq>0) {
+      html += `<b>Reactancia Xc (serie) @${fF(freq)}:</b> ${fO(1/(2*Math.PI*freq*(rP/1e6)))}<br>`;
+      html += `<b>Reactancia Xc (paralelo) @${fF(freq)}:</b> ${fO(1/(2*Math.PI*freq*(sS/1e6)))}`;
+    }
+  } else {
+    html = `<b>Inductores en Serie (Ltotal):</b> ${sS.toFixed(5)} mH<br><b>Inductores en Paralelo (Ltotal):</b> ${rP.toFixed(5)} mH<br>`;
+    if(!isNaN(freq)&&freq>0) {
+      html += `<b>Reactancia XL (serie) @${fF(freq)}:</b> ${fO(2*Math.PI*freq*(sS/1e3))}<br>`;
+      html += `<b>Reactancia XL (paralelo) @${fF(freq)}:</b> ${fO(2*Math.PI*freq*(rP/1e3))}`;
+    }
+  }
+  rb.innerHTML = html;
+}
+
+function calcLC() {
+  const L = parseFloat(document.getElementById('lc-l').value)/1e3;
+  const C = parseFloat(document.getElementById('lc-c').value)/1e6;
+  const rb = document.getElementById('lc-rb');
+  if(isNaN(L)||isNaN(C)||L<=0||C<=0) { rb.innerHTML='Introduce L y C válidos.'; return; }
+  const f = 1/(2*Math.PI*Math.sqrt(L*C));
+  const Z = Math.sqrt(L/C);
+  rb.innerHTML = `<b>Frecuencia de resonancia:</b> ${fF(f)}<br><b>Impedancia Z₀:</b> ${fO(Z)}<br><small>En resonancia: XL = XC = Z₀</small>`;
+}
+
+function calcComb() {
+  const target = parseFloat(document.getElementById('comb-v').value);
+  const rb = document.getElementById('comb-rb');
+  if(isNaN(target)||target<=0) { rb.innerHTML='Introduce un valor objetivo.'; return; }
+  // Generar valores E24 en múltiples décadas
+  const vals = [];
+  for(let e=0; e<=6; e++) ES.E24.forEach(v => vals.push(parseFloat((v*Math.pow(10,e)).toFixed(4))));
+  let bestS=null, bestP=null, bdS=Infinity, bdP=Infinity;
+  for(let i=0; i<vals.length; i++) {
+    for(let j=i; j<vals.length; j++) {
+      const sv = vals[i]+vals[j];
+      const pv = vals[i]*vals[j]/(vals[i]+vals[j]);
+      const es = Math.abs(sv-target)/target*100;
+      const ep = Math.abs(pv-target)/target*100;
+      if(es<bdS){bdS=es;bestS={a:vals[i],b:vals[j],v:sv,er:es};}
+      if(ep<bdP){bdP=ep;bestP={a:vals[i],b:vals[j],v:pv,er:ep};}
+    }
+  }
+  rb.innerHTML = `<b>Mejor en Serie:</b> ${fO(bestS.a)} + ${fO(bestS.b)} = ${fO(bestS.v)} (${bestS.er.toFixed(2)}% error)<br>
+<b>Mejor en Paralelo:</b> ${fO(bestP.a)} ∥ ${fO(bestP.b)} = ${fO(bestP.v)} (${bestP.er.toFixed(2)}% error)`;
+}
+
+// ═══════════════════════════
+//  DIVISOR DE VOLTAJE
+// ═══════════════════════════
+function calcDN() {
+  const vi=parseFloat(document.getElementById('dn-vi').value);
+  const r1=parseFloat(document.getElementById('dn-r1').value);
+  const r2=parseFloat(document.getElementById('dn-r2').value);
+  const rl=parseFloat(document.getElementById('dn-rl').value);
+  const rb=document.getElementById('dn-rb');
+  if(isNaN(vi)||isNaN(r1)||isNaN(r2)) { rb.innerHTML='Introduce Vin, R1 y R2.'; return; }
+  const r2e = (!isNaN(rl)&&rl>0) ? r2*rl/(r2+rl) : r2;
+  const vo = vi*(r2e/(r1+r2e));
+  const i = vi/(r1+r2e)*1000;
+  const pr1=(vi-vo)*(vi-vo)/r1*1000, pr2=vo*vo/r2*1000;
+  rb.innerHTML = `<b>Vout:</b> ${vo.toFixed(4)} V${(!isNaN(rl)&&rl>0)?` (con carga ${fO(rl)})`:'(sin carga)'}<br>
+<b>Corriente:</b> ${i.toFixed(3)} mA<br>
+<b>Potencia R1:</b> ${pr1.toFixed(2)} mW &nbsp;|&nbsp; <b>Potencia R2:</b> ${pr2.toFixed(2)} mW<br>
+<b>Razón de división:</b> ${(vo/vi*100).toFixed(2)}%`;
+}
+
+function calcDI() {
+  const vi=parseFloat(document.getElementById('di-vi').value);
+  const vo=parseFloat(document.getElementById('di-vo').value);
+  const r1=parseFloat(document.getElementById('di-r1').value);
+  const r2=parseFloat(document.getElementById('di-r2').value);
+  const rb=document.getElementById('di-rb');
+  if(isNaN(vi)||isNaN(vo)||vo>=vi) { rb.innerHTML='Vout debe ser menor que Vin.'; return; }
+  const rat=vo/vi;
+  if(!isNaN(r1)&&isNaN(r2)) {
+    const r2c=r1*rat/(1-rat);
+    const e=nearE24(r2c);
+    rb.innerHTML=`<b>R2 necesario:</b> ${fO(r2c)}<br><small>E24 cercano: ${e?fO(e.v)+' ('+(e.er*100).toFixed(1)+'% err)':'—'}</small>`;
+  } else if(!isNaN(r2)&&isNaN(r1)) {
+    const r1c=r2*(1-rat)/rat;
+    const e=nearE24(r1c);
+    rb.innerHTML=`<b>R1 necesario:</b> ${fO(r1c)}<br><small>E24 cercano: ${e?fO(e.v)+' ('+(e.er*100).toFixed(1)+'% err)':'—'}</small>`;
+  } else {
+    rb.innerHTML='Deja vacío R1 <b>o</b> R2 para calcularlo (no ambos).';
+  }
+}
+
+function calcBJT() {
+  const vcc=parseFloat(document.getElementById('bjt-vcc').value);
+  const vbe=parseFloat(document.getElementById('bjt-vbe').value)||0.7;
+  const ic=parseFloat(document.getElementById('bjt-ic').value)/1000;
+  const hfe=parseFloat(document.getElementById('bjt-hfe').value);
+  const re=parseFloat(document.getElementById('bjt-re').value);
+  const rb=document.getElementById('bjt-rb');
+  if(isNaN(vcc)||isNaN(ic)||isNaN(hfe)) { rb.innerHTML='Introduce VCC, IC y hFE.'; return; }
+  const ib=ic/hfe, ve=isNaN(re)?0:ic*re, vb=vbe+ve;
+  const idiv=10*ib, r2c=vb/idiv, r1c=(vcc-vb)/idiv;
+  const e1=nearE24(r1c), e2=nearE24(r2c);
+  rb.innerHTML = `<b>VB:</b> ${vb.toFixed(3)} V &nbsp;|&nbsp; <b>VE:</b> ${ve.toFixed(3)} V &nbsp;|&nbsp; <b>IB:</b> ${(ib*1e6).toFixed(1)} µA<br>
+<b>R1 (superior, a VCC):</b> ${fO(r1c)}<br><small style="color:#6b7280">E24: ${e1?fO(e1.v):'—'}</small><br>
+<b>R2 (inferior, a GND):</b> ${fO(r2c)}<br><small style="color:#6b7280">E24: ${e2?fO(e2.v):'—'}</small>`;
+}
+
+// ═══════════════════════════
+//  LCD / T-CON
+// ═══════════════════════════
+const RNG = {
+  tv:     {vcc:[3.0,3.6], avdd:[13.5,17], vcom:[4.5,8],  vgh:[22,32],  vgl:[-12,-5], vref:[2.3,2.7], imax:350, blV:[50,90]},
+  monitor:{vcc:[3.0,3.6], avdd:[12,15],   vcom:[5,7],    vgh:[20,30],  vgl:[-10,-5], vref:[2.3,2.7], imax:300, blV:[30,70]},
+  laptop: {vcc:[1.8,3.3], avdd:[8,12],    vcom:[3,5],    vgh:[15,22],  vgl:[-8,-4],  vref:[1.2,1.8], imax:250, blV:[20,40]},
+  oled:   {vcc:[1.8,2.0], avdd:[4.5,5.5], vcom:[3.0,3.6],vgh:[6.5,7.5],vgl:[-3.5,-2.5],vref:[1.2,1.8],imax:400,blV:[5,12]},
+  tablet: {vcc:[1.8,2.5], avdd:[5.5,8],   vcom:[2.5,4],  vgh:[12,18],  vgl:[-6,-3],  vref:[1.2,1.8], imax:200, blV:[10,25]}
+};
+
+const NM = {
+  samsung:'<b>Samsung (BN44/BN95):</b> T-CON en tarjeta separada. VGH típico 27–30V. IC DC-DC frecuente: RT6923. Verificar condensadores 10µF/25V del boost.',
+  lg:'<b>LG (EAX/EBR):</b> T-CON puede ser integrado. AVDD típico 15V. IC Gamma frecuente: AS15-F. Revisar IC OZ9966.',
+  tcl:'<b>TCL/Thomson:</b> T-CON generalmente separado. Condensadores electrolíticos fallan frecuentemente. Verificar alimentación 12V al conector T-CON.',
+  hisense:'<b>Hisense/Sharp:</b> Puede ser integrado o separado. IC Gamma RM5101 frecuente en Sharp. Verificar XDON antes de medir voltajes.',
+  sony:'<b>Sony (A-board):</b> T-CON hija unida a la A-board. Verificar pin PANEL_EN y señal eDP. OLED Sony usa voltajes mucho más bajos.',
+  aoc:'<b>AOC/Philips Monitor:</b> T-CON integrado en placa del scaler. Verificar condensadores de la fuente. LVDS 6-bit en HD, 8-bit en FHD.'
+};
+
+const ICS = [
+  {ic:'RT6923A',  fn:'dcdc',  d:'DC-DC Multi-salida',       vcc:'12V',   sal:'AVDD 15V, VGH 28V, VGL -8V',   m:'Samsung, TCL'},
+  {ic:'TPS65161', fn:'dcdc',  d:'DC-DC TI Power',           vcc:'5–14V', sal:'AVDD 14V, VGH 22V, VGL -7V',   m:'LG, Hisense'},
+  {ic:'OZ9966',   fn:'dcdc',  d:'DC-DC + VCOM buffer',      vcc:'12V',   sal:'AVDD 13V, VGH 25V, VGL -8V',   m:'Varios'},
+  {ic:'MP3394',   fn:'bl',    d:'Driver LED backlight',      vcc:'12V',   sal:'Boost 40–90V LED',              m:'TCL, Hisense'},
+  {ic:'TPS61187', fn:'bl',    d:'Driver LED Boost TI',       vcc:'5–12V', sal:'Boost 40–60V multi-string',     m:'Monitores'},
+  {ic:'OZ9976',   fn:'bl',    d:'Driver CCFL/LED',          vcc:'12V',   sal:'Boost variable',                m:'Varios'},
+  {ic:'AS15-F',   fn:'gamma', d:'Gamma buffer 10 canales',  vcc:'AVDD',  sal:'Gamma 0–AVDD (12 pts)',         m:'Samsung, LG'},
+  {ic:'AS15-G',   fn:'gamma', d:'Gamma buffer (variante)',  vcc:'AVDD',  sal:'Gamma 0–AVDD',                  m:'Samsung'},
+  {ic:'RM5101',   fn:'gamma', d:'Gamma buffer 10 canales',  vcc:'12–15V',sal:'Gamma escalonado',              m:'Sharp, AUO'},
+  {ic:'MAX9668',  fn:'gamma', d:'Gamma buffer Maxim',       vcc:'12V',   sal:'Gamma 10 canales',              m:'Varios'},
+  {ic:'FHD8501Q', fn:'tcon',  d:'T-CON principal TV',       vcc:'3.3V',  sal:'Gate + Source control',         m:'Samsung'},
+  {ic:'NT50198',  fn:'tcon',  d:'T-CON InnLux integrado',  vcc:'3.3V',  sal:'Boost interno integrado',        m:'TCL, AOC'},
+  {ic:'HX8696',   fn:'tcon',  d:'T-CON FHD TV',            vcc:'3.3V',  sal:'LVDS → señal panel',           m:'Hisense'},
+  {ic:'RTD2668',  fn:'tcon',  d:'Scaler + T-CON combo',    vcc:'3.3V',  sal:'LVDS/eDP procesado',            m:'Monitores'},
+  {ic:'SN75LVDS84',fn:'lvds', d:'Deserializador LVDS 28ch',vcc:'3.3V',  sal:'28 canales paralelo',            m:'Varios (TI)'},
+  {ic:'ANX9801',  fn:'lvds',  d:'eDP ↔ LVDS bridge',      vcc:'3.3V',  sal:'Conversión protocolo',          m:'Laptops'},
+  {ic:'DS90CF384',fn:'lvds',  d:'LVDS Rx 28-bit',          vcc:'3.3V',  sal:'Datos diferencial LVDS',        m:'TI - universal'}
+];
+
+const TPS = [
+  {t:'volt',l:'VCC/VDD',     d:'Pin alimentación del IC DC-DC o cap 3.3V cercano al regulador LDO.'},
+  {t:'volt',l:'AVDD',        d:'Cátodo del diodo de salida del boost / polo + del capacitor de filtro.'},
+  {t:'volt',l:'VCOM',        d:'Salida del buffer de VCOM (OPA2333 o equiv.) o pista VCOM en el flex del panel.'},
+  {t:'volt',l:'VGH / VON',   d:'Cátodo del diodo final de la bomba de carga positiva (usualmente D4 o D6).'},
+  {t:'volt',l:'VGL / VOFF',  d:'Ánodo del diodo final de la bomba de carga negativa, o pin VOFF del IC DC-DC.'},
+  {t:'volt',l:'VREF',        d:'Pin VREF del IC DC-DC. Típicamente 2.5V o 1.25V.'},
+  {t:'sig', l:'Gamma (AS15-F)',d:'Pines 1–10 del IC en SOP-24/QFN. Escalan de AVDD hasta ~0.5V de forma descendente.'},
+  {t:'sig', l:'CKV1 / CKV2', d:'Test pads CK1/CK2 cerca del conector flex lateral. Mide a GND en Ω — debe ser >MΩ.'},
+  {t:'sig', l:'LVDS / eDP',  d:'Conector 30–51 pines entre placa principal y T-CON. Pin 1 generalmente es GND.'},
+  {t:'sig', l:'STV',         d:'Start pulse vertical en el gate driver. Pulso a ~1Hz cuando el panel funciona.'},
+  {t:'sig', l:'OE',          d:'Output Enable del gate driver. PWM activo con osciloscopio cuando hay imagen.'},
+  {t:'sig', l:'STH / CPH',   d:'Start Horizontal / Clock Pulse Horizontal. ~60 kHz en FHD.'},
+  {t:'sig', l:'XDON',        d:'Display Enable. Alto = imagen activa. Bajo = pantalla forzada a OFF.'},
+  {t:'bl',  l:'LED+ / VBOOST',d:'Conector del driver LED. Mide tensión boost en LED+ (TV: 50–90V). ⚠️ Alta tensión.'},
+  {t:'bl',  l:'ENABLE (BL)', d:'Pin de habilitación del driver LED. Alto = BL encendido. Bajo = protección activa.'},
+  {t:'bl',  l:'PWM (DIM)',   d:'Señal de control de brillo. Duty cycle varía con el ajuste de brillo del TV.'}
+];
+
+const GUIAS = {
+  blanca:`<b>Pantalla Blanca/Gris:</b> Verifica AVDD primero. Si AVDD=0V con VCC presente → IC DC-DC fallando (RT6923, TPS65161). Revisa diodo boost D1 y capacitor de salida. Si voltajes OK → panel recibe alimentación pero no señal de datos; verifica LVDS/eDP.`,
+  negra:`<b>Pantalla Negra (backlight activo):</b> Usa linterna a 45° para ver imagen tenue. Si la ves → el backlight es el problema. Si no → T-CON no genera imagen. Verifica VCC, señal LVDS/eDP y XDON.`,
+  lenta:`<b>Imagen en Cámara Lenta:</b> Síntoma casi exclusivo de VGH bajo (&lt;20V en TV). Mide VGH en el cátodo del diodo final de la bomba de carga positiva. Revisar D3–D6 y capacitores de multiplicación.`,
+  lavada:`<b>Imagen Lavada/Sin Contraste:</b> VCOM fuera de rango → revisa buffer OPA2333. VGL muy alto (menos negativo) también causa este síntoma. Gira el potenciómetro de VCOM si lo tiene para confirmar.`,
+  negativo:`<b>Colores Negativos/Invertidos:</b> IC Gamma dañado (AS15-F, RM5101). Mide los 3 puntos Gamma — deben ser descendentes. Si están invertidos → reemplazar IC Gamma.`,
+  intermitente:`<b>Parpadeo/Ghosting:</b> Corto entre líneas CKV. Mide CKV1 y CKV2 a GND con multímetro en Ω. &lt;500Ω → corto confirmado. Desconecta los flex laterales uno a uno para aislar.`,
+  oscura:`<b>Se Apaga a Negro:</b> VGH arranca pero cae por corto activo. Mide la corriente total. Si excede el máximo hay corto activo. Desconecta flex laterales para aislar.`,
+  lineas_h:`<b>Líneas Horizontales:</b> Pocas líneas → corto local en gate driver o flex dañado. Muchas uniformes → fallo del Source Driver o del T-CON. Verifica STV (Start Vertical).`,
+  lineas_v:`<b>Líneas Verticales:</b> Corresponden a gate driver lateral. Identifica en qué zona están. Desconecta ese flex — si desaparecen, el flex o gate driver de ese sector está dañado.`,
+  manchas:`<b>Manchas/Zonas Oscuras:</b> Casi siempre backlight. Mide resistencia de cada tira LED. R=∞ → LED abierto activa protección. Verifica voltaje boost uniforme.`,
+  ruido:`<b>Imagen Ruidosa/Pixelada:</b> Señal de datos corrupta. Inspecciona cable LVDS/eDP por daños o mal contacto. VCC bajo puede causar errores de procesamiento.`,
+  mitad:`<b>Mitad Sin Imagen:</b> T-CON tiene dos salidas (izq/der). Una está fallando. Intercambia conectores flex si es posible. Mide CKV del lado que falla.`,
+  arco_iris:`<b>Franjas de Colores:</b> Fallo en decodificador de color o canal de datos diferencial. Verifica señal LVDS/eDP canal a canal. Posible IC deserializador dañado (SN75LVDS84).`,
+  sin_bl:`<b>Sin Backlight (imagen con linterna):</b> Verifica pin ENABLE del driver LED — debe estar en HIGH. Si EN=LOW, el procesador no lo habilitó (protección activa). Verifica también el voltaje Boost.`
+};
+
+function carRef() {
+  const r = RNG[document.getElementById('pt').value] || RNG.tv;
+  const mid = (a,b) => ((a+b)/2).toFixed(2);
+  document.getElementById('vcc').value  = mid(r.vcc[0],  r.vcc[1]);
+  document.getElementById('avdd').value = mid(r.avdd[0], r.avdd[1]);
+  document.getElementById('vcom').value = mid(r.vcom[0], r.vcom[1]);
+  document.getElementById('vgh').value  = mid(r.vgh[0],  r.vgh[1]);
+  document.getElementById('vgl').value  = mid(r.vgl[0],  r.vgl[1]);
+  document.getElementById('vref').value = mid(r.vref[0], r.vref[1]);
+  document.getElementById('curr').value = (r.imax*0.65).toFixed(0);
+  const t = document.getElementById('pt').value;
+  const isSmall = (t==='oled'||t==='tablet');
+  document.getElementById('vghi').value = isSmall?'4.2':'14.5';
+  document.getElementById('vgmid').value= isSmall?'2.8':'9.2';
+  document.getElementById('vglo').value = isSmall?'1.1':'3.1';
+  valAll();
+}
+
+function notaMarca() {
+  const m = document.getElementById('pmarca').value;
+  const b = document.getElementById('nota-marca');
+  if(!m){b.style.display='none';return;}
+  b.style.display='block'; b.innerHTML=NM[m]||'';
+}
+
+function vld(campo) {
+  const r = RNG[document.getElementById('pt').value] || RNG.tv;
+  const el = document.getElementById(campo);
+  if(!el) return;
+  const v = parseFloat(el.value);
+  const h = document.getElementById('h-'+campo);
+  if(isNaN(v)){el.classList.remove('ok','bad');if(h)h.textContent='';actPB();return;}
+  const rngs = {vcc:r.vcc,avdd:r.avdd,vcom:r.vcom,vgh:r.vgh,vgl:r.vgl,vref:r.vref,curr:[0,r.imax]};
+  const rng = rngs[campo];
+  if(!rng) return;
+  const ok = v>=rng[0] && v<=rng[1];
+  el.classList.remove('ok','bad');
+  el.classList.add(ok?'ok':'bad');
+  if(h) h.textContent = `Rango: ${rng[0]}–${rng[1]}${campo==='curr'?'mA':'V'} ${ok?'✅':'❌'}`;
+  actPB();
+}
+
+function valAll() { ['vcc','avdd','vcom','vgh','vgl','vref','curr'].forEach(vld); }
+
+function actPB() {
+  const r = RNG[document.getElementById('pt').value] || RNG.tv;
+  let tot=0, ok=0;
+  const chk=(id,mn,mx)=>{const v=parseFloat(document.getElementById(id)?.value);if(!isNaN(v)){tot++;if(v>=mn&&v<=mx)ok++;}};
+  chk('vcc',r.vcc[0],r.vcc[1]); chk('avdd',r.avdd[0],r.avdd[1]); chk('vcom',r.vcom[0],r.vcom[1]);
+  chk('vgh',r.vgh[0],r.vgh[1]); chk('vgl',r.vgl[0],r.vgl[1]);   chk('vref',r.vref[0],r.vref[1]);
+  const ic = parseFloat(document.getElementById('curr')?.value);
+  if(!isNaN(ic)){tot++;if(ic<=r.imax)ok++;}
+  const pct = tot ? ok/tot*100 : 0;
+  const pb = document.getElementById('pb');
+  if(pb){pb.style.width=pct+'%';pb.style.backgroundColor=pct>=80?'#10b981':pct>=50?'#f59e0b':'#ef4444';}
+  const sc = document.getElementById('v-score');
+  if(sc) sc.textContent = tot ? `${ok}/${tot} en rango (${Math.round(pct)}%)` : '—';
+}
+
+function calcVCOM() {
+  const a=parseFloat(document.getElementById('vc-a').value);
+  const rh=parseFloat(document.getElementById('vc-rh').value);
+  const rl=parseFloat(document.getElementById('vc-rl').value);
+  const rb=document.getElementById('vc-rb');
+  if(isNaN(a)||isNaN(rh)||isNaN(rl)){rb.innerHTML='Introduce AVDD, R alta y R baja.';return;}
+  const vc=a*(rl/(rh+rl));
+  const r=RNG[document.getElementById('pt').value]||RNG.tv;
+  const ok=vc>=r.vcom[0]&&vc<=r.vcom[1];
+  rb.innerHTML=`<b>VCOM calculado:</b> ${vc.toFixed(3)} V <span class="${ok?'badge-ok':'badge-err'}">${ok?'✅ En rango':'❌ Fuera de rango'}</span><br>
+<small>Rango esperado: ${r.vcom[0]}–${r.vcom[1]} V</small>`;
+}
+
+function valGamma() {
+  const a=parseFloat(document.getElementById('vghi').value);
+  const m=parseFloat(document.getElementById('vgmid').value);
+  const b=parseFloat(document.getElementById('vglo').value);
+  const box=document.getElementById('gamma-st');
+  if(!box) return;
+  if(isNaN(a)||isNaN(m)||isNaN(b)){box.innerHTML='';return;}
+  if(a>m && m>b) box.innerHTML=`<span style="color:var(--ok)">✅ Correcto: ${a}V → ${m}V → ${b}V (span: ${(a-b).toFixed(1)}V)</span>`;
+  else if(a===m||m===b) box.innerHTML=`<span style="color:var(--warn)">⚠️ Dos valores iguales — posible canal del IC en corto</span>`;
+  else box.innerHTML=`<span style="color:var(--err)">❌ Curva desordenada — IC Gamma dañado</span>`;
+}
+
+function guiaSint() {
+  const s = document.getElementById('sint').value;
+  const box = document.getElementById('guia-sint');
+  document.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
+  const HM = {
+    blanca:['vcc','avdd'], negra:['vcc'], lenta:['vgh'], lavada:['vcom','vgl'],
+    negativo:['vghi','vgmid','vglo'], intermitente:['ckv'], oscura:['vgh','curr'],
+    lineas_h:['vghi','sstv'], lineas_v:['ckv','vgh'], manchas:['bl-est','bl-res'],
+    ruido:['sdat','vcc'], mitad:['ckv','vgh'], arco_iris:['vghi','vgmid'], sin_bl:['bl-est','bl-en']
+  };
+  if(s && HM[s]) HM[s].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('hl');});
+  if(!s){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML=GUIAS[s]||'';
+}
+
+const ZONES = {};
+function tzn(btn, z) {
+  const s = ZONES[z];
+  if(!s){ZONES[z]='sel';btn.classList.add('sel');}
+  else if(s==='sel'){ZONES[z]='corto';btn.classList.remove('sel');btn.classList.add('corto');}
+  else if(s==='corto'){ZONES[z]='ok';btn.classList.remove('corto');btn.classList.add('ok');}
+  else{ZONES[z]=null;btn.classList.remove('sel','corto','ok');}
+  actZona();
+}
+
+function actZona() {
+  const res = document.getElementById('zres').value;
+  const cortos = Object.entries(ZONES).filter(([k,v])=>v==='corto').map(([k])=>k);
+  const box = document.getElementById('z-diag');
+  if(!cortos.length){box.style.display='none';return;}
+  box.style.display='block';
+  let msg = `<b style="color:var(--warn)">Zonas con corto: ${cortos.join(', ')}</b><br>`;
+  if(res==='desap') msg+=`<span style="color:var(--ok)">→ Corto desaparece → fallo en panel o flex zona ${cortos.join('/')}.</span>`;
+  else if(res==='persiste') msg+=`<span style="color:var(--err)">→ Corto persiste → fallo en el T-CON. Revisar IC DC-DC y pistas.</span>`;
+  else if(res==='mejora') msg+=`<span style="color:var(--warn)">→ Mejora parcial → daño en T-CON y panel. Reparación múltiple.</span>`;
+  box.innerHTML = msg;
+}
+
+function svChk() {
+  const s={};for(let i=1;i<=18;i++)s['c'+i]=document.getElementById('c'+i)?.checked||false;
+  localStorage.setItem('chkLCD',JSON.stringify(s));actChkP();
+}
+function rstChk(){for(let i=1;i<=18;i++){const e=document.getElementById('c'+i);if(e)e.checked=false;}localStorage.removeItem('chkLCD');actChkP();}
+function actChkP(){let n=0;for(let i=1;i<=18;i++)if(document.getElementById('c'+i)?.checked)n++;const e=document.getElementById('chk-pg');if(e)e.textContent=`${n}/18 pasos completados`;}
+function ldChk(){try{const s=JSON.parse(localStorage.getItem('chkLCD')||'{}');for(let i=1;i<=18;i++){const e=document.getElementById('c'+i);if(e)e.checked=s['c'+i]||false;}}catch(e){}actChkP();}
+
+function filtIC(){
+  const f=document.getElementById('ic-fil').value;
+  const tb=document.getElementById('ic-tb');
+  tb.innerHTML=ICS.filter(ic=>!f||ic.fn===f).map(ic=>`<tr><td><b>${ic.ic}</b></td><td>${ic.d}</td><td>${ic.vcc}</td><td>${ic.sal}</td><td style="color:#6b7280;font-size:.75rem">${ic.m}</td></tr>`).join('');
+}
+function filtTP(){
+  const f=document.getElementById('tp-fil').value;
+  const cont=document.getElementById('tp-list');
+  cont.innerHTML=TPS.filter(tp=>!f||tp.t===f).map(tp=>`<div style="padding:7px 0;border-bottom:1px solid #1e2f45;font-size:.82rem"><b style="color:#a78bfa">${tp.l}:</b> <span style="color:#cbd5e1">${tp.d}</span></div>`).join('');
+}
+
+function svNotas(){localStorage.setItem('notasLCD',document.getElementById('notas').value);const e=document.getElementById('notas-st');if(e)e.textContent='Guardado '+new Date().toLocaleTimeString('es');}
+
+function guardarLec(){
+  const lec={tipo:document.getElementById('pt').value,marca:document.getElementById('pmarca').value,vcc:document.getElementById('vcc').value,avdd:document.getElementById('avdd').value,vcom:document.getElementById('vcom').value,vgh:document.getElementById('vgh').value,vgl:document.getElementById('vgl').value,vref:document.getElementById('vref').value,curr:document.getElementById('curr').value,ghi:document.getElementById('vghi').value,gmid:document.getElementById('vgmid').value,glo:document.getElementById('vglo').value,sint:document.getElementById('sint').value,fecha:new Date().toLocaleString('es',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})};
+  let h=[];try{h=JSON.parse(localStorage.getItem('hLCD')||'[]');}catch(e){}h.unshift(lec);if(h.length>8)h=h.slice(0,8);localStorage.setItem('hLCD',JSON.stringify(h));localStorage.setItem('lastLCD',JSON.stringify(lec));alert(`✅ Medición guardada (${lec.fecha})`);
+}
+function compararLec(){
+  const gs=localStorage.getItem('lastLCD');if(!gs){alert('Sin lectura guardada.');return;}const g=JSON.parse(gs);
+  let html=`<b style="color:#a855f7">🔄 Comparativa con lectura del ${g.fecha}:</b><br><br>`;
+  ['vcc','avdd','vcom','vgh','vgl','curr'].forEach(k=>{const cur=parseFloat(document.getElementById(k)?.value),gv=parseFloat(g[k]);if(!isNaN(cur)&&!isNaN(gv)){const d=(cur-gv).toFixed(3);const col=Math.abs(d)>0.5?'#f59e0b':'#10b981';html+=`<span style="color:${col}">${k.toUpperCase()}: ${gv} → ${cur} (${d>=0?'+':''}${d})</span><br>`;}});
+  const rb=document.getElementById('lcd-rb');rb.innerHTML=html+'<hr style="border-color:#22344d;margin:10px 0">'+(rb.innerHTML.startsWith('El reporte')?'':rb.innerHTML);
+}
+function togHist(){
+  const box=document.getElementById('hist-box');box.style.display=box.style.display==='none'?'block':'none';if(box.style.display==='none')return;
+  let h=[];try{h=JSON.parse(localStorage.getItem('hLCD')||'[]');}catch(e){}
+  if(!h.length){box.innerHTML='<p style="font-size:.8rem;color:#6b7280;padding:8px">Sin historial.</p>';return;}
+  const r=RNG[document.getElementById('pt').value]||RNG.tv;
+  box.innerHTML=h.map((lec,i)=>`<div class="hi-item"><div class="hi-hdr"><span style="font-size:.75rem;color:#a78bfa">#${i+1} · ${lec.fecha} · ${(lec.tipo||'').toUpperCase()} ${lec.marca?'· '+lec.marca:''}</span><button onclick="restLec(${i})" style="background:#2d3a4e;border:none;color:#cbd5e1;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:.7rem">Restaurar</button></div><div class="hi-vals">${['vcc','avdd','vcom','vgh','vgl'].map(k=>{const v=parseFloat(lec[k]);const rng=r[k];const ok=rng&&!isNaN(v)&&v>=rng[0]&&v<=rng[1];return v?`<span class="hchip ${ok?'good':'bad'}">${k.toUpperCase()}: ${v}V</span>`:''}).join('')}${lec.curr?`<span class="hchip ${parseFloat(lec.curr)<=r.imax?'good':'bad'}">${lec.curr}mA</span>`:''}</div></div>`).join('');
+}
+function restLec(i){
+  let h=[];try{h=JSON.parse(localStorage.getItem('hLCD')||'[]');}catch(e){}const lec=h[i];if(!lec)return;
+  ['vcc','avdd','vcom','vgh','vgl','vref','curr'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=lec[k]||'';});
+  if(lec.tipo)document.getElementById('pt').value=lec.tipo;if(lec.marca)document.getElementById('pmarca').value=lec.marca;if(lec.ghi)document.getElementById('vghi').value=lec.ghi;if(lec.gmid)document.getElementById('vgmid').value=lec.gmid;if(lec.glo)document.getElementById('vglo').value=lec.glo;if(lec.sint){document.getElementById('sint').value=lec.sint;guiaSint();}valAll();valGamma();document.getElementById('hist-box').style.display='none';
+}
+
+function diagLCD() {
+  const g=id=>document.getElementById(id);
+  const vcc=parseFloat(g('vcc').value),avdd=parseFloat(g('avdd').value),vcom=parseFloat(g('vcom').value),vgh=parseFloat(g('vgh').value),vgl=parseFloat(g('vgl').value),vref=parseFloat(g('vref').value),curr=parseFloat(g('curr').value),rgnd=parseFloat(g('rgnd').value),tvin=parseFloat(g('tvin').value),ttemp=g('ttemp').value,capE=g('cap-est').value,rfE=g('rfuse').value,ghi=parseFloat(g('vghi').value),gmid=parseFloat(g('vgmid').value),glo=parseFloat(g('vglo').value),gic=g('gic').value,gest=g('gest').value,ckv=g('ckv').value,sdat=g('sdat').value,sstv=g('sstv').value,soe=g('soe').value,ssth=g('ssth').value,xdon=g('xdon').value,blE=g('bl-est').value,blV=parseFloat(g('bl-v').value),blR=parseFloat(g('bl-res').value),blEN=g('bl-en').value,tipo=g('pt').value,marca=g('pmarca').value,senal=g('ps').value,notas=g('notas').value,sint=g('sint').value;
+  const r=RNG[tipo]||RNG.tv;let al=0,wa=0,sol='';
+  const ts=new Date().toLocaleString('es');
+  let html=`<div style="background:linear-gradient(135deg,rgba(121,40,202,.2),rgba(59,130,246,.1));padding:12px;border-radius:8px;margin-bottom:14px;border:1px solid #4c1d95"><b style="color:#d8b4fe;font-size:1rem">📋 REPORTE DIAGNÓSTICO LCD / T-CON</b><br><span style="color:#94a3b8;font-size:.78rem">Panel: ${tipo.toUpperCase()} ${marca?'· '+marca:''} · Señal: ${senal.toUpperCase()} · ${ts}</span>${sint?`<br><span style="color:var(--warn);font-size:.78rem">Síntoma: ${g('sint').selectedOptions[0]?.text||''}</span>`:''}</div>`;
+  const ev=(lbl,v,rng,u='V')=>{if(isNaN(v))return`<span style="color:#6b7280">⬜ ${lbl}: No medido</span><br>`;if(v>=rng[0]&&v<=rng[1])return`<span style="color:var(--ok)">✅ ${lbl}: ${v}${u} (rango ${rng[0]}–${rng[1]}${u})</span><br>`;al++;const d=v<rng[0]?'↓ BAJO':'↑ ALTO';sol+=`• ${lbl} ${d}: ${v}${u} (esperado ${rng[0]}–${rng[1]}${u})<br>`;return`<span style="color:var(--err)">❌ ${lbl}: ${v}${u} — ${d}</span><br>`;};
+  html+=`<b style="color:#a78bfa">⚡ Voltajes:</b><br>`;
+  html+=ev('VCC/VDD',vcc,r.vcc);html+=ev('AVDD',avdd,r.avdd);html+=ev('VCOM',vcom,r.vcom);html+=ev('VGH/VON',vgh,r.vgh);html+=ev('VGL/VOFF',vgl,r.vgl);html+=ev('VREF',vref,r.vref);
+  if(!isNaN(tvin)){const ok=tvin>=10&&tvin<=15;if(!ok){al++;sol+=`• Vin T-CON fuera de rango: verificar fuente y fusible.<br>`;}html+=ok?`<span style="color:var(--ok)">✅ Vin T-CON: ${tvin}V</span><br>`:`<span style="color:var(--err)">❌ Vin T-CON: ${tvin}V</span><br>`;}
+  html+=`<br><b style="color:#a78bfa">🔌 Corriente y Térmico:</b><br>`;
+  if(!isNaN(curr)){const ok=curr<=r.imax;if(!ok){al++;sol+=`• Corriente excesiva: buscar corto con fuente limitada. Enfocar en caps cerámicos y IC Gamma.<br>`;}html+=ok?`<span style="color:var(--ok)">✅ Corriente: ${curr}mA (máx ${r.imax}mA)</span><br>`:`<span style="color:var(--err)">❌ Corriente: ${curr}mA — EXCEDE máximo (${r.imax}mA)</span><br>`;}
+  if(!isNaN(rgnd)){const ok=rgnd>200;if(!ok){al++;sol+=`• Corto activo: desconectar panel y medir de nuevo para aislar fuente.<br>`;}html+=ok?`<span style="color:var(--ok)">✅ R a GND: ${rgnd}Ω</span><br>`:`<span style="color:var(--err)">❌ R a GND: ${rgnd}Ω — CORTO ACTIVO</span><br>`;}
+  const tmap={normal:['var(--ok)','✅ Temperatura IC: Normal'],caliente:['var(--warn)','⚠️ Temperatura IC: Caliente'],quema:['var(--err)','❌ Temperatura IC: QUEMA — desconectar'],frio:['var(--info)','ℹ️ Temperatura IC: Frío — sin energía']};
+  const[tc,tm]=tmap[ttemp]||tmap.normal;html+=`<span style="color:${tc}">${tm}</span><br>`;
+  if(ttemp==='quema'){al++;sol+=`• IC en quema: reemplazar componente afectado.<br>`;}if(ttemp==='caliente')wa++;
+  if(capE==='hinch'||capE==='fuga'){html+=`<span style="color:var(--err)">❌ Condensadores: ${capE==='hinch'?'Hinchados/abombados':'Electrolito seco/fuga'}</span><br>`;al++;sol+=`• Reemplazar todos los electrolíticos de la placa.<br>`;}else if(capE==='ok')html+=`<span style="color:var(--ok)">✅ Condensadores: Sin deformación visible</span><br>`;
+  if(rfE==='ab'){html+=`<span style="color:var(--err)">❌ Resistencia fusible: Circuito abierto</span><br>`;al++;sol+=`• Resistencia fusible abierta: revisar corto previo y reemplazar.<br>`;}
+  html+=`<br><b style="color:#a78bfa">🎨 Gamma (${gic.toUpperCase()}):</b><br>`;
+  if(!isNaN(ghi)&&!isNaN(gmid)&&!isNaN(glo)){if(ghi>gmid&&gmid>glo)html+=`<span style="color:var(--ok)">✅ Gamma correcto: ${ghi}V → ${gmid}V → ${glo}V (span: ${(ghi-glo).toFixed(1)}V)</span><br>`;else{html+=`<span style="color:var(--err)">❌ Gamma anormal — IC Gamma dañado</span><br>`;al++;sol+=`• Reemplazar IC Gamma (${gic.toUpperCase()}).<br>`;}}else html+=`<span style="color:#6b7280">⬜ Gamma: No medido</span><br>`;
+  if(gest==='quem'){html+=`<span style="color:var(--err)">❌ IC Gamma con daño físico visible</span><br>`;al++;}
+  html+=`<br><b style="color:#a78bfa">⏱️ Señales:</b><br>`;
+  const evS=(lbl,val)=>{if(val==='nm')return`<span style="color:#6b7280">⬜ ${lbl}: No medido</span><br>`;if(val==='ok'||val==='hi')return`<span style="color:var(--ok)">✅ ${lbl}: OK</span><br>`;wa++;sol+=`• Señal ${lbl} anormal: verificar IC en T-CON.<br>`;return`<span style="color:var(--warn)">⚠️ ${lbl}: Anormal (${val})</span><br>`;};
+  if(ckv==='ok')html+=`<span style="color:var(--ok)">✅ CKV: Impedancia alta (sin corto)</span><br>`;
+  else if(ckv==='cgnd'){html+=`<span style="color:var(--err)">❌ CKV: Corto a GND</span><br>`;al++;sol+=`• CKV a GND: aislar flex laterales uno a uno para ubicar zona dañada.<br>`;}
+  else if(ckv==='ccru'){html+=`<span style="color:var(--err)">❌ CKV1/CKV2 en corto entre sí</span><br>`;al++;sol+=`• CKV cruzados: inspeccionar flex con microscopio. Reparar con wire enamel.<br>`;}
+  else{html+=`<span style="color:var(--warn)">⚠️ CKV: Circuito abierto</span><br>`;wa++;}
+  html+=evS('Datos LVDS/eDP',sdat);html+=evS('STV',sstv);html+=evS('OE',soe);html+=evS('STH',ssth);
+  if(xdon==='lo'){html+=`<span style="color:var(--err)">❌ XDON: Bajo — display deshabilitado</span><br>`;al++;sol+=`• XDON=LOW: el procesador no habilitó el display. Revisar señal desde el scaler.<br>`;}else if(xdon!=='nm')html+=`<span style="color:var(--ok)">✅ XDON: Alto (habilitado)</span><br>`;
+  html+=`<br><b style="color:#a78bfa">💡 Backlight:</b><br>`;
+  if(blE==='ok')html+=`<span style="color:var(--ok)">✅ Backlight: Funcional</span><br>`;
+  else if(blE==='no'){html+=`<span style="color:var(--err)">❌ Backlight: No enciende</span><br>`;al++;sol+=`• Backlight inoperativo: verificar pin ENABLE del driver LED.<br>`;}
+  else{html+=`<span style="color:var(--warn)">⚠️ Backlight: ${blE==='parp'?'Parpadea (LED abierto)':blE==='tenue'?'Muy tenue':'Zonas oscuras'}</span><br>`;wa++;}
+  if(!isNaN(blV)){const ok=blV>=r.blV[0]&&blV<=r.blV[1];if(!ok)wa++;html+=ok?`<span style="color:var(--ok)">✅ Boost LED: ${blV}V</span><br>`:`<span style="color:var(--warn)">⚠️ Boost LED: ${blV}V (rango ${r.blV[0]}–${r.blV[1]}V)</span><br>`;}
+  if(!isNaN(blR)){const ok=blR>100;if(!ok){al++;sol+=`• Corto en tira LED: medir cada tira por separado.<br>`;}html+=ok?`<span style="color:var(--ok)">✅ R tiras LED: ${blR}Ω</span><br>`:`<span style="color:var(--err)">❌ R tiras LED: ${blR}Ω — CORTO</span><br>`;}
+  if(blEN==='lo'){html+=`<span style="color:var(--err)">❌ ENABLE driver: BAJO — protección activa</span><br>`;al++;sol+=`• ENABLE=LOW: verificar si hay corto activo o señal de falla del panel.<br>`;}
+  // Patrones
+  const pats=[];
+  if(!isNaN(avdd)&&avdd===0&&!isNaN(vcc)&&vcc>0) pats.push({t:'AVDD=0V con VCC presente → IC DC-DC fallando (RT6923, TPS65161).',n:'high'});
+  if(!isNaN(vgh)&&vgh<20&&!isNaN(avdd)&&avdd>12) pats.push({t:'VGH bajo pero AVDD normal → Diodos de bomba de carga positiva dañados (D3/D4).',n:'high'});
+  if(!isNaN(vgl)&&vgl>-5&&!isNaN(vcc)&&vcc>0)    pats.push({t:'VGL poco negativo → Corto en línea negativa o fallo del regulador VGL.',n:'med'});
+  if(!isNaN(curr)&&curr>400) pats.push({t:`Corriente muy alta (${curr}mA) → Corto activo. Inyectar corriente limitada y localizar componente caliente.`,n:'high'});
+  if(!isNaN(vcc)&&vcc<2.5&&vcc>0) pats.push({t:`VCC bajo (${vcc}V) → Revisar regulador LDO de 3.3V o corto en carga lógica.`,n:'high'});
+  if(!isNaN(rgnd)&&rgnd<100) pats.push({t:`R a GND muy baja (${rgnd}Ω) → Cortocircuito en alimentación. Desconectar panel y medir.`,n:'high'});
+  if(!isNaN(curr)&&curr<50&&!isNaN(vcc)&&vcc>0) pats.push({t:'Corriente muy baja con VCC presente → Panel desconectado o flex con mal contacto.',n:'low'});
+  if(pats.length){html+=`<br><b style="color:#a78bfa">🔍 Patrones Detectados:</b><br>`;pats.forEach(p=>{const col=p.n==='high'?'var(--err)':p.n==='med'?'var(--warn)':'var(--info)';html+=`<span style="color:${col}">${p.n==='high'?'🔴':p.n==='med'?'🟡':'🔵'} ${p.t}</span><br>`;});}
+  if(notas.trim()) html+=`<br><b style="color:#a78bfa">📝 Notas:</b><br><span style="color:#cbd5e1;font-size:.85rem">${notas.replace(/\n/g,'<br>')}</span><br>`;
+  if(al>0||wa>0){const niv=al>=3?'FALLO GRAVE':al>=1?'FALLO DETECTADO':'ADVERTENCIAS';html+=`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);padding:12px;border-radius:8px;margin-top:12px"><b style="color:var(--err)">🛠️ RUTA DE REPARACIÓN [${niv}: ${al} fallo(s), ${wa} adv.]:</b><br><div style="margin-top:6px;color:#fca5a5;font-size:.88rem;line-height:1.8">${sol}</div></div>`;}
+  else if(!isNaN(vcc)){html+=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);padding:12px;border-radius:8px;margin-top:12px;color:#6ee7b7">✅ <b>Todos los parámetros en rango normal.</b><br><small>Si persiste el problema, verificar señal de video desde la placa principal.</small></div>`;}
+  const tot=al+wa;const sc=tot===0?['var(--ok)','✅ PANEL OK']:al>=3?['var(--err)','🔴 FALLO GRAVE']:al>=1?['#f97316','🟠 FALLO DETECTADO']:['var(--warn)','🟡 ADVERTENCIAS'];
+  html+=`<div style="margin-top:12px;padding:8px;background:#0d1a2a;border-radius:6px;display:flex;justify-content:space-between"><span style="font-size:.8rem;color:#94a3b8">Evaluación:</span><span style="font-weight:bold;color:${sc[0]}">${sc[1]}</span></div>`;
+  g('lcd-rb').innerHTML=html;actPB();
+}
+
+function copRep(){navigator.clipboard.writeText(document.getElementById('lcd-rb').innerText).then(()=>alert('✅ Copiado al portapapeles.')).catch(()=>alert('No se pudo copiar. Selecciona y copia manualmente.'));}
+function expTXT(){const t=document.getElementById('lcd-rb').innerText;if(!t||t.startsWith('El reporte')){alert('Genera un reporte primero.');return;}const b=new Blob([`RELECTRÓNICA - Diagnóstico T-CON\n${'='.repeat(40)}\n${new Date().toLocaleString('es')}\n\n${t}`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`diag_lcd_${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href);}
+function limpLCD(){if(!confirm('¿Limpiar todos los campos?'))return;['vcc','avdd','vcom','vgh','vgl','vref','curr','rgnd','tvin','vghi','vgmid','vglo','bl-v','bl-res','vc-a','vc-rh','vc-rl'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';e.classList.remove('ok','bad');}});['h-vcc','h-avdd','h-vcom','h-vgh','h-vgl','h-vref','h-curr'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='';});document.getElementById('sint').value='';document.getElementById('guia-sint').style.display='none';document.getElementById('gamma-st').innerHTML='';document.getElementById('notas').value='';document.getElementById('lcd-rb').innerHTML='El reporte aparecerá aquí…';document.getElementById('z-diag').style.display='none';Object.keys(ZONES).forEach(k=>ZONES[k]=null);document.querySelectorAll('.zb').forEach(b=>b.classList.remove('sel','corto','ok'));actPB();}
+
+function tFAB(){const a=document.getElementById('fab-it');const o=document.getElementById('fab-ov');const b=document.getElementById('fab-btn');const op=a.classList.toggle('open');o.classList.toggle('open',op);b.classList.toggle('open',op);}
+
+window.onload = function() {
+  initCol();
+  fillColRef();
+  filtIC();
+  filtTP();
+  carRef();
+  ldChk();
+  try { const n=localStorage.getItem('notasLCD'); if(n) { document.getElementById('notas').value=n; } } catch(e){}
+  document.getElementById('pt').addEventListener('change', function(){ carRef(); valAll(); });
+  document.getElementById('zres').addEventListener('change', actZona);
+  document.getElementById('ic-fil').addEventListener('change', filtIC);
+  document.getElementById('tp-fil').addEventListener('change', filtTP);
+};
+</script>
+</body>
+</html>
