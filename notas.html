@@ -3,655 +3,842 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Relectrónica - Mis Notas de Taller</title>
+    <title>Relectrónica - Mis Notas</title>
     <style>
         :root {
-            --bg-color: #0b131f;
+            --bg:      #0b131f;
             --chat-bg: #111c2c;
-            --text-color: #ffffff;
-            --primary-color: #7928ca;
-            --border-color: #22344d;
             --card-bg: #162235;
-            --input-bg: #080d16;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
+            --border:  #22344d;
+            --primary: #7928ca;
+            --accent:  #a855f7;
+            --text:    #ffffff;
+            --muted:   #a0aec0;
+            --dim:     #4a5568;
+            --input-bg:#080d16;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger:  #ef4444;
+            --info:    #38bdf8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
+        /* ══ HEADER ══ */
         header {
-            background-color: var(--chat-bg);
-            padding: 15px;
+            background: var(--chat-bg);
+            padding: 12px 15px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            gap: 11px;
+            position: sticky; top: 0; z-index: 100;
         }
-
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 43px; height: 43px; border-radius: 8px;
+            overflow: hidden; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); flex-shrink: 0;
         }
-
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.05rem; font-weight: 700; }
+        .header-info p  { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+        .header-stats { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+        .stat-pill {
+            background: rgba(121,40,202,.18); border: 1px solid rgba(168,85,247,.25);
+            border-radius: 20px; padding: 3px 10px; font-size: .7rem; color: #c4b5fd;
         }
+        .stat-pill span { font-weight: 700; color: #fff; }
 
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
+        /* ══ MAIN ══ */
+        .main-content { flex: 1; padding: 14px 14px 90px; }
+
+        /* ══ BUSCADOR ══ */
+        .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .search-bar {
+            flex: 1; background: var(--chat-bg); border: 1px solid var(--border);
+            color: #fff; padding: 10px 14px; border-radius: 8px;
+            outline: none; font-size: .9rem;
         }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-bottom: 75px;
+        .search-bar::placeholder { color: var(--dim); }
+        .search-bar:focus { border-color: var(--primary); }
+        .icon-btn {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted);
+            width: 42px; min-width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .95rem; cursor: pointer; transition: background .2s;
         }
+        .icon-btn:hover { background: #1e3347; color: #fff; }
+        .icon-btn.on { background: rgba(121,40,202,.25); border-color: var(--accent); color: #c4b5fd; }
 
+        /* ══ FILTROS ══ */
+        .filter-panel {
+            display: none; background: var(--card-bg);
+            border: 1px solid var(--border); border-radius: 10px;
+            padding: 13px 14px; margin-bottom: 12px;
+            animation: slideDown .2s ease;
+        }
+        .filter-panel.open { display: block; }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        .flabel { font-size: .72rem; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 7px; }
+        .chips  { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .chips:last-child { margin-bottom: 0; }
+        .chip {
+            background: #1a2a3e; border: 1px solid var(--border);
+            border-radius: 20px; padding: 4px 12px;
+            font-size: .74rem; color: var(--muted); cursor: pointer;
+            transition: all .18s; user-select: none;
+        }
+        .chip:hover  { border-color: var(--accent); color: #c4b5fd; }
+        .chip.active { background: rgba(121,40,202,.25); border-color: var(--accent); color: #c4b5fd; font-weight: 600; }
+
+        /* ══ ACCIONES ══ */
+        .actions-row { display: flex; gap: 8px; margin-bottom: 14px; }
+        .act-btn {
+            flex: 1; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted); padding: 9px 6px;
+            font-size: .78rem; cursor: pointer; transition: all .18s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .act-btn:hover { background: #1e3347; color: #fff; }
+        .act-btn.export { border-color: rgba(34,197,94,.35); color: #86efac; }
+        .act-btn.export:hover { background: rgba(34,197,94,.1); }
+        .act-btn.import-btn { border-color: rgba(245,158,11,.35); color: #fcd34d; }
+        .act-btn.import-btn:hover { background: rgba(245,158,11,.1); }
+
+        /* ══ SECCIÓN TÍTULO ══ */
         .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #a855f7;
-            font-weight: 600;
+            font-size: .95rem; font-weight: 700; color: var(--accent);
+            margin-bottom: 11px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .bubble {
+            background: rgba(168,85,247,.15); border: 1px solid rgba(168,85,247,.3);
+            border-radius: 20px; padding: 1px 8px; font-size: .7rem; color: #c4b5fd;
         }
 
-        .form-container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 14px;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        label {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-        }
-
-        input, textarea {
-            width: 100%;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            outline: none;
-            font-size: 0.9rem;
-        }
-
-        textarea {
-            resize: none;
-            height: 70px;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn-save {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-        }
-
-        .backup-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-backup {
-            background-color: #2d3748;
-            color: white;
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-            font-size: 0.85rem;
-            transition: 0.2s;
-        }
-
-        .btn-backup.export {
-            background-color: #0e7c5c;
-        }
-        .btn-backup.import {
-            background-color: #b45309;
-        }
-        .btn-backup:hover {
-            opacity: 0.85;
-        }
-
-        .search-box {
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .search-box input {
-            padding-left: 35px;
-            border-color: #a855f7;
-        }
-
-        .search-box::before {
-            content: "🔍";
-            position: absolute;
-            left: 10px;
-            top: 9px;
-            font-size: 0.9rem;
-        }
-
-        .notes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        /* ══ TARJETAS DE NOTAS ══ */
+        .notes-list { display: flex; flex-direction: column; gap: 10px; }
 
         .note-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid #a855f7;
-            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
             border-radius: 0 10px 10px 0;
+            padding: 12px 13px;
             position: relative;
+            transition: border-color .2s, box-shadow .2s;
+            cursor: pointer;
+        }
+        .note-card:hover { border-left-color: #c4b5fd; box-shadow: 0 3px 14px rgba(121,40,202,.18); }
+
+        /* color del borde según categoría */
+        .note-card[data-cat="reparacion"] { border-left-color: #7928ca; }
+        .note-card[data-cat="voltajes"]   { border-left-color: #f59e0b; }
+        .note-card[data-cat="codigo"]     { border-left-color: #38bdf8; }
+        .note-card[data-cat="proveedor"]  { border-left-color: #22c55e; }
+        .note-card[data-cat="recordar"]   { border-left-color: #ef4444; }
+        .note-card[data-cat="general"]    { border-left-color: #94a3b8; }
+
+        .note-card-header {
+            display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px;
+        }
+        .note-card-header h3 {
+            font-size: .9rem; color: #fff; font-weight: 600;
+            line-height: 1.35; flex: 1; padding-right: 48px;
         }
 
-        .note-card h3 {
-            font-size: 0.95rem;
-            color: #fff;
-            margin-bottom: 6px;
-            padding-right: 25px;
+        /* pin / favorito */
+        .note-pin {
+            position: absolute; top: 10px; right: 38px;
+            background: none; border: none;
+            font-size: 1rem; cursor: pointer; color: var(--dim);
+            transition: color .18s; line-height: 1; padding: 2px;
         }
-
-        .note-text {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            margin-bottom: 4px;
-            line-height: 1.3;
-        }
-
-        .note-text b {
-            color: #f59e0b;
-        }
-
-        .note-text.solucion b {
-            color: var(--success-color);
-        }
+        .note-pin.pinned { color: #fbbf24; }
+        .note-pin:hover  { color: #fcd34d; }
 
         .btn-delete {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 1.2rem;
-            cursor: pointer;
-            font-weight: bold;
+            position: absolute; top: 8px; right: 8px;
+            background: none; border: none; color: var(--dim);
+            font-size: 1.1rem; cursor: pointer; line-height: 1; padding: 2px;
+            transition: color .18s;
         }
+        .btn-delete:hover { color: var(--danger); }
 
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
+        /* cuerpo colapsable */
+        .note-body { overflow: hidden; }
+        .note-body.collapsed { display: none; }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.75rem;
-            flex: 1;
-            height: 100%;
-            justify-content: center;
-            gap: 4px;
-        }
+        .note-field { margin-bottom: 6px; font-size: .82rem; color: #94a3b8; line-height: 1.5; }
+        .note-field:last-child { margin-bottom: 0; }
+        .note-field strong { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 2px; }
+        .note-field.falla    strong { color: #fca5a5; }
+        .note-field.solucion strong { color: #86efac; }
+        .note-field.extra    strong { color: #7dd3fc; }
+        .note-field.general  strong { color: #c4b5fd; }
 
-        .nav-item.active {
-            color: #a855f7;
-            font-weight: bold;
+        /* chips en la nota */
+        .note-footer {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 8px; flex-wrap: wrap;
         }
+        .note-cat-badge {
+            font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+            padding: 2px 7px; border-radius: 4px;
+        }
+        .badge-reparacion { background: rgba(121,40,202,.2); color: #c4b5fd; border: 1px solid rgba(121,40,202,.4); }
+        .badge-voltajes   { background: rgba(245,158,11,.12); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+        .badge-codigo     { background: rgba(56,189,248,.1);  color: #7dd3fc; border: 1px solid rgba(56,189,248,.25); }
+        .badge-proveedor  { background: rgba(34,197,94,.1);   color: #86efac; border: 1px solid rgba(34,197,94,.25); }
+        .badge-recordar   { background: rgba(239,68,68,.1);   color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+        .badge-general    { background: #1a2a3e; color: var(--muted); border: 1px solid var(--border); }
 
-        .nav-icon {
-            font-size: 1.3rem;
-        }
+        .note-date { font-size: .67rem; color: var(--dim); margin-left: auto; }
 
-        .import-file-input {
-            display: none;
+        /* divider entre campos */
+        .note-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+
+        /* ══ EMPTY STATE ══ */
+        .empty-state {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 50px 20px; color: var(--dim); text-align: center; gap: 10px;
         }
-    
-        /* ── FAB MENÚ ── */
+        .empty-state .ico { font-size: 2.5rem; }
+        .empty-state p { font-size: .88rem; }
+
+        /* ══ MODAL NUEVO / EDITAR ══ */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,.75);
+            align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-sheet {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0; padding: 18px 15px 34px;
+            width: 100%; max-width: 640px;
+            max-height: 93vh; overflow-y: auto;
+            animation: slideUp .25s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+        .modal-title {
+            font-size: .98rem; font-weight: 700; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-close {
+            background: none; border: none; color: var(--dim);
+            font-size: 1.3rem; cursor: pointer; line-height: 1;
+        }
+        .modal-close:hover { color: #fff; }
+
+        .ff { margin-bottom: 11px; }
+        .ff label {
+            display: block; font-size: .74rem; color: var(--dim);
+            text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;
+        }
+        .ff input, .ff textarea, .ff select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+            color: #fff; border-radius: 8px; padding: 9px 12px;
+            font-size: .87rem; outline: none; resize: vertical;
+        }
+        .ff input:focus, .ff textarea:focus, .ff select:focus { border-color: var(--primary); }
+        .ff textarea { min-height: 68px; }
+        .ff-row { display: flex; gap: 9px; }
+        .ff-row .ff { flex: 1; }
+
+        /* selector de tipo */
+        .tipo-selector { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+        .tipo-chip {
+            background: #1a2a3e; border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 12px;
+            font-size: .78rem; color: var(--muted); cursor: pointer;
+            transition: all .18s; user-select: none;
+        }
+        .tipo-chip:hover  { border-color: var(--accent); color: #c4b5fd; }
+        .tipo-chip.sel    { border-color: var(--accent); color: #c4b5fd; font-weight: 700; }
+
+        /* campos dinámicos según tipo */
+        .fields-reparacion, .fields-general { display: none; }
+        .fields-reparacion.show, .fields-general.show { display: block; }
+
+        .btn-save {
+            width: 100%; background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; border-radius: 9px;
+            padding: 12px; font-size: .93rem; font-weight: 700;
+            cursor: pointer; transition: opacity .2s; margin-top: 4px;
+        }
+        .btn-save:hover { opacity: .88; }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e;
+            border-radius: 8px; padding: 9px 18px;
+            font-size: .82rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity .3s;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ══ FAB ══ */
         .fab-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #7928ca, #a855f7);
-            border: none;
-            color: white;
-            font-size: 1.4rem;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: transform 0.25s ease;
+            position: fixed; bottom: 20px; right: 18px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: transform .25s ease;
         }
         .fab-toggle.open { transform: rotate(90deg); }
         .fab-items {
-            position: fixed;
-            bottom: 82px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 9999;
+            position: fixed; bottom: 82px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 9999;
         }
         .fab-items.open { pointer-events: all; opacity: 1; }
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #22344d;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background: #1a273a; color: #e2e8f0; font-size: .82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
         }
         .fab-item-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%; background: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
         }
         .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
         .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
-        .fab-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            background: rgba(0,0,0,0.5);
-        }
-        .fab-overlay.open { display: block; }
-        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
-        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
-        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
-        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
-        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
-        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
-        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
-        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        .fab-overlay { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.5); }
+        .fab-overlay.open { display:block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .28s both}
         @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        .fab-add {
+            position: fixed; bottom: 82px; left: 18px;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid var(--primary);
+            color: var(--accent); font-size: 1.5rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,.4);
+            transition: background .2s;
+        }
+        .fab-add:hover { background: rgba(121,40,202,.2); }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo" onerror="this.style.display='none'; this.parentElement.innerText='📡'">
-        </div>
-        <div class="header-info">
-            <h1>Relectrónica</h1>
-        </div>
-    </header>
+<!-- ══ HEADER ══ -->
+<header>
+    <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Bitácora del Técnico</p>
+    </div>
+    <div class="header-stats">
+        <div class="stat-pill">📝 <span id="total-count">0</span> notas</div>
+    </div>
+</header>
 
-    <div class="main-content">
-        <h2 class="section-title">Anotar Nueva Solución</h2>
-        
-        <div class="form-container">
-            <div class="input-group">
-                <label>Modelo del Equipo / N° de Tarjeta:</label>
-                <input type="text" id="note-model" placeholder="Ej: Samsung UN40FH5003 / T-CON T315HW04">
-            </div>
-            <div class="input-group">
-                <label>Falla o Síntoma observado:</label>
-                <textarea id="note-fault" placeholder="Ej: Pantalla azulada sin video, o parpadea 5 veces"></textarea>
-            </div>
-            <div class="input-group">
-                <label>Solución aplicada (El secreto técnico):</label>
-                <textarea id="note-solution" placeholder="Ej: Se cambiaron filtros de 10uF cerca del integrado analógico"></textarea>
-            </div>
-            <button class="btn-save" onclick="guardarNota()">Guardar en Bitácora</button>
-            
-            <div class="backup-buttons">
-                <button class="btn-backup export" onclick="exportarNotas()">📤 Exportar respaldo</button>
-                <button class="btn-backup import" onclick="document.getElementById('importFileInput').click()">📥 Importar respaldo</button>
-                <input type="file" id="importFileInput" class="import-file-input" accept=".json" onchange="importarNotas(event)">
-            </div>
-            <p style="font-size: 0.7rem; color: #6b7c93; margin-top: 10px; text-align: center;">Respalda tus notas o restaura desde un archivo .json</p>
-        </div>
+<!-- ══ MAIN ══ -->
+<div class="main-content">
 
-        <h2 class="section-title">Buscar Soluciones Guardadas</h2>
-        <div class="search-box">
-            <input type="text" id="search-input" oninput="filtrarNotas()" placeholder="Escribe marca, modelo o falla...">
-        </div>
+    <!-- búsqueda + filtro -->
+    <div class="search-row">
+        <input type="text" class="search-bar" id="search-input" placeholder="🔍  Buscar en notas…" oninput="renderNotes()">
+        <button class="icon-btn" id="filter-btn" onclick="toggleFilter()" title="Filtros">⚙️</button>
+    </div>
 
-        <div class="notes-list" id="notes-list-container">
-            <!-- Las notas se renderizan dinámicamente -->
+    <!-- panel de filtros -->
+    <div class="filter-panel" id="filter-panel">
+        <div class="flabel">Categoría</div>
+        <div class="chips" id="cat-chips">
+            <div class="chip active" data-val="">Todas</div>
+            <div class="chip" data-val="reparacion">🔧 Reparación</div>
+            <div class="chip" data-val="voltajes">⚡ Voltajes</div>
+            <div class="chip" data-val="codigo">💻 Código / Error</div>
+            <div class="chip" data-val="proveedor">🏪 Proveedor</div>
+            <div class="chip" data-val="recordar">🔴 Recordar</div>
+            <div class="chip" data-val="general">📋 General</div>
+        </div>
+        <div class="flabel">Mostrar</div>
+        <div class="chips" id="pin-chips">
+            <div class="chip active" data-val="">Todas</div>
+            <div class="chip" data-val="pinned">📌 Fijadas</div>
         </div>
     </div>
 
-        <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
-    <div class="fab-items" id="fab-items">
-        <a href="recepcion.html" class="fab-item">
-            <span class="fab-item-label">Recepción</span>
-            <span class="fab-item-btn">📋</span>
-        </a>
-        <a href="fallas.html" class="fab-item">
-            <span class="fab-item-label">Casos de Falla</span>
-            <span class="fab-item-btn">🛠️</span>
-        </a>
-        <a href="componentes.html" class="fab-item">
-            <span class="fab-item-label">Componentes</span>
-            <span class="fab-item-btn">🔍</span>
-        </a>
-        <a href="calculadoras.html" class="fab-item">
-            <span class="fab-item-label">Cálculos</span>
-            <span class="fab-item-btn">🧮</span>
-        </a>
-        <a href="hardware.html" class="fab-item">
-            <span class="fab-item-label">Hardware</span>
-            <span class="fab-item-btn">🖼️</span>
-        </a>
-        <a href="biblioteca.html" class="fab-item">
-            <span class="fab-item-label">Biblioteca</span>
-            <span class="fab-item-btn">📘</span>
-        </a>
-        <a href="notas.html" class="fab-item active">
-            <span class="fab-item-label">Mis Notas</span>
-            <span class="fab-item-btn">📝</span>
-        </a>
-        <a href="index.html" class="fab-item">
-            <span class="fab-item-label">Chat Técnico</span>
-            <span class="fab-item-btn">💬</span>
-        </a>
+    <!-- exportar / importar -->
+    <div class="actions-row">
+        <button class="act-btn export" onclick="exportarNotas()">📤 Exportar JSON</button>
+        <button class="act-btn import-btn" onclick="document.getElementById('importFileInput').click()">📥 Importar JSON</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importarNotas(event)">
     </div>
-    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
-    <script>
-        // Cargar las notas guardadas apenas se abra la pantalla
-        document.addEventListener('DOMContentLoaded', () => {
-            mostrarNotas();
-        });
+    <!-- sección -->
+    <div class="section-title">
+        Mis Notas <span class="bubble" id="visible-count">0</span>
+    </div>
 
-        // Función para guardar una nueva solución en el almacenamiento local
-        function guardarNota() {
-            const modelo = document.getElementById('note-model').value.trim();
-            const falla = document.getElementById('note-fault').value.trim();
-            const solucion = document.getElementById('note-solution').value.trim();
+    <!-- lista -->
+    <div class="notes-list" id="notes-list"></div>
+    <div class="empty-state" id="empty-state" style="display:none">
+        <div class="ico">📭</div>
+        <p id="empty-msg">Tu bitácora está vacía.<br>Toca ＋ para agregar tu primera nota.</p>
+    </div>
 
-            if (modelo === "" || falla === "" || solucion === "") {
-                alert("Por favor, rellena todos los campos antes de guardar.");
-                return;
-            }
+</div>
 
-            // Crear el objeto de la nueva nota
-            const nuevaNota = {
-                id: Date.now(), // ID único basado en el tiempo
-                modelo: modelo,
-                falla: falla,
-                solucion: solucion
-            };
+<!-- ══ MODAL NUEVA / EDITAR NOTA ══ -->
+<div class="modal-overlay" id="note-modal">
+    <div class="modal-sheet">
+        <div class="modal-title">
+            <span id="modal-heading">📝 Nueva Nota</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
 
-            // Obtener notas existentes o crear un arreglo vacío si es la primera
-            let notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
-            
-            // Agregar la nueva nota al inicio de la lista
-            notas.unshift(nuevaNota);
+        <!-- selector de tipo de nota -->
+        <div class="flabel">Tipo de nota</div>
+        <div class="tipo-selector" id="tipo-selector">
+            <div class="tipo-chip sel" data-tipo="reparacion">🔧 Reparación</div>
+            <div class="tipo-chip" data-tipo="voltajes">⚡ Voltajes</div>
+            <div class="tipo-chip" data-tipo="codigo">💻 Código/Error</div>
+            <div class="tipo-chip" data-tipo="proveedor">🏪 Proveedor</div>
+            <div class="tipo-chip" data-tipo="recordar">🔴 Recordar</div>
+            <div class="tipo-chip" data-tipo="general">📋 General</div>
+        </div>
 
-            // Guardar de vuelta en el localStorage
-            localStorage.setItem('relectronica_notas', JSON.stringify(notas));
+        <!-- título siempre presente -->
+        <div class="ff">
+            <label>Título *</label>
+            <input type="text" id="f-titulo" placeholder="ej. Samsung UN50 / Voltaje T-CON / Tel. proveedor…">
+        </div>
 
-            // Limpiar los campos del formulario para la próxima anotación
-            document.getElementById('note-model').value = "";
-            document.getElementById('note-fault').value = "";
-            document.getElementById('note-solution').value = "";
+        <!-- campos según tipo: REPARACIÓN -->
+        <div class="fields-reparacion show" id="fields-rep">
+            <div class="ff">
+                <label>Falla / Síntoma</label>
+                <textarea id="f-falla" placeholder="¿Qué presentaba el equipo?"></textarea>
+            </div>
+            <div class="ff">
+                <label>Solución aplicada</label>
+                <textarea id="f-solucion" placeholder="¿Cómo se resolvió? Componentes cambiados, ajustes…"></textarea>
+            </div>
+            <div class="ff">
+                <label>Componentes / Repuestos usados</label>
+                <input type="text" id="f-componentes" placeholder="ej. Condensador 1000µF 25V, IC U802…">
+            </div>
+        </div>
 
-            // Actualizar la lista en pantalla
-            mostrarNotas();
-        }
+        <!-- campos según tipo: GENERAL (voltajes, código, proveedor, recordar, general) -->
+        <div class="fields-general" id="fields-gen">
+            <div class="ff">
+                <label>Contenido de la nota</label>
+                <textarea id="f-contenido" placeholder="Escribe aquí tu nota…" style="min-height:110px"></textarea>
+            </div>
+        </div>
 
-        // Renderizar todas las notas
-        function mostrarNotas() {
-            const contenedor = document.getElementById('notes-list-container');
-            const notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
+        <!-- campos comunes -->
+        <div class="ff">
+            <label>Observación adicional (opcional)</label>
+            <input type="text" id="f-obs" placeholder="Dato extra, advertencia o referencia…">
+        </div>
+        <input type="hidden" id="f-edit-id" value="">
+        <button class="btn-save" onclick="guardarNota()">Guardar Nota</button>
+    </div>
+</div>
 
-            if (notas.length === 0) {
-                contenedor.innerHTML = `<p style="color: #94a3b8; font-size: 0.85rem; text-align: center; padding: 20px;">Tu bitácora está vacía. ¡Anota tu primer "cangrejo" resuelto arriba!</p>`;
-                return;
-            }
+<div class="toast" id="toast"></div>
 
-            let html = "";
-            notas.forEach(nota => {
-                // Escapar caracteres especiales para evitar XSS (aunque el contenido es confiable, buena práctica)
-                const modeloEscapado = escapeHtml(nota.modelo);
-                const fallaEscapada = escapeHtml(nota.falla);
-                const solucionEscapada = escapeHtml(nota.solucion);
-                html += `
-                    <div class="note-card" data-id="${nota.id}">
-                        <button class="btn-delete" onclick="eliminarNota(${nota.id})">×</button>
-                        <h3>📺 ${modeloEscapado}</h3>
-                        <p class="note-text"><b>⚠️ Falla:</b> ${fallaEscapada}</p>
-                        <p class="note-text solucion"><b>✅ Solución:</b> ${solucionEscapada}</p>
-                    </div>
-                `;
-            });
-
-            contenedor.innerHTML = html;
-        }
-
-        // Helper para escapar HTML
-        function escapeHtml(str) {
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
-            });
-        }
-
-        // Filtrar notas en tiempo real
-        function filtrarNotas() {
-            const busqueda = document.getElementById('search-input').value.toLowerCase();
-            const tarjetas = document.querySelectorAll('.note-card');
-            let resultadosEncontrados = false;
-
-            tarjetas.forEach(tarjeta => {
-                const textoTarjeta = tarjeta.innerText.toLowerCase();
-                if (textoTarjeta.includes(busqueda)) {
-                    tarjeta.style.display = "block";
-                    resultadosEncontrados = true;
-                } else {
-                    tarjeta.style.display = "none";
-                }
-            });
-
-            const contenedor = document.getElementById('notes-list-container');
-            const avisoPrevio = document.getElementById('no-search-results');
-            
-            if (!resultadosEncontrados && busqueda !== "") {
-                if (!avisoPrevio) {
-                    const aviso = document.createElement('p');
-                    aviso.id = 'no-search-results';
-                    aviso.style.cssText = "color: #ef4444; font-size: 0.85rem; text-align: center; padding: 10px;";
-                    aviso.innerText = "No se encontraron soluciones que coincidan.";
-                    contenedor.appendChild(aviso);
-                }
-            } else if (avisoPrevio) {
-                avisoPrevio.remove();
-            }
-        }
-
-        // Eliminar una nota específica
-        function eliminarNota(id) {
-            if (confirm("¿Estás seguro de que quieres borrar esta solución de tu bitácora?")) {
-                let notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
-                notas = notas.filter(nota => nota.id !== id);
-                localStorage.setItem('relectronica_notas', JSON.stringify(notas));
-                mostrarNotas();
-                // Si hay búsqueda activa, refrescamos el filtro
-                const searchVal = document.getElementById('search-input').value;
-                if (searchVal) filtrarNotas();
-            }
-        }
-
-        // EXPORTAR: descargar todas las notas como archivo JSON
-        function exportarNotas() {
-            const notas = JSON.parse(localStorage.getItem('relectronica_notas')) || [];
-            if (notas.length === 0) {
-                alert("No hay notas para exportar. Guarda alguna solución primero.");
-                return;
-            }
-            const dataStr = JSON.stringify(notas, null, 2);
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `relectronica_notas_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // IMPORTAR: leer archivo JSON y reemplazar localStorage
-        function importarNotas(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const contenido = e.target.result;
-                    const notasImportadas = JSON.parse(contenido);
-                    
-                    // Validar que sea un arreglo y que cada elemento tenga al menos modelo, falla, solucion (id puede faltar, lo generamos)
-                    if (!Array.isArray(notasImportadas)) {
-                        throw new Error("El archivo no contiene un array de notas.");
-                    }
-                    
-                    // Sanear: asegurar que cada nota tenga id, modelo, falla, solucion
-                    const notasValidas = [];
-                    for (let i = 0; i < notasImportadas.length; i++) {
-                        const nota = notasImportadas[i];
-                        if (nota.modelo && nota.falla && nota.solucion) {
-                            notasValidas.push({
-                                id: nota.id && typeof nota.id === 'number' ? nota.id : Date.now() + i,
-                                modelo: String(nota.modelo),
-                                falla: String(nota.falla),
-                                solucion: String(nota.solucion)
-                            });
-                        } else {
-                            console.warn("Nota inválida omitida:", nota);
-                        }
-                    }
-                    
-                    if (notasValidas.length === 0) {
-                        throw new Error("No se encontraron notas válidas en el archivo. Cada nota debe tener modelo, falla y solución.");
-                    }
-                    
-                    if (confirm(`¿Importar ${notasValidas.length} nota(s)? Se reemplazará toda la bitácora actual.`)) {
-                        localStorage.setItem('relectronica_notas', JSON.stringify(notasValidas));
-                        mostrarNotas();
-                        // Limpiar búsqueda después de importar
-                        document.getElementById('search-input').value = '';
-                        alert("Bitácora restaurada exitosamente.");
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert("Error al importar: " + error.message + "\nAsegúrate de seleccionar un archivo JSON válido exportado desde esta misma app.");
-                } finally {
-                    // Resetear el input file para permitir cargar el mismo archivo nuevamente
-                    document.getElementById('importFileInput').value = '';
-                }
-            };
-            reader.onerror = function() {
-                alert("No se pudo leer el archivo.");
-                document.getElementById('importFileInput').value = '';
-            };
-            reader.readAsText(file);
-        }
-    </script>
+<!-- FAB navegación -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html"    class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html"       class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html"  class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html"     class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html"   class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html"        class="fab-item active"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+<button class="fab-add" title="Nueva nota" onclick="openModal()">＋</button>
 
 <script>
+/* ══════════════════════════════
+   CONSTANTES Y ESTADO
+══════════════════════════════ */
+const STORAGE_KEY = 'relectronica_notas_v3';
+
+const CAT_META = {
+    reparacion: { label: '🔧 Reparación',   cls: 'badge-reparacion', icon: '🔧' },
+    voltajes:   { label: '⚡ Voltajes',      cls: 'badge-voltajes',   icon: '⚡' },
+    codigo:     { label: '💻 Código/Error',  cls: 'badge-codigo',     icon: '💻' },
+    proveedor:  { label: '🏪 Proveedor',     cls: 'badge-proveedor',  icon: '🏪' },
+    recordar:   { label: '🔴 Recordar',      cls: 'badge-recordar',   icon: '🔴' },
+    general:    { label: '📋 General',       cls: 'badge-general',    icon: '📋' },
+};
+
+let notes = [];
+let filterCat  = '';
+let filterPin  = '';
+let currentTipo = 'reparacion';
+let expanded   = new Set(); // ids de notas expandidas
+
+/* ══════════════════════════════
+   STORAGE
+══════════════════════════════ */
+function loadNotes() {
+    try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        if (s) { notes = JSON.parse(s); return; }
+        // migrar formato viejo si existe
+        const old = localStorage.getItem('relectronica_notas');
+        if (old) {
+            const arr = JSON.parse(old);
+            notes = arr.map(n => ({
+                id: n.id || Date.now(),
+                cat: 'reparacion',
+                titulo: n.modelo || 'Sin título',
+                falla: n.falla || '',
+                solucion: n.solucion || '',
+                componentes: '',
+                contenido: '',
+                obs: '',
+                pinned: false,
+                fecha: new Date().toISOString().split('T')[0]
+            }));
+            saveNotes();
+        } else {
+            notes = [];
+        }
+    } catch(e) { notes = []; }
+}
+function saveNotes() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); } catch(e) {}
+}
+function nextId() { return notes.length ? Math.max(...notes.map(n=>n.id)) + 1 : 1; }
+
+/* ══════════════════════════════
+   RENDER
+══════════════════════════════ */
+function renderNotes() {
+    const q   = document.getElementById('search-input').value.toLowerCase().trim();
+    let list  = notes.filter(n => {
+        const txt = [n.titulo, n.falla, n.solucion, n.componentes, n.contenido, n.obs, n.cat]
+                    .join(' ').toLowerCase();
+        const mQ  = !q || txt.includes(q);
+        const mC  = !filterCat || n.cat === filterCat;
+        const mP  = !filterPin || n.pinned;
+        return mQ && mC && mP;
+    });
+
+    // pinned primero
+    list.sort((a,b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+    document.getElementById('total-count').textContent   = notes.length;
+    document.getElementById('visible-count').textContent = list.length;
+
+    const container = document.getElementById('notes-list');
+    const emptyEl   = document.getElementById('empty-state');
+    const emptyMsg  = document.getElementById('empty-msg');
+
+    if (!list.length) {
+        container.innerHTML = '';
+        emptyEl.style.display = 'flex';
+        emptyMsg.innerHTML = q || filterCat || filterPin
+            ? 'Sin notas para esa búsqueda.<br><small style="font-size:.77rem">Cambia los filtros o escribe algo diferente.</small>'
+            : 'Tu bitácora está vacía.<br>Toca ＋ para agregar tu primera nota.';
+        return;
+    }
+    emptyEl.style.display = 'none';
+    container.innerHTML = list.map(n => buildCard(n)).join('');
+}
+
+function buildCard(n) {
+    const cm   = CAT_META[n.cat] || CAT_META.general;
+    const isExp = expanded.has(n.id);
+    const pin  = n.pinned
+        ? `<button class="note-pin pinned" title="Quitar fijado" onclick="event.stopPropagation();togglePin(${n.id})">📌</button>`
+        : `<button class="note-pin"        title="Fijar nota"    onclick="event.stopPropagation();togglePin(${n.id})">📍</button>`;
+
+    // cuerpo según categoría
+    let body = '';
+    if (n.cat === 'reparacion') {
+        body += n.falla       ? `<div class="note-field falla"><strong>⚠️ Falla</strong>${esc(n.falla)}</div>` : '';
+        body += n.solucion    ? `<hr class="note-divider"><div class="note-field solucion"><strong>✅ Solución</strong>${esc(n.solucion)}</div>` : '';
+        body += n.componentes ? `<hr class="note-divider"><div class="note-field extra"><strong>🔩 Componentes</strong>${esc(n.componentes)}</div>` : '';
+    } else {
+        body += n.contenido   ? `<div class="note-field general"><strong>${cm.icon} Nota</strong>${esc(n.contenido)}</div>` : '';
+    }
+    body += n.obs ? `<hr class="note-divider"><div class="note-field extra"><strong>💬 Observación</strong>${esc(n.obs)}</div>` : '';
+
+    const fecha = n.fecha ? `<span class="note-date">${n.fecha}</span>` : '';
+
+    return `<div class="note-card" data-cat="${n.cat}" data-id="${n.id}" onclick="toggleExpand(${n.id})">
+        ${pin}
+        <button class="btn-delete" title="Eliminar" onclick="event.stopPropagation();eliminar(${n.id})">🗑</button>
+        <div class="note-card-header">
+            <h3>${esc(n.titulo)}</h3>
+        </div>
+        <div class="note-body ${isExp ? '' : 'collapsed'}">
+            ${body}
+        </div>
+        <div class="note-footer">
+            <span class="note-cat-badge ${cm.cls}">${cm.label}</span>
+            <button style="background:none;border:none;color:#7c8fa3;font-size:.7rem;cursor:pointer;padding:0" 
+                onclick="event.stopPropagation();openEditModal(${n.id})">✏️ Editar</button>
+            ${fecha}
+        </div>
+    </div>`;
+}
+
+function esc(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\n/g,'<br>');
+}
+
+/* ══════════════════════════════
+   INTERACCIONES EN CARD
+══════════════════════════════ */
+function toggleExpand(id) {
+    if (expanded.has(id)) expanded.delete(id);
+    else expanded.add(id);
+    renderNotes();
+}
+
+function togglePin(id) {
+    const n = notes.find(x => x.id === id);
+    if (!n) return;
+    n.pinned = !n.pinned;
+    saveNotes();
+    renderNotes();
+    showToast(n.pinned ? '📌 Nota fijada' : '📍 Nota desfijada');
+}
+
+function eliminar(id) {
+    if (!confirm('¿Eliminar esta nota?')) return;
+    notes = notes.filter(n => n.id !== id);
+    expanded.delete(id);
+    saveNotes();
+    renderNotes();
+    showToast('🗑️ Nota eliminada');
+}
+
+/* ══════════════════════════════
+   MODAL NUEVA / EDITAR
+══════════════════════════════ */
+function openModal() {
+    document.getElementById('modal-heading').textContent = '📝 Nueva Nota';
+    document.getElementById('f-edit-id').value = '';
+    clearForm();
+    setTipo('reparacion');
+    document.getElementById('note-modal').classList.add('open');
+}
+
+function openEditModal(id) {
+    const n = notes.find(x => x.id === id);
+    if (!n) return;
+    document.getElementById('modal-heading').textContent = '✏️ Editar Nota';
+    document.getElementById('f-edit-id').value = id;
+    document.getElementById('f-titulo').value = n.titulo || '';
+    document.getElementById('f-falla').value  = n.falla  || '';
+    document.getElementById('f-solucion').value = n.solucion || '';
+    document.getElementById('f-componentes').value = n.componentes || '';
+    document.getElementById('f-contenido').value = n.contenido || '';
+    document.getElementById('f-obs').value = n.obs || '';
+    setTipo(n.cat || 'general');
+    document.getElementById('note-modal').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('note-modal').classList.remove('open');
+    clearForm();
+}
+document.getElementById('note-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+function clearForm() {
+    ['f-titulo','f-falla','f-solucion','f-componentes','f-contenido','f-obs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('f-edit-id').value = '';
+}
+
+function setTipo(tipo) {
+    currentTipo = tipo;
+    // chips
+    document.querySelectorAll('.tipo-chip').forEach(c => {
+        c.classList.toggle('sel', c.dataset.tipo === tipo);
+    });
+    // campos
+    const isRep = tipo === 'reparacion';
+    document.getElementById('fields-rep').classList.toggle('show', isRep);
+    document.getElementById('fields-gen').classList.toggle('show', !isRep);
+}
+
+// click en chips de tipo
+document.getElementById('tipo-selector').querySelectorAll('.tipo-chip').forEach(c => {
+    c.addEventListener('click', () => setTipo(c.dataset.tipo));
+});
+
+function guardarNota() {
+    const titulo = document.getElementById('f-titulo').value.trim();
+    if (!titulo) { showToast('⚠️ El título es obligatorio'); return; }
+
+    const editId = document.getElementById('f-edit-id').value;
+    const isRep  = currentTipo === 'reparacion';
+
+    const data = {
+        titulo,
+        cat:         currentTipo,
+        falla:       isRep ? document.getElementById('f-falla').value.trim()       : '',
+        solucion:    isRep ? document.getElementById('f-solucion').value.trim()    : '',
+        componentes: isRep ? document.getElementById('f-componentes').value.trim() : '',
+        contenido:   !isRep ? document.getElementById('f-contenido').value.trim()  : '',
+        obs:         document.getElementById('f-obs').value.trim(),
+        fecha:       new Date().toLocaleDateString('es-VE', {day:'2-digit',month:'2-digit',year:'numeric'}),
+    };
+
+    if (editId) {
+        const idx = notes.findIndex(n => n.id === parseInt(editId));
+        if (idx !== -1) {
+            notes[idx] = { ...notes[idx], ...data };
+        }
+    } else {
+        notes.unshift({ id: nextId(), pinned: false, ...data });
+    }
+
+    saveNotes();
+    renderNotes();
+    closeModal();
+    showToast(editId ? '✅ Nota actualizada' : '✅ Nota guardada');
+}
+
+/* ══════════════════════════════
+   FILTROS
+══════════════════════════════ */
+function toggleFilter() {
+    document.getElementById('filter-panel').classList.toggle('open');
+    document.getElementById('filter-btn').classList.toggle('on');
+}
+
+function setupChips(groupId, onSelect) {
+    document.getElementById(groupId).querySelectorAll('.chip').forEach(c => {
+        c.addEventListener('click', () => {
+            document.getElementById(groupId).querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            onSelect(c.dataset.val);
+            renderNotes();
+        });
+    });
+}
+
+/* ══════════════════════════════
+   EXPORTAR / IMPORTAR
+══════════════════════════════ */
+function exportarNotas() {
+    if (!notes.length) { showToast('⚠️ No hay notas para exportar'); return; }
+    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `relectronica_notas_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('📤 Exportado correctamente');
+}
+
+function importarNotas(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const arr = JSON.parse(e.target.result);
+            if (!Array.isArray(arr)) throw new Error('Formato inválido');
+            const validas = arr.filter(n => n.titulo || n.modelo).map((n,i) => ({
+                id:          n.id || Date.now() + i,
+                cat:         n.cat || 'reparacion',
+                titulo:      n.titulo || n.modelo || 'Sin título',
+                falla:       n.falla       || '',
+                solucion:    n.solucion    || '',
+                componentes: n.componentes || '',
+                contenido:   n.contenido   || '',
+                obs:         n.obs         || '',
+                pinned:      n.pinned      || false,
+                fecha:       n.fecha       || ''
+            }));
+            if (!validas.length) throw new Error('No se encontraron notas válidas');
+            if (!confirm(`¿Importar ${validas.length} nota(s)? Se reemplazará la bitácora actual.`)) return;
+            notes = validas;
+            saveNotes();
+            renderNotes();
+            showToast(`📥 ${validas.length} nota(s) importadas`);
+        } catch(err) {
+            showToast('❌ Error: ' + err.message);
+        } finally {
+            document.getElementById('importFileInput').value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+/* ══════════════════════════════
+   TOAST
+══════════════════════════════ */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════
+   FAB NAV
+══════════════════════════════ */
 function toggleFAB() {
     const items = document.getElementById('fab-items');
-    const overlay = document.getElementById('fab-overlay');
-    const btn = document.getElementById('fab-toggle');
-    const open = items.classList.toggle('open');
-    overlay.classList.toggle('open', open);
+    const ov    = document.getElementById('fab-overlay');
+    const btn   = document.getElementById('fab-toggle');
+    const open  = items.classList.toggle('open');
+    ov.classList.toggle('open', open);
     if (btn) btn.classList.toggle('open', open);
 }
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotes();
+    setupChips('cat-chips', val => { filterCat = val; });
+    setupChips('pin-chips',  val => { filterPin = val; });
+    renderNotes();
+});
 </script>
 </body>
 </html>
