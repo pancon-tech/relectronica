@@ -414,13 +414,6 @@
     </style>
 </head>
 <body>
-    <div id="rl-auth-overlay" style="position:fixed;inset:0;z-index:999999;background:#0b131f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
-        <div style="width:34px;height:34px;border:3px solid #22344d;border-top-color:#7928ca;border-radius:50%;animation:rlAuthSpin .8s linear infinite;"></div>
-        <p style="color:#a0aec0;font-size:.85rem;margin:0;">Verificando sesión...</p>
-    </div>
-    <style>@keyframes rlAuthSpin{to{transform:rotate(360deg)}}</style>
-    <script type="module" src="auth-guard.js"></script>
-
 
     <header>
         <div class="logo-container">
@@ -575,8 +568,7 @@
             const metaSpan = document.createElement('span');
             metaSpan.classList.add('msg-meta');
             metaSpan.classList.add(sender === 'bot' ? 'bot-meta' : 'user-meta');
-            const displayName = (window.relectronicaUser && window.relectronicaUser.username) ? window.relectronicaUser.username : 'Tú';
-            metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica Bot:' : `${displayName}:`;
+            metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica Bot:' : 'Jefferson:';
 
             msgDiv.appendChild(metaSpan);
             
@@ -625,10 +617,6 @@
             sendBtn.disabled = true;
             attachBtn.disabled = true;
 
-            const userProfile = window.relectronicaUser || {};
-            const userRole = (userProfile.role && userProfile.role !== 'Ninguna') ? userProfile.role : null;
-            const userName = userProfile.username || '';
-
             try {
                 const response = await fetch('https://api.cohere.ai/v1/chat', {
                     method: 'POST',
@@ -664,20 +652,16 @@ Reglas de interacción:
   - No modificar shunts para aumentar potencia bajo ningún concepto (riesgo de incendio).
   - Si el microcontrolador/procesador principal está dañado, sugiere cambio de placa.
   - No des consejos para alta tensión industrial trifásica (>440V AC) sin supervisión de un eléctrico colegiado.
-- Didáctica: Explica la función de cada componente técnico mencionado entre paréntesis.
-
-Perfil del usuario actual: ${userName ? `${userRole ? userRole : 'usuario general'} llamado "${userName}"` : 'usuario no identificado'}. Ajusta la profundidad técnica de tus respuestas según este perfil: con un Estudiante sé más didáctico y explica los conceptos base; con un Técnico sé práctico y orientado a pasos de campo; con un Ingeniero puedes profundizar en teoría, cálculos y especificaciones; si no tiene perfil definido, mantén un nivel técnico general y claro. No incluyas un saludo de bienvenida con el nombre del usuario, eso ya se añade automáticamente fuera de tu respuesta.`
+- Didáctica: Explica la función de cada componente técnico mencionado entre paréntesis.`
                     })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    const greeting = userName ? `${userRole ? userRole + ' ' : ''}${userName}, ` : '';
-                    const finalText = greeting + data.text;
-                    appendMessageToDOM('bot', finalText);
-                    saveMessageToHistory('bot', finalText);
-                    hablarTexto(finalText);
+                    appendMessageToDOM('bot', data.text);
+                    saveMessageToHistory('bot', data.text);
+                    hablarTexto(data.text);
                 } else {
                     appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
                 }

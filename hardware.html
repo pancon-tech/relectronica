@@ -3,508 +3,913 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relectrónica - Hardware Vista Grande</title>
+    <title>Relectrónica - Guías de Hardware</title>
     <style>
         :root {
-            --bg-color: #0b131f;
-            --chat-bg: #111c2c;
-            --text-color: #ffffff;
-            --primary-color: #7928ca;
-            --border-color: #22344d;
-            --card-bg: #162235;
+            --bg:       #0b131f;
+            --chat-bg:  #111c2c;
+            --card-bg:  #162235;
+            --border:   #22344d;
+            --primary:  #7928ca;
+            --accent:   #a855f7;
+            --text:     #ffffff;
+            --muted:    #a0aec0;
+            --dim:      #4a5568;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
 
+        /* ══ HEADER ══ */
         header {
-            background-color: var(--chat-bg);
-            padding: 15px;
+            background: var(--chat-bg);
+            padding: 13px 16px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+            flex-shrink: 0;
         }
-
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 44px; height: 44px; border-radius: 8px;
+            overflow: hidden; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); flex-shrink: 0;
         }
-
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.1rem; font-weight: 700; }
+        .header-info p  { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+        .header-count {
+            margin-left: auto;
+            background: rgba(121,40,202,.18);
+            border: 1px solid rgba(168,85,247,.25);
+            border-radius: 20px;
+            padding: 4px 11px;
+            font-size: 0.72rem;
+            color: #c4b5fd;
+            flex-shrink: 0;
         }
+        .header-count span { font-weight: 700; color: #fff; }
 
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .header-info p {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #a855f7;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
+        /* ══ MAIN ══ */
         .main-content {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
-            margin-bottom: 65px;
+            padding: 14px 14px 80px;
+            scroll-behavior: smooth;
         }
 
+        /* ══ BUSCADOR + BOTÓN FILTRO ══ */
+        .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .search-bar {
-            width: 100%;
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 12px;
+            flex: 1;
+            background: var(--chat-bg);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px 14px;
             border-radius: 8px;
-            margin-bottom: 20px;
             outline: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
+        .search-bar::placeholder { color: var(--dim); }
+        .search-bar:focus { border-color: var(--primary); }
 
-        .search-bar:focus {
-            border-color: var(--primary-color);
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; cursor: pointer; flex-shrink: 0;
+            transition: background .2s;
         }
+        .icon-btn:hover { background: #1e3347; color: #fff; }
+        .icon-btn.active { background: rgba(121,40,202,.25); border-color: var(--accent); color: #c4b5fd; }
 
+        /* ══ PANEL DE FILTROS ══ */
+        .filter-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 13px 14px;
+            margin-bottom: 12px;
+            animation: slideDown .2s ease;
+        }
+        .filter-panel.open { display: block; }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+        .flabel { font-size: .75rem; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 7px; }
+        .chips  { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip {
+            background: #1a2a3e; border: 1px solid var(--border);
+            border-radius: 20px; padding: 4px 12px;
+            font-size: .76rem; color: var(--muted); cursor: pointer;
+            transition: all .18s; user-select: none;
+        }
+        .chip:hover  { border-color: var(--accent); color: #c4b5fd; }
+        .chip.active { background: rgba(121,40,202,.25); border-color: var(--accent); color: #c4b5fd; font-weight: 600; }
+
+        /* ══ TÍTULOS DE SECCIÓN ══ */
         .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #a855f7;
-            font-weight: 600;
+            font-size: 1rem; font-weight: 700; color: var(--accent);
+            margin-bottom: 11px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .bubble {
+            background: rgba(168,85,247,.15); border: 1px solid rgba(168,85,247,.3);
+            border-radius: 20px; padding: 1px 8px; font-size: .72rem; color: #c4b5fd;
         }
 
-        /* DISEÑO DE LA REJILLA DE IMÁGENES */
-        .hardware-grid {
+        /* ══ VISTA: REJILLA / LISTA ══ */
+        .view-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+        .vt-btn {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 7px; color: var(--muted); padding: 5px 11px;
+            font-size: .8rem; cursor: pointer; transition: all .18s;
+        }
+        .vt-btn.active { background: rgba(121,40,202,.25); border-color: var(--accent); color: #c4b5fd; }
+
+        /* ══ GRILLA ══ */
+        #hardware-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 12px;
+            transition: all .2s;
+        }
+        #hardware-grid.list-view {
+            grid-template-columns: 1fr;
+            gap: 8px;
         }
 
-        .hardware-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+        /* ══ CARD GRILLA ══ */
+        .hw-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .hardware-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
-        }
-
-        .image-container {
-            width: 100%;
-            height: 130px;
-            background-color: #080d16;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card-info {
-            padding: 10px;
+            transition: transform .2s, border-color .2s, box-shadow .2s;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            position: relative;
+        }
+        .hw-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 18px rgba(121,40,202,.2); }
+
+        .hw-card .img-wrap {
+            width: 100%; height: 130px;
+            background: #080d16;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+        .hw-card .img-wrap img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .3s;
+        }
+        .hw-card:hover .img-wrap img { transform: scale(1.04); }
+
+        /* placeholder cuando no hay imagen */
+        .img-placeholder {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; height: 100%;
+            gap: 6px; color: var(--dim);
+        }
+        .img-placeholder .ph-icon { font-size: 2.2rem; opacity: .5; }
+        .img-placeholder .ph-txt  { font-size: .72rem; opacity: .45; }
+
+        .hw-card .card-info { padding: 9px 10px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .hw-card .card-info h3 { font-size: .85rem; color: #fff; font-weight: 600; line-height: 1.3; }
+        .hw-card .card-info p  { font-size: .75rem; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .cat-badge {
+            display: inline-block; align-self: flex-start;
+            font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+            padding: 2px 7px; border-radius: 4px;
         }
 
-        .card-info h3 {
-            font-size: 0.9rem;
-            color: #fff;
-            font-weight: 600;
-            line-height: 1.3;
-        }
+        /* colores por categoría */
+        .cat-tcon      { background: #1e1b4b; color: #a5b4fc; border: 1px solid #3730a3; }
+        .cat-fuente    { background: rgba(245,158,11,.12); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+        .cat-semi      { background: rgba(56,189,248,.1);  color: #7dd3fc; border: 1px solid rgba(56,189,248,.25); }
+        .cat-panel     { background: rgba(34,197,94,.1);   color: #86efac; border: 1px solid rgba(34,197,94,.25); }
+        .cat-motor     { background: rgba(239,68,68,.1);   color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+        .cat-modulo    { background: rgba(168,85,247,.12); color: #d8b4fe; border: 1px solid rgba(168,85,247,.3); }
+        .cat-pinout    { background: rgba(16,185,129,.1);  color: #6ee7b7; border: 1px solid rgba(16,185,129,.25); }
+        .cat-diagrama  { background: rgba(249,115,22,.1);  color: #fdba74; border: 1px solid rgba(249,115,22,.25); }
+        .cat-otro      { background: #1a2a3e; color: var(--muted); border: 1px solid var(--border); }
 
-        .card-tag {
-            font-size: 0.7rem;
-            color: #a5b4fc;
-            background-color: #1e1b4b;
-            padding: 2px 6px;
-            border-radius: 4px;
-            align-self: flex-start;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        /* ══ VISTA LISTA ══ */
+        #hardware-grid.list-view .hw-card { flex-direction: row; height: 74px; }
+        #hardware-grid.list-view .img-wrap { width: 90px; height: 74px; border-bottom: none; border-right: 1px solid var(--border); flex-shrink: 0; }
+        #hardware-grid.list-view .card-info p { -webkit-line-clamp: 1; }
 
-        /* ─── VENTANA MODAL (PANTALLA COMPLETA PARA AMPLIAR FOTO) ─── */
-        .image-modal {
+        /* ══ EMPTY STATE ══ */
+        .empty-state {
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 50px 20px; color: var(--dim); text-align: center; gap: 10px;
+        }
+        .empty-state .ico { font-size: 2.5rem; }
+
+        /* ══ MODAL VISOR ══ */
+        .viewer-modal {
             display: none;
-            position: fixed;
-            z-index: 999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(5, 9, 15, 0.95);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content-container {
-            max-width: 95%;
-            max-height: 85%;
-            display: flex;
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(5,9,15,.97);
             flex-direction: column;
-            align-items: center;
-            gap: 15px;
+        }
+        .viewer-modal.open { display: flex; }
+
+        .viewer-topbar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .viewer-topbar h2 { font-size: .95rem; font-weight: 600; flex: 1; line-height: 1.3; }
+        .viewer-close {
+            background: rgba(255,255,255,.06); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted);
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+            transition: background .2s; line-height: 1;
+        }
+        .viewer-close:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+        .viewer-body {
+            flex: 1; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px;
+            position: relative;
+        }
+        .viewer-body img {
+            max-width: 100%; max-height: 100%;
+            object-fit: contain; border-radius: 6px;
+            transition: transform .2s;
+            cursor: zoom-in;
+            touch-action: pinch-zoom;
+        }
+        .viewer-body img.zoomed { transform: scale(1.8); cursor: zoom-out; }
+
+        .viewer-info {
+            padding: 12px 16px 14px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .viewer-info .info-cat { margin-bottom: 6px; }
+        .viewer-info .info-desc {
+            font-size: .83rem; color: var(--muted); line-height: 1.55;
+            max-height: 70px; overflow-y: auto;
+        }
+        .viewer-info .info-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .info-tag {
+            background: #0f1e30; border: 1px solid var(--border);
+            border-radius: 4px; padding: 2px 8px;
+            font-size: .72rem; color: #7dd3fc;
+            font-family: 'Courier New', monospace;
         }
 
-        .image-modal img {
-            width: 100%;
-            height: auto;
-            max-height: 70vh;
-            object-fit: contain;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        /* nav prev/next en modal */
+        .viewer-nav {
+            display: flex; gap: 8px;
+            padding: 0 16px 12px;
+            flex-shrink: 0;
         }
+        .nav-btn {
+            flex: 1; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted); padding: 9px;
+            font-size: .82rem; cursor: pointer; transition: all .18s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .nav-btn:hover:not(:disabled) { background: rgba(121,40,202,.2); border-color: var(--accent); color: #c4b5fd; }
+        .nav-btn:disabled { opacity: .28; cursor: default; }
 
-        .modal-title {
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-align: center;
+        /* ══ MODAL AGREGAR ══ */
+        .add-modal {
+            display: none;
+            position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,.75);
+            align-items: flex-end; justify-content: center;
         }
+        .add-modal.open { display: flex; }
+        .add-sheet {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0; padding: 18px 16px 32px;
+            width: 100%; max-width: 640px;
+            max-height: 92vh; overflow-y: auto;
+            animation: slideUp .25s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            color: #a0aec0;
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s;
+        .sheet-title {
+            font-size: .98rem; font-weight: 700; margin-bottom: 16px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .sheet-close { background: none; border: none; color: var(--dim); font-size: 1.3rem; cursor: pointer; line-height:1; }
+        .sheet-close:hover { color: #fff; }
 
-        .close-modal:hover {
-            color: #fff;
+        .ff { margin-bottom: 12px; }
+        .ff label { display: block; font-size: .75rem; color: var(--dim); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+        .ff input, .ff textarea, .ff select {
+            width: 100%; background: #0b131f; border: 1px solid var(--border);
+            color: #fff; border-radius: 8px; padding: 9px 12px;
+            font-size: .87rem; outline: none; resize: vertical;
         }
+        .ff input:focus, .ff textarea:focus, .ff select:focus { border-color: var(--primary); }
+        .ff textarea { min-height: 64px; }
+        .ff-row { display: flex; gap: 10px; }
+        .ff-row .ff { flex: 1; }
 
-        /* NAVEGACIÓN INFERIOR */
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
+        /* preview de imagen al agregar */
+        .img-preview-wrap {
+            width: 100%; height: 140px; background: #080d16;
+            border: 2px dashed var(--border); border-radius: 10px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer; transition: border-color .2s; overflow: hidden;
+            margin-bottom: 12px; position: relative;
         }
+        .img-preview-wrap:hover { border-color: var(--accent); }
+        .img-preview-wrap img { width:100%; height:100%; object-fit:cover; display:none; }
+        .img-preview-wrap .ph { display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--dim); }
+        .img-preview-wrap .ph span { font-size:2rem; }
+        .img-preview-wrap .ph p   { font-size:.78rem; }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.75rem;
-            background: none;
-            border: none;
-            flex: 1;
-            height: 100%;
-            justify-content: center;
-            gap: 4px;
+        .btn-primary {
+            width: 100%; background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; border-radius: 9px;
+            padding: 12px; font-size: .93rem; font-weight: 700;
+            cursor: pointer; transition: opacity .2s; margin-top: 4px;
         }
+        .btn-primary:hover { opacity: .88; }
 
-        .nav-item.active {
-            color: #a855f7;
-            font-weight: bold;
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e;
+            border-radius: 8px; padding: 9px 18px;
+            font-size: .83rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity .3s;
+            pointer-events: none; white-space: nowrap;
         }
+        .toast.show { opacity: 1; }
 
-        .nav-icon {
-            font-size: 1.3rem;
-        }
-    
-        /* ── FAB MENÚ ── */
+        /* ══ FAB ══ */
         .fab-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #7928ca, #a855f7);
-            border: none;
-            color: white;
-            font-size: 1.4rem;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: transform 0.25s ease;
+            position: fixed; bottom: 20px; right: 18px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: transform .25s ease;
         }
         .fab-toggle.open { transform: rotate(90deg); }
         .fab-items {
-            position: fixed;
-            bottom: 82px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 9999;
+            position: fixed; bottom: 82px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 9999;
         }
         .fab-items.open { pointer-events: all; opacity: 1; }
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #22344d;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background: #1a273a; color: #e2e8f0; font-size: .82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
         }
         .fab-item-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%; background: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
         }
         .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
         .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
-        .fab-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            background: rgba(0,0,0,0.5);
-        }
-        .fab-overlay.open { display: block; }
-        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
-        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
-        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
-        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
-        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
-        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
-        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
-        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        .fab-overlay { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.5); }
+        .fab-overlay.open { display:block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .28s both}
         @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* FAB agregar */
+        .fab-add {
+            position: fixed; bottom: 82px; left: 18px;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid var(--primary);
+            color: var(--accent); font-size: 1.5rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,.4);
+            transition: background .2s;
+        }
+        .fab-add:hover { background: rgba(121,40,202,.2); }
     </style>
 </head>
 <body>
-    <div id="rl-auth-overlay" style="position:fixed;inset:0;z-index:999999;background:#0b131f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
-        <div style="width:34px;height:34px;border:3px solid #22344d;border-top-color:#7928ca;border-radius:50%;animation:rlAuthSpin .8s linear infinite;"></div>
-        <p style="color:#a0aec0;font-size:.85rem;margin:0;">Verificando sesión...</p>
+
+<!-- ══ HEADER ══ -->
+<header>
+    <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Guías Visuales de Hardware</p>
     </div>
-    <style>@keyframes rlAuthSpin{to{transform:rotate(360deg)}}</style>
-    <script type="module" src="auth-guard.js"></script>
+    <div class="header-count">🖼️ <span id="total-count">0</span> guías</div>
+</header>
 
+<!-- ══ MAIN ══ -->
+<div class="main-content">
 
-    <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
-        </div>
-        <div class="header-info">
-            <h1>Relectrónica</h1>
-            <p><span class="status-dot"></span> Reconocimiento de Hardware</p>
-        </div>
-    </header>
+    <!-- búsqueda -->
+    <div class="search-row">
+        <input type="text" class="search-bar" id="hw-search" placeholder="🔍  Buscar guía, componente, pinout…">
+        <button class="icon-btn" id="filter-btn" onclick="toggleFilter()" title="Filtros">⚙️</button>
+        <button class="icon-btn" id="view-btn" onclick="toggleView()" title="Cambiar vista">⊞</button>
+    </div>
 
-    <div class="main-content">
-        <input type="text" class="search-bar" id="hardware-search" placeholder="Buscar tarjetas o componentes...">
-        
-        <h2 class="section-title">Galería de Hardware Técnico</h2>
-        
-        <div class="hardware-grid">
+    <!-- filtros -->
+    <div class="filter-panel" id="filter-panel">
+        <div class="flabel">Categoría</div>
+        <div class="chips" id="cat-chips"></div>
+    </div>
 
-            <div class="hardware-card" onclick="openImage('imagenes/TconTT5461B032C1.png', 'TCON TT5461B03-2-C-1 - Voltajes Clave')">
-                <div class="image-container">
-                    <img src="imagenes/TconTT5461B032C1.png" alt="TCON TT5461B03-2-C-1">
-                </div>
-                <div class="card-info">
-                    <h3>TCON TT5461B03-2-C-1</h3>
-                    <span class="card-tag"></span>
-                </div>
-            </div>
-
-            <div class="hardware-card" onclick="openImage('imagenes/fuente.jpg', 'Fuente Conmutada (SMPS)')">
-                <div class="image-container">
-                    <img src="imagenes/fuente.jpg" alt="Fuente Conmutada">
-                </div>
-                <div class="card-info">
-                    <h3>Fuente Conmutada</h3>
-                    <span class="card-tag">Potencia</span>
-                </div>
-            </div>
-
-            <div class="hardware-card" onclick="openImage('imagenes/regulador.jpg', 'Regulador de Voltaje TO-220')">
-                <div class="image-container">
-                    <img src="imagenes/regulador.jpg" alt="Regulador de Voltaje">
-                </div>
-                <div class="card-info">
-                    <h3>Regulador TO-220</h3>
-                    <span class="card-tag">Semiconductores</span>
-                </div>
-            </div>
-
-            <div class="hardware-card" onclick="openImage('imagenes/display.jpg', 'Estructura Interna Display LCD')">
-                <div class="image-container">
-                    <img src="imagenes/display.jpg" alt="Display LCD">
-                </div>
-                <div class="card-info">
-                    <h3>Panel LCD / Display</h3>
-                    <span class="card-tag">Componentes</span>
-                </div>
-            </div>
-
+    <!-- títulos -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <div class="section-title" style="margin:0">
+            Galería Técnica <span class="bubble" id="visible-count">0</span>
         </div>
     </div>
 
-    <div id="myModal" class="image-modal" onclick="closeImage()">
-        <span class="close-modal">&times;</span>
-        <div class="modal-content-container" onclick="event.stopPropagation()">
-            <img id="imgExpanded" src="" alt="Imagen ampliada">
-            <div id="modalTitle" class="modal-title"></div>
+    <!-- grilla -->
+    <div id="hardware-grid"></div>
+    <div class="empty-state" id="empty-state">
+        <div class="ico">🔎</div>
+        <p>Sin resultados para esa búsqueda.</p>
+        <small style="font-size:.77rem; color:#374151">Cambia los filtros o agrega una nueva guía con el botón ＋</small>
+    </div>
+</div>
+
+<!-- ══ MODAL VISOR ══ -->
+<div class="viewer-modal" id="viewer">
+    <div class="viewer-topbar">
+        <button class="viewer-close" onclick="closeViewer()">✕</button>
+        <h2 id="v-title"></h2>
+    </div>
+    <div class="viewer-body">
+        <img id="v-img" src="" alt="Guía técnica" onclick="toggleZoom(this)">
+    </div>
+    <div class="viewer-info">
+        <div class="info-cat" id="v-cat"></div>
+        <div class="info-desc" id="v-desc"></div>
+        <div class="info-tags" id="v-tags"></div>
+    </div>
+    <div class="viewer-nav">
+        <button class="nav-btn" id="btn-prev" onclick="navigateViewer(-1)">◀ Anterior</button>
+        <button class="nav-btn" id="btn-next" onclick="navigateViewer(1)">Siguiente ▶</button>
+    </div>
+</div>
+
+<!-- ══ MODAL AGREGAR ══ -->
+<div class="add-modal" id="add-modal">
+    <div class="add-sheet">
+        <div class="sheet-title">
+            ➕ Nueva Guía Visual
+            <button class="sheet-close" onclick="closeAddModal()">✕</button>
         </div>
+
+        <!-- preview / carga de imagen -->
+        <div class="img-preview-wrap" id="preview-wrap" onclick="document.getElementById('file-input').click()">
+            <img id="preview-img" src="" alt="">
+            <div class="ph" id="preview-ph">
+                <span>🖼️</span>
+                <p>Toca para cargar imagen</p>
+                <small style="font-size:.7rem; color:#374151">JPG, PNG, WEBP, GIF</small>
+            </div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" style="display:none" onchange="previewFile(this)">
+
+        <div class="ff">
+            <label>Título / Nombre *</label>
+            <input type="text" id="f-title" placeholder="ej. TCON TT5461B — Puntos de voltaje">
+        </div>
+        <div class="ff-row">
+            <div class="ff">
+                <label>Categoría *</label>
+                <select id="f-cat">
+                    <option value="tcon">T-CON</option>
+                    <option value="fuente">Fuente / SMPS</option>
+                    <option value="semi">Semiconductores</option>
+                    <option value="panel">Panel / Display</option>
+                    <option value="motor">Motor / Mecánica</option>
+                    <option value="modulo">Módulo / Placa</option>
+                    <option value="pinout">Pinout / Conector</option>
+                    <option value="diagrama">Diagrama / Esquema</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div class="ff">
+                <label>Línea de equipo</label>
+                <select id="f-linea">
+                    <option value="">General</option>
+                    <option value="marron">📺 Línea Marrón</option>
+                    <option value="blanca">🫙 Línea Blanca</option>
+                    <option value="menor">🔌 Línea Menor</option>
+                </select>
+            </div>
+        </div>
+        <div class="ff">
+            <label>Descripción / Puntos clave</label>
+            <textarea id="f-desc" placeholder="ej. Voltajes esperados en cada punto de prueba, descripción del componente, marcas de referencia…"></textarea>
+        </div>
+        <div class="ff">
+            <label>Etiquetas / Tags (separadas por coma)</label>
+            <input type="text" id="f-tags" placeholder="ej. T-CON, 5461B, Voltaje 12V, Samsung">
+        </div>
+        <button class="btn-primary" onclick="saveGuide()">Guardar Guía</button>
     </div>
+</div>
 
-            <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
-    <div class="fab-items" id="fab-items">
-        <a href="recepcion.html" class="fab-item">
-            <span class="fab-item-label">Recepción</span>
-            <span class="fab-item-btn">📋</span>
-        </a>
-        <a href="fallas.html" class="fab-item">
-            <span class="fab-item-label">Casos de Falla</span>
-            <span class="fab-item-btn">🛠️</span>
-        </a>
-        <a href="componentes.html" class="fab-item">
-            <span class="fab-item-label">Componentes</span>
-            <span class="fab-item-btn">🔍</span>
-        </a>
-        <a href="calculadoras.html" class="fab-item">
-            <span class="fab-item-label">Cálculos</span>
-            <span class="fab-item-btn">🧮</span>
-        </a>
-        <a href="hardware.html" class="fab-item active">
-            <span class="fab-item-label">Hardware</span>
-            <span class="fab-item-btn">🖼️</span>
-        </a>
-        <a href="biblioteca.html" class="fab-item">
-            <span class="fab-item-label">Biblioteca</span>
-            <span class="fab-item-btn">📘</span>
-        </a>
-        <a href="notas.html" class="fab-item">
-            <span class="fab-item-label">Mis Notas</span>
-            <span class="fab-item-btn">📝</span>
-        </a>
-        <a href="index.html" class="fab-item">
-            <span class="fab-item-label">Chat Técnico</span>
-            <span class="fab-item-btn">💬</span>
-        </a>
-    </div>
-    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+<div class="toast" id="toast"></div>
 
-
-    <script>
-        // Función inteligente para abrir cualquier imagen en grande
-        function openImage(imgSrc, titleText) {
-            const modal = document.getElementById("myModal");
-            const expandedImg = document.getElementById("imgExpanded");
-            const modalTitle = document.getElementById("modalTitle");
-            
-            expandedImg.src = imgSrc;
-            modalTitle.innerText = titleText;
-            modal.style.display = "flex";
-        }
-
-        // Función para cerrar el visor
-        function closeImage() {
-            document.getElementById("myModal").style.display = "none";
-        }
-
-        // Buscador interactivo en tiempo real
-        document.getElementById('hardware-search').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            document.querySelectorAll('.hardware-card').forEach(card => {
-                const text = card.innerText.toLowerCase();
-                card.style.display = text.includes(query) ? 'flex' : 'none';
-            });
-        });
-    </script>
+<!-- FAB navegación -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html"   class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html"      class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="calculadoras.html"class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html"    class="fab-item active"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html"  class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html"       class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="index.html"       class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+<button class="fab-add" onclick="openAddModal()" title="Agregar guía">＋</button>
 
 <script>
+/* ══════════════════════════════════════
+   DATOS — guías de ejemplo (sin imagen real,
+   se muestran con placeholder hasta que el
+   técnico cargue sus propias fotos)
+══════════════════════════════════════ */
+const STORAGE_KEY = 'relelectronica_hardware_v2';
+
+const CAT_META = {
+    tcon:     { label: 'T-CON',           cls: 'cat-tcon'    },
+    fuente:   { label: 'Fuente / SMPS',   cls: 'cat-fuente'  },
+    semi:     { label: 'Semiconductores', cls: 'cat-semi'    },
+    panel:    { label: 'Panel / Display', cls: 'cat-panel'   },
+    motor:    { label: 'Motor / Mecánica',cls: 'cat-motor'   },
+    modulo:   { label: 'Módulo / Placa',  cls: 'cat-modulo'  },
+    pinout:   { label: 'Pinout / Conector',cls:'cat-pinout'  },
+    diagrama: { label: 'Diagrama / Esquema',cls:'cat-diagrama'},
+    otro:     { label: 'Otro',            cls: 'cat-otro'    },
+};
+
+const defaultGuides = [
+    {
+        id: 1, title: 'TCON TT5461B03-2-C-1 — Voltajes clave',
+        cat: 'tcon', linea: 'marron',
+        img: 'imagenes/TconTT5461B032C1.png',
+        desc: 'Puntos de prueba del T-CON: alimentación 3.3 V (VCC), 12 V (AVDD), señales LVDS de entrada y salidas de panel. Revisar los ICs de conversión de nivel si VCC está presente pero hay imagen parcial.',
+        tags: ['T-CON', 'TT5461B', '3.3V', '12V', 'LVDS', 'Samsung', 'LG'],
+        fecha: '2024-01-10'
+    },
+    {
+        id: 2, title: 'Fuente Conmutada SMPS — Puntos de voltaje',
+        cat: 'fuente', linea: 'marron',
+        img: 'imagenes/fuente.jpg',
+        desc: 'Diagrama de puntos de prueba de una fuente SMPS típica de TV: 5 V standby, 12 V panel, 24 V backlight. Verificar condensadores primarios y secundarios con ESR-metro antes de sustituirlos.',
+        tags: ['SMPS', 'Fuente', '5V SB', '12V', '24V', 'Condensadores'],
+        fecha: '2024-01-15'
+    },
+    {
+        id: 3, title: 'Regulador TO-220 — Identificación de pines',
+        cat: 'semi', linea: '',
+        img: 'imagenes/regulador.jpg',
+        desc: 'Pinout estándar de reguladores lineales en encapsulado TO-220: 7805, 7812, LM317. Pin 1 = Entrada, Pin 2 = Masa (tab), Pin 3 = Salida. Confirmar siempre con datasheet del fabricante ya que puede variar.',
+        tags: ['TO-220', '7805', '7812', 'LM317', 'Regulador lineal', 'Pinout'],
+        fecha: '2024-01-20'
+    },
+    {
+        id: 4, title: 'Panel LCD — Capas y estructura interna',
+        cat: 'panel', linea: 'marron',
+        img: 'imagenes/display.jpg',
+        desc: 'Corte transversal de un panel LCD: difusor óptico, lámina de brillo, guía de luz, tiras LED laterales, polarizador inferior, celda LC, polarizador superior y filtro de color. Útil para identificar el origen de manchas (clouding) o líneas.',
+        tags: ['Panel LCD', 'Backlight', 'Difusor', 'Polarizador', 'Clouding'],
+        fecha: '2024-01-25'
+    },
+    {
+        id: 5, title: 'Conector LVDS — Pinout y señales',
+        cat: 'pinout', linea: 'marron',
+        img: '',
+        desc: 'Distribución típica de un conector LVDS de 30 pines: pares diferenciales de datos (D0+/D0−), par de reloj (CLK+/CLK−), alimentación 3.3 V y masa. Un par abierto causa líneas verticales de color en el panel.',
+        tags: ['LVDS', 'Conector', 'Pinout', 'CLK', 'Señales diferencial'],
+        fecha: '2024-02-01'
+    },
+    {
+        id: 6, title: 'Capacitor electrolítico — Lectura de valores',
+        cat: 'semi', linea: '',
+        img: '',
+        desc: 'Guía de lectura de condensadores electrolíticos: capacitancia en µF, tensión de trabajo en V, temperatura máxima (85°C o 105°C) y polaridad (banda negativa = cátodo). Síntomas de falla: abombamiento de la tapa, electrolito seco o ESR elevado.',
+        tags: ['Condensador', 'Electrolítico', 'ESR', 'µF', 'Polaridad'],
+        fecha: '2024-02-05'
+    },
+    {
+        id: 7, title: 'Motor universal — Devanados y escobillas',
+        cat: 'motor', linea: '',
+        img: '',
+        desc: 'Diagrama de un motor universal de CA/CC: bobina de campo en serie con el rotor (armadura). Puntos de medición: resistencia de campo (5-30 Ω), resistencia de armadura (2-10 Ω), continuidad entre láminas del colector.',
+        tags: ['Motor universal', 'Escobillas', 'Colector', 'Armadura', 'Campo'],
+        fecha: '2024-02-10'
+    },
+    {
+        id: 8, title: 'MOSFET canal N — Pinout y prueba con multímetro',
+        cat: 'semi', linea: '',
+        img: '',
+        desc: 'Pinout estándar TO-220 canal N (IRFZ44N, IRF3205…): Puerta (Gate) pin 1, Drenaje (Drain) pin 2/tab, Fuente (Source) pin 3. Prueba con DMM en modo diodo: Gate-Source debe bloquear, Gate-Drain también. Al cargar Gate se debe habilitar.',
+        tags: ['MOSFET', 'IRF3205', 'IRFZ44N', 'Gate', 'Drain', 'Source', 'TO-220'],
+        fecha: '2024-02-14'
+    },
+    {
+        id: 9, title: 'Fuente microondas — Diagrama de alta tensión',
+        cat: 'diagrama', linea: 'blanca',
+        img: '',
+        desc: 'Esquema del circuito de alta tensión: transformador de HV → capacitor de HV (0.9–1.05 µF / 2100 V) → diodo de HV → filamentos del magnetrón. El capacitor puede retener ~2100 V después de apagar. Siempre descargar con resistencia 10 kΩ antes de tocar.',
+        tags: ['Microondas', 'Alta tensión', 'Capacitor HV', 'Diodo HV', 'Magnetrón', '2100V'],
+        fecha: '2024-02-18'
+    },
+    {
+        id: 10, title: 'Módulo inverter BLDC — Prueba de IGBTs',
+        cat: 'modulo', linea: 'blanca',
+        img: '',
+        desc: 'Módulo inteligente de potencia (IPM) usado en lavadoras y neveras inverter. Medir con DMM en modo diodo entre los terminales de salida (U, V, W) y los rieles DC+/DC−. Cada IGBT interno debe mostrar la caída del diodo en un sentido y bloquear en el otro.',
+        tags: ['BLDC', 'IPM', 'Inverter', 'IGBT', 'Módulo de potencia', 'Lavadora'],
+        fecha: '2024-03-01'
+    },
+    {
+        id: 11, title: 'Conector JST — Tipos y medidas comunes',
+        cat: 'pinout', linea: '',
+        img: '',
+        desc: 'Guía de conectores JST más usados en electrónica de consumo: PH (2 mm), XH (2.5 mm), SM (2.5 mm, bloqueador), NH (2.5 mm) y PA (2 mm). Identificar por el paso entre pines y el tipo de enganche del seguro lateral.',
+        tags: ['JST', 'Conector', 'PH', 'XH', 'SM', 'Paso 2mm', 'Paso 2.5mm'],
+        fecha: '2024-03-05'
+    },
+    {
+        id: 12, title: 'Transistor BJT — NPN/PNP y prueba',
+        cat: 'semi', linea: '',
+        img: '',
+        desc: 'Pinout TO-92 y TO-220 de BJT NPN (BC547, 2N2222, TIP41) y PNP (BC557, 2N2907, TIP42). Prueba con DMM modo diodo: Base-Emisor y Base-Colector deben conducir (NPN) o bloquear (PNP) según polaridad. Junción Colector-Emisor debe bloquear siempre.',
+        tags: ['BJT', 'NPN', 'PNP', 'BC547', 'TIP41', 'TO-92', 'Transistor'],
+        fecha: '2024-03-08'
+    },
+];
+
+/* ══════════════════════════════════════
+   ESTADO
+══════════════════════════════════════ */
+let guides = [];
+let filterCat  = '';
+let viewMode   = 'grid'; // grid | list
+let currentViewIdx = 0;  // índice en el arreglo filtrado para la navegación
+let filteredCache = [];
+
+/* ══════════════════════════════════════
+   STORAGE
+══════════════════════════════════════ */
+function loadGuides() {
+    try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        guides = s ? JSON.parse(s) : [...defaultGuides];
+    } catch(e) { guides = [...defaultGuides]; }
+}
+function saveGuides() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(guides)); } catch(e) {}
+}
+function nextId() { return guides.length ? Math.max(...guides.map(g=>g.id))+1 : 1; }
+
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+function render() {
+    const q = document.getElementById('hw-search').value.toLowerCase().trim();
+    let filtered = guides.filter(g => {
+        const txt = [g.title, g.desc, g.cat, (g.tags||[]).join(' ')].join(' ').toLowerCase();
+        return (!q || txt.includes(q)) && (!filterCat || g.cat === filterCat);
+    });
+    filteredCache = filtered;
+
+    const grid  = document.getElementById('hardware-grid');
+    const empty = document.getElementById('empty-state');
+    document.getElementById('visible-count').textContent = filtered.length;
+    document.getElementById('total-count').textContent   = guides.length;
+
+    if (!filtered.length) {
+        grid.innerHTML = ''; empty.style.display = 'flex'; return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map((g, i) => cardHTML(g, i)).join('');
+}
+
+function cardHTML(g, idx) {
+    const cm = CAT_META[g.cat] || CAT_META.otro;
+    const imgPart = g.img
+        ? `<img src="${g.img}" alt="${g.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          + `<div class="img-placeholder" style="display:none"><span class="ph-icon">🖼️</span><p class="ph-txt">Sin imagen</p></div>`
+        : `<div class="img-placeholder"><span class="ph-icon">${catIcon(g.cat)}</span><p class="ph-txt">${cm.label}</p></div>`;
+
+    return `<div class="hw-card" onclick="openViewer(${idx})">
+        <div class="img-wrap">${imgPart}</div>
+        <div class="card-info">
+            <span class="cat-badge ${cm.cls}">${cm.label}</span>
+            <h3>${g.title}</h3>
+            <p>${g.desc}</p>
+        </div>
+    </div>`;
+}
+
+function catIcon(cat) {
+    const icons = { tcon:'🖥️', fuente:'⚡', semi:'💡', panel:'📺', motor:'⚙️', modulo:'🔲', pinout:'🔌', diagrama:'📐', otro:'🔧' };
+    return icons[cat] || '🔧';
+}
+
+/* ══════════════════════════════════════
+   CHIPS DE CATEGORÍA
+══════════════════════════════════════ */
+function buildCategoryChips() {
+    const cats = Object.entries(CAT_META);
+    const wrap = document.getElementById('cat-chips');
+    wrap.innerHTML = `<div class="chip active" data-val="">Todas</div>`
+        + cats.map(([k,v]) => `<div class="chip" data-val="${k}">${catIcon(k)} ${v.label}</div>`).join('');
+    wrap.querySelectorAll('.chip').forEach(c => {
+        c.addEventListener('click', () => {
+            wrap.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            filterCat = c.dataset.val;
+            render();
+        });
+    });
+}
+
+/* ══════════════════════════════════════
+   VISOR MODAL
+══════════════════════════════════════ */
+function openViewer(idx) {
+    currentViewIdx = idx;
+    showInViewer(filteredCache[idx]);
+    document.getElementById('viewer').classList.add('open');
+}
+
+function showInViewer(g) {
+    const cm = CAT_META[g.cat] || CAT_META.otro;
+    document.getElementById('v-title').textContent = g.title;
+    const vImg = document.getElementById('v-img');
+    vImg.classList.remove('zoomed');
+    vImg.src = g.img || '';
+    vImg.style.display = g.img ? 'block' : 'none';
+    document.getElementById('v-cat').innerHTML = `<span class="cat-badge ${cm.cls}">${cm.label}</span>`;
+    document.getElementById('v-desc').textContent = g.desc;
+    document.getElementById('v-tags').innerHTML = (g.tags||[]).map(t=>`<span class="info-tag">${t}</span>`).join('');
+    document.getElementById('btn-prev').disabled = currentViewIdx === 0;
+    document.getElementById('btn-next').disabled = currentViewIdx === filteredCache.length - 1;
+}
+
+function closeViewer() { document.getElementById('viewer').classList.remove('open'); }
+
+function navigateViewer(dir) {
+    const next = currentViewIdx + dir;
+    if (next < 0 || next >= filteredCache.length) return;
+    currentViewIdx = next;
+    showInViewer(filteredCache[next]);
+}
+
+function toggleZoom(img) { img.classList.toggle('zoomed'); }
+
+// Teclado: ESC cierra, flechas navegan
+document.addEventListener('keydown', e => {
+    if (!document.getElementById('viewer').classList.contains('open')) return;
+    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'ArrowLeft')  navigateViewer(-1);
+    if (e.key === 'ArrowRight') navigateViewer(1);
+});
+
+/* ══════════════════════════════════════
+   MODAL AGREGAR
+══════════════════════════════════════ */
+let pendingDataUrl = '';
+
+function openAddModal() { document.getElementById('add-modal').classList.add('open'); }
+function closeAddModal(){ document.getElementById('add-modal').classList.remove('open'); clearForm(); }
+document.getElementById('add-modal').addEventListener('click', function(e){ if(e.target===this) closeAddModal(); });
+
+function previewFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        pendingDataUrl = e.target.result;
+        const img = document.getElementById('preview-img');
+        const ph  = document.getElementById('preview-ph');
+        img.src = pendingDataUrl;
+        img.style.display = 'block';
+        ph.style.display  = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function saveGuide() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('⚠️ El título es obligatorio'); return; }
+    const tags = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const g = {
+        id:    nextId(),
+        title,
+        cat:   document.getElementById('f-cat').value,
+        linea: document.getElementById('f-linea').value,
+        img:   pendingDataUrl,
+        desc:  document.getElementById('f-desc').value.trim(),
+        tags,
+        fecha: new Date().toISOString().split('T')[0]
+    };
+    guides.unshift(g);
+    saveGuides();
+    render();
+    closeAddModal();
+    showToast('✅ Guía guardada');
+}
+
+function clearForm() {
+    ['f-title','f-desc','f-tags'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('f-cat').value   = 'tcon';
+    document.getElementById('f-linea').value = '';
+    document.getElementById('preview-img').src = '';
+    document.getElementById('preview-img').style.display = 'none';
+    document.getElementById('preview-ph').style.display  = 'flex';
+    document.getElementById('file-input').value = '';
+    pendingDataUrl = '';
+}
+
+/* ══════════════════════════════════════
+   TOGGLES
+══════════════════════════════════════ */
+function toggleFilter() {
+    const panel = document.getElementById('filter-panel');
+    const btn   = document.getElementById('filter-btn');
+    panel.classList.toggle('open');
+    btn.classList.toggle('active');
+}
+
+function toggleView() {
+    viewMode = viewMode === 'grid' ? 'list' : 'grid';
+    const grid = document.getElementById('hardware-grid');
+    const btn  = document.getElementById('view-btn');
+    if (viewMode === 'list') { grid.classList.add('list-view');    btn.textContent = '☰'; }
+    else                     { grid.classList.remove('list-view'); btn.textContent = '⊞'; }
+}
+
 function toggleFAB() {
     const items = document.getElementById('fab-items');
-    const overlay = document.getElementById('fab-overlay');
-    const btn = document.getElementById('fab-toggle');
-    const open = items.classList.toggle('open');
-    overlay.classList.toggle('open', open);
+    const ov    = document.getElementById('fab-overlay');
+    const btn   = document.getElementById('fab-toggle');
+    const open  = items.classList.toggle('open');
+    ov.classList.toggle('open', open);
     if (btn) btn.classList.toggle('open', open);
 }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    loadGuides();
+    buildCategoryChips();
+    document.getElementById('hw-search').addEventListener('input', render);
+    render();
+});
 </script>
 </body>
-    </html>
-    
+</html>

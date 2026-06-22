@@ -10,16 +10,16 @@
             --chat-bg: #111c2c;
             --text-color: #ffffff;
             --primary-color: #7928ca;
+            --primary-light: #a855f7;
             --border-color: #22344d;
             --card-bg: #162235;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #38bdf8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
             background-color: var(--bg-color);
@@ -30,115 +30,170 @@
             overflow: hidden;
         }
 
+        /* ── HEADER ── */
         header {
             background-color: var(--chat-bg);
-            padding: 15px;
+            padding: 13px 16px;
             display: flex;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
-            gap: 15px;
+            gap: 12px;
         }
-
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
+            width: 44px; height: 44px;
+            border-radius: 8px; overflow: hidden;
             background-color: #000;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.1rem; font-weight: 700; }
+        .header-info p { font-size: 0.8rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--primary-light); border-radius: 50%; display: inline-block; }
+
+        /* stats rápidas */
+        .header-stats {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .stat-pill {
+            background: rgba(121,40,202,0.18);
+            border: 1px solid rgba(168,85,247,0.25);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            color: #c4b5fd;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            gap: 4px;
         }
+        .stat-pill span { font-weight: 700; color: #fff; }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .header-info p {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #a855f7;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
+        /* ── MAIN ── */
         .main-content {
             flex: 1;
-            padding: 20px;
+            padding: 16px 16px 8px 16px;
             overflow-y: auto;
             margin-bottom: 65px;
+            scroll-behavior: smooth;
         }
 
+        /* ── FILTROS Y BÚSQUEDA ── */
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
         .search-bar {
-            width: 100%;
+            flex: 1;
             background-color: var(--chat-bg);
             border: 1px solid var(--border-color);
             color: white;
-            padding: 12px;
+            padding: 10px 14px;
             border-radius: 8px;
-            margin-bottom: 20px;
             outline: none;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
+        }
+        .search-bar::placeholder { color: #4a5568; }
+        .search-bar:focus { border-color: var(--primary-color); }
+
+        .filter-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #a0aec0;
+            padding: 10px 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .filter-btn:hover { background: #1e3347; color: #fff; }
+
+        /* panel de filtros */
+        .filter-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+            animation: slideDown 0.2s ease;
+        }
+        .filter-panel.open { display: block; }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+        .filter-label { font-size: 0.78rem; color: #7c8fa3; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+        .filter-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+        .chip {
+            background: #1a2a3e;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.18s;
+            user-select: none;
+        }
+        .chip:hover { border-color: var(--primary-light); color: #c4b5fd; }
+        .chip.active { background: rgba(121,40,202,0.25); border-color: var(--primary-light); color: #c4b5fd; font-weight: 600; }
+
+        .sort-row { display: flex; gap: 8px; align-items: center; }
+        .sort-select {
+            background: #1a2a3e;
+            border: 1px solid var(--border-color);
+            color: #a0aec0;
+            border-radius: 7px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            outline: none;
         }
 
-        .search-bar:focus {
-            border-color: var(--primary-color);
+        /* ── RESULTADO ── */
+        .results-info {
+            font-size: 0.78rem;
+            color: #4a5568;
+            margin-bottom: 12px;
         }
+        .results-info span { color: var(--primary-light); font-weight: 600; }
 
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #a855f7;
-            font-weight: 600;
-        }
-
+        /* ── CARDS ── */
         .tech-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
+            border-left: 3px solid var(--primary-color);
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 14px 15px;
+            margin-bottom: 11px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
         }
+        .tech-card:hover { transform: translateY(-2px); border-left-color: var(--primary-light); }
+        .tech-card.expanded { border-left-color: var(--primary-light); }
 
-        .tech-card:hover {
-            transform: translateY(-2px);
-        }
+        /* color lateral según línea */
+        .tech-card[data-linea="marron"]  { border-left-color: #b45309; }
+        .tech-card[data-linea="blanca"]  { border-left-color: #38bdf8; }
+        .tech-card[data-linea="menor"]   { border-left-color: #22c55e; }
+        .tech-card[data-linea="marron"].expanded  { border-left-color: #f59e0b; }
+        .tech-card[data-linea="blanca"].expanded  { border-left-color: #7dd3fc; }
+        .tech-card[data-linea="menor"].expanded   { border-left-color: #4ade80; }
 
-        .tech-card h3 {
-            font-size: 1rem;
-            color: #fff;
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .card-header h3 { font-size: 0.95rem; color: #fff; font-weight: 600; line-height: 1.35; flex: 1; }
+        .card-arrow { font-size: 0.7rem; color: #4a5568; transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
+        .tech-card.expanded .card-arrow { transform: rotate(180deg); color: var(--primary-light); }
+
+        .card-meta {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tech-card h3::after {
-            content: "▼";
-            font-size: 0.75rem;
-            color: #a0aec0;
-            transition: transform 0.2s;
-        }
-
-        .tech-card.expanded h3::after {
-            transform: rotate(180deg);
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .tech-card-content {
@@ -146,133 +201,234 @@
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 0.87rem;
+            line-height: 1.6;
             color: #cbd5e1;
         }
 
+        /* ── BADGES ── */
         .tech-badge {
-            background-color: #1e1b4b;
-            color: #a5b4fc;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
+            display: inline-flex;
             align-items: center;
-            z-index: 100;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+        .badge-tipo {
+            background: #1e1b4b;
+            color: #a5b4fc;
+            border: 1px solid #3730a3;
+        }
+        .badge-linea-marron { background: rgba(180,83,9,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-linea-blanca { background: rgba(56,189,248,0.1); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.25); }
+        .badge-linea-menor  { background: rgba(34,197,94,0.1);  color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+        .badge-dif-baja     { background: rgba(34,197,94,0.12);  color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+        .badge-dif-media    { background: rgba(245,158,11,0.12); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-dif-alta     { background: rgba(239,68,68,0.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+
+        /* ── SECCIONES INTERNAS ── */
+        .info-block { margin-bottom: 10px; }
+        .info-block:last-child { margin-bottom: 0; }
+        .info-block strong { color: #e2e8f0; display: block; margin-bottom: 3px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .info-block p { color: #94a3b8; }
+
+        .steps-list {
+            list-style: none;
+            counter-reset: steps;
+            margin-top: 4px;
+        }
+        .steps-list li {
+            counter-increment: steps;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 6px;
+            align-items: flex-start;
+            color: #94a3b8;
+        }
+        .steps-list li::before {
+            content: counter(steps);
+            background: rgba(121,40,202,0.3);
+            color: #c4b5fd;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
-        .nav-item {
+        .tip-box {
+            background: rgba(168,85,247,0.08);
+            border: 1px solid rgba(168,85,247,0.2);
+            border-radius: 7px;
+            padding: 9px 12px;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            color: #c4b5fd;
+        }
+        .tip-box::before { content: "💡 "; }
+
+        .warning-box {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 7px;
+            padding: 9px 12px;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            color: #fcd34d;
+        }
+        .warning-box::before { content: "⚠️ "; }
+
+        .components-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .component-tag {
+            background: #0f1e30;
+            border: 1px solid #22344d;
+            border-radius: 5px;
+            padding: 3px 9px;
+            font-size: 0.75rem;
+            color: #7dd3fc;
+            font-family: 'Courier New', monospace;
+        }
+
+        .divider { border: none; border-top: 1px solid var(--border-color); margin: 10px 0; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 1.05rem;
+            margin-bottom: 14px;
+            color: var(--primary-light);
+            font-weight: 700;
             display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .count-bubble {
+            background: rgba(168,85,247,0.18);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 20px;
+            padding: 1px 8px;
+            font-size: 0.75rem;
+            color: #c4b5fd;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: none;
             flex-direction: column;
             align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.75rem;
-            background: none;
-            border: none;
-            flex: 1;
-            height: 100%;
             justify-content: center;
-            gap: 4px;
+            padding: 40px 20px;
+            color: #4a5568;
+            text-align: center;
         }
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty-state p { font-size: 0.9rem; }
+        .empty-state small { font-size: 0.78rem; margin-top: 4px; color: #374151; }
 
-        .nav-item.active {
-            color: #a855f7;
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            font-size: 1.3rem;
-        }
-    
-        /* ── FAB MENÚ ── */
-        .fab-toggle {
+        /* ── MODAL AGREGAR ── */
+        .modal-overlay {
+            display: none;
             position: fixed;
-            bottom: 20px;
-            right: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-sheet {
+            background: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px 16px 0 0;
+            padding: 20px 16px 30px;
+            width: 100%;
+            max-width: 640px;
+            animation: slideUp 0.25s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none; border: none; color: #4a5568;
+            font-size: 1.3rem; cursor: pointer; line-height: 1;
+        }
+        .modal-close:hover { color: #fff; }
+        .form-field { margin-bottom: 13px; }
+        .form-field label { display: block; font-size: 0.78rem; color: #7c8fa3; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+        .form-field input, .form-field textarea, .form-field select {
+            width: 100%;
+            background: #0b131f;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            outline: none;
+            resize: vertical;
+        }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: var(--primary-color); }
+        .form-field textarea { min-height: 70px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-field { flex: 1; }
+        .btn-primary {
+            width: 100%;
             background: linear-gradient(135deg, #7928ca, #a855f7);
             border: none;
-            color: white;
-            font-size: 1.4rem;
+            color: #fff;
+            border-radius: 9px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
             cursor: pointer;
+            margin-top: 4px;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.88; }
+
+        /* ── FAB ── */
+        .fab-toggle {
+            position: fixed; bottom: 20px; right: 18px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, #7928ca, #a855f7);
+            border: none; color: white; font-size: 1.4rem; cursor: pointer;
             box-shadow: 0 4px 16px rgba(121,40,202,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: transform 0.25s ease;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: transform 0.25s ease;
         }
         .fab-toggle.open { transform: rotate(90deg); }
         .fab-items {
-            position: fixed;
-            bottom: 82px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 9999;
+            position: fixed; bottom: 82px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            pointer-events: none; opacity: 0; transition: opacity 0.2s ease; z-index: 9999;
         }
         .fab-items.open { pointer-events: all; opacity: 1; }
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #22344d;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background-color: #1a273a; color: #e2e8f0; font-size: 0.82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
         .fab-item-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%; background-color: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,0.4); flex-shrink: 0;
         }
         .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
         .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
         .fab-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            background: rgba(0,0,0,0.5);
+            display: none; position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.5);
         }
         .fab-overlay.open { display: block; }
         .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
@@ -284,115 +440,614 @@
         .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
         .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
         @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── FAB añadir caso ── */
+        .fab-add {
+            position: fixed; bottom: 82px; left: 18px;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-light); font-size: 1.5rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            transition: background 0.2s;
+        }
+        .fab-add:hover { background: rgba(121,40,202,0.2); }
+
+        /* toast */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e; border-radius: 8px;
+            padding: 10px 18px; font-size: 0.85rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
-    <div id="rl-auth-overlay" style="position:fixed;inset:0;z-index:999999;background:#0b131f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
-        <div style="width:34px;height:34px;border:3px solid #22344d;border-top-color:#7928ca;border-radius:50%;animation:rlAuthSpin .8s linear infinite;"></div>
-        <p style="color:#a0aec0;font-size:.85rem;margin:0;">Verificando sesión...</p>
+
+<header>
+    <div class="logo-container">
+        <img src="logo.png" alt="Relectrónica Logo">
     </div>
-    <style>@keyframes rlAuthSpin{to{transform:rotate(360deg)}}</style>
-    <script type="module" src="auth-guard.js"></script>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Base de Casos Resueltos</p>
+    </div>
+    <div class="header-stats">
+        <div class="stat-pill">🛠️ <span id="total-count">0</span> casos</div>
+    </div>
+</header>
 
+<div class="main-content" id="main-content">
 
-    <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
+    <!-- BÚSQUEDA Y FILTROS -->
+    <div class="search-row">
+        <input type="text" class="search-bar" id="cases-search" placeholder="🔍  Buscar falla, marca, componente…">
+        <button class="filter-btn" id="filter-toggle-btn" onclick="toggleFilterPanel()" title="Filtros">⚙️</button>
+    </div>
+
+    <div class="filter-panel" id="filter-panel">
+        <div class="filter-label">Línea</div>
+        <div class="filter-chips" id="filter-linea">
+            <div class="chip active" data-val="">Todas</div>
+            <div class="chip" data-val="marron">📺 Línea Marrón</div>
+            <div class="chip" data-val="blanca">🫙 Línea Blanca</div>
+            <div class="chip" data-val="menor">🔌 Línea Menor</div>
         </div>
-        <div class="header-info">
-            <h1>Relectrónica</h1>
-            <p><span class="status-dot"></span> Base de Casos Resueltos</p>
+        <div class="filter-label">Dificultad</div>
+        <div class="filter-chips" id="filter-dif">
+            <div class="chip active" data-val="">Todas</div>
+            <div class="chip" data-val="baja">🟢 Baja</div>
+            <div class="chip" data-val="media">🟡 Media</div>
+            <div class="chip" data-val="alta">🔴 Alta</div>
         </div>
-    </header>
+        <div class="sort-row">
+            <div class="filter-label" style="margin:0">Ordenar:</div>
+            <select class="sort-select" id="sort-select" onchange="renderCases()">
+                <option value="reciente">Más reciente</option>
+                <option value="alfa">A → Z</option>
+                <option value="dif">Por dificultad</option>
+            </select>
+        </div>
+    </div>
 
-    <div class="main-content">
-        <input type="text" class="search-bar" id="cases-search" placeholder="Buscar por marca o componente...">
-        <h2 class="section-title">Historial de Soluciones Exitosas</h2>
-        
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Samsung / LG - Reinicio constante o Líneas</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">FALLA DE PANEL / T-CON</span><br>
-                <strong>Síntoma:</strong> El televisor muestra el logo brevemente, se reinicia en bucle o da líneas de colores fijas.<br><br>
-                <strong>Solución:</strong> Método de aislamiento. Colocar una cinta plástica delgada (2mm a 4mm) sobre los pines de señales de reloj (CLK) en el cable flex defectuoso para anular el sector en corto.
+    <div class="section-title">
+        Historial de Soluciones
+        <span class="count-bubble" id="visible-count">0</span>
+    </div>
+    <div class="results-info" id="results-info"></div>
+
+    <div id="cases-list"></div>
+
+    <div class="empty-state" id="empty-state">
+        <div class="icon">🔎</div>
+        <p>Sin resultados para esa búsqueda.</p>
+        <small>Intenta con otra palabra clave o limpia los filtros.</small>
+    </div>
+
+</div>
+
+<!-- MODAL AGREGAR CASO -->
+<div class="modal-overlay" id="add-modal">
+    <div class="modal-sheet">
+        <div class="modal-title">
+            ➕ Nuevo Caso de Falla
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>Marca / Equipo *</label>
+                <input type="text" id="f-titulo" placeholder="ej. Samsung UN50 / Lavadora Mabe">
             </div>
         </div>
-
-        <div class="tech-card" onclick="toggleCard(this)">
-            <h3>Smart TV - Hay Audio pero no da Imagen</h3>
-            <div class="tech-card-content">
-                <span class="tech-badge">FALLA DE BACKLIGHT</span><br>
-                <strong>Prueba rápido:</strong> Iluminar con linterna de cerca. Si hay siluetas de fondo, las tarjetas están bien.<br><br>
-                <strong>Solución:</strong> Reemplazar la tira LED completa del backlight y bajar la corriente del inversor desde el modo de servicio para evitar fallas futuras.
+        <div class="form-row">
+            <div class="form-field">
+                <label>Línea *</label>
+                <select id="f-linea">
+                    <option value="marron">📺 Línea Marrón (TV, audio)</option>
+                    <option value="blanca">🫙 Línea Blanca (lavadora, nevera…)</option>
+                    <option value="menor">🔌 Línea Menor (licuadora, plancha…)</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Dificultad</label>
+                <select id="f-dificultad">
+                    <option value="baja">🟢 Baja</option>
+                    <option value="media">🟡 Media</option>
+                    <option value="alta">🔴 Alta</option>
+                </select>
             </div>
         </div>
+        <div class="form-field">
+            <label>Tipo de falla (badge) *</label>
+            <input type="text" id="f-tipo" placeholder="ej. FALLA DE BACKLIGHT / FALLA DE PLACA">
+        </div>
+        <div class="form-field">
+            <label>Síntoma *</label>
+            <textarea id="f-sintoma" placeholder="¿Qué presenta el equipo?"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Prueba rápida (opcional)</label>
+            <textarea id="f-prueba" placeholder="¿Cómo confirmar la falla?"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Pasos de solución *</label>
+            <textarea id="f-solucion" placeholder="Paso 1&#10;Paso 2&#10;Paso 3" style="min-height:90px"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Componentes involucrados (separados por coma)</label>
+            <input type="text" id="f-componentes" placeholder="ej. T-CON, Cable Flex, IC U801">
+        </div>
+        <div class="form-field">
+            <label>Consejo / Advertencia (opcional)</label>
+            <textarea id="f-tip" placeholder="Tip extra o advertencia de seguridad"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Tipo de nota (opcional)</label>
+            <select id="f-nota-tipo">
+                <option value="">Sin nota especial</option>
+                <option value="tip">💡 Consejo</option>
+                <option value="warning">⚠️ Advertencia</option>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="saveCase()">Guardar Caso</button>
     </div>
+</div>
 
-                    <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
-    <div class="fab-items" id="fab-items">
-        <a href="recepcion.html" class="fab-item">
-            <span class="fab-item-label">Recepción</span>
-            <span class="fab-item-btn">📋</span>
-        </a>
-        <a href="fallas.html" class="fab-item active">
-            <span class="fab-item-label">Casos de Falla</span>
-            <span class="fab-item-btn">🛠️</span>
-        </a>
-        <a href="componentes.html" class="fab-item">
-            <span class="fab-item-label">Componentes</span>
-            <span class="fab-item-btn">🔍</span>
-        </a>
-        <a href="calculadoras.html" class="fab-item">
-            <span class="fab-item-label">Cálculos</span>
-            <span class="fab-item-btn">🧮</span>
-        </a>
-        <a href="hardware.html" class="fab-item">
-            <span class="fab-item-label">Hardware</span>
-            <span class="fab-item-btn">🖼️</span>
-        </a>
-        <a href="biblioteca.html" class="fab-item">
-            <span class="fab-item-label">Biblioteca</span>
-            <span class="fab-item-btn">📘</span>
-        </a>
-        <a href="notas.html" class="fab-item">
-            <span class="fab-item-label">Mis Notas</span>
-            <span class="fab-item-btn">📝</span>
-        </a>
-        <a href="index.html" class="fab-item">
-            <span class="fab-item-label">Chat Técnico</span>
-            <span class="fab-item-btn">💬</span>
-        </a>
-    </div>
-    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+<div class="toast" id="toast"></div>
 
-    
-    <script>
-        function toggleCard(card) {
-            card.classList.toggle('expanded');
-            const content = card.querySelector('.tech-card-content');
-            if (content) {
-                content.style.display = content.style.display === 'block' ? 'none' : 'block';
-            }
-        }
-
-        document.getElementById('cases-search').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            document.querySelectorAll('.tech-card').forEach(card => {
-                const text = card.innerText.toLowerCase();
-                card.style.display = text.includes(query) ? 'block' : 'none';
-            });
-        });
-    </script>
+<!-- FAB menú navegación -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html" class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html" class="fab-item active"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html" class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+<button class="fab-add" onclick="openModal()" title="Agregar caso">＋</button>
 
 <script>
+/* ══════════════════════════════
+   BASE DE DATOS DE CASOS
+══════════════════════════════ */
+const STORAGE_KEY = 'relelectronica_fallas_v2';
+
+const defaultCases = [
+  /* ── LÍNEA MARRÓN ── */
+  {
+    id: 1, titulo: "Samsung / LG – Reinicio constante o Líneas",
+    linea: "marron", tipo: "FALLA DE PANEL / T-CON", dificultad: "alta",
+    sintoma: "El televisor muestra el logo brevemente, se reinicia en bucle o presenta líneas de colores fijas en pantalla.",
+    prueba: "Desconectar el cable flex del T-CON hacia el panel. Si el TV deja de reiniciarse, el panel o T-CON es el origen.",
+    pasos: [
+      "Abrir el televisor con cuidado y localizar el T-CON.",
+      "Revisar el cable flex entre T-CON y panel buscando quemaduras o pistas levantadas.",
+      "Colocar cinta plástica delgada (2-4 mm) sobre los pines de señal de reloj (CLK) del sector en corto.",
+      "Si el problema persiste, medir voltajes de alimentación del T-CON (3.3 V y 12 V típicos).",
+      "Reemplazar T-CON si los voltajes son correctos y el flex está en buen estado."
+    ],
+    componentes: ["T-CON", "Cable Flex", "Panel LCD"],
+    tip: "Los TV de 2016-2020 con panel BOE tienen alta incidencia de falla en el flex izquierdo.",
+    notaTipo: "tip",
+    fecha: "2024-01-10"
+  },
+  {
+    id: 2, titulo: "Smart TV – Hay audio pero no da imagen",
+    linea: "marron", tipo: "FALLA DE BACKLIGHT", dificultad: "media",
+    sintoma: "La TV enciende, se escucha audio normal, pero la pantalla permanece negra.",
+    prueba: "Iluminar con linterna muy cerca del panel en cuarto oscuro. Si se ven siluetas de menú, el backlight es el problema.",
+    pasos: [
+      "Confirmar con linterna que el panel está activo.",
+      "Abrir y medir el voltaje de salida del inversor de backlight (varía entre 24 V y 80 V según modelo).",
+      "Revisar cada tira LED con multímetro en continuidad o con fuente de laboratorio 3 V.",
+      "Reemplazar la tira LED defectuosa o el conjunto completo según disponibilidad.",
+      "Bajar la corriente del inversor desde el modo de servicio (Service Mode) para prolongar vida útil de las nuevas tiras."
+    ],
+    componentes: ["Tira LED Backlight", "Driver/Inversor BL", "Placa de fuente"],
+    tip: "Bajar el brillo máximo al 70-80% en servicio extiende considerablemente la vida del backlight.",
+    notaTipo: "tip",
+    fecha: "2024-01-15"
+  },
+  {
+    id: 3, titulo: "TV – No enciende, luz de standby parpadea",
+    linea: "marron", tipo: "FALLA DE FUENTE DE PODER", dificultad: "media",
+    sintoma: "El TV no arranca. El LED de standby parpadea 3 o más veces y se apaga.",
+    prueba: "Medir el voltaje de standby (5 V SB). Si está presente pero el TV no arranca al pulsar encendido, la falla está en la placa de fuente o en la señal PS-ON.",
+    pasos: [
+      "Medir 5 V standby en conector principal de fuente.",
+      "Simular señal PS-ON (puentear el pin correspondiente a masa) para forzar el arranque.",
+      "Medir rieles de salida: 12 V, 24 V y 5 V principal.",
+      "Revisar condensadores electrolíticos abombados o en corto.",
+      "Reemplazar condensadores defectuosos (ESR elevado) o la fuente completa si hay componentes quemados."
+    ],
+    componentes: ["Fuente de poder", "Condensadores electrolíticos", "MOSFET principal"],
+    tip: "Los condensadores japoneses (Nichicon, Rubycon) tienen mejor duración que los sustitutos genéricos.",
+    notaTipo: "tip",
+    fecha: "2024-02-03"
+  },
+  {
+    id: 4, titulo: "TV – Imagen con manchas o sombras (clouding)",
+    linea: "marron", tipo: "FALLA DE DIFUSORES / BACKLIGHT",  dificultad: "baja",
+    sintoma: "Pantalla con zonas más brillantes o zonas oscuras irregulares, especialmente visibles en fondos oscuros o grises.",
+    prueba: "Mostrar una imagen gris uniforme. Las manchas serán evidentes.",
+    pasos: [
+      "Abrir el TV y retirar el panel con cuidado.",
+      "Verificar que las láminas difusoras estén correctamente colocadas y sin dobladuras.",
+      "Revisar que todos los LEDs del backlight estén encendidos con igual intensidad.",
+      "Reposicionar o sustituir láminas difusoras dañadas.",
+      "Si el problema persiste, revisar la distribución de LEDs y su potencia."
+    ],
+    componentes: ["Láminas difusoras", "Tiras LED", "Marco difusor"],
+    tip: "Usar guantes de látex al manipular las láminas difusoras para no dejar huellas.",
+    notaTipo: "tip",
+    fecha: "2024-02-20"
+  },
+  {
+    id: 5, titulo: "Equipo de sonido – No enciende o silencioso",
+    linea: "marron", tipo: "FALLA DE AMPLIFICADOR / FUENTE", dificultad: "media",
+    sintoma: "El equipo no enciende o enciende pero no produce sonido alguno. A veces hay un zumbido de 50/60 Hz.",
+    prueba: "Medir voltaje en riel de alimentación del amplificador. Si hay voltaje pero no audio, el IC amplificador puede estar en protección.",
+    pasos: [
+      "Medir voltajes de alimentación del amplificador (±12 V, ±24 V, etc.).",
+      "Revisar el circuito de protección (relay de altavoz): activar manualmente para comprobar si hay señal de audio.",
+      "Verificar condensadores de acoplamiento en la entrada de audio.",
+      "Medir resistencias de emisor del par de salida (deben ser simétricas).",
+      "Si el IC amplificador está en corto salida-alimentación, reemplazarlo."
+    ],
+    componentes: ["IC Amplificador", "Relay altavoz", "Condensadores de acoplamiento", "Par de salida"],
+    tip: "El zumbido de 50 Hz casi siempre indica condensador de filtro de fuente con capacidad reducida.",
+    notaTipo: "tip",
+    fecha: "2024-03-01"
+  },
+
+  /* ── LÍNEA BLANCA ── */
+  {
+    id: 6, titulo: "Lavadora – No centrifuga / No desagua",
+    linea: "blanca", tipo: "FALLA DE BOMBA / CAPACITOR", dificultad: "baja",
+    sintoma: "La lavadora termina el ciclo de lavado pero no desagua el agua o no pasa a centrifugado.",
+    prueba: "Escuchar si la bomba de desagüe hace ruido. Si no hay sonido, verificar que recibe tensión de red durante el ciclo de desagüe.",
+    pasos: [
+      "Acceder a la bomba de desagüe (generalmente frontal inferior).",
+      "Revisar si hay cuerpos extraños (monedas, pinzas) bloqueando el impulsor.",
+      "Medir resistencia de la bobina del motor de bomba (4-20 Ω típico).",
+      "Verificar el capacitor de marcha del motor (si aplica).",
+      "Reemplazar la bomba si el motor está abierto o en corto."
+    ],
+    componentes: ["Bomba de desagüe", "Capacitor de motor", "Filtro de bomba"],
+    tip: "Limpiar el filtro de la bomba cada 6 meses evita el 70% de los problemas de desagüe.",
+    notaTipo: "tip",
+    fecha: "2024-01-20"
+  },
+  {
+    id: 7, titulo: "Lavadora – No gira el tambor / Error de motor",
+    linea: "blanca", tipo: "FALLA DE MOTOR / TARJETA", dificultad: "alta",
+    sintoma: "El tambor no gira durante el lavado. Puede mostrar código de error (E3, F5 u otro según marca).",
+    prueba: "Girar el tambor manualmente. Si hay mucha resistencia, puede ser un rodamiento o el freno. Si gira libre, el problema es eléctrico.",
+    pasos: [
+      "Verificar el tacho-generador (sensor de velocidad del motor): medir su resistencia (80-120 Ω típico).",
+      "Revisar las escobillas del motor de carbón (si aplica): deben tener mínimo 5 mm de longitud.",
+      "Medir resistencia de devanados del motor (arranque y trabajo).",
+      "Si es motor inverter (BLDC), verificar el módulo de potencia con osciloscopio.",
+      "Reemplazar módulo inverter o tarjeta de control según corresponda."
+    ],
+    componentes: ["Motor", "Escobillas", "Módulo Inverter", "Tacho-generador", "Tarjeta de control"],
+    warning: "En lavadoras con motor inverter, los condensadores del bus DC pueden mantener carga peligrosa varios minutos después de apagar. Esperar al menos 2 minutos antes de tocar el módulo.",
+    notaTipo: "warning",
+    fecha: "2024-02-10"
+  },
+  {
+    id: 8, titulo: "Nevera / Refrigerador – No enfría (compresor corre)",
+    linea: "blanca", tipo: "FALLA DE GAS / CAPILAR", dificultad: "alta",
+    sintoma: "El compresor trabaja continuamente pero la nevera no alcanza temperatura de refrigeración.",
+    prueba: "Palpar el tubo de descarga del compresor: debe estar muy caliente. El tubo de retorno (línea de succión) debe estar frío. Si el retorno está tibio, posible fuga o capilar tapado.",
+    pasos: [
+      "Verificar amperaje del compresor (debe estar dentro del rango de la placa de datos).",
+      "Revisar si el evaporador se llena de escarcha solo en la parte superior (indica capilar tapado o fuga parcial).",
+      "Purgar el sistema de refrigeración.",
+      "Verificar y reparar fugas con detector o agua jabonosa en uniones.",
+      "Recargar con el gas indicado en la placa (R-134a, R-600a, etc.) al peso exacto."
+    ],
+    componentes: ["Compresor", "Capilar", "Filtro deshidratador", "Evaporador"],
+    warning: "El R-600a (isobutano) es inflamable. No trabajar cerca de llamas y asegurar ventilación del área.",
+    notaTipo: "warning",
+    fecha: "2024-02-18"
+  },
+  {
+    id: 9, titulo: "Microondas – Plato no gira / No calienta",
+    linea: "blanca", tipo: "FALLA DE MOTOR GIRO / MAGNETRÓN", dificultad: "media",
+    sintoma: "El microondas enciende y el tiempo corre pero no calienta los alimentos. O el plato giratorio no rota.",
+    prueba: "Para el calentamiento: colocar un vaso con agua 1 minuto a máxima potencia. Si el agua no calienta, el magnetrón o el capacitor de HV son los sospechosos.",
+    pasos: [
+      "Si no gira el plato: revisar el motor de acoplador (motor de plato), medir resistencia de sus bobinas.",
+      "Si no calienta: revisar el fusible térmico de la cavidad y el fusible de línea.",
+      "Medir el diodo de alta tensión (debe conducir en un solo sentido con escala de 20 MΩ).",
+      "Verificar el capacitor de alta tensión (puede almacenar carga letal, descargar antes de tocar).",
+      "Probar el magnetrón midiendo continuidad entre filamentos y aislamiento entre filamento y carcasa."
+    ],
+    componentes: ["Magnetrón", "Capacitor HV", "Diodo HV", "Fusible térmico", "Motor de plato"],
+    warning: "El capacitor de alta tensión puede mantener hasta 2100 V después de apagar. SIEMPRE descargarlo cortocircuitando sus terminales con resistencia de 10 kΩ antes de cualquier medición.",
+    notaTipo: "warning",
+    fecha: "2024-03-05"
+  },
+
+  /* ── LÍNEA MENOR ── */
+  {
+    id: 10, titulo: "Licuadora – No enciende o gira despacio",
+    linea: "menor", tipo: "FALLA DE CARBONES / INTERRUPTOR", dificultad: "baja",
+    sintoma: "La licuadora no arranca al presionar ninguna velocidad, o gira muy lento con zumbido.",
+    prueba: "Con el vaso retirado, intentar girar el eje del motor manualmente. Si está libre, el problema es eléctrico. Si está trabado, el motor o rodamiento están dañados.",
+    pasos: [
+      "Revisar el interruptor de velocidades con multímetro en continuidad.",
+      "Inspeccionar los carbones del motor universal: cambiarlos si miden menos de 5 mm.",
+      "Limpiar el colector con lija fina si está sucio u oxidado.",
+      "Verificar el capacitor de supresión de interferencias (no de marcha).",
+      "Comprobar continuidad del devanado del estátor."
+    ],
+    componentes: ["Carbones", "Colector", "Interruptor de velocidades", "Motor universal"],
+    tip: "Los carbones de reemplazo deben ser del mismo material y dimensión que los originales para evitar daño al colector.",
+    notaTipo: "tip",
+    fecha: "2024-01-25"
+  },
+  {
+    id: 11, titulo: "Plancha – No calienta o calienta poco",
+    linea: "menor", tipo: "FALLA DE TERMOSTATO / RESISTENCIA", dificultad: "baja",
+    sintoma: "La plancha no calienta en ninguna posición del selector, o solo calienta en un nivel.",
+    prueba: "Medir resistencia de la suela con multímetro (desconectada de la red). Debe dar un valor según el wattaje: R = V²/W.",
+    pasos: [
+      "Verificar el fusible térmico de seguridad (corte único, no reseteable): medir continuidad.",
+      "Revisar el termostato bimetálico: debe abrir y cerrar al calentar y enfriar.",
+      "Medir la resistencia calefactora: si está abierta, reemplazar la suela completa.",
+      "Verificar el selector de temperatura y su conexión mecánica con el termostato.",
+      "Revisar el cable de alimentación en los puntos de entrada al mango."
+    ],
+    componentes: ["Fusible térmico", "Termostato bimetálico", "Resistencia calefactora", "Selector"],
+    warning: "Nunca probar la plancha sin la suela completa ensamblada. Los elementos calefactores expuestos son un riesgo de electrocución.",
+    notaTipo: "warning",
+    fecha: "2024-02-05"
+  },
+  {
+    id: 12, titulo: "Ventilador de pie – Oscila pero no sopla / No oscila",
+    linea: "menor", tipo: "FALLA DE MOTOR / CONDENSADOR", dificultad: "baja",
+    sintoma: "El ventilador enciende pero no mueve aire o lo mueve muy débilmente. O las aspas giran pero el motor de oscilación no funciona.",
+    prueba: "Girar las aspas manualmente. Si hay resistencia con el motor encendido, el condensador puede ser el problema.",
+    pasos: [
+      "Retirar la cubierta trasera del motor y limpiar el polvo acumulado.",
+      "Lubricar los cojinetes del eje con aceite de máquinas liviano.",
+      "Medir el condensador de marcha (valores comunes: 1.5 µF a 4 µF / 250 V).",
+      "Si no oscila: revisar el engranaje de oscilación y el micro-motor de oscilación.",
+      "Reemplazar el condensador si la capacitancia medida difiere más del 10% del valor nominal."
+    ],
+    componentes: ["Condensador de marcha", "Motor principal", "Motor de oscilación", "Engranaje oscilación"],
+    tip: "Un ventilador que oscila pero no sopla bien casi siempre tiene el condensador de marcha con capacidad reducida.",
+    notaTipo: "tip",
+    fecha: "2024-03-12"
+  }
+];
+
+/* ══════════════════════════════
+   ESTADO Y LÓGICA PRINCIPAL
+══════════════════════════════ */
+let cases = [];
+let filterLinea = '';
+let filterDif   = '';
+
+function loadCases() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        cases = saved ? JSON.parse(saved) : [...defaultCases];
+    } catch(e) {
+        cases = [...defaultCases];
+    }
+}
+
+function saveCases() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cases)); } catch(e) {}
+}
+
+function getNextId() {
+    return cases.length ? Math.max(...cases.map(c => c.id)) + 1 : 1;
+}
+
+/* ── RENDER ── */
+function renderCases() {
+    const query   = document.getElementById('cases-search').value.toLowerCase().trim();
+    const sortVal = document.getElementById('sort-select').value;
+
+    let filtered = cases.filter(c => {
+        const text = [c.titulo, c.tipo, c.sintoma, c.prueba || '',
+                      (c.pasos || []).join(' '), (c.componentes || []).join(' ')]
+                     .join(' ').toLowerCase();
+        const matchQ = !query || text.includes(query);
+        const matchL = !filterLinea || c.linea === filterLinea;
+        const matchD = !filterDif   || c.dificultad === filterDif;
+        return matchQ && matchL && matchD;
+    });
+
+    const difOrder = { baja: 0, media: 1, alta: 2 };
+    if (sortVal === 'alfa')     filtered.sort((a,b) => a.titulo.localeCompare(b.titulo));
+    else if (sortVal === 'dif') filtered.sort((a,b) => (difOrder[b.dificultad]||0) - (difOrder[a.dificultad]||0));
+    else                        filtered.sort((a,b) => b.id - a.id);
+
+    const list = document.getElementById('cases-list');
+    const empty = document.getElementById('empty-state');
+    const visibleEl = document.getElementById('visible-count');
+    const totalEl   = document.getElementById('total-count');
+    const infoEl    = document.getElementById('results-info');
+
+    totalEl.textContent   = cases.length;
+    visibleEl.textContent = filtered.length;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'flex';
+        infoEl.innerHTML = '';
+    } else {
+        empty.style.display = 'none';
+        if (query || filterLinea || filterDif) {
+            infoEl.innerHTML = `Mostrando <span>${filtered.length}</span> de ${cases.length} casos`;
+        } else {
+            infoEl.innerHTML = '';
+        }
+
+        list.innerHTML = filtered.map(c => buildCard(c)).join('');
+        list.querySelectorAll('.tech-card').forEach(el => {
+            el.addEventListener('click', () => toggleCard(el));
+        });
+    }
+}
+
+function buildCard(c) {
+    const lineaLabels = { marron: '📺 Línea Marrón', blanca: '🫙 Línea Blanca', menor: '🔌 Línea Menor' };
+    const difLabels   = { baja: '🟢 Baja', media: '🟡 Media', alta: '🔴 Alta' };
+
+    const pasosHTML = c.pasos && c.pasos.length
+        ? `<ul class="steps-list">${c.pasos.map(p => `<li>${p}</li>`).join('')}</ul>`
+        : '';
+
+    const componentsHTML = c.componentes && c.componentes.length
+        ? `<div class="components-row">${c.componentes.map(x => `<span class="component-tag">${x}</span>`).join('')}</div>`
+        : '';
+
+    const prueba = c.prueba
+        ? `<div class="info-block"><strong>🔬 Prueba rápida</strong><p>${c.prueba}</p></div><hr class="divider">`
+        : '';
+
+    const nota = c.tip
+        ? `<div class="${c.notaTipo === 'warning' ? 'warning-box' : 'tip-box'}">${c.tip}</div>`
+        : '';
+
+    return `
+    <div class="tech-card" data-linea="${c.linea}" data-id="${c.id}">
+        <div class="card-header">
+            <h3>${c.titulo}</h3>
+            <span class="card-arrow">▼</span>
+        </div>
+        <div class="card-meta">
+            <span class="tech-badge badge-tipo">${c.tipo}</span>
+            <span class="tech-badge badge-linea-${c.linea}">${lineaLabels[c.linea] || c.linea}</span>
+            <span class="tech-badge badge-dif-${c.dificultad}">${difLabels[c.dificultad] || c.dificultad}</span>
+        </div>
+        <div class="tech-card-content">
+            <div class="info-block"><strong>📋 Síntoma</strong><p>${c.sintoma}</p></div>
+            <hr class="divider">
+            ${prueba}
+            <div class="info-block"><strong>✅ Pasos de solución</strong>${pasosHTML}</div>
+            ${componentsHTML ? `<hr class="divider"><div class="info-block"><strong>🔩 Componentes</strong>${componentsHTML}</div>` : ''}
+            ${nota}
+        </div>
+    </div>`;
+}
+
+function toggleCard(card) {
+    card.classList.toggle('expanded');
+    const content = card.querySelector('.tech-card-content');
+    if (content) content.style.display = content.style.display === 'block' ? 'none' : 'block';
+}
+
+/* ── FILTROS ── */
+function toggleFilterPanel() {
+    document.getElementById('filter-panel').classList.toggle('open');
+}
+
+function setupChips(groupId, onSelect) {
+    document.getElementById(groupId).querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.getElementById(groupId).querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            onSelect(chip.dataset.val);
+            renderCases();
+        });
+    });
+}
+
+/* ── MODAL AGREGAR ── */
+function openModal() {
+    document.getElementById('add-modal').classList.add('open');
+}
+function closeModal() {
+    document.getElementById('add-modal').classList.remove('open');
+}
+document.getElementById('add-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+function saveCase() {
+    const titulo  = document.getElementById('f-titulo').value.trim();
+    const tipo    = document.getElementById('f-tipo').value.trim();
+    const sintoma = document.getElementById('f-sintoma').value.trim();
+    const sol     = document.getElementById('f-solucion').value.trim();
+    if (!titulo || !tipo || !sintoma || !sol) {
+        showToast('⚠️ Completa los campos obligatorios (*)'); return;
+    }
+    const pasos       = sol.split('\n').map(s => s.trim()).filter(Boolean);
+    const componentes = document.getElementById('f-componentes').value.split(',').map(s => s.trim()).filter(Boolean);
+    const tip         = document.getElementById('f-tip').value.trim();
+    const notaTipo    = document.getElementById('f-nota-tipo').value;
+
+    const newCase = {
+        id: getNextId(),
+        titulo,
+        linea:       document.getElementById('f-linea').value,
+        tipo,
+        dificultad:  document.getElementById('f-dificultad').value,
+        sintoma,
+        prueba:      document.getElementById('f-prueba').value.trim(),
+        pasos,
+        componentes,
+        tip,
+        notaTipo,
+        fecha:       new Date().toISOString().split('T')[0]
+    };
+    cases.unshift(newCase);
+    saveCases();
+    renderCases();
+    closeModal();
+    clearForm();
+    showToast('✅ Caso guardado correctamente');
+}
+
+function clearForm() {
+    ['f-titulo','f-tipo','f-sintoma','f-prueba','f-solucion','f-componentes','f-tip'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('f-linea').value = 'marron';
+    document.getElementById('f-dificultad').value = 'media';
+    document.getElementById('f-nota-tipo').value = '';
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── FAB NAV ── */
 function toggleFAB() {
-    const items = document.getElementById('fab-items');
+    const items   = document.getElementById('fab-items');
     const overlay = document.getElementById('fab-overlay');
-    const btn = document.getElementById('fab-toggle');
-    const open = items.classList.toggle('open');
+    const btn     = document.getElementById('fab-toggle');
+    const open    = items.classList.toggle('open');
     overlay.classList.toggle('open', open);
     if (btn) btn.classList.toggle('open', open);
 }
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+    loadCases();
+    setupChips('filter-linea', val => { filterLinea = val; });
+    setupChips('filter-dif',   val => { filterDif   = val; });
+    document.getElementById('cases-search').addEventListener('input', renderCases);
+    renderCases();
+});
 </script>
 </body>
 </html>
