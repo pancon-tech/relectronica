@@ -677,6 +677,11 @@ function describeWaveform(){
   return desc;
 }
 
+/* ══ CONFIG ══ */
+const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL";
+
+const SCOPE_PREAMBLE = `Eres un ingeniero electrónico experto en reparación de equipos de consumo (TV, monitores, audio, línea blanca). Cuando un técnico te describe una señal de osciloscopio, la analizas con precisión técnica y das un diagnóstico directo. Responde SIEMPRE en español. Usa formato de texto claro con estos marcadores para secciones: usa **texto** para énfasis, escribe "SEÑAL NORMAL", "SEÑAL SOSPECHOSA" o "FALLA CONFIRMADA" como primera línea de tu respuesta, luego desarrolla el diagnóstico. Sé directo, técnico y sin relleno.`;
+
 /* ══ AI ANALYSIS ══ */
 async function analyzeWaveform(){
   if(!hasWave&&points.length<5){
@@ -698,54 +703,58 @@ async function analyzeWaveform(){
 
   const userPrompt=`Soy técnico en electrónica. Necesito que analices la siguiente señal de osciloscopio y me des un diagnóstico técnico.
 
-═══ DESCRIPCIÓN DE LA SEÑAL ═══
+DESCRIPCIÓN DE LA SEÑAL:
 ${waveDesc}
 
-═══ PARÁMETROS ADICIONALES DEL TÉCNICO ═══
+PARÁMETROS ADICIONALES DEL TÉCNICO:
 ${freq?`- Frecuencia real (según escala): ${freq} Hz`:''}
 ${ampl?`- Amplitud pico-pico real: ${ampl} V`:''}
 ${offset!==''?`- Nivel DC: ${offset} V`:''}
 ${duty?`- Duty cycle (si es PWM): ${duty}%`:''}
 
-═══ CONTEXTO DEL EQUIPO Y PUNTO DE PRUEBA ═══
-${context||'(No especificado por el técnico)'}
+CONTEXTO DEL EQUIPO Y PUNTO DE PRUEBA:
+${context||'(No especificado)'}
 
-Por favor dame:
+Dame:
 1. Qué tipo de señal es y si es normal o anormal
 2. Qué falla específica indica si es anormal
-3. Qué componentes revisar o medir a continuación
-4. Un nivel de urgencia: NORMAL / SOSPECHOSO / FALLA CONFIRMADA`;
+3. Qué componentes revisar a continuación
+4. Nivel: SEÑAL NORMAL / SEÑAL SOSPECHOSA / FALLA CONFIRMADA`;
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('https://api.cohere.com/v1/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Authorization':'Bearer '+COHERE_API_KEY,
+        'Content-Type':'application/json',
+        'Accept':'application/json'
+      },
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system:`Eres un ingeniero electrónico experto en reparación de equipos de consumo (TV, audio, línea blanca). 
-Cuando un técnico te describe una señal de osciloscopio, la analizas con precisión técnica. 
-Responde SIEMPRE en español con formato HTML usando estas etiquetas CSS disponibles: 
-<h4> para secciones, <strong> para énfasis, <ul><li> para listas, 
-<div class="highlight"> para datos importantes, 
-<div class="alert"> para advertencias de peligro, 
-<div class="tip"> para recomendaciones positivas, 
-<code> para valores técnicos exactos.
-Sé directo, técnico y sin relleno. No uses markdown, solo HTML limpio.`,
-        messages:[{role:'user',content:userPrompt}]
+        model:'command-r-08-2024',
+        message:userPrompt,
+        preamble:SCOPE_PREAMBLE,
+        chat_history:[]
       })
     });
     const data=await resp.json();
     dots.classList.remove('show');
     btn.disabled=false;
 
-    if(resp.ok&&data.content?.[0]?.text){
-      const text=data.content[0].text;
+    if(resp.ok&&data.text){
+      const raw=data.text;
+      // convert basic markdown to html for display
+      const text=raw
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+        .replace(/^- (.+)$/gm,'<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+        .replace(/\n\n/g,'<br><br>')
+        .replace(/\n/g,'<br>');
+
       // determine badge
-      let badge='badge-ok',badgeText='SEÑAL NORMAL',title='';
-      if(/FALLA CONFIRMADA/i.test(text)){badge='badge-err';badgeText='FALLA CONFIRMADA';}
-      else if(/SOSPECHOSO/i.test(text)){badge='badge-warn';badgeText='SEÑAL SOSPECHOSA';}
-      else if(/anormal|falla|defecto|problema|averí/i.test(text)){badge='badge-warn';badgeText='ANOMALÍA DETECTADA';}
+      let badge='badge-ok',badgeText='SEÑAL NORMAL';
+      if(/FALLA CONFIRMADA/i.test(raw)){badge='badge-err';badgeText='FALLA CONFIRMADA';}
+      else if(/SOSPECHOSA|SOSPECHOSO/i.test(raw)){badge='badge-warn';badgeText='SEÑAL SOSPECHOSA';}
+      else if(/anormal|falla|defecto|problema|averí/i.test(raw)){badge='badge-warn';badgeText='ANOMALÍA DETECTADA';}
 
       document.getElementById('resultBadge').className='result-badge '+badge;
       document.getElementById('resultBadge').textContent=badgeText;
@@ -754,7 +763,7 @@ Sé directo, técnico y sin relleno. No uses markdown, solo HTML limpio.`,
       document.getElementById('resultCard').classList.add('show');
       document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
     } else {
-      showToast('⚠️ Error al contactar la IA');
+      showToast('⚠️ Error: '+(data.message||'Respuesta inesperada'));
     }
   }catch(err){
     dots.classList.remove('show');
