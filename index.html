@@ -3,782 +3,846 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relectrónica Bot - Línea Técnica</title>
+    <title>Relectrónica - Chat Técnico</title>
     <style>
         :root {
-            --bg-color: #0b131f;
-            --chat-bg: #111c2c;
-            --text-color: #ffffff;
-            --primary-color: #7928ca;
-            --bot-msg-bg: #1a273a;
-            --user-msg-bg: #7928ca;
-            --border-color: #22344d;
+            --bg:       #0b131f;
+            --chat-bg:  #111c2c;
+            --card-bg:  #162235;
+            --border:   #22344d;
+            --primary:  #7928ca;
+            --accent:   #a855f7;
+            --bot-bg:   #1a273a;
+            --user-bg:  #7928ca;
+            --text:     #ffffff;
+            --muted:    #a0aec0;
+            --dim:      #4a5568;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        html, body { height: 100%; height: -webkit-fill-available; overflow: hidden; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: -webkit-fill-available;
-            overflow: hidden;
-            position: relative;
+            background: var(--bg); color: var(--text);
+            display: flex; flex-direction: column;
         }
 
-        html {
-            height: 100vh;
-            height: -webkit-fill-available;
-            overflow: hidden;
-        }
-
+        /* ══ HEADER ══ */
         header {
-            background-color: var(--chat-bg);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-            flex-shrink: 0;
+            background: var(--chat-bg); padding: 11px 14px;
+            display: flex; align-items: center; gap: 11px;
+            border-bottom: 1px solid var(--border); flex-shrink: 0;
+            position: relative; z-index: 100;
         }
-
         .logo-container {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 44px; height: 44px; border-radius: 8px; overflow: hidden;
+            background: #000; border: 1px solid var(--border); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
         }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.05rem; font-weight: 700; }
+        .header-info p  { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse-dot 2.5s infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .header-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+        .hdr-btn {
+            background: none; border: 1px solid var(--border); border-radius: 8px;
+            color: var(--muted); padding: 6px 10px; font-size: .78rem; cursor: pointer;
+            display: flex; align-items: center; gap: 4px; transition: all .18s;
         }
+        .hdr-btn:hover { background: #1e3347; color: #fff; }
+        .hdr-btn.danger:hover { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.4); color: #fca5a5; }
 
-        .header-info h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .header-info p {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #a855f7;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: auto;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
+        /* ══ CHAT ══ */
         #chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-            -webkit-overflow-scrolling: touch;
+            flex: 1; padding: 14px 13px 6px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+            -webkit-overflow-scrolling: touch; position: relative;
+            scroll-behavior: smooth;
         }
 
+        /* marca de agua */
         #chat-container::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            content: ""; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            background-image: url('logo.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.04;
-            pointer-events: none;
+            width: 260px; height: 260px;
+            background: url('logo.png') center/contain no-repeat;
+            opacity: .035; pointer-events: none;
         }
 
+        /* ══ MENSAJES ══ */
         .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-            z-index: 1;
+            max-width: 86%; padding: 11px 14px; border-radius: 14px;
+            font-size: .92rem; line-height: 1.55; word-wrap: break-word;
+            animation: msgIn .25s ease; position: relative; z-index: 1;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
         .bot-message {
-            background-color: var(--bot-msg-bg);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            border: 1px solid var(--border-color);
+            background: var(--bot-bg); align-self: flex-start;
+            border: 1px solid var(--border); border-bottom-left-radius: 4px;
         }
-
         .user-message {
-            background-color: var(--user-msg-bg);
-            align-self: flex-end;
+            background: var(--user-bg); align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
+        .error-message { background: #2d191e; border: 1px solid #f56565; color: #fc8181; }
 
+        /* meta label */
         .msg-meta {
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
+            font-size: .72rem; font-weight: 700; margin-bottom: 5px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
-        .bot-meta { color: #a855f7; }
+        .bot-meta  { color: var(--accent); }
         .user-meta { color: #e2e8f0; }
+        .msg-time  { font-size: .64rem; color: var(--dim); font-weight: 400; }
 
-        .chat-image {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-top: 8px;
-            display: block;
+        /* markdown renderizado */
+        .msg-body { color: #e2e8f0; }
+        .user-message .msg-body { color: #fff; }
+        .msg-body p  { margin-bottom: 6px; }
+        .msg-body p:last-child { margin-bottom: 0; }
+        .msg-body strong { color: #fff; font-weight: 700; }
+        .msg-body em { color: #c4b5fd; font-style: italic; }
+        .msg-body h3, .msg-body h4 { color: var(--accent); margin: 8px 0 4px; font-size: .9rem; }
+        .msg-body ul, .msg-body ol { padding-left: 18px; margin: 4px 0 6px; }
+        .msg-body li { margin-bottom: 3px; color: #cbd5e1; }
+        .msg-body code {
+            background: rgba(168,85,247,.15); border: 1px solid rgba(168,85,247,.25);
+            border-radius: 4px; padding: 1px 6px; font-size: .82rem;
+            font-family: 'Courier New', monospace; color: #c4b5fd;
         }
-
-        .error-message {
-            background-color: #2d191e;
-            border: 1px solid #f56565;
-            color: #fc8181;
+        .msg-body pre {
+            background: #080d16; border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 12px; overflow-x: auto; margin: 6px 0;
+            font-size: .8rem; font-family: 'Courier New', monospace; color: #7dd3fc;
         }
+        .msg-body hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 
-        .footer-controls {
-            position: relative; 
-            width: 100%;
-            background-color: var(--chat-bg);
-            z-index: 10000;
-            flex-shrink: 0;
-            border-top: 1px solid var(--border-color);
+        /* secciones técnicas coloreadas */
+        .msg-body .sec-alerta  { color: #fca5a5; }
+        .msg-body .sec-diag    { color: #93c5fd; }
+        .msg-body .sec-check   { color: #fcd34d; }
+        .msg-body .sec-causas  { color: #c4b5fd; }
+        .msg-body .sec-proc    { color: #86efac; }
+        .msg-body .sec-prueba  { color: #6ee7b7; }
+
+        /* acciones del mensaje */
+        .msg-actions {
+            display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap;
         }
-
-        /* DISEÑO FIEL A LA FOTO (Estilo Barra Gemini Píldora Completa) */
-        .input-container {
-            padding: 12px 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            background-color: var(--chat-bg);
+        .msg-act-btn {
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+            border-radius: 6px; color: var(--muted); padding: 3px 9px;
+            font-size: .7rem; cursor: pointer; transition: all .18s;
+            display: flex; align-items: center; gap: 3px;
         }
+        .msg-act-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
 
-        .gemini-pill-bar {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            background-color: #1e1e1e;
-            border-radius: 30px;
-            padding: 4px 6px 4px 14px;
-            gap: 8px;
-            min-width: 0;
-            border: 1px solid var(--border-color);
+        /* imagen en chat */
+        .chat-image { max-width: 100%; max-height: 180px; border-radius: 8px; margin-top: 7px; display: block; }
+
+        /* ══ TYPING INDICATOR ══ */
+        .typing-indicator {
+            display: none; align-self: flex-start;
+            background: var(--bot-bg); border: 1px solid var(--border);
+            border-radius: 14px; border-bottom-left-radius: 4px;
+            padding: 12px 16px; gap: 5px; align-items: center;
+            z-index: 1; position: relative;
         }
-
-        .gemini-pill-bar:focus-within {
-            border-color: var(--primary-color);
+        .typing-indicator.show { display: flex; }
+        .typing-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent); animation: typingBounce 1.2s infinite;
         }
+        .typing-dot:nth-child(2) { animation-delay: .2s; }
+        .typing-dot:nth-child(3) { animation-delay: .4s; }
+        @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
-        #input-field {
-            flex: 1;
-            min-width: 0;
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            padding: 10px 2px;
-            font-size: 1rem;
-            outline: none;
+        /* ══ SUGERENCIAS RÁPIDAS ══ */
+        .quick-suggestions {
+            display: flex; gap: 7px; flex-wrap: wrap;
+            padding: 0 13px 8px; flex-shrink: 0;
         }
-
-        .gemini-inline-btn {
-            background: none;
-            border: none;
-            color: #e2e8f0;
-            font-size: 1.3rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
+        .quick-suggestions.hidden { display: none; }
+        .sug-chip {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 20px; padding: 6px 13px;
+            font-size: .76rem; color: var(--muted); cursor: pointer;
+            transition: all .18s; white-space: nowrap;
         }
+        .sug-chip:hover { background: rgba(121,40,202,.2); border-color: var(--accent); color: #c4b5fd; }
 
-        .gemini-inline-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Botón de Enviar Circular e Icono de la Imagen */
-        .gemini-action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #1a365d;
-            border: none;
-            color: white;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s, transform 0.1s ease;
-        }
-
-        .gemini-action-btn:hover {
-            background-color: #2a4d7c;
-        }
-
-        .gemini-action-btn:active {
-            transform: scale(0.95);
-        }
-
-        .mic-escuchando {
-            background-color: #ef4444 !important;
-            color: white !important;
-            box-shadow: 0 0 10px #ef4444;
-            animation: pulsoMic 1.5s infinite !important;
-        }
-
-        @keyframes pulsoMic {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-
+        /* ══ PREVIEW IMAGEN ══ */
         #image-preview-container {
-            display: none;
-            background-color: var(--bot-msg-bg);
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border-color);
-            align-items: center;
-            gap: 10px;
+            display: none; background: var(--bot-bg);
+            padding: 9px 14px; border-bottom: 1px solid var(--border);
+            align-items: center; gap: 10px; flex-shrink: 0;
         }
-
-        .preview-box {
-            position: relative;
-            width: 60px;
-            height: 60px;
-        }
-
-        .preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
+        .preview-box { position: relative; width: 56px; height: 56px; }
+        .preview-box img { width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid var(--border); }
         .remove-preview {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
+            position: absolute; top: -5px; right: -5px;
+            background: #ef4444; color: #fff; border-radius: 50%;
+            width: 17px; height: 17px; font-size: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none;
         }
 
-        /* ── FAB MENÚ ── */
+        /* ══ FOOTER ══ */
+        .footer-controls {
+            background: var(--chat-bg); border-top: 1px solid var(--border);
+            flex-shrink: 0; z-index: 100;
+        }
+        .input-container {
+            padding: 10px 13px; display: flex; gap: 9px; align-items: center;
+        }
+        .pill-bar {
+            flex: 1; display: flex; align-items: center;
+            background: #1a1a2e; border: 1px solid var(--border);
+            border-radius: 28px; padding: 4px 5px 4px 13px; gap: 6px;
+            transition: border-color .2s; min-width: 0;
+        }
+        .pill-bar:focus-within { border-color: var(--primary); }
+        #input-field {
+            flex: 1; min-width: 0; background: transparent; border: none;
+            color: #fff; padding: 9px 2px; font-size: .95rem; outline: none;
+        }
+        #input-field::placeholder { color: var(--dim); }
+        .pill-btn {
+            background: none; border: none; color: #e2e8f0;
+            font-size: 1.2rem; cursor: pointer;
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .18s; flex-shrink: 0;
+        }
+        .pill-btn:hover { background: rgba(255,255,255,.1); }
+        .send-btn {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0;
+            transition: opacity .2s, transform .1s;
+            box-shadow: 0 2px 10px rgba(121,40,202,.5);
+        }
+        .send-btn:hover { opacity: .88; }
+        .send-btn:active { transform: scale(.93); }
+        .send-btn:disabled { opacity: .4; cursor: default; }
+
+        .mic-escuchando { background: #ef4444 !important; color: #fff !important; box-shadow: 0 0 10px #ef4444; animation: pulsoMic 1.4s infinite; }
+        @keyframes pulsoMic { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+        /* ══ FAB ══ */
+        .fab-toggle {
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff;
+            width: 42px; height: 42px; border-radius: 50%;
+            font-size: 1.15rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; z-index: 10001;
+            box-shadow: 0 2px 10px rgba(121,40,202,.5);
+            transition: transform .25s;
+        }
+        .fab-toggle.open { transform: rotate(90deg); }
         .fab-items {
-            position: fixed;
-            bottom: 80px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 9999;
+            position: fixed; bottom: 76px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 9px;
+            pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 9999;
         }
         .fab-items.open { pointer-events: all; opacity: 1; }
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .fab-item { display: flex; align-items: center; gap: 9px; text-decoration: none; }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #22344d;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background: #1a273a; color: #e2e8f0; font-size: .8rem; font-weight: 600;
+            padding: 5px 13px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
         }
         .fab-item-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 42px; height: 42px; border-radius: 50%; background: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
         }
         .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
         .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
-        
-        .fab-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            background: rgba(0,0,0,0.5);
-        }
-        .fab-overlay.open { display: block; }
-        
-        .fab-toggle {
-            background: linear-gradient(135deg,#7928ca,#a855f7);
-            border: none;
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s;
-            flex-shrink: 0;
-            z-index: 10001;  
-        }
-
-        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
-        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
-        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
-        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
-        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
-        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
-        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
-        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        .fab-overlay { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.5); }
+        .fab-overlay.open { display:block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .28s both}
+        .fab-items.open .fab-item:nth-child(9){animation:fabIn .18s ease .32s both}
         @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e;
+            border-radius: 8px; padding: 8px 16px;
+            font-size: .8rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity .3s;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ══ SCROLLBAR ══ */
+        #chat-container::-webkit-scrollbar { width: 4px; }
+        #chat-container::-webkit-scrollbar-track { background: transparent; }
+        #chat-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
-        </div>
-        <div class="header-info">
-            <h1>Relectrónica</h1>
-            <p><span class="status-dot"></span> Línea Técnica Personalizada</p>
-        </div>
-        <button class="clear-btn" id="clear-btn" title="Borrar Historial">🗑️</button>
-    </header>
+<!-- ══ HEADER ══ -->
+<header>
+    <div class="logo-container"><img src="logo.png" alt="Relectrónica"></div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Asistente Técnico IA</p>
+    </div>
+    <div class="header-actions">
+        <button class="hdr-btn" id="tts-toggle" title="Silenciar/Activar voz">🔊</button>
+        <button class="hdr-btn danger" id="clear-btn" title="Borrar conversación">🗑️</button>
+    </div>
+</header>
 
-    <div id="chat-container"></div>
+<!-- ══ CHAT ══ -->
+<div id="chat-container">
+    <div class="typing-indicator" id="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    </div>
+</div>
 
-    <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
-    
-    <div class="fab-items" id="fab-items">
-        <a href="recepcion.html" class="fab-item">
-            <span class="fab-item-label">Recepción</span>
-            <span class="fab-item-btn">📋</span>
-        </a>
-        <a href="fallas.html" class="fab-item">
-            <span class="fab-item-label">Casos de Falla</span>
-            <span class="fab-item-btn">🛠️</span>
-        </a>
-        <a href="componentes.html" class="fab-item">
-            <span class="fab-item-label">Componentes</span>
-            <span class="fab-item-btn">🔍</span>
-        </a>
-        <a href="simbologiacodigopcb.html" class="fab-item">
-    <span class="fab-item-label">Símbologías PCB</span>
-    <span class="fab-item-btn">🔣</span>
-  </a>
-        <a href="calculadoras.html" class="fab-item">
-            <span class="fab-item-label">Cálculos</span>
-            <span class="fab-item-btn">🧮</span>
-        </a>
-        <a href="hardware.html" class="fab-item">
-            <span class="fab-item-label">Hardware</span>
-            <span class="fab-item-btn">🖼️</span>
-        </a>
-        <a href="biblioteca.html" class="fab-item">
-            <span class="fab-item-label">Biblioteca</span>
-            <span class="fab-item-btn">📘</span>
-        </a>
-        <a href="notas.html" class="fab-item">
-            <span class="fab-item-label">Mis Notas</span>
-            <span class="fab-item-btn">📝</span>
-        </a>
-        <a href="index.html" class="fab-item active">
-            <span class="fab-item-label">Chat Técnico</span>
-            <span class="fab-item-btn">💬</span>
-        </a>
+<!-- ══ SUGERENCIAS RÁPIDAS ══ -->
+<div class="quick-suggestions" id="quick-suggestions">
+    <div class="sug-chip" onclick="usarSugerencia(this)">📺 TV no enciende</div>
+    <div class="sug-chip" onclick="usarSugerencia(this)">⚡ Fuente SMPS</div>
+    <div class="sug-chip" onclick="usarSugerencia(this)">💡 Backlight apagado</div>
+    <div class="sug-chip" onclick="usarSugerencia(this)">🫙 Lavadora no centrifuga</div>
+    <div class="sug-chip" onclick="usarSugerencia(this)">🔥 Condensadores hinchados</div>
+    <div class="sug-chip" onclick="usarSugerencia(this)">🖥️ T-CON con líneas</div>
+</div>
+
+<!-- ══ FAB NAV ══ -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html"       class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html"          class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html"     class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="simbologiacodigopcb.html" class="fab-item"><span class="fab-item-label">Símb. PCB</span><span class="fab-item-btn">🔣</span></a>
+    <a href="calculadoras.html"    class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html"        class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html"      class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html"           class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="index.html"           class="fab-item active"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer-controls">
+    <div id="image-preview-container">
+        <div class="preview-box">
+            <img id="image-preview" src="" alt="Preview">
+            <button class="remove-preview" id="cancel-image-btn">×</button>
+        </div>
+        <span style="font-size:.82rem; color:var(--muted)">📷 Imagen lista para analizar</span>
     </div>
 
-    <div class="footer-controls">
-        <div id="image-preview-container">
-            <div class="preview-box">
-                <img id="image-preview" src="" alt="Preview">
-                <button class="remove-preview" id="cancel-image-btn">×</button>
-            </div>
-            <span style="font-size: 0.85rem; color: #a0aec0;">Imagen lista para analizar</span>
+    <div class="input-container">
+        <input type="file" id="file-input" accept="image/*" style="display:none">
+        <div class="pill-bar">
+            <button class="pill-btn" id="attach-btn" title="Adjuntar imagen">＋</button>
+            <input type="text" id="input-field" placeholder="Escribe tu consulta técnica…" autocomplete="off">
+            <button class="pill-btn" id="mic-btn" title="Voz" onclick="alternarMicrofono()">🎙️</button>
+            <button class="send-btn" id="send-btn" title="Enviar" onclick="sendMessage()">➤</button>
         </div>
-
-        <div class="input-container">
-            <input type="file" id="file-input" accept="image/*" style="display: none;">
-            
-            <div class="gemini-pill-bar">
-                <button class="gemini-inline-btn" id="attach-btn" title="Adjuntar imagen">＋</button>
-                <input type="text" id="input-field" placeholder="Pregúntale a Relectrónica..." autocomplete="off">
-                <button class="gemini-inline-btn" id="mic-btn" title="Hablar con el Bot" onclick="alternarMicrofono()">🎙️</button>
-                <button class="gemini-action-btn" id="send-btn" title="Enviar">📊</button>
-            </div>
-
-            <button class="fab-toggle" onclick="toggleFAB()" title="Menú">☰</button>
-        </div>
+        <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()" title="Menú">☰</button>
     </div>
+</div>
 
-    <script>
-        const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL"; 
-        
-        const chatContainer = document.getElementById('chat-container');
-        const inputField = document.getElementById('input-field');
-        const sendBtn = document.getElementById('send-btn');
-        const fileInput = document.getElementById('file-input');
-        const attachBtn = document.getElementById('attach-btn');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const cancelImageBtn = document.getElementById('cancel-image-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const micBtn = document.getElementById('mic-btn');
+<div class="toast" id="toast"></div>
 
-        let selectedImageBase64 = null;
-        let chatHistory = [];
-        let reconocimientoVoz = null;
-        let estaEscuchando = false;
+<script>
+/* ══════════════════════════════════════
+   CONFIG
+══════════════════════════════════════ */
+const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL";
+const STORAGE_KEY    = 'relectronica_chat_history';
+const SYSTEM_PROMPT  = `Eres "Relectrónica Bot", asistente técnico de diagnóstico y reparación de equipos electrónicos de consumo (línea marrón: TV/audio/video; línea blanca: lavadora/nevera/microondas; línea menor: licuadora/plancha/ventilador). Operas como técnico senior de banco: metódico, honesto y cauteloso.
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedChat = localStorage.getItem('relectronica_chat_history');
-            if (savedChat) {
-                chatHistory = JSON.parse(savedChat);
-                chatHistory.forEach(msg => {
-                    appendMessageToDOM(msg.sender, msg.text, msg.isError, msg.imageSrc);
-                });
-            } else {
-                const welcomeText = 'Bienvenido a Relectrónica. Asistencia técnica abierta a cualquier consulta sobre reparaciones eléctricas y electrónicas: mediciones, componentes, esquemas o calibración. El sistema está disponible para resolver dudas técnicas con precisión.';
-                appendMessageToDOM('bot', welcomeText);
-                saveMessageToHistory('bot', welcomeText);
-            }
-            inicializarReconocimientoVoz();
+═══════════════════════════════════════
+PRINCIPIO FUNDAMENTAL — NO NEGOCIABLE
+═══════════════════════════════════════
+NUNCA diagnostiques ni des pasos de reparación sin datos reales del equipo.
+Si no tienes marca, modelo y síntoma exacto → pregunta primero. Sin esos datos no hay diagnóstico.
+Si no tienes mediciones eléctricas → pídelas antes de avanzar al procedimiento.
+NUNCA inventes valores, estadísticas, códigos de componentes ni nombres de circuitos integrados. Si no sabes con certeza, dilo explícitamente.
+Distingue siempre entre:
+  • CONFIRMADO: dato que el usuario proporcionó o que es estándar documentado.
+  • HIPÓTESIS: causa probable basada en síntomas, pendiente de confirmar con medición.
+  • DESCONOCIDO: información que necesitas para continuar.
+
+═══════════════════════════════════════
+PROTOCOLO DE SEGURIDAD ELÉCTRICA
+═══════════════════════════════════════
+Incluye 🔴 ALERTA DE SEGURIDAD solo cuando el procedimiento implique riesgo eléctrico real. Cuando aplique, especifica:
+- Desconectar el equipo de la red eléctrica y esperar mínimo 60 segundos antes de abrir.
+- Descargar condensadores de filtro principal (pueden retener 300–400 V DC) usando una resistencia de 10 kΩ / 5 W conectada entre los terminales positivo y negativo del bus DC. Verificar con voltímetro que la tensión sea inferior a 5 V antes de tocar.
+- En microondas: el capacitor de alta tensión puede retener hasta 2100 V DC después de apagar. Usar resistencia de 10 kΩ en serie con un destornillador aislado para descargarlo, verificar con voltímetro antes de cualquier contacto.
+- Nunca trabajes sobre equipos conectados a la red sin aislamiento adecuado (alfombra dieléctrica, guantes clase 0 o herramientas 1000 V CAT III).
+- Nunca cortocircuites directamente los terminales de un condensador de alta tensión sin resistencia limitadora.
+
+═══════════════════════════════════════
+METODOLOGÍA DE DIAGNÓSTICO
+═══════════════════════════════════════
+Sigue este orden estricto:
+
+1. RECOLECCIÓN DE DATOS (antes de cualquier hipótesis)
+   Pregunta lo que falte de esta lista mínima:
+   - Marca y modelo exacto del equipo.
+   - Síntoma exacto: qué hace y qué no hace (LEDs, sonidos, imagen, error en display).
+   - ¿El problema es constante o intermitente? ¿Desde cuándo?
+   - ¿Hubo evento previo? (golpe, sobretensión, olor a quemado, humedad).
+   - ¿Ya se intervino el equipo? ¿Qué se hizo?
+
+2. ANÁLISIS POR BLOQUES FUNCIONALES (solo con datos suficientes)
+   Razona de entrada hacia salida:
+   Entrada de red → Rectificación y filtro → Conmutación (SMPS/PWM) → Rieles de salida → Carga (panel, motor, resistencia).
+   Identifica en qué bloque se interrumpe la cadena según los síntomas.
+
+3. MEDICIONES REQUERIDAS (pide las específicas del caso)
+   Siempre indica: punto de prueba exacto, escala del multímetro (DC/AC, rango), valor esperado y qué significa cada resultado posible.
+   Ejemplo correcto: "Mide con multímetro en DC 200 V el voltaje entre el ánodo del diodo D801 y GND. Resultado esperado: 300–400 V DC con el equipo encendido. Si mides 0 V, el rectificador o el fusible principal están abiertos."
+   Ejemplo INCORRECTO (no hagas esto): "Mide los voltajes de la fuente y dime qué ves."
+
+4. DIAGNÓSTICO (solo después de recibir mediciones)
+   Formula hipótesis ordenadas de más a menos probable según los datos reales del usuario, no estadísticas genéricas.
+   Cada hipótesis debe estar justificada en un dato concreto.
+   Si dos hipótesis son igualmente probables, indícalo y da el paso que las diferencia.
+
+5. PROCEDIMIENTO DE REPARACIÓN (solo cuando el diagnóstico esté confirmado)
+   Pasos numerados, concretos y en orden seguro.
+   Incluye valores de reemplazo exactos cuando los conozcas; si no los conoces, indica cómo obtenerlos (datasheet, serigrafía del componente, diagrama de servicio).
+   Si el procedimiento requiere equipos especiales (osciloscopio, ESR-metro, fuente de laboratorio), menciónalo.
+
+6. VERIFICACIÓN FINAL
+   Indica qué medir o comprobar para confirmar que la reparación fue exitosa antes de cerrar el equipo y reconectar a la red.
+
+═══════════════════════════════════════
+FORMATO DE RESPUESTA
+═══════════════════════════════════════
+Usa solo los encabezados que apliquen al momento de la conversación. No rellenes secciones sin información real.
+
+🔴 ALERTA DE SEGURIDAD: (solo si hay riesgo eléctrico en el paso actual)
+📋 DIAGNÓSTICO PRELIMINAR: (solo si tienes datos suficientes para hipotetizar)
+🔧 LISTA DE VERIFICACIÓN: (mediciones específicas solicitadas)
+💡 POSIBLES CAUSAS: (hipótesis justificadas en datos reales, no estadísticas)
+⚙️ PROCEDIMIENTO: (pasos numerados, solo cuando el diagnóstico esté confirmado)
+✅ PRUEBA FINAL: (verificación antes de cerrar y reconectar)
+
+Si solo tienes el síntoma y te faltan datos → responde ÚNICAMENTE con las preguntas necesarias. No agregues hipótesis todavía.
+
+Cuando expliques un componente, hazlo entre paréntesis de forma concisa: "el optoacoplador (componente que aísla eléctricamente dos circuitos transfiriendo señal mediante luz infrarroja)".
+
+═══════════════════════════════════════
+LÍMITES ABSOLUTOS
+═══════════════════════════════════════
+- NO inventes códigos de componentes, voltajes exactos de modelos que no conoces ni valores de reemplazo sin verificar.
+- NO modifiques resistencias de sensado de corriente (shunts) para aumentar la potencia de salida: riesgo de incendio y destrucción del equipo.
+- NO des instrucciones de reparación sobre instalaciones eléctricas trifásicas industriales (>240 V AC fase-neutro) ni sobre equipos médicos.
+- Si el microcontrolador principal o el procesador de señal digital (DSP) están dañados, indica cambio de placa: no existe reparación práctica a nivel de componente en taller general.
+- Si identificas que el usuario está en una situación de peligro inmediato (trabaja sobre el equipo encendido, toca componentes sin descarga previa), detén el diagnóstico e indica el protocolo de seguridad antes de continuar.
+- Cuando no tengas certeza sobre algo, di exactamente: "No tengo información suficiente para confirmar esto. Te recomiendo consultar el diagrama de servicio del modelo [X] antes de proceder."`;
+
+
+/* ══════════════════════════════════════
+   ESTADO
+══════════════════════════════════════ */
+const chatContainer       = document.getElementById('chat-container');
+const inputField          = document.getElementById('input-field');
+const sendBtn             = document.getElementById('send-btn');
+const fileInput           = document.getElementById('file-input');
+const attachBtn           = document.getElementById('attach-btn');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const imagePreview        = document.getElementById('image-preview');
+const cancelImageBtn      = document.getElementById('cancel-image-btn');
+const clearBtn            = document.getElementById('clear-btn');
+const micBtn              = document.getElementById('mic-btn');
+const typingIndicator     = document.getElementById('typing-indicator');
+const quickSuggestions    = document.getElementById('quick-suggestions');
+const ttsToggle           = document.getElementById('tts-toggle');
+const toastEl             = document.getElementById('toast');
+
+let selectedImageBase64 = null;
+let chatHistory         = [];
+let reconocimientoVoz   = null;
+let estaEscuchando      = false;
+let ttsActivo           = true;
+let msgCounter          = 0;
+
+/* ══════════════════════════════════════
+   MARKDOWN PARSER LIGERO
+══════════════════════════════════════ */
+function parseMarkdown(text) {
+    // secciones técnicas coloreadas
+    const secMap = {
+        '🔴 ALERTA DE SEGURIDAD': 'sec-alerta',
+        '📋 DIAGNÓSTICO PRELIMINAR': 'sec-diag',
+        '🔧 LISTA DE VERIFICACIÓN': 'sec-check',
+        '💡 POSIBLES CAUSAS': 'sec-causas',
+        '⚙️ PROCEDIMIENTO': 'sec-proc',
+        '✅ PRUEBA FINAL': 'sec-prueba',
+    };
+
+    let html = text
+        // encabezados técnicos
+        .replace(/^(🔴 ALERTA DE SEGURIDAD|📋 DIAGNÓSTICO PRELIMINAR|🔧 LISTA DE VERIFICACIÓN|💡 POSIBLES CAUSAS|⚙️ PROCEDIMIENTO|✅ PRUEBA FINAL):?/gm, (m, p1) => {
+            const cls = secMap[p1] || '';
+            return `<strong class="${cls}">${p1}:</strong>`;
+        })
+        // ### headings
+        .replace(/^###\s+(.+)$/gm, '<h4>$1</h4>')
+        .replace(/^##\s+(.+)$/gm,  '<h3>$1</h3>')
+        // bold
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__(.+?)__/g,      '<strong>$1</strong>')
+        // italic
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/_(.+?)_/g,   '<em>$1</em>')
+        // código inline
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // listas con guión o asterisco
+        .replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>')
+        // listas numeradas
+        .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+        // separador
+        .replace(/^---+$/gm, '<hr>')
+        // saltos de línea dobles = párrafo
+        .split('\n\n').map(block => {
+            if (block.includes('<li>')) return `<ul>${block}</ul>`;
+            if (block.startsWith('<h') || block.startsWith('<hr') || block.startsWith('<ul')) return block;
+            return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+        }).join('');
+
+    return `<div class="msg-body">${html}</div>`;
+}
+
+/* ══════════════════════════════════════
+   HORA ACTUAL
+══════════════════════════════════════ */
+function ahora() {
+    return new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ══════════════════════════════════════
+   RENDERIZAR MENSAJE EN DOM
+══════════════════════════════════════ */
+function appendMessageToDOM(sender, text, isError = false, imageSrc = null, time = null) {
+    const id = 'msg-' + (++msgCounter);
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+    if (isError) msgDiv.classList.add('error-message');
+    msgDiv.id = id;
+
+    const hora = time || ahora();
+    const label = sender === 'bot' ? '⚡ Relectrónica:' : '👤 Técnico:';
+    const metaCls = sender === 'bot' ? 'bot-meta' : 'user-meta';
+
+    let inner = `<div class="msg-meta ${metaCls}">
+        <span>${label}</span>
+        <span class="msg-time">${hora}</span>
+    </div>`;
+
+    if (text) {
+        inner += sender === 'bot' ? parseMarkdown(text) : `<div class="msg-body">${escapeHtml(text).replace(/\n/g,'<br>')}</div>`;
+    }
+
+    if (imageSrc) {
+        inner += `<img src="${imageSrc}" class="chat-image" alt="Imagen adjunta">`;
+    }
+
+    if (sender === 'bot' && !isError && text) {
+        inner += `<div class="msg-actions">
+            <button class="msg-act-btn" onclick="copiarMsg('${id}')">📋 Copiar</button>
+            <button class="msg-act-btn" onclick="hablarTexto(document.getElementById('${id}').dataset.raw)">🔊 Leer</button>
+        </div>`;
+    }
+
+    msgDiv.innerHTML = inner;
+    if (text) msgDiv.dataset.raw = text;
+
+    // insertar ANTES del typing indicator para que quede siempre al final
+    chatContainer.insertBefore(msgDiv, typingIndicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return id;
+}
+
+function escapeHtml(t) {
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══════════════════════════════════════
+   STORAGE
+══════════════════════════════════════ */
+function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
+    chatHistory.push({ sender, text, isError, imageSrc, time: ahora() });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory)); } catch(e) {}
+}
+
+/* ══════════════════════════════════════
+   SUGERENCIAS RÁPIDAS
+══════════════════════════════════════ */
+function usarSugerencia(chip) {
+    inputField.value = chip.textContent.replace(/^[\p{Emoji}\s]+/u, '').trim();
+    quickSuggestions.classList.add('hidden');
+    inputField.focus();
+}
+
+function ocultarSugerencias() {
+    quickSuggestions.classList.add('hidden');
+}
+
+/* ══════════════════════════════════════
+   TYPING INDICATOR
+══════════════════════════════════════ */
+function showTyping() {
+    typingIndicator.classList.add('show');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+function hideTyping() {
+    typingIndicator.classList.remove('show');
+}
+
+/* ══════════════════════════════════════
+   ENVIAR MENSAJE
+══════════════════════════════════════ */
+async function sendMessage() {
+    const query = inputField.value.trim();
+    if (!query && !selectedImageBase64) return;
+
+    ocultarSugerencias();
+
+    const currentImageSrc    = imagePreview.src;
+    const activeImageBase64  = selectedImageBase64;
+
+    appendMessageToDOM('user', query, false, activeImageBase64 ? currentImageSrc : null);
+    saveMessageToHistory('user', query, false, activeImageBase64 ? currentImageSrc : null);
+
+    inputField.value       = '';
+    selectedImageBase64    = null;
+    fileInput.value        = '';
+    imagePreviewContainer.style.display = 'none';
+
+    inputField.disabled = true;
+    sendBtn.disabled    = true;
+    attachBtn.disabled  = true;
+
+    showTyping();
+
+    // construir historial para Cohere (últimos 14 turnos)
+    const recentHistory = chatHistory.slice(-14);
+    const cohereHistory = [];
+    for (const m of recentHistory) {
+        if (!m.text) continue;
+        cohereHistory.push({ role: m.sender === 'bot' ? 'CHATBOT' : 'USER', message: m.text });
+    }
+
+    const userMsg = query || "Por favor analiza la imagen adjunta para este diagnóstico técnico.";
+
+    try {
+        const resp = await fetch('https://api.cohere.ai/v1/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${COHERE_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'command-r-08-2024',
+                message: userMsg,
+                preamble: SYSTEM_PROMPT,
+                chat_history: cohereHistory.length > 1 ? cohereHistory.slice(0, -1) : [],
+            })
         });
 
-        attachBtn.addEventListener('click', () => fileInput.click());
+        const data = await resp.json();
+        hideTyping();
 
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                selectedImageBase64 = event.target.result.split(',')[1];
-                imagePreview.src = event.target.result;
-                imagePreviewContainer.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        });
-
-        cancelImageBtn.addEventListener('click', () => {
-            selectedImageBase64 = null;
-            fileInput.value = '';
-            imagePreviewContainer.style.display = 'none';
-        });
-
-        clearBtn.addEventListener('click', () => {
-            if (confirm('¿Quieres vaciar toda la conversación actual?')) {
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-                localStorage.removeItem('relectronica_chat_history');
-                chatHistory = [];
-                chatContainer.innerHTML = '';
-                const welcomeText = 'Historial borrado correctamente. ¿Qué equipo o circuito necesitas diagnosticar hoy?';
-                appendMessageToDOM('bot', welcomeText);
-                saveMessageToHistory('bot', welcomeText);
-            }
-        });
-
-        function appendMessageToDOM(sender, text, isError = false, imageSrc = null) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message');
-            msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
-            if (isError) msgDiv.classList.add('error-message');
-
-            const metaSpan = document.createElement('span');
-            metaSpan.classList.add('msg-meta');
-            metaSpan.classList.add(sender === 'bot' ? 'bot-meta' : 'user-meta');
-            metaSpan.innerText = sender === 'bot' ? '⚡ Relectrónica Bot:' : 'Jefferson:';
-
-            msgDiv.appendChild(metaSpan);
-            
-            if (text) {
-                const formattedText = text.split('\n');
-                formattedText.forEach((line, index) => {
-                    msgDiv.appendChild(document.createTextNode(line));
-                    if (index < formattedText.length - 1) {
-                        msgDiv.appendChild(document.createElement('br'));
-                    }
-                });
-            }
-
-            if (imageSrc) {
-                const img = document.createElement('img');
-                img.src = imageSrc;
-                img.classList.add('chat-image');
-                msgDiv.appendChild(img);
-            }
-
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (resp.ok && data.text) {
+            appendMessageToDOM('bot', data.text);
+            saveMessageToHistory('bot', data.text);
+            if (ttsActivo) hablarTexto(data.text);
+        } else {
+            const errMsg = `⚠️ Error: ${data.message || 'Respuesta inesperada del servidor.'}`;
+            appendMessageToDOM('bot', errMsg, true);
         }
 
-        function saveMessageToHistory(sender, text, isError = false, imageSrc = null) {
-            chatHistory.push({ sender, text, isError, imageSrc });
-            localStorage.setItem('relectronica_chat_history', JSON.stringify(chatHistory));
+    } catch (err) {
+        hideTyping();
+        appendMessageToDOM('bot', '⚠️ Sin conexión. Verifica tu red e intenta de nuevo.', true);
+        console.error(err);
+    } finally {
+        inputField.disabled = false;
+        sendBtn.disabled    = false;
+        attachBtn.disabled  = false;
+        inputField.focus();
+    }
+}
+
+/* ══════════════════════════════════════
+   COPIAR MENSAJE
+══════════════════════════════════════ */
+function copiarMsg(id) {
+    const el = document.getElementById(id);
+    const raw = el?.dataset.raw || '';
+    if (!raw) return;
+    navigator.clipboard.writeText(raw).then(() => showToast('📋 Copiado'));
+}
+
+/* ══════════════════════════════════════
+   VOZ — RECONOCIMIENTO
+══════════════════════════════════════ */
+function inicializarReconocimientoVoz() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    reconocimientoVoz = new SR();
+    reconocimientoVoz.lang = 'es-VE';
+    reconocimientoVoz.continuous = false;
+    reconocimientoVoz.interimResults = false;
+    reconocimientoVoz.onstart  = () => { estaEscuchando = true; micBtn.classList.add('mic-escuchando'); micBtn.textContent = '🛑'; inputField.placeholder = 'Escuchando…'; };
+    reconocimientoVoz.onerror  = () => apagarMic();
+    reconocimientoVoz.onend    = () => apagarMic();
+    reconocimientoVoz.onresult = e => {
+        const txt = e.results[0][0].transcript.trim();
+        if (txt) { inputField.value = txt; sendMessage(); }
+    };
+}
+
+function alternarMicrofono() {
+    if (!reconocimientoVoz) { showToast('⚠️ Tu navegador no soporta voz'); return; }
+    estaEscuchando ? reconocimientoVoz.stop() : reconocimientoVoz.start();
+}
+function apagarMic() {
+    estaEscuchando = false;
+    micBtn.classList.remove('mic-escuchando');
+    micBtn.textContent = '🎙️';
+    inputField.placeholder = 'Escribe tu consulta técnica…';
+}
+
+/* ══════════════════════════════════════
+   VOZ — SÍNTESIS (TTS)
+══════════════════════════════════════ */
+function hablarTexto(texto) {
+    if (!ttsActivo || !('speechSynthesis' in window) || !texto) return;
+    window.speechSynthesis.cancel();
+    const limpio = texto.replace(/[🔴📋🔧💡⚙️✅⚠️🎙️📊*#_\[\]\(\)]/g, '').trim();
+    const u = new SpeechSynthesisUtterance(limpio);
+    u.lang = 'es-VE'; u.rate = 1.05; u.pitch = 1.0;
+    const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+    if (voces.length) u.voice = voces[0];
+    window.speechSynthesis.speak(u);
+}
+
+ttsToggle.addEventListener('click', () => {
+    ttsActivo = !ttsActivo;
+    if (!ttsActivo && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    ttsToggle.textContent = ttsActivo ? '🔊' : '🔇';
+    ttsToggle.title = ttsActivo ? 'Silenciar voz' : 'Activar voz';
+    showToast(ttsActivo ? '🔊 Voz activada' : '🔇 Voz silenciada');
+});
+if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+/* ══════════════════════════════════════
+   IMAGEN ADJUNTA
+══════════════════════════════════════ */
+attachBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        selectedImageBase64 = ev.target.result.split(',')[1];
+        imagePreview.src    = ev.target.result;
+        imagePreviewContainer.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+});
+cancelImageBtn.addEventListener('click', () => {
+    selectedImageBase64 = null; fileInput.value = '';
+    imagePreviewContainer.style.display = 'none';
+});
+
+/* ══════════════════════════════════════
+   BORRAR HISTORIAL
+══════════════════════════════════════ */
+clearBtn.addEventListener('click', () => {
+    if (!confirm('¿Vaciar toda la conversación?')) return;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    localStorage.removeItem(STORAGE_KEY);
+    chatHistory = []; msgCounter = 0;
+    // Limpiar mensajes pero preservar typing indicator
+    Array.from(chatContainer.children).forEach(el => { if (el !== typingIndicator) el.remove(); });
+    quickSuggestions.classList.remove('hidden');
+    const msg = 'Historial borrado. ¿Qué equipo necesitas diagnosticar hoy?';
+    appendMessageToDOM('bot', msg);
+    saveMessageToHistory('bot', msg);
+});
+
+/* ══════════════════════════════════════
+   ENTER para enviar
+══════════════════════════════════════ */
+inputField.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+inputField.addEventListener('input', () => { if (inputField.value.length > 0) quickSuggestions.classList.add('hidden'); });
+
+/* ══════════════════════════════════════
+   FAB
+══════════════════════════════════════ */
+function toggleFAB() {
+    const items = document.getElementById('fab-items');
+    const ov    = document.getElementById('fab-overlay');
+    const btn   = document.getElementById('fab-toggle');
+    const open  = items.classList.toggle('open');
+    ov.classList.toggle('open', open);
+    btn.classList.toggle('open', open);
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg) {
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            chatHistory = JSON.parse(saved);
+            chatHistory.forEach(m => appendMessageToDOM(m.sender, m.text, m.isError, m.imageSrc, m.time));
+            quickSuggestions.classList.add('hidden');
+        } else {
+            const welcome = `¡Bienvenido a **Relectrónica**! 👋\n\nSoy tu asistente técnico especializado en diagnóstico y reparación de equipos electrónicos.\n\n📺 **Línea Marrón** — TV, monitores, audio\n🫙 **Línea Blanca** — lavadoras, neveras, microondas\n🔌 **Línea Menor** — licuadoras, planchas, ventiladores\n\nPuedes adjuntar **fotos de la placa** para un diagnóstico más preciso. ¿Qué equipo necesitas revisar hoy?`;
+            appendMessageToDOM('bot', welcome);
+            saveMessageToHistory('bot', welcome);
         }
-
-        async function sendMessage() {
-            const query = inputField.value.trim();
-            if (!query && !selectedImageBase64) return;
-
-            const currentImageSrc = imagePreview.src;
-            const activeImageBase64 = selectedImageBase64;
-            
-            appendMessageToDOM('user', query, false, activeImageBase64 ? currentImageSrc : null);
-            saveMessageToHistory('user', query, false, activeImageBase64 ? currentImageSrc : null);
-            
-            inputField.value = '';
-            selectedImageBase64 = null;
-            fileInput.value = '';
-            imagePreviewContainer.style.display = 'none';
-
-            inputField.disabled = true;
-            sendBtn.disabled = true;
-            attachBtn.disabled = true;
-
-            try {
-                const response = await fetch('https://api.cohere.ai/v1/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${COHERE_API_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'command-r-08-2024',
-                        message: query || "Por favor analiza la imagen que te adjunto para esta consulta técnica.",
-                        preamble: `Eres "Relectrónica", ingeniero electrónico senior. Tu tono es técnico, directo, didáctico y profesional. Tu objetivo es asistir en el diagnóstico y reparación de equipos electrónicos.
-
-Reglas de interacción:
-- Saludo inicial: Si el usuario solo saluda, responde: "¿Qué equipo necesitas diagnosticar?".
-- Protocolo de seguridad (Obligatorio):
-  "⚠️ ADVERTENCIA: Descarga condensadores principales (400V+) con resistencia de 10kΩ/5W antes de manipular."
-- Metodología de diagnóstico:
-  - Exige datos concretos: modelo, voltajes medidos (especifica escala DC/AC), fotos de la placa.
-  - Si el usuario no da mediciones, pregúntale: "Mide la tensión en el pin de drenaje del MOSFET principal respecto a GND. ¿Qué valor da?".
-  - Sugiere buscar manuales de servicio o esquemáticos.
-  - Si no hay mediciones, recomienda limpieza y resoldado de puntos críticos (soldaduras frías).
-  - Analiza por bloques: entrada (rectificador/filtro), conmutación (PWM/MOSFET), Driver LED (inversor de retroiluminación) y salida (diodos/reguladores).
-  - Prioriza causas: 80% condensadores electrolíticos secos en fuente auxiliar o LEDs abiertos en tiras, 15% optoacoplador/TL431, 5% IC PWM o microcontrolador principal.
-- Formato de respuesta (Obligatorio):
-  🔴 ALERTA DE SEGURIDAD: (Advertencia estándar)
-  📋 DIAGNÓSTICO PRELIMINAR: (Interpretación técnica)
-  🔧 LISTA DE VERIFICACIÓN: (Pasos y mediciones)
-  💡 POSIBLES CAUSAS: (Priorizadas por %)
-  ⚙️ PROCEDIMIENTO: (Sustitución/reparación)
-  ✅ PRUEBA FINAL: (Validation o comprobación)
-- Límites técnicos:
-  - No modificar shunts para aumentar potencia bajo ningún concepto (riesgo de incendio).
-  - Si el microcontrolador/procesador principal está dañado, sugiere cambio de placa.
-  - No des consejos para alta tensión industrial trifásica (>440V AC) sin supervisión de un eléctrico colegiado.
-- Didáctica: Explica la función de cada componente técnico mencionado entre paréntesis.`
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    appendMessageToDOM('bot', data.text);
-                    saveMessageToHistory('bot', data.text);
-                    hablarTexto(data.text);
-                } else {
-                    appendMessageToDOM('bot', `⚠️ Error de validación: ${data.message || 'Error desconocido.'}`, true);
-                }
-
-            } catch (error) {
-                appendMessageToDOM('bot', '⚠️ Error de red: No se pudo conectar con el servidor.', true);
-                console.error(error);
-            } finally {
-                inputField.disabled = false;
-                sendBtn.disabled = false;
-                attachBtn.disabled = false;
-                inputField.focus();
-            }
-        }
-
-        sendBtn.addEventListener('click', sendMessage);
-
-        inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        function inicializarReconocimientoVoz() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                console.log("El navegador no soporta SpeechRecognition.");
-                return;
-            }
-
-            reconocimientoVoz = new Recognition || new webkitSpeechRecognition();
-            reconocimientoVoz = new SpeechRecognition();
-            reconocimientoVoz.lang = 'es-VE';
-            reconocimientoVoz.continuous = false;
-            reconocimientoVoz.interimResults = false;
-
-            reconocimientoVoz.onstart = () => {
-                estaEscuchando = true;
-                micBtn.classList.add('mic-escuchando');
-                micBtn.innerHTML = "🛑";
-                inputField.placeholder = "Escuchando diagnóstico...";
-            };
-
-            reconocimientoVoz.onerror = (event) => {
-                console.error("Error de voz detectado:", event.error);
-                forzarApagadoMic();
-            };
-
-            reconocimientoVoz.onend = () => {
-                forzarApagadoMic();
-            };
-
-            reconocimientoVoz.onresult = function(event) {
-                const textoEscuchado = event.results[0][0].transcript;
-                if (textoEscuchado.trim() !== "") {
-                    inputField.value = textoEscuchado;
-                    sendMessage();
-                }
-            };
-        }
-
-        function alternarMicrofono() {
-            if (!reconocimientoVoz) {
-                alert("Tu dispositivo o navegador no soporta el reconocimiento de voz.");
-                return;
-            }
-
-            if (estaEscuchando) {
-                reconocimientoVoz.stop();
-            } else {
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-                reconocimientoVoz.start();
-            }
-        }
-
-        function forzarApagadoMic() {
-            estaEscuchando = false;
-            micBtn.classList.remove('mic-escuchando');
-            micBtn.innerHTML = "🎙️";
-            inputField.placeholder = "Pregúntale a Relectrónica...";
-        }
-
-        function hablarTexto(texto) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                
-                const textoLimpio = texto.replace(/[*#_⚡|⚠️|💡|📟|🎨|🔗|📉|🔋\[\]\(\)]/g, '');
-                const utterance = new SpeechSynthesisUtterance(textoLimpio);
-                utterance.lang = 'es-ES';
-                
-                const voces = window.speechSynthesis.getVoices();
-                const vocesEspanol = voces.filter(voz => voz.lang.startsWith('es'));
-                
-                if (vocesEspanol.length > 0) {
-                    utterance.voice = vocesEspanol[0]; 
-                }
-
-                utterance.rate = 1.05;
-                utterance.pitch = 1.0; 
-
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = function() {
-                window.speechSynthesis.getVoices();
-            };
-        }
-    
-        function toggleFAB() {
-            const items = document.getElementById('fab-items');
-            const overlay = document.getElementById('fab-overlay');
-            const btn = document.querySelector('.fab-toggle');
-            const open = items.classList.toggle('open');
-            overlay.classList.toggle('open', open);
-            btn.style.background = open ? 'linear-gradient(135deg,#a855f7,#7928ca)' : '';
-        }
-    </script>
+    } catch(e) {
+        const msg = '¿Qué equipo necesitas diagnosticar hoy?';
+        appendMessageToDOM('bot', msg);
+        saveMessageToHistory('bot', msg);
+    }
+    inicializarReconocimientoVoz();
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+});
+</script>
 </body>
 </html>
