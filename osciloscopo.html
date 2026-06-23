@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica – Osciloscopio Virtual IA</title>
+<style>
+:root{
+  --bg:#0b131f;--chat:#111c2c;--card:#162235;--brd:#22344d;
+  --pri:#7928ca;--acc:#a855f7;--text:#ffffff;--muted:#a0aec0;
+  --dim:#4a5568;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;
+  --inp:#080d16;--scope:#050d18;--grid:#0f2035;
+  --beam:#00ff88;--beam2:#ff6b35;--beam3:#4fc3f7;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+html,body{height:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+header{background:var(--chat);padding:11px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--brd);flex-shrink:0}
+.logo-container{width:44px;height:44px;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--brd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--ok);display:flex;align-items:center;gap:4px}
+.status-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;animation:pulse-dot 2.5s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.back-btn{margin-left:auto;background:none;border:1px solid var(--brd);border-radius:8px;color:var(--muted);padding:6px 12px;font-size:.78rem;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:4px;transition:all .18s}
+.back-btn:hover{background:#1e3347;color:#fff}
+
+/* MAIN */
+main{flex:1;padding:14px;max-width:760px;width:100%;margin:0 auto;padding-bottom:30px}
+
+/* SCOPE SCREEN */
+.scope-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;overflow:hidden;margin-bottom:14px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.scope-toolbar{background:var(--chat);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--brd)}
+.scope-label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.scope-value{background:var(--inp);border:1px solid var(--brd);border-radius:6px;color:var(--beam);font-family:'Courier New',monospace;font-size:.8rem;padding:4px 8px;min-width:64px;text-align:center}
+.scope-sep{width:1px;height:20px;background:var(--brd);margin:0 2px}
+.tb-btn{background:var(--inp);border:1px solid var(--brd);border-radius:6px;color:var(--muted);padding:4px 10px;font-size:.75rem;cursor:pointer;transition:all .18s;white-space:nowrap}
+.tb-btn:hover{border-color:var(--acc);color:#d8b4fe}
+.tb-btn.active{background:rgba(121,40,202,.25);border-color:var(--acc);color:#d8b4fe}
+.tb-btn.danger{color:var(--err)}
+.tb-btn.danger:hover{border-color:var(--err);background:rgba(239,68,68,.1)}
+
+/* canvas wrapper */
+.scope-screen{position:relative;background:var(--scope);cursor:crosshair}
+#scopeCanvas{display:block;width:100%;touch-action:none}
+.scope-ch-label{position:absolute;top:8px;left:8px;font-family:'Courier New',monospace;font-size:.7rem;color:var(--beam);background:rgba(0,0,0,.6);padding:2px 6px;border-radius:4px;pointer-events:none}
+.cursor-pos{position:absolute;bottom:8px;right:8px;font-family:'Courier New',monospace;font-size:.7rem;color:var(--muted);background:rgba(0,0,0,.6);padding:2px 6px;border-radius:4px;pointer-events:none}
+.scope-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;opacity:.35}
+.scope-hint p{font-size:.85rem;color:var(--muted);margin-top:8px}
+.scope-hint .icon{font-size:2.5rem}
+
+/* WAVEFORM PRESETS */
+.presets-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:14px;margin-bottom:14px}
+.presets-title{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.presets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.preset-btn{background:var(--inp);border:1px solid var(--brd);border-radius:8px;padding:10px 10px 8px;cursor:pointer;transition:all .2s;text-align:left}
+.preset-btn:hover{border-color:var(--acc);background:rgba(121,40,202,.12)}
+.preset-btn .p-icon{font-size:1.2rem;margin-bottom:4px;display:block}
+.preset-btn .p-name{font-size:.78rem;font-weight:700;color:#e2e8f0;display:block}
+.preset-btn .p-desc{font-size:.68rem;color:var(--dim);display:block;margin-top:2px;line-height:1.3}
+.preset-btn.active{border-color:var(--beam);background:rgba(0,255,136,.07)}
+
+/* PARAMS PANEL */
+.params-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:14px;margin-bottom:14px}
+.params-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.param-group{display:flex;flex-direction:column;gap:4px}
+.param-group label{font-size:.75rem;color:var(--muted);font-weight:600}
+.param-input{background:var(--inp);border:1px solid var(--brd);border-radius:6px;color:#fff;padding:7px 10px;font-size:.88rem;outline:none;width:100%;transition:border-color .2s}
+.param-input:focus{border-color:var(--pri)}
+.analyze-btn{width:100%;padding:13px;border:none;border-radius:8px;background:linear-gradient(135deg,#7928ca,#a855f7);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .1s;box-shadow:0 3px 14px rgba(121,40,202,.5)}
+.analyze-btn:hover{opacity:.9}
+.analyze-btn:active{transform:scale(.98)}
+.analyze-btn:disabled{opacity:.45;cursor:default}
+
+/* RESULT PANEL */
+.result-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:16px;margin-bottom:14px;display:none}
+.result-card.show{display:block}
+.result-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--brd)}
+.result-badge{padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-ok{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+.badge-warn{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.badge-err{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.result-title{font-size:1rem;font-weight:700;color:#fff;flex:1}
+.result-body{font-size:.85rem;line-height:1.7;color:#cbd5e1}
+.result-body strong{color:#fff}
+.result-body h4{color:var(--acc);font-size:.82rem;margin:10px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+.result-body ul{padding-left:16px;margin:4px 0}
+.result-body li{margin-bottom:4px}
+.result-body .highlight{background:rgba(168,85,247,.12);border-left:3px solid var(--acc);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0;font-size:.82rem}
+.result-body .alert{background:rgba(239,68,68,.08);border-left:3px solid var(--err);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0;color:#fca5a5;font-size:.82rem}
+.result-body .tip{background:rgba(16,185,129,.08);border-left:3px solid var(--ok);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0;color:#86efac;font-size:.82rem}
+.result-body code{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.25);border-radius:4px;padding:1px 6px;font-family:'Courier New',monospace;font-size:.8rem;color:#c4b5fd}
+.copy-result{background:var(--inp);border:1px solid var(--brd);border-radius:6px;color:var(--muted);padding:6px 12px;font-size:.75rem;cursor:pointer;margin-top:12px;transition:all .18s}
+.copy-result:hover{border-color:var(--acc);color:#d8b4fe}
+
+/* CONTEXT INPUT */
+.context-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:14px;margin-bottom:14px}
+.ctx-label{font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:6px;display:block}
+.ctx-input{width:100%;background:var(--inp);border:1px solid var(--brd);border-radius:8px;color:#fff;padding:10px 12px;font-size:.88rem;resize:vertical;min-height:68px;outline:none;font-family:inherit;line-height:1.5;transition:border-color .2s}
+.ctx-input:focus{border-color:var(--pri)}
+.ctx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ctx-chip{background:var(--inp);border:1px solid var(--brd);border-radius:14px;padding:4px 10px;font-size:.72rem;color:var(--dim);cursor:pointer;transition:all .18s}
+.ctx-chip:hover{border-color:var(--acc);color:#c4b5fd}
+
+/* TYPING */
+.typing-dots{display:none;align-items:center;gap:5px;padding:6px 0}
+.typing-dots.show{display:flex}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:typingBounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e3a28;border:1px solid #22c55e;border-radius:8px;padding:8px 16px;font-size:.8rem;color:#86efac;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* FAB */
+.fab-toggle{position:fixed;bottom:20px;right:18px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#7928ca,#a855f7);border:none;color:white;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 16px rgba(121,40,202,.6);display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .25s ease}
+.fab-toggle.open{transform:rotate(90deg)}
+.fab-items{position:fixed;bottom:80px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:9px;pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:9999}
+.fab-items.open{pointer-events:all;opacity:1}
+.fab-item{display:flex;align-items:center;gap:9px;text-decoration:none}
+.fab-item-label{background:#1a273a;color:#e2e8f0;font-size:.8rem;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid #22344d;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.fab-item-btn{width:42px;height:42px;border-radius:50%;background:#1a273a;border:1px solid #22344d;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 2px 10px rgba(0,0,0,.4);flex-shrink:0}
+.fab-item.active .fab-item-btn{background:linear-gradient(135deg,#7928ca,#a855f7);border-color:#a855f7}
+.fab-item.active .fab-item-label{color:#c4b5fd;border-color:#7928ca}
+.fab-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5)}
+.fab-overlay.open{display:block}
+.fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+.fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .04s both}
+.fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .08s both}
+.fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .12s both}
+.fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .16s both}
+.fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .20s both}
+.fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .24s both}
+.fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .28s both}
+.fab-items.open .fab-item:nth-child(9){animation:fabIn .18s ease .32s both}
+@keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:480px){
+  .params-grid{grid-template-columns:1fr}
+  .presets-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">📡</div>
+  <div class="header-info">
+    <h1>Osciloscopio Virtual IA</h1>
+    <p><span class="status-dot"></span> Análisis de formas de onda con IA</p>
+  </div>
+  <a href="index.html" class="back-btn">← Chat</a>
+</header>
+
+<main>
+
+  <!-- SCOPE SCREEN -->
+  <div class="scope-card">
+    <div class="scope-toolbar">
+      <span class="scope-label">T/div</span>
+      <select id="timeDiv" class="scope-value" style="cursor:pointer;outline:none">
+        <option value="1">1 ms</option>
+        <option value="2">2 ms</option>
+        <option value="5" selected>5 ms</option>
+        <option value="10">10 ms</option>
+        <option value="20">20 ms</option>
+        <option value="50">50 ms</option>
+      </select>
+      <div class="scope-sep"></div>
+      <span class="scope-label">V/div</span>
+      <select id="voltDiv" class="scope-value" style="cursor:pointer;outline:none">
+        <option value="0.5">0.5 V</option>
+        <option value="1">1 V</option>
+        <option value="2" selected>2 V</option>
+        <option value="5">5 V</option>
+        <option value="10">10 V</option>
+        <option value="50">50 V</option>
+        <option value="100">100 V</option>
+      </select>
+      <div class="scope-sep"></div>
+      <button class="tb-btn" id="btnDraw" onclick="setMode('draw')">✏️ Dibujar</button>
+      <button class="tb-btn" id="btnErase" onclick="setMode('erase')">⬜ Borrar zona</button>
+      <button class="tb-btn danger" onclick="clearCanvas()">🗑️ Limpiar</button>
+    </div>
+    <div class="scope-screen">
+      <canvas id="scopeCanvas"></canvas>
+      <div class="scope-ch-label" id="chLabel">CH1 — 2V/div · 5ms/div</div>
+      <div class="cursor-pos" id="cursorPos">—</div>
+      <div class="scope-hint" id="scopeHint">
+        <div class="icon">〰️</div>
+        <p>Dibuja la forma de onda que ves<br>en tu osciloscopio</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESETS -->
+  <div class="presets-card">
+    <div class="presets-title">⚡ Cargar forma de onda típica</div>
+    <div class="presets-grid" id="presetsGrid">
+      <button class="preset-btn" onclick="loadPreset('sine_clean')">
+        <span class="p-icon">〰️</span>
+        <span class="p-name">Senoidal limpia</span>
+        <span class="p-desc">Referencia normal, sin distorsión</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('ripple_high')">
+        <span class="p-icon">📈</span>
+        <span class="p-name">Ripple excesivo</span>
+        <span class="p-desc">Fuente SMPS con C de filtro fallando</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('pwm_normal')">
+        <span class="p-icon">⬛</span>
+        <span class="p-name">PWM normal</span>
+        <span class="p-desc">Señal de control al MOSFET/driver</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('pwm_corrupt')">
+        <span class="p-icon">⚡</span>
+        <span class="p-name">PWM corrupto</span>
+        <span class="p-desc">Duty cycle irregular, pulsos faltantes</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('dc_noisy')">
+        <span class="p-icon">🔋</span>
+        <span class="p-name">DC con ruido</span>
+        <span class="p-desc">Riel DC con oscilaciones HF</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('spike')">
+        <span class="p-icon">⚠️</span>
+        <span class="p-name">Espiga/Spike</span>
+        <span class="p-desc">Transiente de alta tensión en la red</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('no_signal')">
+        <span class="p-icon">➖</span>
+        <span class="p-name">Sin señal (línea)</span>
+        <span class="p-desc">Señal ausente o plano de tierra</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('clipped')">
+        <span class="p-icon">✂️</span>
+        <span class="p-name">Señal recortada</span>
+        <span class="p-desc">Saturación / clipping</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTEXT -->
+  <div class="context-card">
+    <span class="ctx-label">📋 Contexto del equipo y punto de prueba <span style="color:var(--dim);font-weight:400">(opcional pero recomendado)</span></span>
+    <textarea class="ctx-input" id="ctxInput" placeholder="Ej: TV Samsung UN43J5290 — mido en el drenaje del MOSFET Q801 de la fuente SMPS con equipo encendido. El técnico dice que el backlight no enciende pero el main board funciona..."></textarea>
+    <div class="ctx-chips">
+      <span class="ctx-chip" onclick="addCtx('Fuente SMPS, MOSFET drenaje')">⚡ SMPS MOSFET</span>
+      <span class="ctx-chip" onclick="addCtx('Riel 12V de salida fuente')">🔋 Riel 12V</span>
+      <span class="ctx-chip" onclick="addCtx('Señal PWM del backlight driver')">💡 PWM Backlight</span>
+      <span class="ctx-chip" onclick="addCtx('Colector transistor horizontal TV CRT')">📺 Transistor horiz.</span>
+      <span class="ctx-chip" onclick="addCtx('Pin de control IC regulador')">🔲 IC regulador</span>
+      <span class="ctx-chip" onclick="addCtx('Secundario transformador SMPS')">🔌 Secundario trafo</span>
+      <span class="ctx-chip" onclick="addCtx('Inverter backlight CCFL')">🌟 Inverter CCFL</span>
+      <span class="ctx-chip" onclick="addCtx('Puerta MOSFET canal de sincronía')">🔀 Sincronía</span>
+    </div>
+  </div>
+
+  <!-- PARAMS -->
+  <div class="params-card">
+    <div class="params-grid">
+      <div class="param-group">
+        <label>Frecuencia estimada (Hz)</label>
+        <input type="number" class="param-input" id="paramFreq" placeholder="Ej: 50, 1000, 65000">
+      </div>
+      <div class="param-group">
+        <label>Amplitud pico-pico (V)</label>
+        <input type="number" class="param-input" id="paramAmpl" placeholder="Ej: 5, 12, 320">
+      </div>
+      <div class="param-group">
+        <label>Nivel DC offset (V)</label>
+        <input type="number" class="param-input" id="paramOffset" placeholder="Ej: 0, 5, -12">
+      </div>
+      <div class="param-group">
+        <label>Duty cycle % (si es PWM)</label>
+        <input type="number" class="param-input" id="paramDuty" placeholder="Ej: 50, 30, 80">
+      </div>
+    </div>
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeWaveform()">
+      🔬 Analizar con IA
+    </button>
+    <div class="typing-dots" id="typingDots">
+      <span style="font-size:.78rem;color:var(--muted)">Analizando señal</span>
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-badge" id="resultBadge">—</div>
+      <div class="result-title" id="resultTitle">Diagnóstico de señal</div>
+    </div>
+    <div class="result-body" id="resultBody"></div>
+    <button class="copy-result" onclick="copyResult()">📋 Copiar diagnóstico</button>
+  </div>
+
+</main>
+
+<!-- FAB NAV -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+  <a href="recepcion.html"           class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+  <a href="fallas.html"              class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+  <a href="componentes.html"         class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+  <a href="simbologiacodigopcb.html" class="fab-item"><span class="fab-item-label">Símb. PCB</span><span class="fab-item-btn">🔣</span></a>
+  <a href="calculadoras.html"        class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+  <a href="hardware.html"            class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+  <a href="biblioteca.html"          class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+  <a href="notas.html"               class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+  <a href="index.html"               class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+  <a href="osciloscopo.html"         class="fab-item active"><span class="fab-item-label">Osciloscopio IA</span><span class="fab-item-btn">📡</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ CANVAS SETUP ══ */
+const canvas = document.getElementById('scopeCanvas');
+const ctx    = canvas.getContext('2d');
+let W, H, COLS=10, ROWS=8;
+let drawing = false;
+let drawMode = 'draw';
+let points = [];
+let hasWave = false;
+
+function resize(){
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = rect.width; H = Math.round(W * 0.48);
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W+'px';
+  canvas.style.height = H+'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  drawGrid();
+  if(hasWave) redrawPoints();
+}
+window.addEventListener('resize', resize);
+
+/* ══ GRID ══ */
+function drawGrid(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle = '#050d18';
+  ctx.fillRect(0,0,W,H);
+  // phosphor glow effect (subtle)
+  const glow = ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,W*0.7);
+  glow.addColorStop(0,'rgba(0,255,136,0.025)');
+  glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+
+  // major grid
+  ctx.strokeStyle='#0e2133';ctx.lineWidth=1;
+  for(let c=0;c<=COLS;c++){
+    const x=c*(W/COLS);
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+  }
+  for(let r=0;r<=ROWS;r++){
+    const y=r*(H/ROWS);
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+  // minor ticks (5 per div)
+  ctx.strokeStyle='#091929';ctx.lineWidth=0.5;
+  const cw=W/COLS, ch=H/ROWS;
+  for(let c=0;c<COLS;c++){
+    for(let s=1;s<5;s++){
+      const x=c*cw+s*(cw/5);
+      ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+    }
+  }
+  for(let r=0;r<ROWS;r++){
+    for(let s=1;s<5;s++){
+      const y=r*ch+s*(ch/5);
+      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+    }
+  }
+  // axis center crosshair
+  ctx.strokeStyle='rgba(0,255,136,0.08)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+}
+
+/* ══ DRAW ══ */
+function getXY(e){
+  const r=canvas.getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return{x:src.clientX-r.left, y:src.clientY-r.top};
+}
+
+function startDraw(e){
+  drawing=true;
+  const {x,y}=getXY(e);
+  if(drawMode==='erase'){
+    eraseNear(x,y);
+  } else {
+    ctx.beginPath();ctx.moveTo(x,y);
+    points.push({x,y,start:true});
+    hasWave=true;
+    document.getElementById('scopeHint').style.opacity='0';
+  }
+  e.preventDefault();
+}
+function moveDraw(e){
+  if(!drawing)return;
+  const {x,y}=getXY(e);
+  updateCursorPos(x,y);
+  if(drawMode==='erase'){eraseNear(x,y);return;}
+  ctx.strokeStyle='#00ff88';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.shadowColor='#00ff88';ctx.shadowBlur=6;
+  const last=points[points.length-1];
+  if(last&&!last.start){ctx.beginPath();ctx.moveTo(last.x,last.y);}
+  ctx.lineTo(x,y);ctx.stroke();
+  ctx.shadowBlur=0;
+  points.push({x,y});
+  e.preventDefault();
+}
+function endDraw(){drawing=false;if(points.length)ctx.beginPath();}
+
+canvas.addEventListener('mousedown',startDraw);
+canvas.addEventListener('mousemove',moveDraw);
+canvas.addEventListener('mouseup',endDraw);
+canvas.addEventListener('touchstart',startDraw,{passive:false});
+canvas.addEventListener('touchmove',moveDraw,{passive:false});
+canvas.addEventListener('touchend',endDraw);
+canvas.addEventListener('mouseleave',e=>{ updateCursorPos(null,null); endDraw(); });
+
+function updateCursorPos(x,y){
+  const el=document.getElementById('cursorPos');
+  if(x===null){el.textContent='—';return;}
+  const vdiv=parseFloat(document.getElementById('voltDiv').value);
+  const tdiv=parseFloat(document.getElementById('timeDiv').value);
+  const vV=((H/2-y)/H*ROWS*vdiv).toFixed(2);
+  const vT=((x/W)*COLS*tdiv).toFixed(1);
+  el.textContent=`t:${vT}ms  V:${vV}V`;
+}
+
+function eraseNear(x,y){
+  // erase pixels in a radius
+  ctx.clearRect(x-14,y-14,28,28);
+  drawGrid();
+  redrawPoints(x,y,20);
+}
+
+function redrawPoints(exX,exY,rad){
+  ctx.strokeStyle='#00ff88';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.shadowColor='#00ff88';ctx.shadowBlur=6;
+  let penDown=false;
+  points.forEach((p,i)=>{
+    if(exX!==undefined&&Math.hypot(p.x-exX,p.y-exY)<rad){return;}
+    if(p.start||!penDown){ctx.beginPath();ctx.moveTo(p.x,p.y);penDown=true;}
+    else{ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x,p.y);}
+  });
+  ctx.shadowBlur=0;
+}
+
+function clearCanvas(){
+  points=[];hasWave=false;
+  drawGrid();
+  document.getElementById('scopeHint').style.opacity='.35';
+  document.getElementById('resultCard').classList.remove('show');
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+}
+
+function setMode(m){
+  drawMode=m;
+  document.getElementById('btnDraw').classList.toggle('active',m==='draw');
+  document.getElementById('btnErase').classList.toggle('active',m==='erase');
+}
+setMode('draw');
+
+/* ══ PRESETS ══ */
+const PRESETS={
+  sine_clean:{
+    label:'Senoidal limpia',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        pts.push({x:i/400*w, y:h/2-Math.sin(i/400*Math.PI*4)*h*0.35});
+      }
+      return pts;
+    }
+  },
+  ripple_high:{
+    label:'Ripple excesivo',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        const base=Math.sin(i/400*Math.PI*4)*h*0.1;
+        const rip=Math.abs(Math.sin(i/400*Math.PI*8))*h*0.28;
+        pts.push({x:i/400*w, y:h*0.35-base-rip+h*0.08});
+      }
+      return pts;
+    }
+  },
+  pwm_normal:{
+    label:'PWM normal',
+    draw:(w,h)=>{
+      const pts=[];const period=80;const duty=0.5;
+      for(let i=0;i<=400;i++){
+        const phase=i%period;
+        const hi=phase<period*duty;
+        pts.push({x:i/400*w, y:hi?h*0.2:h*0.75});
+      }
+      return pts;
+    }
+  },
+  pwm_corrupt:{
+    label:'PWM corrupto',
+    draw:(w,h)=>{
+      const pts=[];const period=80;
+      for(let i=0;i<=400;i++){
+        const phase=i%period;
+        // irregular duty + missing pulses
+        const missing=Math.floor(i/period)%4===2;
+        const duty=missing?0:(0.5+Math.sin(i*0.1)*0.15);
+        const hi=phase<period*duty&&!missing;
+        const noise=(Math.random()-0.5)*h*0.08;
+        pts.push({x:i/400*w, y:(hi?h*0.2:h*0.75)+noise});
+      }
+      return pts;
+    }
+  },
+  dc_noisy:{
+    label:'DC con ruido HF',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        const hf=Math.sin(i*1.8)*h*0.06+Math.sin(i*3.1)*h*0.03;
+        pts.push({x:i/400*w, y:h*0.35+hf});
+      }
+      return pts;
+    }
+  },
+  spike:{
+    label:'Spike / Espiga',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        const t=i/400;
+        const base=h*0.5;
+        let v=0;
+        // spikes at random positions
+        [0.15,0.42,0.7].forEach(pos=>{
+          const d=Math.abs(t-pos);
+          if(d<0.015) v+=-h*0.45*(1-d/0.015);
+        });
+        pts.push({x:i/400*w, y:base+v});
+      }
+      return pts;
+    }
+  },
+  no_signal:{
+    label:'Sin señal',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        pts.push({x:i/400*w, y:h*0.5+(Math.random()-0.5)*3});
+      }
+      return pts;
+    }
+  },
+  clipped:{
+    label:'Señal recortada',
+    draw:(w,h)=>{
+      const pts=[];
+      for(let i=0;i<=400;i++){
+        const s=Math.sin(i/400*Math.PI*4)*h*0.5;
+        const clamp=Math.max(-h*0.28,Math.min(h*0.28,s));
+        pts.push({x:i/400*w, y:h/2-clamp});
+      }
+      return pts;
+    }
+  }
+};
+
+function loadPreset(key){
+  clearCanvas();
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const preset=PRESETS[key];
+  if(!preset)return;
+  const raw=preset.draw(W,H);
+  points=raw.map((p,i)=>i===0?{...p,start:true}:p);
+  hasWave=true;
+  document.getElementById('scopeHint').style.opacity='0';
+  // draw
+  ctx.strokeStyle='#00ff88';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.shadowColor='#00ff88';ctx.shadowBlur=6;
+  ctx.beginPath();
+  raw.forEach((p,i)=>{ i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); });
+  ctx.stroke();ctx.shadowBlur=0;
+  // auto fill params
+  const defaults={
+    sine_clean:{freq:50,ampl:12,offset:0,duty:''},
+    ripple_high:{freq:100,ampl:8,offset:12,duty:''},
+    pwm_normal:{freq:65000,ampl:12,offset:6,duty:50},
+    pwm_corrupt:{freq:65000,ampl:10,offset:5,duty:''},
+    dc_noisy:{freq:200000,ampl:2,offset:12,duty:''},
+    spike:{freq:50,ampl:400,offset:0,duty:''},
+    no_signal:{freq:'',ampl:0,offset:0,duty:''},
+    clipped:{freq:50,ampl:18,offset:0,duty:''},
+  };
+  const d=defaults[key]||{};
+  if(d.freq!==undefined) document.getElementById('paramFreq').value=d.freq||'';
+  if(d.ampl!==undefined) document.getElementById('paramAmpl').value=d.ampl||'';
+  if(d.offset!==undefined) document.getElementById('paramOffset').value=d.offset;
+  if(d.duty!==undefined) document.getElementById('paramDuty').value=d.duty||'';
+}
+
+/* ══ CONTEXT CHIPS ══ */
+function addCtx(text){
+  const el=document.getElementById('ctxInput');
+  el.value=(el.value?el.value.trim()+'. ':'')+text;
+  el.focus();
+}
+
+/* ══ TOOLBAR SYNC ══ */
+function updateChLabel(){
+  const vd=document.getElementById('voltDiv').value;
+  const td=document.getElementById('timeDiv').value;
+  document.getElementById('chLabel').textContent=`CH1 — ${vd}V/div · ${td}ms/div`;
+}
+document.getElementById('voltDiv').addEventListener('change',updateChLabel);
+document.getElementById('timeDiv').addEventListener('change',updateChLabel);
+
+/* ══ WAVEFORM → DESCRIPTION ══ */
+function describeWaveform(){
+  if(!hasWave||points.length<5) return 'No se ha dibujado ninguna señal en el osciloscopio virtual.';
+
+  const ys=points.map(p=>p.y).filter(Boolean);
+  const minY=Math.min(...ys), maxY=Math.max(...ys);
+  const rangeY=maxY-minY;
+  const centerY=H/2;
+  const vdiv=parseFloat(document.getElementById('voltDiv').value);
+  const tdiv=parseFloat(document.getElementById('timeDiv').value);
+
+  const vpp=(rangeY/H*ROWS*vdiv).toFixed(2);
+  const dcOffset=((centerY-(minY+maxY)/2)/H*ROWS*vdiv).toFixed(2);
+
+  // detect periodicity
+  let crossings=0, lastAbove=null;
+  ys.forEach(y=>{ const above=y<centerY; if(lastAbove!==null&&above!==lastAbove)crossings++; lastAbove=above; });
+  const estPeriodPx= crossings>1 ? W/(crossings/2) : 0;
+  const estFreqHz = estPeriodPx>0 ? (1/(estPeriodPx/W*COLS*(tdiv/1000))).toFixed(0) : '?';
+
+  // detect shape
+  const flatTop = ys.filter(y=>y<minY+rangeY*0.08).length/ys.length > 0.12;
+  const flatBot = ys.filter(y=>y>maxY-rangeY*0.08).length/ys.length > 0.12;
+  let shape='desconocida';
+  if(rangeY<H*0.04) shape='línea plana (DC puro o sin señal)';
+  else if(flatTop&&flatBot) shape='onda cuadrada / PWM';
+  else if(flatTop||flatBot) shape='señal recortada (clipping)';
+  else if(crossings>8) shape='senoidal o similar';
+  else shape='forma irregular / transiente';
+
+  // noise estimate
+  const sorted=[...ys].sort((a,b)=>a-b);
+  const p10=sorted[Math.floor(ys.length*0.1)], p90=sorted[Math.floor(ys.length*0.9)];
+  const innerRange=p90-p10;
+  const noisy=(rangeY>0)&&(innerRange/rangeY<0.6);
+
+  // presets context
+  const activePreset=document.querySelector('.preset-btn.active')?.querySelector('.p-name')?.textContent||'';
+
+  let desc=`La señal dibujada tiene las siguientes características medidas en el osciloscopio virtual:\n`;
+  desc+=`- Forma de onda detectada: ${shape}\n`;
+  desc+=`- Amplitud pico a pico visual: ~${vpp} V (con escala ${vdiv}V/div)\n`;
+  desc+=`- Offset DC estimado: ~${dcOffset} V respecto al centro\n`;
+  desc+=`- Frecuencia estimada por cruces por cero: ~${estFreqHz} Hz (con ${tdiv}ms/div)\n`;
+  if(noisy) desc+=`- Se detecta ruido o irregularidades significativas superpuestas\n`;
+  if(flatTop&&flatBot) desc+=`- La señal tiene flancos abruptos (subida/bajada rápida) típicos de PWM\n`;
+  if(activePreset) desc+=`- El técnico seleccionó el tipo de señal: "${activePreset}"\n`;
+
+  return desc;
+}
+
+/* ══ AI ANALYSIS ══ */
+async function analyzeWaveform(){
+  if(!hasWave&&points.length<5){
+    showToast('⚠️ Dibuja una señal primero');return;
+  }
+
+  const btn=document.getElementById('analyzeBtn');
+  const dots=document.getElementById('typingDots');
+  btn.disabled=true;
+  dots.classList.add('show');
+  document.getElementById('resultCard').classList.remove('show');
+
+  const freq=document.getElementById('paramFreq').value;
+  const ampl=document.getElementById('paramAmpl').value;
+  const offset=document.getElementById('paramOffset').value;
+  const duty=document.getElementById('paramDuty').value;
+  const context=document.getElementById('ctxInput').value.trim();
+  const waveDesc=describeWaveform();
+
+  const userPrompt=`Soy técnico en electrónica. Necesito que analices la siguiente señal de osciloscopio y me des un diagnóstico técnico.
+
+═══ DESCRIPCIÓN DE LA SEÑAL ═══
+${waveDesc}
+
+═══ PARÁMETROS ADICIONALES DEL TÉCNICO ═══
+${freq?`- Frecuencia real (según escala): ${freq} Hz`:''}
+${ampl?`- Amplitud pico-pico real: ${ampl} V`:''}
+${offset!==''?`- Nivel DC: ${offset} V`:''}
+${duty?`- Duty cycle (si es PWM): ${duty}%`:''}
+
+═══ CONTEXTO DEL EQUIPO Y PUNTO DE PRUEBA ═══
+${context||'(No especificado por el técnico)'}
+
+Por favor dame:
+1. Qué tipo de señal es y si es normal o anormal
+2. Qué falla específica indica si es anormal
+3. Qué componentes revisar o medir a continuación
+4. Un nivel de urgencia: NORMAL / SOSPECHOSO / FALLA CONFIRMADA`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:`Eres un ingeniero electrónico experto en reparación de equipos de consumo (TV, audio, línea blanca). 
+Cuando un técnico te describe una señal de osciloscopio, la analizas con precisión técnica. 
+Responde SIEMPRE en español con formato HTML usando estas etiquetas CSS disponibles: 
+<h4> para secciones, <strong> para énfasis, <ul><li> para listas, 
+<div class="highlight"> para datos importantes, 
+<div class="alert"> para advertencias de peligro, 
+<div class="tip"> para recomendaciones positivas, 
+<code> para valores técnicos exactos.
+Sé directo, técnico y sin relleno. No uses markdown, solo HTML limpio.`,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+    const data=await resp.json();
+    dots.classList.remove('show');
+    btn.disabled=false;
+
+    if(resp.ok&&data.content?.[0]?.text){
+      const text=data.content[0].text;
+      // determine badge
+      let badge='badge-ok',badgeText='SEÑAL NORMAL',title='';
+      if(/FALLA CONFIRMADA/i.test(text)){badge='badge-err';badgeText='FALLA CONFIRMADA';}
+      else if(/SOSPECHOSO/i.test(text)){badge='badge-warn';badgeText='SEÑAL SOSPECHOSA';}
+      else if(/anormal|falla|defecto|problema|averí/i.test(text)){badge='badge-warn';badgeText='ANOMALÍA DETECTADA';}
+
+      document.getElementById('resultBadge').className='result-badge '+badge;
+      document.getElementById('resultBadge').textContent=badgeText;
+      document.getElementById('resultTitle').textContent='Diagnóstico de señal';
+      document.getElementById('resultBody').innerHTML=text;
+      document.getElementById('resultCard').classList.add('show');
+      document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      showToast('⚠️ Error al contactar la IA');
+    }
+  }catch(err){
+    dots.classList.remove('show');
+    btn.disabled=false;
+    showToast('⚠️ Sin conexión con la IA');
+    console.error(err);
+  }
+}
+
+/* ══ COPY RESULT ══ */
+function copyResult(){
+  const body=document.getElementById('resultBody');
+  const text=body.innerText||body.textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast('📋 Diagnóstico copiado'));
+}
+
+/* ══ FAB ══ */
+function toggleFAB(){
+  const items=document.getElementById('fab-items');
+  const ov=document.getElementById('fab-overlay');
+  const btn=document.getElementById('fab-toggle');
+  const open=items.classList.toggle('open');
+  ov.classList.toggle('open',open);
+  btn.classList.toggle('open',open);
+}
+
+/* ══ TOAST ══ */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ══ INIT ══ */
+window.addEventListener('DOMContentLoaded',()=>{
+  resize();
+  updateChLabel();
+});
+</script>
+</body>
+</html>
