@@ -3,860 +3,1058 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relectrónica - Registro de Recepción</title>
+    <title>Relectrónica - Recepción</title>
     <style>
         :root {
-            --bg-color: #0b131f;
+            --bg:      #0b131f;
             --chat-bg: #111c2c;
-            --text-color: #ffffff;
-            --primary-color: #7928ca;
-            --bot-msg-bg: #1a273a;
-            --border-color: #22344d;
+            --card-bg: #162235;
+            --border:  #22344d;
+            --primary: #7928ca;
+            --accent:  #a855f7;
+            --text:    #ffffff;
+            --muted:   #a0aec0;
+            --dim:     #4a5568;
+            --input-bg:#080d16;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
+        /* ══ HEADER ══ */
         header {
-            background-color: var(--chat-bg);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 100;
+            background: var(--chat-bg); padding: 12px 15px;
+            display: flex; align-items: center; border-bottom: 1px solid var(--border);
+            gap: 11px; position: sticky; top: 0; z-index: 200;
         }
-
         .logo-container {
-            width: 45px;
-            height: 45px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
+            width: 43px; height: 43px; border-radius: 8px; overflow: hidden;
+            background: #000; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); flex-shrink: 0;
+        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.05rem; font-weight: 700; }
+        .header-info p  { font-size: .78rem; color: var(--muted); }
+        .header-stats { margin-left: auto; display: flex; gap: 7px; flex-shrink: 0; }
+        .stat-pill {
+            background: rgba(121,40,202,.18); border: 1px solid rgba(168,85,247,.25);
+            border-radius: 20px; padding: 3px 10px; font-size: .68rem; color: #c4b5fd;
+        }
+        .stat-pill span { font-weight: 700; color: #fff; }
+
+        /* ══ TABS ══ */
+        .tabs-bar {
+            display: flex; background: var(--chat-bg);
+            border-bottom: 1px solid var(--border); position: sticky; top: 67px; z-index: 190;
+        }
+        .tab-btn {
+            flex: 1; background: none; border: none; color: var(--muted);
+            padding: 11px 6px; font-size: .82rem; cursor: pointer;
+            border-bottom: 2px solid transparent; transition: all .18s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+
+        /* ══ MAIN ══ */
+        .main-content { flex: 1; padding: 14px 14px 90px; max-width: 620px; width: 100%; align-self: center; }
+
+        /* tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ══ SECCIÓN ══ */
+        .section-box {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; margin-bottom: 14px;
+        }
+        .section-box-title {
+            font-size: .85rem; font-weight: 700; color: var(--accent);
+            margin-bottom: 13px; display: flex; align-items: center; gap: 7px;
         }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        /* ══ CAMPOS DEL FORMULARIO ══ */
+        .campo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+        .campo:last-child { margin-bottom: 0; }
+        .campo label {
+            font-size: .74rem; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .05em;
+        }
+        .input-row { display: flex; gap: 7px; }
+        .input-row input,
+        .input-row textarea,
+        .input-row select,
+        .campo input,
+        .campo textarea,
+        .campo select {
+            flex: 1; background: var(--input-bg); border: 1px solid var(--border);
+            color: #fff; padding: 10px 12px; border-radius: 8px;
+            font-size: .9rem; outline: none; resize: vertical;
+        }
+        .campo input:focus, .campo textarea:focus, .campo select:focus,
+        .input-row input:focus, .input-row textarea:focus { border-color: var(--primary); }
+        .campo input::placeholder, .campo textarea::placeholder { color: var(--dim); }
+        .campo-row { display: flex; gap: 10px; }
+        .campo-row .campo { flex: 1; }
+
+        /* mic */
+        .btn-mic {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted); width: 42px; min-width: 42px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; transition: background .2s;
+        }
+        .btn-mic:hover    { background: #1e3347; color: #fff; }
+        .btn-mic.escuchando { background: #ef4444; border-color: #ef4444; color: #fff; animation: pulso 1.2s infinite; }
+        @keyframes pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+        /* estatus colores */
+        .sel-diagnostico { background: rgba(37,99,235,.18)!important; border-color: #2563eb!important; color: #93c5fd!important; }
+        .sel-repuesto    { background: rgba(217,119,6,.18)!important; border-color: #d97706!important; color: #fcd34d!important; }
+        .sel-reparado    { background: rgba(22,163,74,.18)!important; border-color: #16a34a!important; color: #86efac!important; }
+        .sel-sinsolucion { background: rgba(220,38,38,.18)!important; border-color: #dc2626!important; color: #fca5a5!important; }
+        .sel-entregado   { background: rgba(168,85,247,.18)!important; border-color: #a855f7!important; color: #c4b5fd!important; }
+
+        /* ══ BOTONES ══ */
+        .btn-primary {
+            width: 100%; background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; border-radius: 9px;
+            padding: 12px; font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: opacity .2s; margin-top: 2px;
+        }
+        .btn-primary:hover { opacity: .88; }
+        .btn-primary.blue  { background: linear-gradient(135deg,#1d4ed8,#2563eb); }
+        .btn-primary.green { background: linear-gradient(135deg,#065f46,#16a34a); }
+
+        .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-row .btn-primary { margin-top: 0; }
+
+        /* ══ FICHA GENERADA ══ */
+        .ficha-preview {
+            display: none; background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 15px; font-family: 'Courier New', monospace;
+            font-size: .83rem; line-height: 1.7; color: #e2e8f0;
+            white-space: pre-wrap; margin-bottom: 10px;
+        }
+        .ficha-preview.show { display: block; }
+
+        /* ══ ESTADÍSTICAS / DASHBOARD ══ */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px;
+            margin-bottom: 14px;
+        }
+        .stat-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 13px;
+        }
+        .stat-card .sc-num  { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1.1; }
+        .stat-card .sc-lbl  { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+        .stat-card.diag     { border-left: 3px solid #2563eb; }
+        .stat-card.repuesto { border-left: 3px solid #d97706; }
+        .stat-card.reparado { border-left: 3px solid #16a34a; }
+        .stat-card.sinsol   { border-left: 3px solid #dc2626; }
+
+        /* ══ HISTORIAL ══ */
+        .historial-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+        .historial-sub-row { display: flex; gap: 8px; }
+        .historial-search {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+            color: #fff; padding: 9px 13px; border-radius: 8px; font-size: .88rem; outline: none;
+        }
+        .historial-search:focus { border-color: var(--primary); }
+        .historial-search::placeholder { color: var(--dim); }
+
+        .filtro-estado {
+            background: var(--card-bg); border: 1px solid var(--border);
+            color: var(--muted); border-radius: 8px; padding: 8px 10px;
+            font-size: .78rem; outline: none; cursor: pointer;
         }
 
-        .header-info h1 {
-            font-size: 1.1rem;
-            font-weight: 600;
+        .btn-limpiar {
+            background: none; border: 1px solid rgba(239,68,68,.3);
+            border-radius: 8px; color: #fca5a5; padding: 8px 11px;
+            font-size: .78rem; cursor: pointer; white-space: nowrap;
+            transition: background .2s;
+        }
+        .btn-limpiar:hover { background: rgba(239,68,68,.12); }
+
+        .lista-ordenes { display: flex; flex-direction: column; gap: 9px; }
+
+        /* tarjeta de orden */
+        .orden-card {
+            border-radius: 10px; padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--dim);
+            position: relative; transition: border-color .2s;
+        }
+        .orden-card.s-diagnostico { background: rgba(37,99,235,.07);  border-left-color: #2563eb; border-color: rgba(37,99,235,.3); }
+        .orden-card.s-repuesto    { background: rgba(217,119,6,.07);   border-left-color: #d97706; border-color: rgba(217,119,6,.3); }
+        .orden-card.s-reparado    { background: rgba(22,163,74,.07);   border-left-color: #16a34a; border-color: rgba(22,163,74,.3); }
+        .orden-card.s-sinsolucion { background: rgba(220,38,38,.07);   border-left-color: #dc2626; border-color: rgba(220,38,38,.3); }
+        .orden-card.s-entregado   { background: rgba(168,85,247,.07);  border-left-color: #a855f7; border-color: rgba(168,85,247,.3); }
+
+        .orden-top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 5px; gap: 8px;
+        }
+        .orden-num  { font-size: .72rem; color: var(--muted); }
+        .orden-equipo { font-size: .9rem; font-weight: 600; color: #fff; flex: 1; }
+        .orden-fecha  { font-size: .68rem; color: var(--dim); flex-shrink: 0; }
+
+        .orden-falla { font-size: .8rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+        .orden-sn    { font-size: .72rem; color: var(--dim); margin-bottom: 8px; }
+
+        /* badge estatus */
+        .badge-estatus {
+            display: inline-block; font-size: .67rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .04em;
+            padding: 2px 8px; border-radius: 4px;
+        }
+        .be-diagnostico { background: #1e3a8a; color: #93c5fd; }
+        .be-repuesto    { background: #78350f; color: #fcd34d; }
+        .be-reparado    { background: #14532d; color: #86efac; }
+        .be-sinsolucion { background: #7f1d1d; color: #fca5a5; }
+        .be-entregado   { background: #3b0764; color: #d8b4fe; }
+
+        .orden-acciones { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-accion {
+            background: rgba(255,255,255,.05); border: 1px solid var(--border);
+            color: var(--muted); border-radius: 7px; padding: 6px 10px;
+            font-size: .75rem; cursor: pointer; transition: all .18s;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .btn-accion:hover { background: rgba(255,255,255,.1); color: #fff; }
+        .btn-accion.danger:hover { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.4); color: #fca5a5; }
+
+        .select-estado-orden {
+            background: var(--input-bg); border: 1px solid var(--border);
+            color: var(--muted); border-radius: 7px; padding: 5px 8px;
+            font-size: .75rem; outline: none; cursor: pointer;
         }
 
-        .header-info p {
-            font-size: 0.8rem;
-            color: #a0aec0;
+        /* campo adicional de observación en historial */
+        .orden-obs {
+            font-size: .75rem; color: #7dd3fc;
+            background: rgba(56,189,248,.06); border: 1px solid rgba(56,189,248,.15);
+            border-radius: 6px; padding: 5px 9px; margin-bottom: 6px;
         }
 
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-top: 80px;
-            margin-bottom: 75px;
-            max-width: 600px;
-            width: 100%;
-            align-self: center;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* vacío */
+        .empty-hist {
+            text-align: center; padding: 30px 20px;
+            color: var(--dim); font-size: .85rem;
         }
+        .empty-hist .ico { font-size: 2rem; margin-bottom: 8px; }
 
-        .formulario-taller {
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+        /* exportar / importar fila */
+        .export-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn-export {
+            flex: 1; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted); padding: 9px 6px;
+            font-size: .78rem; cursor: pointer; transition: all .18s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
         }
+        .btn-export.exp { border-color: rgba(34,197,94,.35); color: #86efac; }
+        .btn-export.exp:hover { background: rgba(34,197,94,.1); }
+        .btn-export.imp { border-color: rgba(245,158,11,.35); color: #fcd34d; }
+        .btn-export.imp:hover { background: rgba(245,158,11,.1); }
 
-        .grupo-campo {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        /* ══ MODAL CAMBIO ESTADO ══ */
+        .modal-estado {
+            display: none; position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,.78);
+            align-items: flex-end; justify-content: center;
         }
+        .modal-estado.open { display: flex; }
+        .modal-estado-sheet {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0; padding: 18px 15px 34px;
+            width: 100%; max-width: 620px;
+            animation: slideUp .22s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(50px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .modal-estado-title {
+            font-size: .97rem; font-weight: 700; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-estado-close {
+            background: none; border: none; color: var(--dim);
+            font-size: 1.2rem; cursor: pointer; line-height: 1;
+        }
+        .modal-estado-close:hover { color: #fff; }
 
-        .grupo-campo label {
-            font-size: 0.85rem;
-            color: #a0aec0;
-            font-weight: 500;
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e;
+            border-radius: 8px; padding: 9px 18px;
+            font-size: .82rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity .3s;
+            pointer-events: none; white-space: nowrap;
         }
+        .toast.show { opacity: 1; }
 
-        .input-wrapper {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
-            flex: 1;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 11px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-        .input-wrapper input:focus, .input-wrapper select:focus, .input-wrapper textarea:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn-input-mic {
-            background-color: var(--bot-msg-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            width: 42px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .mic-activo {
-            background-color: #ef4444 !important;
-            border-color: #ef4444 !important;
-            animation: pulso 1.5s infinite;
-        }
-
-        @keyframes pulso {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-            100% { transform: scale(1); }
-        }
-
-        .btn-principal {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-
-        .resultado-container {
-            display: none;
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-        }
-
-        .ficha-orden {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            font-family: monospace;
-            color: #f8fafc;
-        }
-
-        .ficha-titulo {
-            color: #a855f7;
-            font-weight: bold;
-            font-size: 1.05rem;
-            text-align: center;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-        }
-
-        .ficha-header {
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #a0aec0;
-        }
-
-        .ficha-campo {
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .ficha-campo strong {
-            color: #a0aec0;
-        }
-
-        /* SECCIÓN DEL HISTORIAL AVANZADO */
-        .seccion-historial {
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .header-historial-acciones {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-        }
-
-        .titulo-historial {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #a855f7;
-        }
-
-        .btn-borrar-todo {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 0.85rem;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .buscador-historial {
-            background-color: var(--chat-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-            width: 100%;
-        }
-
-        .buscador-historial:focus {
-            border-color: var(--primary-color);
-        }
-
-        .lista-ordenes {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* COLORES DEL SEMÁFORO SEGÚN EL ESTATUS */
-        .item-orden-guardada {
-            border-radius: 10px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-left: 5px solid #cbd5e1; /* Por defecto */
-        }
-        
-        .status-diagnostico { background-color: #16243d; border: 1px solid #2563eb; border-left: 5px solid #2563eb; }
-        .status-repuesto { background-color: #2c2017; border: 1px solid #d97706; border-left: 5px solid #d97706; }
-        .status-reparado { background-color: #122820; border: 1px solid #16a34a; border-left: 5px solid #16a34a; }
-        .status-sin-solucion { background-color: #2d191e; border: 1px solid #dc2626; border-left: 5px solid #dc2626; }
-
-        .item-orden-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #a0aec0;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 4px;
-        }
-
-        .item-orden-detalles {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            line-height: 1.4;
-        }
-
-        .badge-estatus-dinamico {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        .bg-diag { background: #2563eb; }
-        .bg-rep { background: #d97706; }
-        .bg-repado { background: #16a34a; }
-        .bg-sinsol { background: #dc2626; }
-
-        .bloque-botones-item {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .btn-recopiar {
-            flex: 2;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: #ffffff;
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .select-cambiar-status {
-            flex: 1;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: #a0aec0;
-            font-size: 0.75rem;
-            padding: 4px;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        nav.nav-tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            text-decoration: none;
-            font-size: 0.75rem;
-            flex: 1;
-            height: 100%;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .nav-item.active {
-            color: #a855f7;
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            font-size: 1.3rem;
-        }
-    
-        /* ── FAB MENÚ ── */
+        /* ══ FAB ══ */
         .fab-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #7928ca, #a855f7);
-            border: none;
-            color: white;
-            font-size: 1.4rem;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: transform 0.25s ease;
+            position: fixed; bottom: 20px; right: 18px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg,#7928ca,#a855f7);
+            border: none; color: #fff; font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: transform .25s ease;
         }
         .fab-toggle.open { transform: rotate(90deg); }
         .fab-items {
-            position: fixed;
-            bottom: 82px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 9999;
+            position: fixed; bottom: 82px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 9999;
         }
         .fab-items.open { pointer-events: all; opacity: 1; }
-        .fab-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
+        .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #22344d;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background: #1a273a; color: #e2e8f0; font-size: .82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
         }
         .fab-item-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%; background: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
         }
         .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
         .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
-        .fab-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            background: rgba(0,0,0,0.5);
-        }
-        .fab-overlay.open { display: block; }
-        .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
-        .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
-        .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
-        .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
-        .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
-        .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
-        .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
-        .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
+        .fab-overlay { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.5); }
+        .fab-overlay.open { display:block; }
+        .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+        .fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .04s both}
+        .fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .08s both}
+        .fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .12s both}
+        .fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .16s both}
+        .fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .20s both}
+        .fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .24s both}
+        .fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .28s both}
         @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Relectrónica Logo">
+<!-- ══ HEADER ══ -->
+<header>
+    <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p>Recepción & Gestión de Órdenes</p>
+    </div>
+    <div class="header-stats">
+        <div class="stat-pill">📋 <span id="hdr-total">0</span> órdenes</div>
+    </div>
+</header>
+
+<!-- ══ TABS ══ -->
+<div class="tabs-bar">
+    <button class="tab-btn active" onclick="setTab('nueva')">➕ Nueva Orden</button>
+    <button class="tab-btn" onclick="setTab('historial')">📂 Historial</button>
+    <button class="tab-btn" onclick="setTab('dashboard')">📊 Panel</button>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main-content">
+
+    <!-- ▐ TAB: NUEVA ORDEN ▌ -->
+    <div class="tab-panel active" id="tab-nueva">
+        <div class="section-box">
+            <div class="section-box-title">📋 Datos del Equipo</div>
+
+            <div class="campo">
+                <label>N° Orden / Ticket</label>
+                <input type="text" id="input-ticket" placeholder="Auto-generado si se deja vacío">
+            </div>
+
+            <div class="campo">
+                <label>Fecha de ingreso</label>
+                <input type="date" id="input-fecha">
+            </div>
+
+            <div class="campo">
+                <label>Nombre del cliente</label>
+                <div class="input-row">
+                    <input type="text" id="input-cliente" placeholder="Nombre completo del cliente">
+                    <button class="btn-mic" onclick="escuchar('input-cliente')" title="Voz">🎙️</button>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Teléfono / Contacto</label>
+                <div class="input-row">
+                    <input type="tel" id="input-telefono" placeholder="Ej: 0414-0000000">
+                    <button class="btn-mic" onclick="escuchar('input-telefono')" title="Voz">🎙️</button>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Marca / Fabricante *</label>
+                <div class="input-row">
+                    <input type="text" id="input-fabricante" placeholder="Samsung, LG, Mabe…">
+                    <button class="btn-mic" onclick="escuchar('input-fabricante')" title="Voz">🎙️</button>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Línea del equipo</label>
+                <select id="input-tipo">
+                    <option value="">Seleccionar…</option>
+                    <option value="Línea Marrón">📺 Línea Marrón (TV, audio, video)</option>
+                    <option value="Línea Blanca">🫙 Línea Blanca (lavadora, nevera, microondas…)</option>
+                    <option value="Línea Menor">🔌 Línea Menor (licuadora, plancha, ventilador…)</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Modelo del dispositivo *</label>
+                <div class="input-row">
+                    <input type="text" id="input-modelo" placeholder="Ej: UN55TU7000GXZS">
+                    <button class="btn-mic" onclick="escuchar('input-modelo')" title="Voz">🎙️</button>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Número de serie (S/N)</label>
+                <div class="input-row">
+                    <input type="text" id="input-serial" placeholder="Ej: L93N3X0HA00231">
+                    <button class="btn-mic" onclick="escuchar('input-serial')" title="Voz">🎙️</button>
+                </div>
+            </div>
         </div>
-        <div class="header-info">
-            <h1>Relectrónica</h1>
-            <p>Recepción & Fichas Técnicas</p>
-        </div>
-    </header>
 
-    <div class="main-content">
-        <div class="formulario-taller">
-            
-            <div class="grupo-campo">
-                <label>Número de Servicio / Ticket:</label>
-                <div class="input-wrapper">
-                    <input type="text" id="input-ticket" placeholder="Ej: 0241, 1050 (O déjalo vacío para auto-generar)">
+        <div class="section-box">
+            <div class="section-box-title">⚠️ Falla y Estado</div>
+
+            <div class="campo">
+                <label>Diagnóstico inicial / Síntoma *</label>
+                <div class="input-row">
+                    <textarea id="input-falla" rows="3" placeholder="¿Qué presenta el equipo? Sé específico: 'No enciende', 'Pantalla negra con audio', 'Fuga de agua'…"></textarea>
+                    <button class="btn-mic" onclick="escuchar('input-falla')" title="Voz" style="align-self:flex-start">🎙️</button>
                 </div>
             </div>
 
-            <div class="grupo-campo">
-                <label>Fabricante (Marca):</label>
-                <div class="input-wrapper">
-                    <input type="text" id="input-fabricante" placeholder="Ej: Samsung, LG, Sony...">
-                    <button class="btn-input-mic" onclick="escucharCampo('input-fabricante')">🎙️</button>
+            <div class="campo">
+                <label>Accesorios entregados</label>
+                <div class="input-row">
+                    <input type="text" id="input-accesorios" placeholder="Control, cable HDMI, soporte, caja…">
+                    <button class="btn-mic" onclick="escuchar('input-accesorios')" title="Voz">🎙️</button>
                 </div>
             </div>
 
-            <div class="grupo-campo">
-                <label>Modelo del Dispositivo:</label>
-                <div class="input-wrapper">
-                    <input type="text" id="input-modelo" placeholder="Ej: UN55TU7000GXZS...">
-                    <button class="btn-input-mic" onclick="escucharCampo('input-modelo')">🎙️</button>
-                </div>
+            <div class="campo">
+                <label>Condición física del equipo</label>
+                <select id="input-condicion">
+                    <option value="Buena">✅ Buena — Sin daños visibles</option>
+                    <option value="Regular">🟡 Regular — Golpes o rayones menores</option>
+                    <option value="Mala">🔴 Mala — Daños físicos evidentes</option>
+                </select>
             </div>
 
-            <div class="grupo-campo">
-                <label>Número de Serie (S/N):</label>
-                <div class="input-wrapper">
-                    <input type="text" id="input-serial" placeholder="Ej: L93N3X0HA00231...">
-                    <button class="btn-input-mic" onclick="escucharCampo('input-serial')">🎙️</button>
-                </div>
+            <div class="campo">
+                <label>Estatus inicial</label>
+                <select id="input-estatus" onchange="colorearSelect(this)">
+                    <option value="En Diagnóstico">🔵 En Diagnóstico</option>
+                    <option value="Esperando Repuesto">🟡 Esperando Repuesto</option>
+                    <option value="Reparado">🟢 Reparado</option>
+                    <option value="Sin Solución">🔴 Sin Solución</option>
+                    <option value="Entregado">✅ Entregado</option>
+                </select>
             </div>
 
-            <div class="grupo-campo">
-                <label>Diagnóstico Inicial / Síntoma de la Falla:</label>
-                <div class="input-wrapper">
-                    <textarea id="input-falla" rows="2" placeholder="Ej: Falla de backlighting, reinicios continuos, no sintoniza..."></textarea>
-                    <button class="btn-input-mic" onclick="escucharCampo('input-falla')">🎙️</button>
-                </div>
+            <div class="campo">
+                <label>Observaciones / Notas internas</label>
+                <textarea id="input-obs" rows="2" placeholder="Costo acordado, tiempo estimado, datos importantes…"></textarea>
             </div>
-
-            <div class="grupo-campo">
-                <label>Estatus del Servicio:</label>
-                <div class="input-wrapper">
-                    <select id="input-estatus">
-                        <option value="En Diagnóstico">En Diagnóstico</option>
-                        <option value="Esperando Repuesto">Esperando Repuesto</option>
-                        <option value="Reparado">Reparado</option>
-                        <option value="Sin Solución">Sin Solución</option>
-                    </select>
-                </div>
-            </div>
-
-            <button class="btn-principal" onclick="procesarNuevaOrden()">Generar Ficha de Recepción</button>
         </div>
 
-        <div class="resultado-container" id="resultado-container">
-            <div class="ficha-orden" id="ficha-render"></div>
-            <button class="btn-principal" id="btn-copiar" style="background-color: #2563eb; margin-top: 12px;">📋 Copiar Reporte para WhatsApp</button>
+        <!-- FICHA PREVIEW -->
+        <div class="ficha-preview" id="ficha-preview"></div>
+
+        <div class="btn-row">
+            <button class="btn-primary" onclick="generarOrden()">⚡ Generar Ficha</button>
+            <button class="btn-primary blue" id="btn-copiar-wa" style="display:none" onclick="copiarWhatsApp()">📲 Copiar para WhatsApp</button>
+        </div>
+        <button class="btn-primary green" id="btn-guardar" style="display:none; margin-top:8px" onclick="guardarOrden()">💾 Guardar en Historial</button>
+    </div>
+
+    <!-- ▐ TAB: HISTORIAL ▌ -->
+    <div class="tab-panel" id="tab-historial">
+
+        <div class="export-row">
+            <button class="btn-export exp" onclick="exportarHistorial()">📤 Exportar JSON</button>
+            <button class="btn-export imp" onclick="document.getElementById('imp-file').click()">📥 Importar JSON</button>
+            <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importarHistorial(event)">
         </div>
 
-        <div class="seccion-historial">
-            <div class="header-historial-acciones">
-                <h2 class="titulo-historial">Órdenes Guardadas</h2>
-                <button class="btn-borrar-todo" onclick="limpiarTodoElHistorial()">🗑️ Vaciar Historial</button>
+        <div class="historial-header">
+            <input type="text" class="historial-search" id="hist-search" placeholder="🔍  Buscar por marca, cliente, N° orden…" oninput="renderHistorial()">
+            <div class="historial-sub-row">
+                <select class="filtro-estado" id="hist-filtro" onchange="renderHistorial()">
+                    <option value="">Todos los estados</option>
+                    <option value="En Diagnóstico">🔵 Diagnóstico</option>
+                    <option value="Esperando Repuesto">🟡 Repuesto</option>
+                    <option value="Reparado">🟢 Reparado</option>
+                    <option value="Sin Solución">🔴 Sin Solución</option>
+                    <option value="Entregado">✅ Entregado</option>
+                </select>
+                <button class="btn-limpiar" onclick="limpiarHistorial()">🗑️ Vaciar</button>
             </div>
-            
-            <input type="text" id="buscador" class="buscador-historial" placeholder="🔍 Buscar por Marca, Modelo o N° de Orden..." oninput="filtrarHistorial()">
-            
-            <div class="lista-ordenes" id="lista-ordenes-container"></div>
+        </div>
+
+        <div class="lista-ordenes" id="lista-ordenes"></div>
+    </div>
+
+    <!-- ▐ TAB: DASHBOARD ▌ -->
+    <div class="tab-panel" id="tab-dashboard">
+        <div class="stats-grid">
+            <div class="stat-card diag">
+                <div class="sc-num" id="dash-diag">0</div>
+                <div class="sc-lbl">🔵 En Diagnóstico</div>
+            </div>
+            <div class="stat-card repuesto">
+                <div class="sc-num" id="dash-rep">0</div>
+                <div class="sc-lbl">🟡 Esperando Repuesto</div>
+            </div>
+            <div class="stat-card reparado">
+                <div class="sc-num" id="dash-rep2">0</div>
+                <div class="sc-lbl">🟢 Reparados</div>
+            </div>
+            <div class="stat-card sinsol">
+                <div class="sc-num" id="dash-ss">0</div>
+                <div class="sc-lbl">🔴 Sin Solución</div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-box-title">📋 Resumen General</div>
+            <div id="dash-resumen" style="font-size:.85rem; color:var(--muted); line-height:1.9"></div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-box-title">🏆 Marcas más frecuentes</div>
+            <div id="dash-marcas" style="font-size:.85rem; color:var(--muted); line-height:1.9"></div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-box-title">📅 Últimas 5 órdenes</div>
+            <div id="dash-recientes" style="font-size:.85rem; color:var(--muted); line-height:1.9"></div>
         </div>
     </div>
 
-        <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
-    <div class="fab-items" id="fab-items">
-        <a href="recepcion.html" class="fab-item active">
-            <span class="fab-item-label">Recepción</span>
-            <span class="fab-item-btn">📋</span>
-        </a>
-        <a href="fallas.html" class="fab-item">
-            <span class="fab-item-label">Casos de Falla</span>
-            <span class="fab-item-btn">🛠️</span>
-        </a>
-        <a href="componentes.html" class="fab-item">
-            <span class="fab-item-label">Componentes</span>
-            <span class="fab-item-btn">🔍</span>
-        </a>
-        <a href="calculadoras.html" class="fab-item">
-            <span class="fab-item-label">Cálculos</span>
-            <span class="fab-item-btn">🧮</span>
-        </a>
-        <a href="hardware.html" class="fab-item">
-            <span class="fab-item-label">Hardware</span>
-            <span class="fab-item-btn">🖼️</span>
-        </a>
-        <a href="biblioteca.html" class="fab-item">
-            <span class="fab-item-label">Biblioteca</span>
-            <span class="fab-item-btn">📘</span>
-        </a>
-        <a href="notas.html" class="fab-item">
-            <span class="fab-item-label">Mis Notas</span>
-            <span class="fab-item-btn">📝</span>
-        </a>
-        <a href="index.html" class="fab-item">
-            <span class="fab-item-label">Chat Técnico</span>
-            <span class="fab-item-btn">💬</span>
-        </a>
+</div>
+
+<!-- ══ MODAL CAMBIO DE ESTADO ══ -->
+<div class="modal-estado" id="modal-estado">
+    <div class="modal-estado-sheet">
+        <div class="modal-estado-title">
+            <span id="modal-estado-heading">⚡ Cambiar Estado</span>
+            <button class="modal-estado-close" onclick="cerrarModalEstado()">✕</button>
+        </div>
+        <p id="modal-orden-info" style="font-size:.82rem; color:var(--muted); margin-bottom:14px;"></p>
+        <div class="campo">
+            <label>Nuevo estado</label>
+            <select id="modal-nuevo-estado" onchange="colorearSelect(this)">
+                <option value="En Diagnóstico">🔵 En Diagnóstico</option>
+                <option value="Esperando Repuesto">🟡 Esperando Repuesto</option>
+                <option value="Reparado">🟢 Reparado</option>
+                <option value="Sin Solución">🔴 Sin Solución</option>
+                <option value="Entregado">✅ Entregado</option>
+            </select>
+        </div>
+        <div class="campo">
+            <label>Nota del cambio (opcional)</label>
+            <textarea id="modal-nota-cambio" rows="3" placeholder="Ej: Se cambió condensador C205, se probó y funciona correctamente. Precio acordado: $15…"></textarea>
+        </div>
+        <button class="btn-primary" onclick="confirmarCambioEstado()">Guardar Cambio</button>
     </div>
-    <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
-        <script>
-        let reconocimientoVoz = null;
-        let campoActivoId = null;
-        let estaEscuchando = false;
+</div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            inicializarReconocimientoVoz();
-            renderizarHistorial();
-        });
+<div class="toast" id="toast"></div>
 
-        // RECONOCIMIENTO DE VOZ INDIVIDUAL POR CAMPO
-        function inicializarReconocimientoVoz() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.log("El navegador no soporta SpeechRecognition.");
-                return;
-            }
-
-            reconocimientoVoz = new SpeechRecognition();
-            reconocimientoVoz.lang = 'es-VE';
-            reconocimientoVoz.continuous = false;
-            reconocimientoVoz.interimResults = false;
-
-            reconocimientoVoz.onstart = () => {
-                estaEscuchando = true;
-                if(campoActivoId) {
-                    const boton = document.querySelector(`#${campoActivoId} ~ .btn-input-mic`);
-                    if(boton) {
-                        boton.classList.add('mic-activo');
-                        boton.innerHTML = "🛑";
-                    }
-                }
-            };
-
-            reconocimientoVoz.onerror = () => forzarApagadoMic();
-            reconocimientoVoz.onend = () => forzarApagadoMic();
-
-            reconocimientoVoz.onresult = function(event) {
-                const textoEscuchado = event.results[0][0].transcript;
-                if (textoEscuchado.trim() !== "" && campoActivoId) {
-                    const el = document.getElementById(campoActivoId);
-                    if(el) {
-                        el.value = el.value ? el.value + " " + textoEscuchado : textoEscuchado;
-                    }
-                }
-            };
-        }
-
-        function escucharCampo(idCampo) {
-            if (!reconocimientoVoz) {
-                alert("Tu dispositivo no soporta reconocimiento de voz.");
-                return;
-            }
-            if (estaEscuchando) {
-                reconocimientoVoz.stop();
-                if (campoActivoId === idCampo) return;
-            }
-            campoActivoId = idCampo;
-            reconocimientoVoz.start();
-        }
-
-        function forzarApagadoMic() {
-            estaEscuchando = false;
-            document.querySelectorAll('.btn-input-mic').forEach(boton => {
-                boton.classList.remove('mic-activo');
-                boton.innerHTML = "🎙️";
-            });
-            campoActivoId = null;
-        }
-
-        // PROCESAR FORMULARIO Y GENERAR REPORTES
-        function procesarNuevaOrden() {
-            const ticketManual = document.getElementById('input-ticket').value.trim();
-            const fabricante = document.getElementById('input-fabricante').value.trim();
-            const modelo = document.getElementById('input-modelo').value.trim();
-            const serial = document.getElementById('input-serial').value.trim();
-            const falla = document.getElementById('input-falla').value.trim();
-            const estatus = document.getElementById('input-estatus').value;
-
-            if (!fabricante || !modelo) {
-                alert("Por favor, ingresa al menos la Marca y el Modelo del equipo.");
-                return;
-            }
-
-            const fechaVal = new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            // Usa el número ingresado o genera un prefijo automático aleatorio si se dejó vacío
-            const prefijoOrden = ticketManual ? ticketManual : 'RE-' + Math.floor(1000 + Math.random() * 9000);
-
-            const txtWhatsApp = `📋 RELECTRÓNICA - ORDEN DE SERVICIO\n` +
-                                `---------------------------------\n` +
-                                `Orden/Servicio N°: ${prefijoOrden}\n` +
-                                `Fecha: ${fechaVal}\n` +
-                                `Fabricante: ${fabricante}\n` +
-                                `Modelo: ${modelo}\n` +
-                                `S/N: ${serial || 'No especificado'}\n` +
-                                `Falla: ${falla || 'Por revisar en banco'}\n` +
-                                `Estatus: ${estatus}\n` +
-                                `---------------------------------`;
-
-            const contenedorFicha = document.getElementById('ficha-render');
-            contenedorFicha.innerHTML = `
-                <div class="ficha-titulo">RECEPCIÓN DE EQUIPO</div>
-                <div class="ficha-header">
-                    <span>N° SERVICIO: <strong>#${prefijoOrden}</strong></span>
-                    <span>FECHA: ${fechaVal}</span>
-                </div>
-                <div class="ficha-campo"><strong>Fabricante:</strong> ${fabricante}</div>
-                <div class="ficha-campo"><strong>Modelo:</strong> ${modelo}</div>
-                <div class="ficha-campo"><strong>S/N:</strong> ${serial || 'N/A'}</div>
-                <div class="ficha-campo"><strong>Falla:</strong> ${falla || 'Por revisar'}</div>
-                <div class="ficha-campo"><strong>Estatus:</strong> <span class="badge-estatus-dinamico ${obtenerClaseBadge(estatus)}">${estatus}</span></div>
-            `;
-
-            document.getElementById('resultado-container').style.display = 'block';
-
-            const btnCopiar = document.getElementById('btn-copiar');
-            const nuevoBtnCopiar = btnCopiar.cloneNode(true);
-            btnCopiar.parentNode.replaceChild(nuevoBtnCopiar, btnCopiar);
-
-            nuevoBtnCopiar.addEventListener('click', () => {
-                navigator.clipboard.writeText(txtWhatsApp).then(() => {
-                    guardarEnHistorial({ prefijoOrden, fechaVal, fabricante, modelo, serial, falla, estatus, txtWhatsApp });
-                    alert("¡Ficha copiada al portapapeles y guardada en el historial!");
-                    
-                    // Limpieza automática para el siguiente registro
-                    document.getElementById('input-ticket').value = '';
-                    document.getElementById('input-fabricante').value = '';
-                    document.getElementById('input-modelo').value = '';
-                    document.getElementById('input-serial').value = '';
-                    document.getElementById('input-falla').value = '';
-                    document.getElementById('resultado-container').style.display = 'none';
-                });
-            });
-            
-            nuevoBtnCopiar.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // CONTROL CLASES SEMÁFORO
-        function obtenerClaseTarjeta(estatus) {
-            if (estatus === "En Diagnóstico") return "status-diagnostico";
-            if (estatus === "Esperando Repuesto") return "status-repuesto";
-            if (estatus === "Reparado") return "status-reparado";
-            if (estatus === "Sin Solución") return "status-sin-solucion";
-            return "";
-        }
-
-        function obtenerClaseBadge(estatus) {
-            if (estatus === "En Diagnóstico") return "bg-diag";
-            if (estatus === "Esperando Repuesto") return "bg-rep";
-            if (estatus === "Reparado") return "bg-repado";
-            if (estatus === "Sin Solución") return "bg-sinsol";
-            return "";
-        }
-
-        // MOTOR DE HISTORIAL LOCAL STORAGE
-        function guardarEnHistorial(orden) {
-            let historial = localStorage.getItem('relectronica_ordenes_historial');
-            historial = historial ? JSON.parse(historial) : [];
-            historial.unshift(orden);
-            localStorage.setItem('relectronica_ordenes_historial', JSON.stringify(historial));
-            renderizarHistorial();
-        }
-
-        function renderizarHistorial() {
-            let historial = localStorage.getItem('relectronica_ordenes_historial');
-            const container = document.getElementById('lista-ordenes-container');
-            container.innerHTML = '';
-
-            if (!historial || JSON.parse(historial).length === 0) {
-                container.innerHTML = `<p style="font-size: 0.85rem; color: #a0aec0; text-align: center; padding: 10px;">No hay órdenes registradas.</p>`;
-                return;
-            }
-
-            const listaOrdenes = JSON.parse(historial);
-
-            listaOrdenes.forEach((orden, index) => {
-                const item = document.createElement('div');
-                item.classList.add('item-orden-guardada', obtenerClaseTarjeta(orden.estatus));
-                item.innerHTML = `
-                    <div class="item-orden-header">
-                        <span>N° Servicio: <strong>#${orden.prefijoOrden}</strong></span>
-                        <span>${orden.fechaVal}</span>
-                    </div>
-                    <div class="item-orden-detalles">
-                        <strong>${orden.fabricante} ${orden.modelo}</strong><br>
-                        <span style="font-size: 0.8rem; opacity: 0.85;">S/N: ${orden.serial || 'N/A'}</span><br>
-                        <span style="font-size: 0.8rem; opacity: 0.85;">Falla: ${orden.falla || 'Por revisar'}</span><br>
-                        <span style="margin-top: 4px; display: inline-block;" class="badge-estatus-dinamico ${obtenerClaseBadge(orden.estatus)}">${orden.estatus}</span>
-                    </div>
-                    <div class="bloque-botones-item">
-                        <button class="btn-recopiar" onclick="copiarHistorialDirecto(${index})">📋 Copiar</button>
-                        <select class="select-cambiar-status" onchange="actualizarEstatusOrden(${index}, this.value)">
-                            <option value="" disabled selected>⚡ Estado</option>
-                            <option value="En Diagnóstico">En Diagnóstico</option>
-                            <option value="Esperando Repuesto">Esperando Repuesto</option>
-                            <option value="Reparado">Reparado</option>
-                            <option value="Sin Solución">Sin Solución</option>
-                        </select>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // REGENERAR Y COPIAR TEXTO WHATSAPP DESDE EL HISTORIAL
-        function actualizarTextoWhatsApp(orden) {
-            return `📋 RELECTRÓNICA - ORDEN DE SERVICIO\n` +
-                   `---------------------------------\n` +
-                   `Orden/Servicio N°: ${orden.prefijoOrden}\n` +
-                   `Fecha: ${orden.fechaVal}\n` +
-                   `Fabricante: ${orden.fabricante}\n` +
-                   `Modelo: ${orden.modelo}\n` +
-                   `S/N: ${orden.serial || 'No especificado'}\n` +
-                   `Falla: ${orden.falla || 'Por revisar en banco'}\n` +
-                   `Estatus: ${orden.estatus}\n` +
-                   `---------------------------------`;
-        }
-
-        function copiarHistorialDirecto(index) {
-            let historial = localStorage.getItem('relectronica_ordenes_historial');
-            if (historial) {
-                const listaOrdenes = JSON.parse(historial);
-                const orden = listaOrdenes[index];
-                if (orden) {
-                    navigator.clipboard.writeText(orden.txtWhatsApp).then(() => {
-                        alert(`¡Reporte de Servicio #${orden.prefijoOrden} copiado!`);
-                    });
-                }
-            }
-        }
-
-        // RE-ESTABLECER ESTATUS DIRECTAMENTE DESDE LA TARJETA
-        function actualizarEstatusOrden(index, nuevoEstatus) {
-            let historial = localStorage.getItem('relectronica_ordenes_historial');
-            if (historial) {
-                let listaOrdenes = JSON.parse(historial);
-                if (listaOrdenes[index]) {
-                    listaOrdenes[index].estatus = nuevoEstatus;
-                    listaOrdenes[index].txtWhatsApp = actualizarTextoWhatsApp(listaOrdenes[index]);
-                    localStorage.setItem('relectronica_ordenes_historial', JSON.stringify(listaOrdenes));
-                    renderizarHistorial();
-                    alert(`El estatus de la orden #${listaOrdenes[index].prefijoOrden} cambió a: ${nuevoEstatus}`);
-                }
-            }
-        }
-
-        // FILTRO DINÁMICO (BUSCADOR EN TIEMPO REAL)
-        function filtrarHistorial() {
-            const termino = document.getElementById('buscador').value.toLowerCase().trim();
-            const tarjetas = document.querySelectorAll('.item-orden-guardada');
-
-            tarjetas.forEach(tarjeta => {
-                const textoTarjeta = tarjeta.innerText.toLowerCase();
-                if (textoTarjeta.includes(termino)) {
-                    tarjeta.style.display = 'flex';
-                } else {
-                    tarjeta.style.display = 'none';
-                }
-            });
-        }
-
-        // LIMPIEZA DE MEMORIA
-        function limpiarTodoElHistorial() {
-            if (confirm("¿Estás seguro de que quieres vaciar todo el registro de órdenes? Esta acción no se puede deshacer.")) {
-                localStorage.removeItem('relectronica_ordenes_historial');
-                renderizarHistorial();
-            }
-        }
-    </script>
+<!-- FAB navegación -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html"    class="fab-item active"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html"       class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html"  class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html"     class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html"   class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html"        class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
 <script>
+/* ══════════════════════════════════
+   STORAGE
+══════════════════════════════════ */
+const STORAGE_KEY = 'relectronica_ordenes_v2';
+
+function loadOrdenes() {
+    try {
+        // migrar viejo formato
+        const old = localStorage.getItem('relectronica_ordenes_historial');
+        if (old && !localStorage.getItem(STORAGE_KEY)) {
+            const arr = JSON.parse(old);
+            const migradas = arr.map(o => ({
+                id: o.prefijoOrden || ('RE-' + Date.now()),
+                fecha: o.fechaVal || hoy(),
+                cliente: '', telefono: '',
+                fabricante: o.fabricante || '',
+                tipo: '', modelo: o.modelo || '',
+                serial: o.serial || '', accesorios: '',
+                condicion: 'Buena', falla: o.falla || '',
+                obs: '', estatus: o.estatus || 'En Diagnóstico',
+                ts: Date.now()
+            }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(migradas));
+        }
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch(e) { return []; }
+}
+
+function saveOrdenes(arr) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    document.getElementById('hdr-total').textContent = arr.length;
+}
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+function hoy() {
+    return new Date().toLocaleDateString('es-VE', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function estatusCls(e) {
+    const m = { 'En Diagnóstico':'diagnostico', 'Esperando Repuesto':'repuesto',
+                'Reparado':'reparado', 'Sin Solución':'sinsolucion', 'Entregado':'entregado' };
+    return m[e] || 'diagnostico';
+}
+function badgeCls(e) {
+    return 'be-' + estatusCls(e);
+}
+function colorearSelect(sel) {
+    sel.className = '';
+    const m = { 'En Diagnóstico':'sel-diagnostico', 'Esperando Repuesto':'sel-repuesto',
+                'Reparado':'sel-reparado', 'Sin Solución':'sel-sinsolucion', 'Entregado':'sel-entregado' };
+    if (m[sel.value]) sel.classList.add(m[sel.value]);
+}
+
+function showToast(msg, color) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = color === 'red' ? '#3b0e0e' : '#1e3a28';
+    t.style.borderColor = color === 'red' ? '#ef4444' : '#22c55e';
+    t.style.color = color === 'red' ? '#fca5a5' : '#86efac';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════
+   VOZ
+══════════════════════════════════ */
+let reconVoz = null, campoVoz = null, escuchando = false;
+
+function initVoz() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    reconVoz = new SR();
+    reconVoz.lang = 'es-VE'; reconVoz.continuous = false; reconVoz.interimResults = false;
+    reconVoz.onstart = () => {
+        escuchando = true;
+        document.querySelectorAll('.btn-mic').forEach(b => { b.classList.remove('escuchando'); b.textContent = '🎙️'; });
+        const btn = document.querySelector(`[onclick="escuchar('${campoVoz}')"]`);
+        if (btn) { btn.classList.add('escuchando'); btn.textContent = '🛑'; }
+    };
+    reconVoz.onend = () => { escuchando = false; document.querySelectorAll('.btn-mic').forEach(b => { b.classList.remove('escuchando'); b.textContent = '🎙️'; }); };
+    reconVoz.onerror = () => reconVoz.onend();
+    reconVoz.onresult = e => {
+        const txt = e.results[0][0].transcript;
+        const el  = document.getElementById(campoVoz);
+        if (el && txt.trim()) el.value = el.value ? el.value + ' ' + txt : txt;
+    };
+}
+
+function escuchar(id) {
+    if (!reconVoz) { showToast('⚠️ Tu navegador no soporta voz', 'red'); return; }
+    if (escuchando) { reconVoz.stop(); if (campoVoz === id) return; }
+    campoVoz = id; reconVoz.start();
+}
+
+/* ══════════════════════════════════
+   GENERAR FICHA
+══════════════════════════════════ */
+let fichaActual = null;
+
+function generarOrden() {
+    const fab  = document.getElementById('input-fabricante').value.trim();
+    const mod  = document.getElementById('input-modelo').value.trim();
+    const falla= document.getElementById('input-falla').value.trim();
+    if (!fab || !mod) { showToast('⚠️ Marca y Modelo son obligatorios', 'red'); return; }
+
+    const ticket   = document.getElementById('input-ticket').value.trim() || 'RE-' + Math.floor(1000 + Math.random()*9000);
+    const fechaEl  = document.getElementById('input-fecha').value;
+    const fechaStr = fechaEl
+        ? new Date(fechaEl + 'T00:00:00').toLocaleDateString('es-VE', { day:'2-digit', month:'2-digit', year:'numeric' })
+        : hoy();
+    const cliente  = document.getElementById('input-cliente').value.trim() || 'No especificado';
+    const telefono = document.getElementById('input-telefono').value.trim() || 'No especificado';
+    const tipo     = document.getElementById('input-tipo').value || '';
+    const serial   = document.getElementById('input-serial').value.trim() || 'N/A';
+    const accesorios = document.getElementById('input-accesorios').value.trim() || 'Ninguno';
+    const condicion  = document.getElementById('input-condicion').value;
+    const estatus    = document.getElementById('input-estatus').value;
+    const obs        = document.getElementById('input-obs').value.trim();
+
+    fichaActual = { id: ticket, fecha: fechaStr, cliente, telefono, fabricante: fab, tipo, modelo: mod, serial, accesorios, condicion, falla: falla||'Por revisar en banco', obs, estatus, ts: Date.now() };
+
+    const linea = [
+        `📋 RELECTRÓNICA — ORDEN DE SERVICIO`,
+        `─────────────────────────────────`,
+        `N° Orden   : ${ticket}`,
+        `Fecha      : ${fechaStr}`,
+        `─────────────────────────────────`,
+        `Cliente    : ${cliente}`,
+        `Teléfono   : ${telefono}`,
+        `─────────────────────────────────`,
+        tipo ? `Equipo     : ${tipo}` : null,
+        `Marca      : ${fab}`,
+        `Modelo     : ${mod}`,
+        `S/N        : ${serial}`,
+        `Accesorios : ${accesorios}`,
+        `Condición  : ${condicion}`,
+        `─────────────────────────────────`,
+        `Falla      : ${falla||'Por revisar en banco'}`,
+        estatus ? `Estatus    : ${estatus}` : null,
+        obs ? `Nota       : ${obs}` : null,
+        `─────────────────────────────────`,
+        `Gracias por confiar en Relectrónica.`,
+    ].filter(Boolean).join('\n');
+
+    fichaActual._txt = linea;
+
+    const preview = document.getElementById('ficha-preview');
+    preview.textContent = linea;
+    preview.classList.add('show');
+    document.getElementById('btn-copiar-wa').style.display = 'block';
+    document.getElementById('btn-guardar').style.display   = 'block';
+    preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copiarWhatsApp() {
+    if (!fichaActual) return;
+    navigator.clipboard.writeText(fichaActual._txt).then(() => showToast('📲 Copiado para WhatsApp'));
+}
+
+function guardarOrden() {
+    if (!fichaActual) return;
+    const ords = loadOrdenes();
+    // evitar duplicado por id
+    const idx = ords.findIndex(o => o.id === fichaActual.id);
+    if (idx !== -1) ords.splice(idx, 1);
+    ords.unshift(fichaActual);
+    saveOrdenes(ords);
+    renderHistorial();
+    actualizarDashboard();
+    showToast('💾 Orden guardada en historial');
+    limpiarFormulario();
+}
+
+function limpiarFormulario() {
+    ['input-ticket','input-cliente','input-telefono','input-fabricante',
+     'input-modelo','input-serial','input-accesorios','input-falla','input-obs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('input-tipo').value = '';
+    document.getElementById('input-condicion').value = 'Buena';
+    document.getElementById('input-estatus').value = 'En Diagnóstico';
+    colorearSelect(document.getElementById('input-estatus'));
+    document.getElementById('ficha-preview').classList.remove('show');
+    document.getElementById('btn-copiar-wa').style.display = 'none';
+    document.getElementById('btn-guardar').style.display   = 'none';
+    fichaActual = null;
+}
+
+/* ══════════════════════════════════
+   HISTORIAL
+══════════════════════════════════ */
+function renderHistorial() {
+    const q     = document.getElementById('hist-search').value.toLowerCase().trim();
+    const filt  = document.getElementById('hist-filtro').value;
+    const ords  = loadOrdenes();
+
+    let lista = ords.filter(o => {
+        const txt = [o.id, o.cliente, o.telefono, o.fabricante, o.modelo, o.serial, o.falla, o.estatus].join(' ').toLowerCase();
+        return (!q || txt.includes(q)) && (!filt || o.estatus === filt);
+    });
+
+    const cont = document.getElementById('lista-ordenes');
+    if (!lista.length) {
+        cont.innerHTML = `<div class="empty-hist"><div class="ico">📭</div>No hay órdenes que coincidan.</div>`;
+        return;
+    }
+
+    cont.innerHTML = lista.map((o) => {
+        const cls  = estatusCls(o.estatus);
+        const bcls = badgeCls(o.estatus);
+        const cambios = (o.historialCambios || []).slice(0, 3).map(c =>
+            `<div style="font-size:.72rem; color:#7c8fa3; padding:3px 0; border-top:1px solid var(--border); margin-top:4px">
+                <span class="badge-estatus ${badgeCls(c.estado)}" style="margin-right:5px">${esc(c.estado)}</span>
+                <span style="color:var(--dim)">${esc(c.fecha)}</span>
+                ${c.nota ? `<br><span style="color:#94a3b8">📝 ${esc(c.nota)}</span>` : ''}
+            </div>`
+        ).join('');
+
+        return `<div class="orden-card s-${cls}">
+            <div class="orden-top">
+                <div>
+                    <div class="orden-num"># ${esc(o.id)}</div>
+                    <div class="orden-equipo">${esc(o.fabricante)} ${esc(o.modelo)}</div>
+                </div>
+                <div class="orden-fecha">${esc(o.fecha)}</div>
+            </div>
+            ${o.cliente ? `<div class="orden-sn">👤 ${esc(o.cliente)}${o.telefono ? ' · 📞 '+esc(o.telefono) : ''}</div>` : ''}
+            ${o.serial && o.serial !== 'N/A' ? `<div class="orden-sn">S/N: ${esc(o.serial)}</div>` : ''}
+            <div class="orden-falla">⚠️ ${esc(o.falla)}</div>
+            ${o.obs ? `<div class="orden-obs">💬 ${esc(o.obs)}</div>` : ''}
+            <span class="badge-estatus ${bcls}">${esc(o.estatus)}</span>
+            ${cambios ? `<div style="margin-top:6px">${cambios}</div>` : ''}
+            <div class="orden-acciones">
+                <button class="btn-accion" onclick="copiarOrdenById('${esc(o.id)}')">📋 Copiar</button>
+                <button class="btn-accion" style="border-color:rgba(168,85,247,.35); color:#c4b5fd" onclick="abrirModalEstado('${esc(o.id)}', '${esc(o.estatus)}')">⚡ Cambiar estado</button>
+                <button class="btn-accion danger" onclick="eliminarOrdenById('${esc(o.id)}')">🗑</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function copiarOrdenById(id) {
+    const ords = loadOrdenes();
+    const o = ords.find(x => x.id === id);
+    if (!o) return;
+    const txt = o._txt || buildTxt(o);
+    navigator.clipboard.writeText(txt).then(() => showToast(`📋 Orden #${id} copiada`));
+}
+
+function eliminarOrdenById(id) {
+    if (!confirm('¿Eliminar esta orden del historial?')) return;
+    const ords = loadOrdenes().filter(x => x.id !== id);
+    saveOrdenes(ords);
+    renderHistorial();
+    actualizarDashboard();
+    showToast('🗑️ Orden eliminada');
+}
+
+function buildTxt(o) {
+    return [
+        `📋 RELECTRÓNICA — ORDEN DE SERVICIO`,
+        `─────────────────────────────────`,
+        `N° Orden   : ${o.id}`,
+        `Fecha      : ${o.fecha}`,
+        o.cliente  ? `Cliente    : ${o.cliente}` : null,
+        o.telefono ? `Teléfono   : ${o.telefono}` : null,
+        `─────────────────────────────────`,
+        o.tipo ? `Equipo     : ${o.tipo}` : null,
+        `Marca      : ${o.fabricante}`,
+        `Modelo     : ${o.modelo}`,
+        `S/N        : ${o.serial||'N/A'}`,
+        o.accesorios ? `Accesorios : ${o.accesorios}` : null,
+        o.condicion  ? `Condición  : ${o.condicion}`  : null,
+        `─────────────────────────────────`,
+        `Falla      : ${o.falla||'Por revisar'}`,
+        `Estatus    : ${o.estatus}`,
+        o.obs ? `Nota       : ${o.obs}` : null,
+        `─────────────────────────────────`,
+    ].filter(Boolean).join('\n');
+}
+
+/* ══════════════════════════════════
+   MODAL CAMBIO DE ESTADO
+══════════════════════════════════ */
+let ordenIdPendiente = null;
+
+function abrirModalEstado(ordenId, estatusActual) {
+    ordenIdPendiente = ordenId;
+    const ords = loadOrdenes();
+    const o    = ords.find(x => x.id === ordenId);
+    document.getElementById('modal-orden-info').textContent =
+        o ? `Orden #${o.id} — ${o.fabricante} ${o.modelo}` : `Orden #${ordenId}`;
+    const sel = document.getElementById('modal-nuevo-estado');
+    sel.value = estatusActual || 'En Diagnóstico';
+    colorearSelect(sel);
+    document.getElementById('modal-nota-cambio').value = '';
+    document.getElementById('modal-estado').classList.add('open');
+}
+
+function cerrarModalEstado() {
+    document.getElementById('modal-estado').classList.remove('open');
+    ordenIdPendiente = null;
+}
+
+document.getElementById('modal-estado').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalEstado();
+});
+
+function confirmarCambioEstado() {
+    if (!ordenIdPendiente) return;
+    const nuevoEstatus = document.getElementById('modal-nuevo-estado').value;
+    const nota         = document.getElementById('modal-nota-cambio').value.trim();
+    const ords = loadOrdenes();
+    const idx  = ords.findIndex(x => x.id === ordenIdPendiente);
+    if (idx === -1) return;
+
+    ords[idx].estatus = nuevoEstatus;
+    // Agregar nota al historial de cambios interno
+    if (!ords[idx].historialCambios) ords[idx].historialCambios = [];
+    ords[idx].historialCambios.unshift({
+        fecha:  hoy(),
+        estado: nuevoEstatus,
+        nota:   nota || ''
+    });
+    // Actualizar obs visible si hay nota
+    if (nota) {
+        ords[idx].obs = nota;
+    }
+    ords[idx]._txt = buildTxt(ords[idx]);
+    saveOrdenes(ords);
+    renderHistorial();
+    actualizarDashboard();
+    cerrarModalEstado();
+    showToast(`✅ Estado: ${nuevoEstatus}`);
+}
+
+function cambiarEstatus(ordenId, nuevoEstatus) {
+    // legacy — ya no se usa directamente, pero se mantiene por compatibilidad
+    abrirModalEstado(ordenId, nuevoEstatus);
+}
+
+function limpiarHistorial() {
+    if (!confirm('¿Vaciar todo el historial de órdenes? Esta acción no se puede deshacer.')) return;
+    saveOrdenes([]);
+    renderHistorial();
+    actualizarDashboard();
+    showToast('🗑️ Historial vaciado');
+}
+
+/* ══════════════════════════════════
+   DASHBOARD
+══════════════════════════════════ */
+function actualizarDashboard() {
+    const ords = loadOrdenes();
+    const count = s => ords.filter(o => o.estatus === s).length;
+
+    document.getElementById('dash-diag').textContent = count('En Diagnóstico');
+    document.getElementById('dash-rep').textContent  = count('Esperando Repuesto');
+    document.getElementById('dash-rep2').textContent = count('Reparado');
+    document.getElementById('dash-ss').textContent   = count('Sin Solución');
+    document.getElementById('hdr-total').textContent = ords.length;
+
+    // resumen
+    const entregados = count('Entregado');
+    document.getElementById('dash-resumen').innerHTML =
+        `Total de órdenes: <strong style="color:#fff">${ords.length}</strong><br>
+         Entregadas: <strong style="color:#c4b5fd">${entregados}</strong><br>
+         Pendientes: <strong style="color:#fcd34d">${ords.length - entregados - count('Reparado')}</strong><br>
+         Tasa de reparación: <strong style="color:#86efac">${ords.length ? Math.round((count('Reparado')+entregados)/ords.length*100) : 0}%</strong>`;
+
+    // marcas
+    const marcas = {};
+    ords.forEach(o => { const m = (o.fabricante||'').trim(); if (m) marcas[m] = (marcas[m]||0)+1; });
+    const top = Object.entries(marcas).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('dash-marcas').innerHTML = top.length
+        ? top.map(([m,c]) => `<strong style="color:#fff">${m}</strong>: ${c} orden${c>1?'es':''}`).join('<br>')
+        : '<span style="color:var(--dim)">Sin datos aún.</span>';
+
+    // recientes
+    document.getElementById('dash-recientes').innerHTML = ords.slice(0,5).map(o =>
+        `<strong style="color:#fff">#${o.id}</strong> — ${o.fabricante} ${o.modelo} <span class="badge-estatus ${badgeCls(o.estatus)}" style="margin-left:5px">${o.estatus}</span>`
+    ).join('<br>') || '<span style="color:var(--dim)">Sin órdenes recientes.</span>';
+}
+
+/* ══════════════════════════════════
+   EXPORT / IMPORT
+══════════════════════════════════ */
+function exportarHistorial() {
+    const ords = loadOrdenes();
+    if (!ords.length) { showToast('⚠️ No hay órdenes para exportar', 'red'); return; }
+    const blob = new Blob([JSON.stringify(ords, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `relectronica_ordenes_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('📤 Exportado correctamente');
+}
+
+function importarHistorial(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const arr = JSON.parse(e.target.result);
+            if (!Array.isArray(arr)) throw new Error('Formato inválido');
+            if (!confirm(`¿Importar ${arr.length} orden(es)? Se reemplazará el historial actual.`)) return;
+            saveOrdenes(arr);
+            renderHistorial();
+            actualizarDashboard();
+            showToast(`📥 ${arr.length} orden(es) importadas`);
+        } catch(err) {
+            showToast('❌ Error al importar: ' + err.message, 'red');
+        } finally {
+            document.getElementById('imp-file').value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+/* ══════════════════════════════════
+   TABS
+══════════════════════════════════ */
+function setTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+        const names = ['nueva','historial','dashboard'];
+        b.classList.toggle('active', names[i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'historial') renderHistorial();
+    if (name === 'dashboard') actualizarDashboard();
+}
+
+/* ══════════════════════════════════
+   FAB
+══════════════════════════════════ */
 function toggleFAB() {
     const items = document.getElementById('fab-items');
-    const overlay = document.getElementById('fab-overlay');
-    const btn = document.getElementById('fab-toggle');
-    const open = items.classList.toggle('open');
-    overlay.classList.toggle('open', open);
+    const ov    = document.getElementById('fab-overlay');
+    const btn   = document.getElementById('fab-toggle');
+    const open  = items.classList.toggle('open');
+    ov.classList.toggle('open', open);
     if (btn) btn.classList.toggle('open', open);
 }
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    // fecha de hoy por defecto
+    document.getElementById('input-fecha').valueAsDate = new Date();
+    colorearSelect(document.getElementById('input-estatus'));
+    document.getElementById('input-estatus').addEventListener('change', function(){ colorearSelect(this); });
+    initVoz();
+    document.getElementById('hdr-total').textContent = loadOrdenes().length;
+    renderHistorial();
+    actualizarDashboard();
+});
 </script>
 </body>
 </html>
