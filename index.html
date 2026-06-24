@@ -150,11 +150,19 @@
             border-radius: 14px; border-bottom-left-radius: 4px;
             padding: 12px 16px; gap: 5px; align-items: center;
             z-index: 1; position: relative;
+            transition: border-color .3s;
         }
         .typing-indicator.show { display: flex; }
+        /* Verde manzana = consultando base local */
+        .typing-indicator.local-search { border-color: #4ade80; }
+        .typing-indicator.local-search .typing-dot { background: #4ade80; box-shadow: 0 0 6px #4ade8088; }
+        /* Morado intenso = consultando Cohere */
+        .typing-indicator.cohere-search { border-color: #7c3aed; }
+        .typing-indicator.cohere-search .typing-dot { background: #7c3aed; box-shadow: 0 0 6px #7c3aed88; }
         .typing-dot {
             width: 7px; height: 7px; border-radius: 50%;
             background: var(--accent); animation: typingBounce 1.2s infinite;
+            transition: background .3s, box-shadow .3s;
         }
         .typing-dot:nth-child(2) { animation-delay: .2s; }
         .typing-dot:nth-child(3) { animation-delay: .4s; }
@@ -708,6 +716,74 @@ function buscarEnFallas(tokens) {
     } catch(e) { return []; }
 }
 
+// ── Simbología / Códigos PCB (de simbologiacodigopcb.html) ──
+const PCB_DATA = [
+    { codes:["R"],          name:"Resistor",                  desc:"Limita o regula el flujo de corriente y divide voltajes.", tip:"En SMD código de 3-4 dígitos (ej. 472 = 4700Ω); mídela fuera de circuito." },
+    { codes:["RN","RP","RA"],name:"Red de resistencias",      desc:"Varias resistencias iguales en un solo encapsulado, comunes en buses de datos o pull-up.", tip:"Si solo una línea falla, revisa continuidad pin a pin." },
+    { codes:["C"],          name:"Capacitor / condensador",   desc:"Almacena carga, filtra ruido y desacopla la alimentación.", tip:"Si está hinchado, abombado o con fuga, reemplázalo siempre." },
+    { codes:["L","FB"],     name:"Inductor / perla de ferrita",desc:"Almacena energía en campo magnético; FB filtra ruido de alta frecuencia.", tip:"En buen estado su resistencia es casi cero. FB casi nunca falla pero revisa continuidad." },
+    { codes:["RT","NTC","TH"],name:"Termistor NTC",           desc:"Resistencia que baja su valor al subir la temperatura.", tip:"Mide en frío y calienta: el valor debe bajar notablemente." },
+    { codes:["D","CR"],     name:"Diodo",                     desc:"Permite el paso de corriente en un solo sentido.", tip:"La franja marca el cátodo (–). Prueba con modo diodo del multímetro." },
+    { codes:["ZD","DZ"],    name:"Diodo zener",               desc:"Mantiene voltaje constante; usado en regulación o protección.", tip:"Se identifica por el valor serigrafiado junto al código (ej. 5V1 = 5.1V)." },
+    { codes:["LED"],        name:"LED",                       desc:"Emite luz al paso de corriente.", tip:"La pata corta es el cátodo (–); la pata larga es el ánodo (+)." },
+    { codes:["TVS"],        name:"Diodo TVS",                 desc:"Protege contra ESD y picos de voltaje en líneas de datos.", tip:"Frecuente junto a conectores USB, HDMI; revísalo primero si un puerto dejó de responder." },
+    { codes:["SCR","THY"],  name:"Tiristor SCR",              desc:"Interruptor electrónico que conduce solo cuando recibe disparo en su compuerta.", tip:"Común en controles de potencia y cargadores." },
+    { codes:["TRIAC"],      name:"Triac",                     desc:"Conduce corriente en ambos sentidos; controla corriente alterna AC.", tip:"Aparece en dimmers, controles de velocidad de motor y planchas con variador." },
+    { codes:["Q"],          name:"Transistor",                desc:"Amplifica o conmuta una señal eléctrica.", tip:"Confirma si es BJT o MOSFET antes de probarlo, se prueban distinto." },
+    { codes:["U","IC"],     name:"Circuito integrado IC",     desc:"Chip que contiene circuito completo: lógico, analógico, de control o potencia.", tip:"El punto o muesca marca el Pin 1. Busca el código en internet para el datasheet." },
+    { codes:["OK","OPT"],   name:"Optoacoplador",             desc:"Transmite señal entre dos circuitos usando luz, aislándolos eléctricamente.", tip:"Muy común en fuentes conmutadas, separando alto voltaje del control." },
+    { codes:["BR","BD"],    name:"Puente rectificador",       desc:"Convierte corriente alterna AC en DC usando cuatro diodos.", tip:"Revisa cada diodo interno por separado si sospechas falla." },
+    { codes:["K","RY","REL"],name:"Relé",                    desc:"Interruptor electromecánico activado por bobina.", tip:"Al energizarlo debe escucharse un clic. Mide continuidad de los contactos." },
+    { codes:["SW","S"],     name:"Interruptor / switch",      desc:"Abre o cierra manualmente un circuito.", tip:"Prueba continuidad en ambas posiciones; un switch sucio da falsos contactos." },
+    { codes:["T","TR","XFMR"],name:"Transformador",          desc:"Transfiere energía entre circuitos cambiando el nivel de voltaje.", tip:"Revisa continuidad del primario y secundario por separado; nunca deben tener continuidad entre sí." },
+    { codes:["M","MOT"],    name:"Motor",                     desc:"Convierte energía eléctrica en movimiento mecánico.", tip:"Debe girar libre con la mano; si está trabado revisa antes de energizar." },
+    { codes:["F"],          name:"Fusible",                   desc:"Se funde para proteger ante sobrecorriente.", tip:"Antes de reemplazarlo investiga qué causó que se abriera." },
+    { codes:["PTC"],        name:"Fusible rearmable PTC",     desc:"Aumenta su resistencia al calentarse y corta la corriente; se restaura solo.", tip:"Si ves 0V después de protección sin daño visible, espera a que enfríe." },
+    { codes:["RV","MOV"],   name:"Varistor MOV",              desc:"Absorbe picos de voltaje para proteger el circuito.", tip:"Si está agrietado o quemado, la placa recibió un pico fuerte; revisa qué más se dañó." },
+    { codes:["BT","BAT"],   name:"Batería / portapilas",      desc:"Fuente de energía portátil.", tip:"Verifica voltaje y polaridad correcta antes de soldar." },
+    { codes:["X","Y","XTAL","XT"],name:"Cristal de cuarzo",  desc:"Genera frecuencia de reloj estable para microcontroladores.", tip:"Si el microcontrolador no responde, sospecha del cristal; confirmar con osciloscopio." },
+    { codes:["J","P","CN"], name:"Conector",                  desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
+    { codes:["JP"],         name:"Jumper",                    desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico." },
+    { codes:["TP"],         name:"Punto de prueba",           desc:"Punto designado para medir voltaje o señal con multímetro u osciloscopio.", tip:"Mejor lugar para diagnosticar sin desoldar; muchos esquemáticos listan el voltaje esperado." },
+    { codes:["FFC","FPC"],  name:"Conector cable plano flexible",desc:"Conector para cables planos FFC/FPC, común en pantallas y cámaras.", tip:"La flecha indica el lado correcto de inserción; invertirlo puede dañar la pantalla." },
+    { codes:["VCC","VDD"],  name:"Alimentación positiva",     desc:"Línea de voltaje positivo que alimenta circuitos digitales.", tip:"Revisa con multímetro si tiene el voltaje nominal del IC cercano (5V, 3.3V, etc.)." },
+    { codes:["GND","AGND","DGND","PGND"],name:"Tierra / referencia 0V",desc:"Punto de referencia común al que regresa la corriente.", tip:"La punta negra del multímetro casi siempre debe ir a un punto de GND." },
+    { codes:["NC"],         name:"No conectado",              desc:"Pin que intencionalmente no tiene conexión.", tip:"No sueldes nada ahí; puede dañar el componente si internamente está conectado a un nodo crítico." },
+    { codes:["TX","RX"],    name:"UART TX/RX",                desc:"Líneas de datos serial: TX envía, RX recibe.", tip:"TX de un dispositivo debe conectarse a RX del otro (cruzados)." },
+    { codes:["SCL","SDA"],  name:"Bus I2C",                   desc:"SCL es reloj y SDA datos del bus I2C para sensores y memorias.", tip:"Ambas líneas necesitan pull-up; si el bus se cuelga, revisa esas resistencias." },
+    { codes:["SCK","MISO","MOSI"],name:"Bus SPI",             desc:"Bus rápido: SCK reloj, MOSI datos maestro→esclavo, MISO al revés.", tip:"Cada dispositivo SPI necesita su propia línea CS además de las tres compartidas." },
+    { codes:["RST"],        name:"Reset",                     desc:"Línea que reinicia un IC o microcontrolador.", tip:"Forzar reset manual ayuda a confirmar si el procesador está vivo." },
+    { codes:["CLK"],        name:"Clock / reloj",             desc:"Señal de temporización que sincroniza el circuito digital.", tip:"Verificar con osciloscopio; sin reloj el sistema no opera." },
+    { codes:["JTAG","SWD"], name:"Puerto de depuración",      desc:"Pines para programar y depurar chips directamente.", tip:"Fila de pads sin marcar cerca de un microcontrolador podría ser JTAG no poblado." },
+    { codes:["DNP","NP"],   name:"No instalar",               desc:"Componente que no debe soldarse en esta versión de la placa.", tip:"Verlo vacío es normal; no es una falla." },
+    { codes:["H","HS"],     name:"Disipador de calor",        desc:"Pieza metálica que disipa el calor de componentes de potencia.", tip:"Si un IC de potencia falla repetidamente, revisa que el disipador tenga buen contacto térmico." },
+];
+
+function buscarEnPCB(tokens) {
+    try {
+        // Lee el storage vivo (incluye DB base + entradas nuevas del usuario)
+        const raw = localStorage.getItem('relectronica_pcb_all') || '[]';
+        const entries = JSON.parse(raw);
+        const fuente = entries.length ? entries : PCB_DATA; // fallback a hardcoded
+
+        const resultados = fuente.map(entry => {
+            const campo = [...(entry.codes||[]), entry.name, entry.desc||entry.description, entry.tip || ''].join(' ');
+            const score = calcularRelevancia(tokens, campo);
+            return { score, entry };
+        }).filter(r => r.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, 2);
+
+        return resultados.map(r => {
+            const e = r.entry;
+            const codes = Array.isArray(e.codes) ? e.codes.join('/') : '';
+            let txt = `🔣 PCB/SIMBOLOGÍA — [${codes}] ${e.name}: ${e.desc || e.description || ''}`;
+            if (e.tip) txt += ` | Tip: ${e.tip}`;
+            return txt;
+        });
+    } catch(e) { return []; }
+}
+
 // Busca en Biblioteca (datos hardcodeados — se inyectan en runtime desde el array de biblioteca)
 const BIBLIOTECA_DATA = [
     { term: "VGH / VGL", description: "Voltajes de compuerta para TFT del panel LCD (VGH positivo ~25V-40V, VGL negativo ~-10V).", tip: "Si VGH falla, la pantalla queda negra aunque el backlight esté encendido." },
@@ -734,8 +810,13 @@ const BIBLIOTECA_DATA = [
 
 function buscarEnBiblioteca(tokens) {
     try {
-        const resultados = BIBLIOTECA_DATA.map(entry => {
-            const campo = [entry.term, entry.description, entry.tip].join(' ');
+        // Lee el storage vivo (incluye base + entradas nuevas agregadas por el usuario)
+        const raw = localStorage.getItem('relectronica_biblioteca_all') || '[]';
+        const entries = JSON.parse(raw);
+        const fuente = entries.length ? entries : BIBLIOTECA_DATA; // fallback a hardcoded
+
+        const resultados = fuente.map(entry => {
+            const campo = [entry.term, entry.description, entry.tip, entry.extra].join(' ');
             const score = calcularRelevancia(tokens, campo);
             return { score, entry };
         }).filter(r => r.score > 0)
@@ -758,11 +839,12 @@ function buscarConocimientoLocal(consulta) {
     const tokens = tokenizar(consulta);
     if (tokens.length === 0) return '';
 
-    const desdeNotas     = buscarEnNotas(tokens);
-    const desdeFallas    = buscarEnFallas(tokens);
+    const desdeNotas      = buscarEnNotas(tokens);
+    const desdeFallas     = buscarEnFallas(tokens);
     const desdeBiblioteca = buscarEnBiblioteca(tokens);
+    const desdePCB        = buscarEnPCB(tokens);
 
-    const todos = [...desdeNotas, ...desdeFallas, ...desdeBiblioteca];
+    const todos = [...desdeNotas, ...desdeFallas, ...desdeBiblioteca, ...desdePCB];
     if (todos.length === 0) return '';
 
     return `\n\n══ CONOCIMIENTO LOCAL ENCONTRADO ══\n` +
@@ -799,9 +881,17 @@ async function sendMessage() {
 
     // ── Buscar en conocimiento local PRIMERO ──
     const contextoLocal = buscarConocimientoLocal(query);
-    if (contextoLocal) {
-        showToast('📚 Consultando base local…');
-    }
+
+    // Verde manzana mientras se busca en local
+    typingIndicator.classList.add('local-search');
+    typingIndicator.classList.remove('cohere-search');
+
+    // Pequeña pausa visual para que se note el estado local (80ms)
+    await new Promise(r => setTimeout(r, contextoLocal ? 180 : 60));
+
+    // Morado intenso al pasar a Cohere
+    typingIndicator.classList.remove('local-search');
+    typingIndicator.classList.add('cohere-search');
 
     // construir historial para Cohere (últimos 14 turnos)
     const recentHistory = chatHistory.slice(-14);
@@ -848,6 +938,7 @@ async function sendMessage() {
         appendMessageToDOM('bot', '⚠️ Sin conexión. Verifica tu red e intenta de nuevo.', true);
         console.error(err);
     } finally {
+        typingIndicator.classList.remove('local-search', 'cohere-search');
         inputField.disabled = false;
         sendBtn.disabled    = false;
         attachBtn.disabled  = false;
