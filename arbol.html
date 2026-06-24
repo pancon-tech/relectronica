@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica – Árbol de Diagnóstico IA</title>
+<style>
+:root{
+  --bg:#0b131f;--chat:#111c2c;--card:#162235;--brd:#22344d;
+  --pri:#7928ca;--acc:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;--inp:#080d16;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{display:flex;flex-direction:column;min-height:100vh;padding-bottom:80px}
+
+/* HEADER */
+header{background:var(--chat);padding:11px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--brd);flex-shrink:0;position:sticky;top:0;z-index:100}
+.logo{width:44px;height:44px;border-radius:8px;background:#000;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.hd-info h1{font-size:1.05rem;font-weight:700}
+.hd-info p{font-size:.78rem;color:var(--ok);display:flex;align-items:center;gap:4px}
+.sdot{width:8px;height:8px;background:var(--ok);border-radius:50%;animation:sdot 2.5s infinite}
+@keyframes sdot{0%,100%{opacity:1}50%{opacity:.4}}
+.back-btn{margin-left:auto;background:none;border:1px solid var(--brd);border-radius:8px;color:var(--muted);padding:6px 12px;font-size:.78rem;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:4px;transition:all .18s}
+.back-btn:hover{background:#1e3347;color:#fff}
+
+main{flex:1;padding:14px;max-width:760px;width:100%;margin:0 auto}
+
+/* SYMPTOM ENTRY */
+.entry-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:18px;margin-bottom:14px}
+.entry-card h2{font-size:1rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.entry-card p{font-size:.8rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:.74rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.form-input{background:var(--inp);border:1px solid var(--brd);border-radius:8px;color:#fff;padding:9px 12px;font-size:.88rem;outline:none;width:100%;transition:border-color .2s}
+.form-input:focus{border-color:var(--pri)}
+select.form-input{cursor:pointer}
+.symptom-area{background:var(--inp);border:1px solid var(--brd);border-radius:8px;color:#fff;padding:10px 12px;font-size:.88rem;resize:none;width:100%;height:80px;outline:none;font-family:inherit;line-height:1.5;transition:border-color .2s;margin-bottom:10px}
+.symptom-area:focus{border-color:var(--pri)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{background:var(--inp);border:1px solid var(--brd);border-radius:14px;padding:5px 12px;font-size:.73rem;color:var(--dim);cursor:pointer;transition:all .18s;white-space:nowrap}
+.chip:hover{border-color:var(--acc);color:#c4b5fd}
+.gen-btn{width:100%;padding:14px;border:none;border-radius:8px;background:linear-gradient(135deg,#7928ca,#a855f7);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .1s;box-shadow:0 3px 14px rgba(121,40,202,.45)}
+.gen-btn:hover{opacity:.9}
+.gen-btn:active{transform:scale(.98)}
+.gen-btn:disabled{opacity:.4;cursor:default}
+
+/* PROGRESS BAR */
+.progress-wrap{margin-bottom:14px;display:none}
+.progress-wrap.show{display:block}
+.progress-label{font-size:.75rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.progress-track{height:4px;background:var(--brd);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7928ca,#a855f7);border-radius:2px;transition:width .4s ease;width:0%}
+
+/* TREE CONTAINER */
+#treeWrap{display:none}
+#treeWrap.show{display:block}
+
+/* BREADCRUMB */
+.breadcrumb{background:var(--chat);border:1px solid var(--brd);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.75rem;color:var(--muted);line-height:1.6}
+.breadcrumb strong{color:var(--acc)}
+.breadcrumb span.sep{margin:0 5px;color:var(--dim)}
+.bc-step{color:#94a3b8}
+.bc-step.done{color:#6ee7b7}
+
+/* NODE CARD */
+.node-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;overflow:hidden;margin-bottom:12px;animation:nodeIn .28s ease}
+@keyframes nodeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.node-step-badge{background:linear-gradient(135deg,#7928ca,#a855f7);padding:8px 14px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between}
+.node-step-badge .step-num{opacity:.7;font-size:.68rem}
+.node-body{padding:16px}
+.node-question{font-size:1rem;font-weight:700;color:#fff;line-height:1.45;margin-bottom:10px}
+.node-action{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.node-action .act-label{font-size:.68rem;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.node-action .act-text{font-size:.83rem;color:#cbd5e1;line-height:1.5}
+.node-action code{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.25);border-radius:4px;padding:1px 6px;font-family:'Courier New',monospace;font-size:.8rem;color:#c4b5fd}
+.node-expected{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:9px 12px;margin-bottom:14px}
+.node-expected .exp-label{font-size:.68rem;color:var(--ok);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.node-expected .exp-text{font-size:.82rem;color:#a7f3d0;line-height:1.5}
+.answers{display:flex;flex-direction:column;gap:8px}
+.ans-btn{background:var(--inp);border:1px solid var(--brd);border-radius:10px;color:#e2e8f0;padding:12px 14px;font-size:.88rem;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:10px;line-height:1.4}
+.ans-btn:hover{border-color:var(--acc);background:rgba(168,85,247,.08);color:#fff}
+.ans-btn .ans-icon{font-size:1.1rem;flex-shrink:0;width:22px;text-align:center}
+.ans-btn.yes:hover{border-color:var(--ok);background:rgba(16,185,129,.07)}
+.ans-btn.no:hover{border-color:var(--err);background:rgba(239,68,68,.07)}
+.ans-btn.partial:hover{border-color:var(--warn);background:rgba(245,158,11,.07)}
+
+/* DIAGNOSIS RESULT */
+.diag-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;overflow:hidden;margin-bottom:14px;animation:nodeIn .3s ease}
+.diag-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.diag-header.ok{background:rgba(16,185,129,.12);border-bottom:1px solid rgba(16,185,129,.2)}
+.diag-header.warn{background:rgba(245,158,11,.1);border-bottom:1px solid rgba(245,158,11,.2)}
+.diag-header.err{background:rgba(239,68,68,.1);border-bottom:1px solid rgba(239,68,68,.2)}
+.diag-icon{font-size:1.8rem}
+.diag-title-wrap h3{font-size:1rem;font-weight:700}
+.diag-title-wrap p{font-size:.75rem;color:var(--muted);margin-top:2px}
+.diag-body{padding:16px}
+.diag-section{margin-bottom:14px}
+.diag-section:last-child{margin-bottom:0}
+.diag-section h4{font-size:.75rem;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+.diag-section ul{padding-left:16px}
+.diag-section li{font-size:.84rem;color:#cbd5e1;margin-bottom:5px;line-height:1.5}
+.diag-section p{font-size:.84rem;color:#cbd5e1;line-height:1.6}
+.diag-section code{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.25);border-radius:4px;padding:1px 6px;font-family:'Courier New',monospace;font-size:.8rem;color:#c4b5fd}
+.component-badge{display:inline-block;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:3px 10px;font-size:.78rem;color:#fca5a5;font-weight:700;margin:2px}
+.safe-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 12px;margin-top:8px}
+.safe-box .sb-label{font-size:.68rem;color:var(--err);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.safe-box p{font-size:.82rem;color:#fca5a5;line-height:1.5}
+
+/* ACTIONS AFTER DIAG */
+.post-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.post-btn{background:var(--inp);border:1px solid var(--brd);border-radius:8px;color:var(--muted);padding:8px 14px;font-size:.78rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
+.post-btn:hover{border-color:var(--acc);color:#d8b4fe}
+.post-btn.primary{background:linear-gradient(135deg,#7928ca,#a855f7);border-color:transparent;color:#fff}
+.post-btn.primary:hover{opacity:.88}
+
+/* HISTORY STEPS */
+.history-node{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.1);border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:.8rem;color:#a7f3d0;display:flex;align-items:flex-start;gap:8px}
+.history-node .hn-q{color:#6ee7b7;font-weight:600;margin-bottom:2px}
+.history-node .hn-a{color:#86efac}
+.hn-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* TYPING */
+.typing-box{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:20px;margin-bottom:14px;display:none;text-align:center}
+.typing-box.show{display:block}
+.typing-box p{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.dots{display:flex;justify-content:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:db 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e3a28;border:1px solid #22c55e;border-radius:8px;padding:8px 16px;font-size:.8rem;color:#86efac;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* FAB */
+.fab-toggle{position:fixed;bottom:20px;right:18px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#7928ca,#a855f7);border:none;color:white;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 16px rgba(121,40,202,.6);display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .25s ease}
+.fab-toggle.open{transform:rotate(90deg)}
+.fab-items{position:fixed;bottom:80px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:9px;pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:9999}
+.fab-items.open{pointer-events:all;opacity:1}
+.fab-item{display:flex;align-items:center;gap:9px;text-decoration:none}
+.fab-item-label{background:#1a273a;color:#e2e8f0;font-size:.8rem;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid #22344d;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.fab-item-btn{width:42px;height:42px;border-radius:50%;background:#1a273a;border:1px solid #22344d;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 2px 10px rgba(0,0,0,.4);flex-shrink:0}
+.fab-item.active .fab-item-btn{background:linear-gradient(135deg,#7928ca,#a855f7);border-color:#a855f7}
+.fab-item.active .fab-item-label{color:#c4b5fd;border-color:#7928ca}
+.fab-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5)}
+.fab-overlay.open{display:block}
+.fab-items.open .fab-item:nth-child(n){animation:fabIn .18s ease both}
+.fab-items.open .fab-item:nth-child(1){animation-delay:.00s}
+.fab-items.open .fab-item:nth-child(2){animation-delay:.04s}
+.fab-items.open .fab-item:nth-child(3){animation-delay:.08s}
+.fab-items.open .fab-item:nth-child(4){animation-delay:.12s}
+.fab-items.open .fab-item:nth-child(5){animation-delay:.16s}
+.fab-items.open .fab-item:nth-child(6){animation-delay:.20s}
+.fab-items.open .fab-item:nth-child(7){animation-delay:.24s}
+.fab-items.open .fab-item:nth-child(8){animation-delay:.28s}
+.fab-items.open .fab-item:nth-child(9){animation-delay:.32s}
+.fab-items.open .fab-item:nth-child(10){animation-delay:.36s}
+@keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:480px){
+  .form-row{grid-template-columns:1fr}
+  .post-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🌿</div>
+  <div class="hd-info">
+    <h1>Árbol de Diagnóstico IA</h1>
+    <p><span class="sdot"></span>Diagnóstico guiado paso a paso</p>
+  </div>
+  <a href="index.html" class="back-btn">← Chat</a>
+</header>
+
+<main>
+
+  <!-- ENTRY FORM -->
+  <div class="entry-card" id="entryCard">
+    <h2>🌿 Generar árbol de diagnóstico</h2>
+    <p>Describe el síntoma y la IA genera un flujograma de diagnóstico interactivo personalizado. Responde Sí/No en cada nodo hasta llegar al componente culpable.</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Categoría del equipo</label>
+        <select class="form-input" id="categoria">
+          <option value="">Selecciona...</option>
+          <optgroup label="📺 Línea Marrón">
+            <option value="TV LED/LCD">TV LED / LCD</option>
+            <option value="TV OLED">TV OLED</option>
+            <option value="Monitor PC">Monitor PC</option>
+            <option value="TV CRT">TV CRT (tubo)</option>
+            <option value="Equipo de audio">Equipo de audio / amplificador</option>
+            <option value="DVD/Blu-ray">DVD / Blu-ray</option>
+          </optgroup>
+          <optgroup label="🏠 Línea Blanca">
+            <option value="Lavadora">Lavadora</option>
+            <option value="Nevera/Refrigerador">Nevera / Refrigerador</option>
+            <option value="Microondas">Microondas</option>
+            <option value="Aire acondicionado">Aire acondicionado</option>
+            <option value="Lavaplatos">Lavaplatos</option>
+          </optgroup>
+          <optgroup label="🔌 Línea Menor">
+            <option value="Plancha">Plancha</option>
+            <option value="Licuadora">Licuadora</option>
+            <option value="Ventilador">Ventilador</option>
+            <option value="Tostadora">Tostadora</option>
+          </optgroup>
+          <optgroup label="⚡ Fuentes / Cargadores">
+            <option value="Fuente SMPS">Fuente SMPS conmutada</option>
+            <option value="Cargador/Adaptador">Cargador / Adaptador</option>
+            <option value="UPS">UPS / Inversor</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Marca y modelo (opcional)</label>
+        <input type="text" class="form-input" id="modelo" placeholder="Ej: Samsung UN43J5290">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:10px">
+      <label>Síntoma principal</label>
+      <textarea class="symptom-area" id="symptoma" placeholder="Describe exactamente qué hace y qué no hace el equipo. Ej: TV enciende, el LED de power está en rojo, hay audio pero la pantalla permanece negra. No hubo golpe ni evento previo."></textarea>
+    </div>
+
+    <div class="chips" id="chipList">
+      <span class="chip" onclick="addChip('Enciende pero no da imagen')">📺 Sin imagen</span>
+      <span class="chip" onclick="addChip('No enciende, sin respuesta al botón de power')">🔌 No enciende</span>
+      <span class="chip" onclick="addChip('Imagen con líneas horizontales o verticales')">📏 Líneas en pantalla</span>
+      <span class="chip" onclick="addChip('Se apaga solo después de unos minutos')">⏱️ Se apaga solo</span>
+      <span class="chip" onclick="addChip('Hay imagen pero sin audio')">🔇 Sin audio</span>
+      <span class="chip" onclick="addChip('Sonido a descarga o chasquido al encender')">⚡ Chasquido/chispa</span>
+      <span class="chip" onclick="addChip('LED de standby parpadea y no enciende')">🔴 LED parpadea</span>
+      <span class="chip" onclick="addChip('Olor a quemado, posible componente dañado visualmente')">🔥 Olor a quemado</span>
+      <span class="chip" onclick="addChip('Backlight enciende pero imagen muy tenue o sin brillo')">💡 Imagen muy oscura</span>
+      <span class="chip" onclick="addChip('El equipo no lava / no gira el tambor')">🌀 No gira</span>
+      <span class="chip" onclick="addChip('No enfría pero el compresor enciende')">❄️ No enfría</span>
+      <span class="chip" onclick="addChip('Display muestra código de error')">🔢 Código de error</span>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generarArbol()">
+      🌿 Generar árbol de diagnóstico
+    </button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressLabel">Generando árbol...</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- TYPING -->
+  <div class="typing-box" id="typingBox">
+    <p id="typingMsg">Analizando síntoma y generando árbol de diagnóstico personalizado...</p>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+
+  <!-- TREE -->
+  <div id="treeWrap">
+    <!-- Breadcrumb de pasos recorridos -->
+    <div class="breadcrumb" id="breadcrumb" style="display:none"></div>
+    <!-- Historial de nodos respondidos -->
+    <div id="historyNodes"></div>
+    <!-- Nodo actual -->
+    <div id="currentNode"></div>
+    <!-- Diagnóstico final -->
+    <div id="diagResult"></div>
+  </div>
+
+</main>
+
+<!-- FAB -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+  <a href="recepcion.html"           class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+  <a href="fallas.html"              class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+  <a href="componentes.html"         class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+  <a href="simbologiacodigopcb.html" class="fab-item"><span class="fab-item-label">Símb. PCB</span><span class="fab-item-btn">🔣</span></a>
+  <a href="calculadoras.html"        class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+  <a href="hardware.html"            class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+  <a href="biblioteca.html"          class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+  <a href="notas.html"               class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+  <a href="osciloscopo.html"         class="fab-item"><span class="fab-item-label">Osciloscopio IA</span><span class="fab-item-btn">📡</span></a>
+  <a href="index.html"               class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+  <a href="arbol.html"               class="fab-item active"><span class="fab-item-label">Árbol Diagnóstico</span><span class="fab-item-btn">🌿</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ CONFIG ══ */
+const API_KEY   = '594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL';
+const API_URL   = 'https://api.cohere.com/v1/chat';
+const MODEL     = 'command-r-08-2024';
+
+/* ══ STATE ══ */
+let tree          = [];   // array de nodos generados
+let currentIdx    = 0;    // índice del nodo actual
+let answers       = [];   // historial {question, answer, nodeIdx}
+let diagnosisData = null; // resultado final
+let equipInfo     = {};
+
+/* ══ CHIPS ══ */
+function addChip(text){
+  const el = document.getElementById('symptoma');
+  el.value = text;
+  el.focus();
+}
+
+/* ══ PROGRESS ANIMATION ══ */
+let progInterval = null;
+function startProgress(label){
+  const wrap = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  const lbl  = document.getElementById('progressLabel');
+  const pct  = document.getElementById('progressPct');
+  wrap.classList.add('show');
+  lbl.textContent = label;
+  let p = 0;
+  clearInterval(progInterval);
+  progInterval = setInterval(()=>{
+    p = Math.min(p + Math.random()*4, 88);
+    fill.style.width = p+'%';
+    pct.textContent  = Math.round(p)+'%';
+  }, 180);
+}
+function endProgress(){
+  clearInterval(progInterval);
+  const fill = document.getElementById('progressFill');
+  const pct  = document.getElementById('progressPct');
+  fill.style.width = '100%';
+  pct.textContent  = '100%';
+  setTimeout(()=>{
+    document.getElementById('progressWrap').classList.remove('show');
+    fill.style.width='0%';
+  }, 600);
+}
+
+/* ══ GENERATE TREE ══ */
+async function generarArbol(){
+  const cat      = document.getElementById('categoria').value.trim();
+  const modelo   = document.getElementById('modelo').value.trim();
+  const symptoma = document.getElementById('symptoma').value.trim();
+
+  if(!cat){ showToast('⚠️ Selecciona la categoría del equipo'); return; }
+  if(!symptoma){ showToast('⚠️ Describe el síntoma primero'); return; }
+
+  equipInfo = { cat, modelo, symptoma };
+
+  // UI state
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('typingBox').classList.add('show');
+  document.getElementById('typingMsg').textContent = 'Analizando síntoma y generando árbol de diagnóstico...';
+  startProgress('Generando árbol de diagnóstico...');
+
+  const prompt = `Eres un ingeniero electrónico experto en reparación de equipos de consumo.
+Genera un árbol de diagnóstico técnico para el siguiente caso:
+
+Equipo: ${cat}${modelo ? ' — ' + modelo : ''}
+Síntoma: ${symptoma}
+
+Genera exactamente 6 nodos de diagnóstico en formato JSON. Cada nodo debe ser una prueba/medición concreta que el técnico pueda hacer con sus herramientas (multímetro, visual, etc.).
+
+Responde ÚNICAMENTE con un JSON válido con esta estructura exacta, sin texto adicional, sin markdown, sin backticks:
+{
+  "titulo": "Árbol de diagnóstico: [síntoma resumido]",
+  "resumen": "Una línea describiendo el problema a investigar",
+  "nodos": [
+    {
+      "id": 1,
+      "pregunta": "¿La pregunta de diagnóstico que el técnico debe responder?",
+      "accion": "Instrucción exacta de qué hacer/medir: punto de prueba, escala del instrumento",
+      "valorEsperado": "Qué valor o condición indica funcionamiento normal",
+      "si": "Conclusión si la respuesta es SÍ / medición es correcta",
+      "no": "Conclusión si la respuesta es NO / medición falla",
+      "parcial": "Conclusión si hay resultado intermedio o inconsistente (opcional, puede ser null)"
+    }
+  ],
+  "componentesProbables": ["componente1", "componente2", "componente3"],
+  "alertaSeguridad": "Advertencia de seguridad si aplica, o null"
+}
+
+Reglas:
+- Las preguntas deben ir de lo más externo/fácil a lo más interno/profundo
+- Cada acción debe incluir el punto exacto de prueba y la escala del multímetro
+- Los nodos deben cubrir la cadena: alimentación → fuente → señal → carga → componente final
+- Los valores esperados deben ser concretos (voltajes, resistencias, estados visuales)
+- El árbol debe llevar al técnico al componente culpable específico`;
+
+  try{
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + API_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        message: prompt,
+        preamble: 'Eres un experto en electrónica. Responde solo con JSON válido, sin texto extra.',
+        chat_history: []
+      })
+    });
+
+    const data = await resp.json();
+    endProgress();
+    document.getElementById('typingBox').classList.remove('show');
+    document.getElementById('genBtn').disabled = false;
+
+    if(!resp.ok || !data.text){
+      showToast('⚠️ Error al generar el árbol');
+      return;
+    }
+
+    // parse JSON from response
+    let raw = data.text.trim();
+    // strip possible markdown fences
+    raw = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    const treeData = JSON.parse(raw);
+
+    tree       = treeData.nodos || [];
+    currentIdx = 0;
+    answers    = [];
+
+    // show tree UI
+    document.getElementById('entryCard').style.display = 'none';
+    document.getElementById('treeWrap').classList.add('show');
+
+    renderBreadcrumb(treeData);
+    renderCurrentNode(treeData);
+
+    // store metadata
+    window._treeData = treeData;
+
+  } catch(err){
+    endProgress();
+    document.getElementById('typingBox').classList.remove('show');
+    document.getElementById('genBtn').disabled = false;
+    showToast('⚠️ Error al procesar la respuesta');
+    console.error(err);
+  }
+}
+
+/* ══ RENDER BREADCRUMB ══ */
+function renderBreadcrumb(td){
+  const bc = document.getElementById('breadcrumb');
+  bc.style.display = 'block';
+  const total = tree.length;
+  const done  = currentIdx;
+  let html = `<strong>${td.titulo}</strong><br>`;
+  html += `<span style="color:var(--muted);font-size:.72rem">${td.resumen}</span>`;
+  html += `<br><br>`;
+  for(let i=0;i<total;i++){
+    const cls = i < done ? 'bc-step done' : 'bc-step';
+    const icon= i < done ? '✅' : (i===done ? '▶️' : '⬜');
+    html += `<span class="${cls}">${icon} Paso ${i+1}</span>`;
+    if(i<total-1) html += `<span class="sep">›</span>`;
+  }
+  bc.innerHTML = html;
+}
+
+/* ══ RENDER CURRENT NODE ══ */
+function renderCurrentNode(td){
+  const container = document.getElementById('currentNode');
+  container.innerHTML = '';
+
+  if(currentIdx >= tree.length){
+    renderFinalDiagnosis(td);
+    return;
+  }
+
+  const node = tree[currentIdx];
+  const hasParcial = node.parcial && node.parcial !== 'null' && node.parcial.trim() !== '';
+
+  container.innerHTML = `
+    <div class="node-card">
+      <div class="node-step-badge">
+        <span>⚡ Paso ${node.id} de ${tree.length}</span>
+        <span class="step-num">${equipInfo.cat}${equipInfo.modelo ? ' · '+equipInfo.modelo : ''}</span>
+      </div>
+      <div class="node-body">
+        <div class="node-question">${node.pregunta}</div>
+        <div class="node-action">
+          <div class="act-label">🔧 Qué hacer</div>
+          <div class="act-text">${formatAction(node.accion)}</div>
+        </div>
+        <div class="node-expected">
+          <div class="exp-label">✅ Valor / condición esperada</div>
+          <div class="exp-text">${node.valorEsperado}</div>
+        </div>
+        <div class="answers">
+          <button class="ans-btn yes" onclick="responder('si', ${JSON.stringify(node).replace(/"/g,'&quot;')})">
+            <span class="ans-icon">✅</span>
+            <div><strong>Sí / Correcto</strong><br><span style="font-size:.78rem;color:#86efac">${node.si}</span></div>
+          </button>
+          <button class="ans-btn no" onclick="responder('no', ${JSON.stringify(node).replace(/"/g,'&quot;')})">
+            <span class="ans-icon">❌</span>
+            <div><strong>No / Falla</strong><br><span style="font-size:.78rem;color:#fca5a5">${node.no}</span></div>
+          </button>
+          ${hasParcial ? `
+          <button class="ans-btn partial" onclick="responder('parcial', ${JSON.stringify(node).replace(/"/g,'&quot;')})">
+            <span class="ans-icon">⚠️</span>
+            <div><strong>Resultado parcial / intermitente</strong><br><span style="font-size:.78rem;color:#fcd34d">${node.parcial}</span></div>
+          </button>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function formatAction(text){
+  // highlight values that look like measurements
+  return text
+    .replace(/(\d+[\.,]?\d*\s*(?:V|kΩ|Ω|mA|A|Hz|kHz|MHz|°C|VAC|VDC)(?:\s*(?:DC|AC|rms)?)?)/gi,
+             '<code>$1</code>')
+    .replace(/(pin\s+\w+|TP\d+|R\d+|C\d+|Q\d+|D\d+|IC\d+|F\d+)/gi,
+             '<code>$1</code>');
+}
+
+/* ══ ANSWER NODE ══ */
+function responder(ans, node){
+  // save to history
+  const ansLabels = { si:'✅ Sí / Correcto', no:'❌ No / Falla', parcial:'⚠️ Parcial / Intermitente' };
+  const ansConclusions = { si: node.si, no: node.no, parcial: node.parcial };
+  answers.push({
+    nodeId: node.id,
+    question: node.pregunta,
+    answer: ansLabels[ans],
+    conclusion: ansConclusions[ans]
+  });
+
+  // render history step
+  const hist = document.getElementById('historyNodes');
+  const div  = document.createElement('div');
+  div.className = 'history-node';
+  div.innerHTML = `
+    <span class="hn-icon">${ans==='si'?'✅':ans==='no'?'❌':'⚠️'}</span>
+    <div>
+      <div class="hn-q">Paso ${node.id}: ${node.pregunta}</div>
+      <div class="hn-a">${ansLabels[ans]} — ${ansConclusions[ans]}</div>
+    </div>`;
+  hist.appendChild(div);
+
+  currentIdx++;
+
+  // if all answered → final diagnosis via AI
+  if(currentIdx >= tree.length){
+    document.getElementById('currentNode').innerHTML = '';
+    renderBreadcrumb(window._treeData);
+    generateFinalDiagnosis();
+  } else {
+    renderBreadcrumb(window._treeData);
+    renderCurrentNode(window._treeData);
+    window.scrollTo({top: document.getElementById('currentNode').offsetTop - 70, behavior:'smooth'});
+  }
+}
+
+/* ══ GENERATE FINAL DIAGNOSIS (AI) ══ */
+async function generateFinalDiagnosis(){
+  document.getElementById('typingBox').classList.add('show');
+  document.getElementById('typingMsg').textContent = 'Analizando todas las respuestas y generando diagnóstico final...';
+  startProgress('Calculando diagnóstico...');
+
+  const answersText = answers.map(a =>
+    `Paso ${a.nodeId}: ${a.question}\nRespuesta: ${a.answer}\nConclusión: ${a.conclusion}`
+  ).join('\n\n');
+
+  const prompt = `Equipo: ${equipInfo.cat}${equipInfo.modelo ? ' — '+equipInfo.modelo : ''}
+Síntoma original: ${equipInfo.symptoma}
+
+Resultados del árbol de diagnóstico (el técnico recorrió ${answers.length} pasos):
+${answersText}
+
+Con base en estos resultados, genera el diagnóstico final en JSON válido sin texto extra ni markdown:
+{
+  "veredicto": "COMPONENTE IDENTIFICADO" o "ZONA IDENTIFICADA" o "DIAGNÓSTICO INCONCLUSO",
+  "severidad": "CRITICA" o "ALTA" o "MEDIA",
+  "componenteCulpable": "Nombre del componente o zona culpable",
+  "descripcionFalla": "Explicación técnica de por qué ese componente falla con esos síntomas",
+  "pasosSiguientes": ["paso 1 concreto", "paso 2 concreto", "paso 3 concreto"],
+  "herramientasNecesarias": ["herramienta 1", "herramienta 2"],
+  "tiempoEstimado": "Tiempo estimado de reparación en taller",
+  "dificultad": "BASICA" o "INTERMEDIA" o "AVANZADA",
+  "alertaSeguridad": "Advertencia específica si aplica o null",
+  "consejo": "Un consejo de experiencia del técnico senior para este caso específico"
+}`;
+
+  try{
+    const resp = await fetch(API_URL,{
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer '+API_KEY,
+        'Content-Type':'application/json',
+        'Accept':'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        message: prompt,
+        preamble: 'Eres un experto en reparación de electrónica. Responde solo con JSON válido.',
+        chat_history:[]
+      })
+    });
+    const data = await resp.json();
+    endProgress();
+    document.getElementById('typingBox').classList.remove('show');
+
+    if(!resp.ok||!data.text){ showToast('⚠️ Error en diagnóstico final'); return; }
+
+    let raw = data.text.trim().replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    diagnosisData = JSON.parse(raw);
+    renderFinalDiagnosis();
+
+  } catch(err){
+    endProgress();
+    document.getElementById('typingBox').classList.remove('show');
+    showToast('⚠️ Error al generar diagnóstico final');
+    console.error(err);
+  }
+}
+
+/* ══ RENDER FINAL DIAGNOSIS ══ */
+function renderFinalDiagnosis(){
+  if(!diagnosisData) return;
+  const d = diagnosisData;
+
+  const sevColor = {CRITICA:'err', ALTA:'warn', MEDIA:'ok'}[d.severidad] || 'ok';
+  const sevIcon  = {CRITICA:'🔴', ALTA:'⚠️', MEDIA:'🟡'}[d.severidad] || '✅';
+  const difColor = {BASICA:'ok', INTERMEDIA:'warn', AVANZADA:'err'}[d.dificultad] || 'ok';
+
+  const pasos = (d.pasosSiguientes||[]).map(p=>`<li>${p}</li>`).join('');
+  const herr  = (d.herramientasNecesarias||[]).map(h=>`<li>${h}</li>`).join('');
+
+  const safeBox = d.alertaSeguridad ? `
+    <div class="safe-box">
+      <div class="sb-label">🔴 Alerta de seguridad</div>
+      <p>${d.alertaSeguridad}</p>
+    </div>` : '';
+
+  const consejo = d.consejo ? `
+    <div class="diag-section">
+      <h4>💡 Consejo del técnico senior</h4>
+      <div style="background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:10px 12px;">
+        <p style="color:#c4b5fd;font-style:italic">"${d.consejo}"</p>
+      </div>
+    </div>` : '';
+
+  document.getElementById('diagResult').innerHTML = `
+    <div class="diag-card">
+      <div class="diag-header ${sevColor}">
+        <div class="diag-icon">${sevIcon}</div>
+        <div class="diag-title-wrap">
+          <h3>${d.componenteCulpable || 'Zona identificada'}</h3>
+          <p>${d.veredicto} · Dificultad: <span style="color:var(--${difColor})">${d.dificultad}</span> · ${d.tiempoEstimado||''}</p>
+        </div>
+      </div>
+      <div class="diag-body">
+        <div class="diag-section">
+          <h4>🎯 Diagnóstico</h4>
+          <p>${d.descripcionFalla}</p>
+          ${safeBox}
+        </div>
+        <div class="diag-section">
+          <h4>🔧 Pasos siguientes</h4>
+          <ul>${pasos}</ul>
+        </div>
+        <div class="diag-section">
+          <h4>🛠️ Herramientas necesarias</h4>
+          <ul>${herr}</ul>
+        </div>
+        ${consejo}
+        <div class="post-actions">
+          <button class="post-btn primary" onclick="guardarCaso()">💾 Guardar en Mis Notas</button>
+          <button class="post-btn" onclick="compartirDiag()">📋 Copiar diagnóstico</button>
+          <button class="post-btn" onclick="nuevoArbol()">🌿 Nuevo árbol</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('diagResult').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ══ POST ACTIONS ══ */
+function guardarCaso(){
+  if(!diagnosisData) return;
+  const d = diagnosisData;
+  const nota = `━━━ ÁRBOL DE DIAGNÓSTICO ━━━
+📅 ${new Date().toLocaleDateString('es-VE')}
+🖥️ Equipo: ${equipInfo.cat}${equipInfo.modelo?' — '+equipInfo.modelo:''}
+🔴 Síntoma: ${equipInfo.symptoma}
+
+🎯 DIAGNÓSTICO: ${d.componenteCulpable}
+📋 ${d.descripcionFalla}
+
+🔧 PASOS SIGUIENTES:
+${(d.pasosSiguientes||[]).map((p,i)=>`${i+1}. ${p}`).join('\n')}
+
+⏱️ Tiempo estimado: ${d.tiempoEstimado||'N/D'}
+📊 Dificultad: ${d.dificultad}
+━━━━━━━━━━━━━━━━━━━━━`;
+
+  // save to localStorage for notas.html
+  try{
+    const key   = 'relectronica_notas';
+    const notas = JSON.parse(localStorage.getItem(key)||'[]');
+    notas.unshift({
+      id: Date.now(),
+      titulo: `${equipInfo.cat} — ${d.componenteCulpable}`,
+      texto: nota,
+      fecha: new Date().toLocaleDateString('es-VE'),
+      tipo: 'arbol'
+    });
+    localStorage.setItem(key, JSON.stringify(notas));
+    showToast('✅ Guardado en Mis Notas');
+  } catch(e){
+    showToast('⚠️ Error al guardar');
+  }
+}
+
+function compartirDiag(){
+  if(!diagnosisData) return;
+  const d = diagnosisData;
+  const texto = `DIAGNÓSTICO RELECTRÓNICA\nEquipo: ${equipInfo.cat}${equipInfo.modelo?' — '+equipInfo.modelo:''}\nSíntoma: ${equipInfo.symptoma}\n\nComponente culpable: ${d.componenteCulpable}\n${d.descripcionFalla}\n\nPasos: ${(d.pasosSiguientes||[]).join(' | ')}`;
+  navigator.clipboard.writeText(texto).then(()=>showToast('📋 Diagnóstico copiado'));
+}
+
+function nuevoArbol(){
+  tree=[]; currentIdx=0; answers=[]; diagnosisData=null;
+  document.getElementById('entryCard').style.display='';
+  document.getElementById('treeWrap').classList.remove('show');
+  document.getElementById('historyNodes').innerHTML='';
+  document.getElementById('currentNode').innerHTML='';
+  document.getElementById('diagResult').innerHTML='';
+  document.getElementById('breadcrumb').style.display='none';
+  document.getElementById('symptoma').value='';
+  document.getElementById('modelo').value='';
+  document.getElementById('categoria').value='';
+  document.getElementById('genBtn').disabled=false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ FAB ══ */
+function toggleFAB(){
+  const items = document.getElementById('fab-items');
+  const ov    = document.getElementById('fab-overlay');
+  const btn   = document.getElementById('fab-toggle');
+  const open  = items.classList.toggle('open');
+  ov.classList.toggle('open',open);
+  btn.classList.toggle('open',open);
+}
+
+/* ══ TOAST ══ */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
