@@ -623,6 +623,155 @@ function hideTyping() {
 }
 
 /* ══════════════════════════════════════
+   BÚSQUEDA EN CONOCIMIENTO LOCAL
+   Orden: Notas → Fallas → Biblioteca
+══════════════════════════════════════ */
+
+// Tokeniza texto para búsqueda
+function tokenizar(texto) {
+    if (!texto) return [];
+    return texto.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(t => t.length > 2);
+}
+
+// Calcula cuántos tokens de la consulta aparecen en el texto
+function calcularRelevancia(tokens, textoTarget) {
+    if (!textoTarget) return 0;
+    const targetTokens = tokenizar(textoTarget);
+    return tokens.filter(t => targetTokens.some(tt => tt.includes(t) || t.includes(tt))).length;
+}
+
+// Carga y busca en Notas (localStorage: relectronica_notas_v3 o variante)
+function buscarEnNotas(tokens) {
+    try {
+        // intentar ambas keys conocidas
+        const raw = localStorage.getItem('relectronica_notas_v3')
+                 || localStorage.getItem('relectronica_notas')
+                 || '[]';
+        const notas = JSON.parse(raw);
+        if (!Array.isArray(notas) || !notas.length) return [];
+
+        const resultados = notas.map(n => {
+            const campo = [n.titulo, n.falla, n.solucion, n.componentes, n.contenido, n.obs].join(' ');
+            const score = calcularRelevancia(tokens, campo);
+            return { score, nota: n };
+        }).filter(r => r.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, 2);
+
+        return resultados.map(r => {
+            const n = r.nota;
+            let txt = `📝 NOTA PROPIA — ${n.titulo || ''}`;
+            if (n.falla)       txt += `\n  Falla: ${n.falla}`;
+            if (n.solucion)    txt += `\n  Solución: ${n.solucion}`;
+            if (n.componentes) txt += `\n  Componentes: ${n.componentes}`;
+            if (n.contenido)   txt += `\n  Contenido: ${n.contenido}`;
+            if (n.obs)         txt += `\n  Obs: ${n.obs}`;
+            return txt;
+        });
+    } catch(e) { return []; }
+}
+
+// Carga y busca en Fallas (localStorage: relelectronica_fallas_v2)
+function buscarEnFallas(tokens) {
+    try {
+        const raw = localStorage.getItem('relelectronica_fallas_v2') || '[]';
+        const fallas = JSON.parse(raw);
+        if (!Array.isArray(fallas) || !fallas.length) return [];
+
+        const resultados = fallas.map(f => {
+            const campo = [f.titulo, f.tipo, f.sintoma, f.prueba,
+                          Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
+                          Array.isArray(f.componentes) ? f.componentes.join(' ') : '',
+                          f.tip].join(' ');
+            const score = calcularRelevancia(tokens, campo);
+            return { score, falla: f };
+        }).filter(r => r.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, 2);
+
+        return resultados.map(r => {
+            const f = r.falla;
+            let txt = `🛠️ CASO RESUELTO — ${f.titulo || ''} [${f.tipo || ''}]`;
+            if (f.sintoma) txt += `\n  Síntoma: ${f.sintoma}`;
+            if (f.prueba)  txt += `\n  Prueba rápida: ${f.prueba}`;
+            if (Array.isArray(f.pasos) && f.pasos.length)
+                txt += `\n  Pasos: ${f.pasos.join(' | ')}`;
+            if (Array.isArray(f.componentes) && f.componentes.length)
+                txt += `\n  Componentes: ${f.componentes.join(', ')}`;
+            if (f.tip)     txt += `\n  💡 Tip: ${f.tip}`;
+            return txt;
+        });
+    } catch(e) { return []; }
+}
+
+// Busca en Biblioteca (datos hardcodeados — se inyectan en runtime desde el array de biblioteca)
+const BIBLIOTECA_DATA = [
+    { term: "VGH / VGL", description: "Voltajes de compuerta para TFT del panel LCD (VGH positivo ~25V-40V, VGL negativo ~-10V).", tip: "Si VGH falla, la pantalla queda negra aunque el backlight esté encendido." },
+    { term: "VCOM", description: "Voltaje de referencia para cristales líquidos (~6V-8V).", tip: "Si VCOM está desbalanceado, aparecen sombras o flicker vertical." },
+    { term: "VDD / VCC Logic", description: "Alimentación digital de la T-CON (3.3V o 12V).", tip: "Sin VDD no hay comunicación LVDS; pantalla negra con retroiluminación encendida." },
+    { term: "Resistencia SMD", description: "Componente pasivo de montaje superficial.", tip: "Medir fuera del circuito para evitar lecturas falsas por paralelo." },
+    { term: "Fusible Térmico", description: "Dispositivo de seguridad que interrumpe la corriente cuando detecta exceso de calor.", tip: "Para medir: usar multímetro en continuidad. Pita = bueno. No pita = malo." },
+    { term: "Fusible", description: "Dispositivo de seguridad que interrumpe la corriente cuando supera un límite.", tip: "Verificar en continuidad con multímetro. Pita = bueno. No pita = malo." },
+    { term: "Capacitor Electrolítico", description: "Almacena carga y filtra rizado.", tip: "Reemplazar por 105°C si están hinchados. Medir con ESRmetro." },
+    { term: "Capacitor Cerámico MLCC", description: "Alta frecuencia, baja ESR.", tip: "Un MLCC en corto se calienta; usar cámara térmica." },
+    { term: "Bobina / Inductor", description: "Almacena energía en campo magnético.", tip: "Bobina con zumbido indica saturación o consumo excesivo." },
+    { term: "MOSFET", description: "Interruptor controlado por tensión (G-D-S).", tip: "Falla común: drenaje-fuente en corto. Medir con diodímetro." },
+    { term: "Diodo Schottky", description: "Baja caída de tensión (0.2V-0.4V).", tip: "Fallo típico: corto o fuga inversa." },
+    { term: "IC PWM", description: "Genera señal de modulación por ancho de pulso. Ej: TL494, UC3842.", tip: "Verificar VCC y tensión de referencia (5V)." },
+    { term: "Medición en circuito", description: "Puede haber lecturas falsas por componentes en paralelo.", tip: "Para resistencias Shunt, medir una pata al aire." },
+    { term: "Multímetro modo diodo", description: "Prueba de juntura PN.", tip: "Lectura 0.4V-0.6V es normal; 0V es corto; OL es abierto." },
+    { term: "Inyección de voltaje", description: "Aplicar bajo voltaje (1-3V) para encontrar cortos.", tip: "Usar cámara termográfica o alcohol isopropílico." },
+    { term: "T-CON", description: "Placa de control de temporización del panel LCD.", tip: "Si falla el T-CON aparecen líneas o la imagen se divide en mitades." },
+    { term: "Backlight", description: "Sistema de iluminación trasera del panel LCD con tiras LED.", tip: "Probar con linterna en cuarto oscuro para confirmar imagen sin luz." },
+    { term: "LVDS", description: "Protocolo de transmisión de señal de video entre main board y T-CON.", tip: "Cable LVDS doblado o conector flojo causa imagen con ruido o sin imagen." },
+    { term: "ESR", description: "Resistencia Serie Equivalente de un capacitor. Aumenta con el envejecimiento.", tip: "Alto ESR causa ondulación de voltaje y fallo de la fuente sin cortocircuito visible." },
+    { term: "PS-ON", description: "Señal de control que activa la fuente ATX o SMPS al conectarla a tierra.", tip: "Puentear PS-ON a GND para forzar arranque y verificar rieles de salida." },
+];
+
+function buscarEnBiblioteca(tokens) {
+    try {
+        const resultados = BIBLIOTECA_DATA.map(entry => {
+            const campo = [entry.term, entry.description, entry.tip].join(' ');
+            const score = calcularRelevancia(tokens, campo);
+            return { score, entry };
+        }).filter(r => r.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, 2);
+
+        return resultados.map(r => {
+            const e = r.entry;
+            let txt = `📘 BIBLIOTECA — ${e.term}: ${e.description}`;
+            if (e.tip) txt += ` | Tip: ${e.tip}`;
+            return txt;
+        });
+    } catch(e) { return []; }
+}
+
+// Función principal: busca en todas las fuentes y devuelve contexto enriquecido
+function buscarConocimientoLocal(consulta) {
+    if (!consulta || consulta.length < 3) return '';
+
+    const tokens = tokenizar(consulta);
+    if (tokens.length === 0) return '';
+
+    const desdeNotas     = buscarEnNotas(tokens);
+    const desdeFallas    = buscarEnFallas(tokens);
+    const desdeBiblioteca = buscarEnBiblioteca(tokens);
+
+    const todos = [...desdeNotas, ...desdeFallas, ...desdeBiblioteca];
+    if (todos.length === 0) return '';
+
+    return `\n\n══ CONOCIMIENTO LOCAL ENCONTRADO ══\n` +
+           `(Datos extraídos de la base propia de Relectrónica. Úsalos con prioridad sobre suposiciones generales.)\n\n` +
+           todos.join('\n\n') +
+           `\n══════════════════════════════════\n`;
+}
+
+/* ══════════════════════════════════════
    ENVIAR MENSAJE
 ══════════════════════════════════════ */
 async function sendMessage() {
@@ -648,6 +797,12 @@ async function sendMessage() {
 
     showTyping();
 
+    // ── Buscar en conocimiento local PRIMERO ──
+    const contextoLocal = buscarConocimientoLocal(query);
+    if (contextoLocal) {
+        showToast('📚 Consultando base local…');
+    }
+
     // construir historial para Cohere (últimos 14 turnos)
     const recentHistory = chatHistory.slice(-14);
     const cohereHistory = [];
@@ -656,7 +811,9 @@ async function sendMessage() {
         cohereHistory.push({ role: m.sender === 'bot' ? 'CHATBOT' : 'USER', message: m.text });
     }
 
-    const userMsg = query || "Por favor analiza la imagen adjunta para este diagnóstico técnico.";
+    // Inyectar contexto local al mensaje del usuario si existe
+    const userMsg = (query || "Por favor analiza la imagen adjunta para este diagnóstico técnico.")
+                  + contextoLocal;
 
     try {
         const resp = await fetch('https://api.cohere.ai/v1/chat', {
