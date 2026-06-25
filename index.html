@@ -688,9 +688,10 @@ function buscarEnFallas(tokens) {
     try {
         const raw = localStorage.getItem('relelectronica_fallas_v2') || '[]';
         const fallas = JSON.parse(raw);
-        if (!Array.isArray(fallas) || !fallas.length) return [];
+        // Si el storage está vacío, usar los datos base hardcoded
+        const fuente = (Array.isArray(fallas) && fallas.length) ? fallas : FALLAS_BASE;
 
-        const resultados = fallas.map(f => {
+        const resultados = fuente.map(f => {
             const campo = [f.titulo, f.tipo, f.sintoma, f.prueba,
                           Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
                           Array.isArray(f.componentes) ? f.componentes.join(' ') : '',
@@ -717,6 +718,22 @@ function buscarEnFallas(tokens) {
 }
 
 // ── Simbología / Códigos PCB (de simbologiacodigopcb.html) ──
+// ── Fallas base (espejo de defaultCases en fallas.html — mantener sincronizado) ──
+const FALLAS_BASE = [
+    { id:1, titulo:"Samsung / LG – Reinicio constante o Líneas", linea:"marron", tipo:"FALLA DE PANEL / T-CON", sintoma:"El televisor muestra el logo brevemente, se reinicia en bucle o presenta líneas de colores fijas en pantalla.", prueba:"Desconectar el cable flex del T-CON hacia el panel.", pasos:["Revisar el cable flex entre T-CON y panel buscando quemaduras o pistas levantadas.","Medir voltajes de alimentación del T-CON (3.3 V y 12 V típicos).","Reemplazar T-CON si los voltajes son correctos y el flex está en buen estado."], componentes:["T-CON","Cable Flex","Panel LCD"], tip:"Los TV de 2016-2020 con panel BOE tienen alta incidencia de falla en el flex izquierdo." },
+    { id:2, titulo:"Smart TV – Hay audio pero no da imagen", linea:"marron", tipo:"FALLA DE BACKLIGHT", sintoma:"La TV enciende, se escucha audio normal, pero la pantalla permanece negra.", prueba:"Iluminar con linterna muy cerca del panel en cuarto oscuro.", pasos:["Medir el voltaje de salida del inversor de backlight.","Revisar cada tira LED con multímetro en continuidad.","Reemplazar la tira LED defectuosa."], componentes:["Tira LED Backlight","Driver/Inversor BL","Placa de fuente"], tip:"Bajar el brillo máximo al 70-80% en servicio extiende la vida del backlight." },
+    { id:3, titulo:"TV – No enciende, luz de standby parpadea", linea:"marron", tipo:"FALLA DE FUENTE DE PODER", sintoma:"El TV no arranca. El LED de standby parpadea 3 o más veces y se apaga.", prueba:"Medir el voltaje de standby (5 V SB).", pasos:["Medir 5 V standby en conector principal de fuente.","Simular señal PS-ON para forzar el arranque.","Revisar condensadores electrolíticos abombados o en corto."], componentes:["Fuente de poder","Condensadores electrolíticos","MOSFET principal"], tip:"Los condensadores japoneses (Nichicon, Rubycon) tienen mejor duración que los sustitutos genéricos." },
+    { id:4, titulo:"TV – Imagen con manchas o sombras (clouding)", linea:"marron", tipo:"FALLA DE DIFUSORES / BACKLIGHT", sintoma:"Pantalla con zonas más brillantes o zonas oscuras irregulares, especialmente en fondos oscuros.", prueba:"Mostrar una imagen gris uniforme.", pasos:["Retirar el panel con cuidado.","Verificar que las láminas difusoras estén correctamente colocadas.","Reposicionar o sustituir láminas difusoras dañadas."], componentes:["Láminas difusoras","Tiras LED","Marco difusor"], tip:"Usar guantes de látex al manipular las láminas difusoras para no dejar huellas." },
+    { id:5, titulo:"Equipo de sonido – No enciende o silencioso", linea:"marron", tipo:"FALLA DE AMPLIFICADOR / FUENTE", sintoma:"El equipo no enciende o enciende pero no produce sonido. A veces hay un zumbido de 50/60 Hz.", prueba:"Medir voltaje en riel de alimentación del amplificador.", pasos:["Medir voltajes de alimentación del amplificador.","Revisar el circuito de protección (relay de altavoz).","Verificar condensadores de acoplamiento en la entrada de audio."], componentes:["IC Amplificador","Relay altavoz","Condensadores de acoplamiento"], tip:"El zumbido de 50 Hz casi siempre indica condensador de filtro de fuente con capacidad reducida." },
+    { id:6, titulo:"Lavadora – No centrifuga / No desagua", linea:"blanca", tipo:"FALLA DE BOMBA / CAPACITOR", sintoma:"La lavadora termina el ciclo de lavado pero no desagua el agua o no pasa a centrifugado.", prueba:"Escuchar si la bomba de desagüe hace ruido.", pasos:["Revisar si hay cuerpos extraños bloqueando el impulsor.","Medir resistencia de la bobina del motor de bomba (4-20 Ω típico).","Reemplazar la bomba si el motor está abierto o en corto."], componentes:["Bomba de desagüe","Capacitor de motor","Filtro de bomba"], tip:"Limpiar el filtro de la bomba cada 6 meses evita el 70% de los problemas de desagüe." },
+    { id:7, titulo:"Lavadora – No gira el tambor / Error de motor", linea:"blanca", tipo:"FALLA DE MOTOR / TARJETA", sintoma:"El tambor no gira durante el lavado. Puede mostrar código de error (E3, F5).", prueba:"Girar el tambor manualmente.", pasos:["Verificar el tacho-generador: medir su resistencia (80-120 Ω típico).","Revisar las escobillas del motor: deben tener mínimo 5 mm.","Si es motor inverter (BLDC), verificar el módulo de potencia."], componentes:["Motor","Escobillas","Módulo Inverter","Tacho-generador"], tip:"En lavadoras inverter, esperar 2 minutos tras apagar antes de tocar el módulo." },
+    { id:8, titulo:"Nevera – No enfría (compresor corre)", linea:"blanca", tipo:"FALLA DE GAS / CAPILAR", sintoma:"El compresor trabaja continuamente pero la nevera no alcanza temperatura de refrigeración.", prueba:"Palpar el tubo de descarga del compresor: debe estar muy caliente.", pasos:["Verificar amperaje del compresor.","Revisar si el evaporador se llena de escarcha solo en la parte superior.","Recargar con el gas indicado (R-134a, R-600a) al peso exacto."], componentes:["Compresor","Capilar","Filtro deshidratador","Evaporador"], tip:"El R-600a (isobutano) es inflamable. Asegurar ventilación del área." },
+    { id:9, titulo:"Microondas – No calienta", linea:"blanca", tipo:"FALLA DE MAGNETRÓN / CAPACITOR HV", sintoma:"El microondas enciende y el tiempo corre pero no calienta los alimentos.", prueba:"Colocar un vaso con agua 1 minuto a máxima potencia.", pasos:["Revisar el fusible térmico de la cavidad y el fusible de línea.","Medir el diodo de alta tensión.","Descargar el capacitor HV antes de tocarlo (puede almacenar hasta 2100V)."], componentes:["Magnetrón","Capacitor HV","Diodo HV","Fusible térmico"], tip:"El capacitor HV puede mantener hasta 2100 V después de apagar. SIEMPRE descargarlo antes de medir." },
+    { id:10, titulo:"Licuadora – No enciende o gira despacio", linea:"menor", tipo:"FALLA DE CARBONES / INTERRUPTOR", sintoma:"La licuadora no arranca al presionar ninguna velocidad, o gira muy lento con zumbido.", prueba:"Con el vaso retirado, intentar girar el eje del motor manualmente.", pasos:["Revisar el interruptor de velocidades con multímetro en continuidad.","Inspeccionar los carbones del motor: cambiarlos si miden menos de 5 mm.","Limpiar el colector con lija fina si está sucio."], componentes:["Carbones","Colector","Interruptor de velocidades","Motor universal"], tip:"Los carbones de reemplazo deben ser del mismo material y dimensión que los originales." },
+    { id:11, titulo:"Plancha – No calienta o calienta poco", linea:"menor", tipo:"FALLA DE TERMOSTATO / RESISTENCIA", sintoma:"La plancha no calienta en ninguna posición del selector, o solo calienta en un nivel.", prueba:"Medir resistencia de la suela con multímetro desconectada de la red.", pasos:["Verificar el fusible térmico de seguridad: medir continuidad.","Revisar el termostato bimetálico.","Medir la resistencia calefactora."], componentes:["Fusible térmico","Termostato bimetálico","Resistencia calefactora","Selector"], tip:"Nunca probar la plancha sin la suela completa ensamblada." },
+    { id:12, titulo:"Ventilador – No sopla / No oscila", linea:"menor", tipo:"FALLA DE MOTOR / CONDENSADOR", sintoma:"El ventilador enciende pero no mueve aire o lo mueve muy débilmente.", prueba:"Girar las aspas manualmente. Si hay resistencia, el condensador puede ser el problema.", pasos:["Limpiar el polvo acumulado del motor.","Lubricar los cojinetes del eje.","Medir el condensador de marcha (1.5 µF a 4 µF / 250 V)."], componentes:["Condensador de marcha","Motor principal","Motor de oscilación"], tip:"Un ventilador que oscila pero no sopla bien casi siempre tiene el condensador con capacidad reducida." },
+];
+
 const PCB_DATA = [
     { codes:["R"],          name:"Resistor",                  desc:"Limita o regula el flujo de corriente y divide voltajes.", tip:"En SMD código de 3-4 dígitos (ej. 472 = 4700Ω); mídela fuera de circuito." },
     { codes:["RN","RP","RA"],name:"Red de resistencias",      desc:"Varias resistencias iguales en un solo encapsulado, comunes en buses de datos o pull-up.", tip:"Si solo una línea falla, revisa continuidad pin a pin." },
@@ -880,14 +897,17 @@ async function sendMessage() {
     showTyping();
 
     // ── Buscar en conocimiento local PRIMERO ──
+    const localStart = Date.now();
     const contextoLocal = buscarConocimientoLocal(query);
 
     // Verde manzana mientras se busca en local
     typingIndicator.classList.add('local-search');
     typingIndicator.classList.remove('cohere-search');
 
-    // Pequeña pausa visual para que se note el estado local (80ms)
-    await new Promise(r => setTimeout(r, contextoLocal ? 180 : 60));
+    // Si encontró datos locales → verde mínimo 5 segundos; si no → 300ms
+    const minVerde = contextoLocal ? 5000 : 300;
+    const elapsed  = Date.now() - localStart;
+    await new Promise(r => setTimeout(r, Math.max(0, minVerde - elapsed)));
 
     // Morado intenso al pasar a Cohere
     typingIndicator.classList.remove('local-search');
@@ -1074,7 +1094,43 @@ function showToast(msg) {
 /* ══════════════════════════════════════
    INIT
 ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   SYNC DE CONOCIMIENTO BASE AL ARRANCAR
+   Garantiza que el bot siempre vea los
+   datos hardcoded + los custom del usuario,
+   sin importar desde qué página se abra.
+   Nota: fallas.html sincroniza su propio
+   storage al abrirse (loadCases lo hace).
+══════════════════════════════════════ */
+function syncBaseKnowledge() {
+    try {
+        // ── Biblioteca ──
+        const customBib = JSON.parse(localStorage.getItem('relectronica_biblioteca_v1') || '[]');
+        const allBib = [...BIBLIOTECA_DATA, ...customBib];
+        localStorage.setItem('relectronica_biblioteca_all', JSON.stringify(allBib));
+
+        // ── Simbología PCB ──
+        const customPCB = JSON.parse(localStorage.getItem('relectronica_pcb_v1') || '[]');
+        const allPCB = [...PCB_DATA, ...customPCB];
+        localStorage.setItem('relectronica_pcb_all', JSON.stringify(allPCB));
+
+        // ── Fallas: el bot ya las lee de 'relelectronica_fallas_v2'
+        // que fallas.html mantiene actualizado. Aquí hacemos fallback
+        // con los datos hardcoded en caso de que fallas.html no haya
+        // sido abierta aún en este dispositivo.
+        const fallasSaved = localStorage.getItem('relelectronica_fallas_v2');
+        if (!fallasSaved) {
+            // Si no hay nada en storage, inyectamos los casos base hardcoded
+            // (los mismos que buscarEnFallas usa como fallback)
+            localStorage.setItem('relelectronica_fallas_v2', JSON.stringify(FALLAS_BASE));
+        }
+    } catch(e) {}
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    // Sync siempre al abrir el chat — así editar el HTML y abrir el chat basta
+    syncBaseKnowledge();
+
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {

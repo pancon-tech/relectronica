@@ -326,9 +326,6 @@ const DB = [
   { codes:["D","CR"], name:"Diodo", cat:"sem",
     desc:"Permite el paso de corriente en un solo sentido (de ánodo a cátodo).",
     tip:"La franja en el cuerpo marca el cátodo (–). Pruébalo en modo diodo del multímetro: debe marcar caída de voltaje en un sentido y nada en el otro." },
-  { codes:["PC"], name:"Photocoupler (Fotoacoplador)", cat:"sem",
-    desc:"Es un componente electrónico que transfiere señales eléctricas entre dos circuitos aislados utilizando luz.",
-    tip:"Si es de 6 pines (tipo DIP6), los pines 3 y 4 no son los de salida; generalmente son 4 (emisor) y 5 (colector). Verifica siempre el datasheet del componente específico si tienes dudas con la numeración de los pines." },
   { codes:["DS"], name:"Dispositivo indicador (LED, lámpara, zumbador)", cat:"sem",
     desc:"Designador formal IEEE para cualquier dispositivo de señalización visible o audible: LED, foco indicador o buzzer.",
     tip:"En la práctica, muchos fabricantes usan simplemente \"D\" o \"LED\" en vez de \"DS\"; ambos se refieren al mismo tipo de componente." },
@@ -726,14 +723,219 @@ document.querySelectorAll('.tabBtn').forEach(btn => {
   });
 });
 
-function toggleFAB() {
-  const items = document.getElementById('fab-items');
-  const overlay = document.getElementById('fab-overlay');
-  const btn = document.getElementById('fab-toggle');
-  const open = items.classList.toggle('open');
-  overlay.classList.toggle('open', open);
-  if (btn) btn.classList.toggle('open', open);
+
+<style>
+/* ══ MODAL AGREGAR CÓDIGO PCB ══ */
+.pcb-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75); z-index: 9000;
+    align-items: flex-end; justify-content: center;
 }
+.pcb-modal-overlay.open { display: flex; }
+.pcb-modal {
+    background: #111c2c; border: 1px solid #22344d;
+    border-radius: 20px 20px 0 0; padding: 22px 18px 34px;
+    width: 100%; max-width: 520px;
+    animation: pcbSlideUp .25s ease;
+}
+@keyframes pcbSlideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.pcb-modal-title { font-size: 1rem; font-weight: 700; color: #a566f0; margin-bottom: 16px; }
+.pcb-field { margin-bottom: 11px; }
+.pcb-field label { display: block; font-size: .78rem; color: #93a4bd; margin-bottom: 4px; }
+.pcb-field input, .pcb-field textarea, .pcb-field select {
+    width: 100%; background: #162235; border: 1px solid #22344d;
+    border-radius: 10px; color: #fff; padding: 9px 12px;
+    font-size: .88rem; outline: none; transition: border-color .2s;
+}
+.pcb-field input:focus, .pcb-field textarea:focus, .pcb-field select:focus { border-color: #7928ca; }
+.pcb-field textarea { min-height: 60px; resize: vertical; }
+.pcb-btn-row { display: flex; gap: 10px; margin-top: 14px; }
+.pcb-btn-save {
+    flex: 1; background: linear-gradient(135deg,#7928ca,#a855f7);
+    border: none; border-radius: 10px; color: #fff;
+    padding: 11px; font-size: .9rem; font-weight: 600; cursor: pointer;
+}
+.pcb-btn-cancel {
+    background: #162235; border: 1px solid #22344d;
+    border-radius: 10px; color: #93a4bd;
+    padding: 11px 18px; font-size: .9rem; cursor: pointer;
+}
+.fab-add-pcb {
+    position: fixed; bottom: 22px; left: 18px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg,#7928ca,#a855f7);
+    border: none; color: #fff; font-size: 1.4rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 8000;
+    box-shadow: 0 2px 12px rgba(121,40,202,.6);
+}
+.badge-pcb-custom { background: #7928ca22; color: #c4b5fd; font-size: .65rem;
+    border: 1px solid #7928ca55; border-radius: 5px; padding: 1px 5px; margin-left: 4px; }
+.pcb-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: #1e3a28; border: 1px solid #22c55e; border-radius: 8px;
+    padding: 8px 16px; font-size: .8rem; color: #86efac;
+    z-index: 99999; opacity: 0; transition: opacity .3s;
+    pointer-events: none; white-space: nowrap;
+}
+.pcb-toast.show { opacity: 1; }
+.del-pcb-btn {
+    background: none; border: none; color: #ef444466; cursor: pointer;
+    font-size: .75rem; padding: 2px 5px; border-radius: 5px;
+    transition: color .2s; margin-left: 6px;
+}
+.del-pcb-btn:hover { color: #ef4444; }
+</style>
+
+<!-- Modal agregar código PCB -->
+<div class="pcb-modal-overlay" id="pcbModal">
+    <div class="pcb-modal">
+        <div class="pcb-modal-title">🔣 Agregar código / símbolo PCB</div>
+        <div class="pcb-field">
+            <label>Código(s) serigrafiado * (separados por coma, ej: Q, TR)</label>
+            <input type="text" id="pcb-f-codes" placeholder="ej. IGBT, Q, TR10…">
+        </div>
+        <div class="pcb-field">
+            <label>Nombre del componente *</label>
+            <input type="text" id="pcb-f-name" placeholder="ej. Transistor de potencia IGBT">
+        </div>
+        <div class="pcb-field">
+            <label>Categoría</label>
+            <select id="pcb-f-cat">
+                <option value="pas">Pasivos</option>
+                <option value="sem" selected>Semiconductores</option>
+                <option value="elm">Electromecánicos</option>
+                <option value="pro">Protección y energía</option>
+                <option value="osc">Osciladores y tiempo</option>
+                <option value="con">Conectores y puntos de prueba</option>
+                <option value="mec">Mecánicos / ensamble</option>
+                <option value="pwr">Líneas de alimentación</option>
+                <option value="sig">Señales y buses de datos</option>
+            </select>
+        </div>
+        <div class="pcb-field">
+            <label>Descripción *</label>
+            <textarea id="pcb-f-desc" placeholder="¿Qué hace este componente?"></textarea>
+        </div>
+        <div class="pcb-field">
+            <label>Tip técnico (opcional)</label>
+            <textarea id="pcb-f-tip" placeholder="Cómo medirlo, falla típica, consejo de taller…" style="min-height:50px"></textarea>
+        </div>
+        <div class="pcb-btn-row">
+            <button class="pcb-btn-cancel" onclick="closePcbModal()">Cancelar</button>
+            <button class="pcb-btn-save" onclick="guardarCodigoPCB()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<button class="fab-add-pcb" onclick="openPcbModal()" title="Agregar código PCB">＋</button>
+<div class="pcb-toast" id="pcbToast"></div>
+
+<script>
+/* ══ STORAGE ══ */
+const PCB_KEY = 'relectronica_pcb_v1';
+
+function loadCustomPCB() {
+    try { return JSON.parse(localStorage.getItem(PCB_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveCustomPCB(arr) {
+    try { localStorage.setItem(PCB_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+/* Sync total: guarda DB base + custom para que el bot lo lea */
+function syncPCBToStorage() {
+    try {
+        const all = [...DB, ...loadCustomPCB()];
+        localStorage.setItem('relectronica_pcb_all', JSON.stringify(all));
+    } catch(e) {}
+}
+
+function showPcbToast(msg) {
+    const t = document.getElementById('pcbToast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ══ MODAL ══ */
+function openPcbModal() { document.getElementById('pcbModal').classList.add('open'); }
+function closePcbModal() {
+    document.getElementById('pcbModal').classList.remove('open');
+    ['pcb-f-codes','pcb-f-name','pcb-f-desc','pcb-f-tip'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+}
+document.getElementById('pcbModal').addEventListener('click', function(e) {
+    if (e.target === this) closePcbModal();
+});
+
+function guardarCodigoPCB() {
+    const codesRaw = document.getElementById('pcb-f-codes').value.trim();
+    const name     = document.getElementById('pcb-f-name').value.trim();
+    const desc     = document.getElementById('pcb-f-desc').value.trim();
+    if (!codesRaw || !name || !desc) { showPcbToast('⚠️ Código, nombre y descripción son obligatorios'); return; }
+
+    const codes = codesRaw.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
+    const entry = {
+        codes,
+        name,
+        cat: document.getElementById('pcb-f-cat').value,
+        desc,
+        tip: document.getElementById('pcb-f-tip').value.trim(),
+        custom: true,
+        fecha: new Date().toLocaleDateString('es-VE')
+    };
+
+    const custom = loadCustomPCB();
+    custom.unshift(entry);
+    saveCustomPCB(custom);
+
+    // Agregar al INDEX y al DB en runtime para que la búsqueda también funcione
+    DB.push(entry);
+    entry.codes.forEach(c => { INDEX[c] = entry; });
+
+    syncPCBToStorage();
+    updateStatsRow();
+    showPcbToast('✅ Código guardado y disponible para el bot');
+    closePcbModal();
+}
+
+function eliminarCodigoPCB(idx) {
+    if (!confirm('¿Eliminar este código?')) return;
+    const custom = loadCustomPCB();
+    const entry  = custom[idx];
+    custom.splice(idx, 1);
+    saveCustomPCB(custom);
+
+    // Quitar de DB e INDEX en runtime
+    if (entry) {
+        const dbIdx = DB.findIndex(d => d.custom && d.codes[0] === entry.codes[0] && d.name === entry.name);
+        if (dbIdx !== -1) DB.splice(dbIdx, 1);
+        entry.codes.forEach(c => { if (INDEX[c]?.name === entry.name) delete INDEX[c]; });
+    }
+
+    syncPCBToStorage();
+    updateStatsRow();
+    showPcbToast('🗑️ Código eliminado');
+}
+
+function updateStatsRow() {
+    document.getElementById('statsRow').innerHTML = `
+        <span>${Object.keys(INDEX).length} códigos</span>
+        <span>${SYMBOLS.length} símbolos</span>
+        <span>${Object.keys(CATS).length} categorías</span>
+    `;
+}
+
+/* ══ INIT: cargar custom entries al DB e INDEX, luego sync ══ */
+(function initCustomPCB() {
+    const custom = loadCustomPCB();
+    custom.forEach(entry => {
+        DB.push(entry);
+        entry.codes.forEach(c => { INDEX[c] = entry; });
+    });
+    syncPCBToStorage();
+    updateStatsRow();
+})();
 </script>
 </body>
 </html>

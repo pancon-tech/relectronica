@@ -452,124 +452,316 @@
     </div>
     <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
+<style>
+/* ══ MODAL AGREGAR CONCEPTO ══ */
+.bib-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.7); z-index: 9000;
+    align-items: flex-end; justify-content: center;
+}
+.bib-modal-overlay.open { display: flex; }
+.bib-modal {
+    background: #111827; border: 1px solid #2a3a4e;
+    border-radius: 20px 20px 0 0; padding: 22px 18px 34px;
+    width: 100%; max-width: 520px;
+    animation: slideUp .25s ease;
+}
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.bib-modal-title { font-size: 1rem; font-weight: 700; color: #c4b5fd; margin-bottom: 16px; }
+.bib-field { margin-bottom: 12px; }
+.bib-field label { display: block; font-size: .78rem; color: #94a3b8; margin-bottom: 4px; }
+.bib-field input, .bib-field textarea, .bib-field select {
+    width: 100%; background: #1a2332; border: 1px solid #2a3a4e;
+    border-radius: 10px; color: #f1f5f9; padding: 9px 12px;
+    font-size: .88rem; outline: none;
+    transition: border-color .2s;
+}
+.bib-field input:focus, .bib-field textarea:focus, .bib-field select:focus { border-color: #a855f7; }
+.bib-field textarea { min-height: 70px; resize: vertical; }
+.bib-btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.bib-btn-save {
+    flex: 1; background: linear-gradient(135deg,#7928ca,#a855f7);
+    border: none; border-radius: 10px; color: #fff;
+    padding: 11px; font-size: .9rem; font-weight: 600; cursor: pointer;
+}
+.bib-btn-cancel {
+    background: #1a2332; border: 1px solid #2a3a4e;
+    border-radius: 10px; color: #94a3b8;
+    padding: 11px 18px; font-size: .9rem; cursor: pointer;
+}
+/* FAB agregar */
+.fab-add-bib {
+    position: fixed; bottom: 22px; left: 18px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg,#7928ca,#a855f7);
+    border: none; color: #fff; font-size: 1.4rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 8000;
+    box-shadow: 0 2px 12px rgba(121,40,202,.6);
+}
+/* badge "tuyo" en cards personalizadas */
+.badge-custom { background: #7928ca22; color: #c4b5fd; font-size: .68rem;
+    border: 1px solid #7928ca55; border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+.btn-del-entry {
+    background: none; border: none; color: #ef444488; cursor: pointer;
+    font-size: .8rem; margin-left: auto; padding: 2px 6px;
+    border-radius: 6px; transition: color .2s;
+}
+.btn-del-entry:hover { color: #ef4444; }
+/* toast */
+.bib-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: #1e3a28; border: 1px solid #22c55e; border-radius: 8px;
+    padding: 8px 16px; font-size: .8rem; color: #86efac;
+    z-index: 99999; opacity: 0; transition: opacity .3s;
+    pointer-events: none; white-space: nowrap;
+}
+.bib-toast.show { opacity: 1; }
+</style>
+
+<!-- Modal agregar -->
+<div class="bib-modal-overlay" id="bibModal">
+    <div class="bib-modal">
+        <div class="bib-modal-title">📘 Agregar concepto a la Biblioteca</div>
+        <div class="bib-field">
+            <label>Término / Nombre *</label>
+            <input type="text" id="bib-f-term" placeholder="ej. IGBT, Regulador LM317, ESR…">
+        </div>
+        <div class="bib-field">
+            <label>Categoría</label>
+            <select id="bib-f-cat">
+                <option value="voltajes">⚡ Voltajes / T-CON</option>
+                <option value="componentes" selected>🔩 Componentes pasivos</option>
+                <option value="semiconductores">💎 Semiconductores</option>
+                <option value="medicion">📏 Mediciones / Taller</option>
+            </select>
+        </div>
+        <div class="bib-field">
+            <label>Definición *</label>
+            <textarea id="bib-f-desc" placeholder="¿Qué es y para qué sirve?"></textarea>
+        </div>
+        <div class="bib-field">
+            <label>Tip de taller (opcional)</label>
+            <textarea id="bib-f-tip" placeholder="Consejo práctico para medir, identificar o reparar…" style="min-height:50px"></textarea>
+        </div>
+        <div class="bib-field">
+            <label>Nota extra (opcional)</label>
+            <input type="text" id="bib-f-extra" placeholder="Dato adicional…">
+        </div>
+        <div class="bib-btn-row">
+            <button class="bib-btn-cancel" onclick="closeBibModal()">Cancelar</button>
+            <button class="bib-btn-save" onclick="guardarConcepto()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<button class="fab-add-bib" onclick="openBibModal()" title="Agregar concepto">＋</button>
+<div class="bib-toast" id="bibToast"></div>
+
 <script>
-        // BASE DE DATOS DEL DICCIONARIO
-        const dictionaryEntries = [
-            { term: "VGH (Voltage Gate High)", category: "voltajes", description: "Voltaje positivo alto entre +20V a +30V. Enciende los transistores TFT del panel LCD.", tip: "Medir en la T-CON cerca del driver DC-DC; si falta, revisar diodos y el IC elevador.", extra: "Síntoma típico: imagen fantasmal o total blancura." },
-            { term: "VGL (Voltage Gate Low)", category: "voltajes", description: "Voltaje negativo (-5V a -10V). Apaga los TFT para refrescar el pixel.", tip: "VGL inestable produce parpadeos o retención de imagen.", extra: "En algunos paneles VGL debe estar cerca de -8V." },
-            { term: "VCOM (Voltage Common)", category: "voltajes", description: "Voltaje de referencia para cristales líquidos (~6V-8V).", tip: "Si VCOM está desbalanceado, aparecen sombras o flicker vertical.", extra: "Ajustable mediante potenciómetro digital." },
-            { term: "VDD / VCC Logic", category: "voltajes", description: "Alimentación digital de la T-CON (3.3V o 12V).", tip: "Sin VDD no hay comunicación LVDS; pantalla negra con retroiluminación encendida." },
-            { term: "Resistencia SMD", category: "componentes", description: "Componente pasivo de montaje superficial.", tip: "Medir fuera del circuito para evitar lecturas falsas por paralelo.", extra: "Resistencias Shunt (0.1Ω) fallan abiertas tras corto de MOSFET." },
-            { term: "Resistencia de Precisión", category: "componentes", description: "Tolerancia de ±1% o menor, usada en realimentación.", tip: "Una resistencia desviada causa regulación incorrecta en fuentes." },
-            { term: "Fusible Tėrmico", category: "componentes", description: "Dispositivo de seguridad que interrumpe la corriente eléctrica cuando detecta un exceso de calor. A diferencia de los fusibles convencionales que reaccionan a la corriente, estos se funden de forma irreversible al llegar a su temperatura límite.", tip: "Para medir un fusible térmico y saber si está dañado, se utiliza un multímetro (téster) para comprobar su continuidad. Pita (Bueno) No pita (Malo)." },
-            { term: "Fusible", category: "componentes", description: "Es un dispositivo de seguridad eléctrica diseñado para interrumpir el paso de la corriente cuando esta supera un límite seguro. Contiene un filamento que se funde por el calor cuando hay una sobrecarga o cortocircuito, protegiendo así los equipos y evitando incendios..", tip: "Para medir un fusible térmico y saber si está dañado, se utiliza un multímetro (téster) para comprobar su continuidad. Pita (Bueno) No pita (Malo)." },
-            { term: "Capacitor Electrolítico", category: "componentes", description: "Almacena carga y filtra rizado.", tip: "Reemplazar por 105°C si están hinchados.", extra: "Medir con ESRmetro para detectar degradación." },
-            { term: "Capacitor Cerámico MLCC", category: "componentes", description: "Alta frecuencia, baja ESR.", tip: "Un MLCC en corto se calienta; usar cámara térmica." },
-            { term: "Bobina / Inductor", category: "componentes", description: "Almacena energía en campo magnético.", tip: "Bobina con zumbido indica saturación o consumo excesivo." },
-            { term: "MOSFET", category: "semiconductores", description: "Interruptor controlado por tensión (G-D-S).", tip: "Falla común: drenaje-fuente en corto. Medir con diodímetro.", extra: "Sustituir por referencia equivalente (Vds, Rds(on))." },
-            { term: "Diodo Schottky", category: "semiconductores", description: "Baja caída de tensión (0.2V-0.4V).", tip: "Fallo típico: corto o fuga inversa." },
-            { term: "IC PWM", category: "semiconductores", description: "Genera señal de modulación por ancho de pulso. Ej: TL494, UC3842.", tip: "Verificar VCC y tensión de referencia (5V)." },
-            { term: "Medición en circuito", category: "medicion", description: "Puede haber lecturas falsas por componentes en paralelo.", tip: "Para resistencias Shunt, medir una pata al aire." },
-            { term: "Multímetro modo diodo", category: "medicion", description: "Prueba de juntura PN.", tip: "Lectura 0.4V-0.6V es normal; 0V es corto; OL es abierto." },
-            { term: "Inyección de voltaje", category: "medicion", description: "Aplicar bajo voltaje (1-3V) para encontrar cortos.", tip: "Usar cámara termográfica o alcohol isopropílico." },
-            
-        ];
+/* ══════════════════════════════════════
+   STORAGE KEY
+══════════════════════════════════════ */
+const BIB_STORAGE_KEY = 'relectronica_biblioteca_v1';
 
-        function getCatLabel(cat) {
-            const labels = {
-                'voltajes': 'Voltajes T-CON',
-                'componentes': 'Pasivos',
-                'semiconductores': 'Semiconductores',
-                'medicion': 'Medición'
-            };
-            return labels[cat] || 'Técnico';
-        }
+/* ══════════════════════════════════════
+   DATOS BASE (hardcoded, nunca se borran)
+══════════════════════════════════════ */
+const BASE_ENTRIES = [
+    { term: "VGH (Voltage Gate High)", category: "voltajes", description: "Voltaje positivo alto entre +20V a +30V. Enciende los transistores TFT del panel LCD.", tip: "Medir en la T-CON cerca del driver DC-DC; si falta, revisar diodos y el IC elevador.", extra: "Síntoma típico: imagen fantasmal o total blancura.", base: true },
+    { term: "VGL (Voltage Gate Low)", category: "voltajes", description: "Voltaje negativo (-5V a -10V). Apaga los TFT para refrescar el pixel.", tip: "VGL inestable produce parpadeos o retención de imagen.", extra: "En algunos paneles VGL debe estar cerca de -8V.", base: true },
+    { term: "VCOM (Voltage Common)", category: "voltajes", description: "Voltaje de referencia para cristales líquidos (~6V-8V).", tip: "Si VCOM está desbalanceado, aparecen sombras o flicker vertical.", extra: "Ajustable mediante potenciómetro digital.", base: true },
+    { term: "VDD / VCC Logic", category: "voltajes", description: "Alimentación digital de la T-CON (3.3V o 12V).", tip: "Sin VDD no hay comunicación LVDS; pantalla negra con retroiluminación encendida.", base: true },
+    { term: "Resistencia SMD", category: "componentes", description: "Componente pasivo de montaje superficial.", tip: "Medir fuera del circuito para evitar lecturas falsas por paralelo.", extra: "Resistencias Shunt (0.1Ω) fallan abiertas tras corto de MOSFET.", base: true },
+    { term: "Resistencia de Precisión", category: "componentes", description: "Tolerancia de ±1% o menor, usada en realimentación.", tip: "Una resistencia desviada causa regulación incorrecta en fuentes.", base: true },
+    { term: "Fusible Térmico", category: "componentes", description: "Dispositivo de seguridad que interrumpe la corriente eléctrica cuando detecta un exceso de calor.", tip: "Medir continuidad con multímetro. Pita = bueno. No pita = malo.", base: true },
+    { term: "Fusible", category: "componentes", description: "Dispositivo que interrumpe la corriente cuando supera un límite seguro.", tip: "Antes de reemplazarlo investiga qué lo quemó.", base: true },
+    { term: "Capacitor Electrolítico", category: "componentes", description: "Almacena carga y filtra rizado.", tip: "Reemplazar por 105°C si están hinchados.", extra: "Medir con ESRmetro para detectar degradación.", base: true },
+    { term: "Capacitor Cerámico MLCC", category: "componentes", description: "Alta frecuencia, baja ESR.", tip: "Un MLCC en corto se calienta; usar cámara térmica.", base: true },
+    { term: "Bobina / Inductor", category: "componentes", description: "Almacena energía en campo magnético.", tip: "Bobina con zumbido indica saturación o consumo excesivo.", base: true },
+    { term: "MOSFET", category: "semiconductores", description: "Interruptor controlado por tensión (G-D-S).", tip: "Falla común: drenaje-fuente en corto. Medir con diodímetro.", extra: "Sustituir por referencia equivalente (Vds, Rds(on)).", base: true },
+    { term: "Diodo Schottky", category: "semiconductores", description: "Baja caída de tensión (0.2V-0.4V).", tip: "Fallo típico: corto o fuga inversa.", base: true },
+    { term: "IC PWM", category: "semiconductores", description: "Genera señal de modulación por ancho de pulso. Ej: TL494, UC3842.", tip: "Verificar VCC y tensión de referencia (5V).", base: true },
+    { term: "Medición en circuito", category: "medicion", description: "Puede haber lecturas falsas por componentes en paralelo.", tip: "Para resistencias Shunt, medir una pata al aire.", base: true },
+    { term: "Multímetro modo diodo", category: "medicion", description: "Prueba de juntura PN.", tip: "Lectura 0.4V-0.6V es normal; 0V es corto; OL es abierto.", base: true },
+    { term: "Inyección de voltaje", category: "medicion", description: "Aplicar bajo voltaje (1-3V) para encontrar cortos.", tip: "Usar cámara termográfica o alcohol isopropílico.", base: true },
+];
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
+/* ══════════════════════════════════════
+   CARGAR / GUARDAR
+══════════════════════════════════════ */
+function loadCustomEntries() {
+    try {
+        const raw = localStorage.getItem(BIB_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+}
 
-        function renderLibrary() {
-            const searchTerm = document.getElementById('globalSearch')?.value.toLowerCase() || '';
-            const activeCat = document.querySelector('.filter-chip.active')?.getAttribute('data-cat') || 'all';
-            
-            let filtered = [...dictionaryEntries];
-            if (activeCat !== 'all') {
-                filtered = filtered.filter(entry => entry.category === activeCat);
-            }
-            if (searchTerm) {
-                filtered = filtered.filter(entry => 
-                    entry.term.toLowerCase().includes(searchTerm) || 
-                    entry.description.toLowerCase().includes(searchTerm) ||
-                    (entry.tip && entry.tip.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            const container = document.getElementById('cardsContainer');
-            if (!container) return;
-            
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="no-results">🔎 No se encontraron conceptos para "${searchTerm}"<br>Intenta con 'VGH', 'MOSFET' o 'cortocircuito'</div>`;
-                return;
-            }
-            
-            let html = '';
-            filtered.forEach(entry => {
-                const catEmoji = {
-                    'voltajes': '⚡', 'componentes': '🔩', 'semiconductores': '💎', 'medicion': '📏'
-                }[entry.category] || '📘';
-                
-                html += `
-                    <div class="dict-card">
-                        <div class="card-header">
-                            <div class="term-name">
-                                <span>${catEmoji}</span>
-                                <strong>${escapeHtml(entry.term)}</strong>
-                                <span class="term-badge">${getCatLabel(entry.category)}</span>
-                            </div>
-                            <span class="expand-icon">▼</span>
-                        </div>
-                        <div class="card-content">
-                            <p>📖 <strong>Definición:</strong> ${escapeHtml(entry.description)}</p>
-                            ${entry.tip ? `<div class="insight-box">🔧 <strong>Tip de taller:</strong> ${escapeHtml(entry.tip)}</div>` : ''}
-                            ${entry.extra ? `<div class="code-example">📌 Nota: ${escapeHtml(entry.extra)}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+function saveCustomEntries(arr) {
+    try { localStorage.setItem(BIB_STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+}
 
-        function toggleCard(cardElement) {
-            const content = cardElement.querySelector('.card-content');
-            const isExpanded = cardElement.classList.contains('expanded');
-            cardElement.classList.toggle('expanded', !isExpanded);
-            content.style.display = isExpanded ? 'none' : 'block';
-        }
+function getAllEntries() {
+    return [...BASE_ENTRIES, ...loadCustomEntries()];
+}
 
-        document.addEventListener('click', function(e) {
-            const header = e.target.closest('.card-header');
-            if (header) toggleCard(header.closest('.dict-card'));
-        });
+/* ══════════════════════════════════════
+   SYNC: guardar TODAS las entradas (base + custom)
+   para que el bot las lea desde localStorage
+══════════════════════════════════════ */
+function syncToStorage() {
+    try {
+        localStorage.setItem(BIB_STORAGE_KEY, JSON.stringify(loadCustomEntries()));
+        // También guardar el total fusionado para el bot
+        localStorage.setItem('relectronica_biblioteca_all', JSON.stringify(getAllEntries()));
+    } catch(e) {}
+}
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.filter-chip').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    renderLibrary();
-                });
-            });
-            document.getElementById('globalSearch')?.addEventListener('input', () => renderLibrary());
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function getCatLabel(cat) {
+    return { voltajes:'Voltajes T-CON', componentes:'Pasivos', semiconductores:'Semiconductores', medicion:'Medición' }[cat] || 'Técnico';
+}
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+}
+function showBibToast(msg) {
+    const t = document.getElementById('bibToast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+function renderLibrary() {
+    const searchTerm = document.getElementById('globalSearch')?.value.toLowerCase() || '';
+    const activeCat = document.querySelector('.filter-chip.active')?.getAttribute('data-cat') || 'all';
+    const customEntries = loadCustomEntries();
+    
+    let filtered = getAllEntries();
+    if (activeCat !== 'all') filtered = filtered.filter(e => e.category === activeCat);
+    if (searchTerm) filtered = filtered.filter(e =>
+        (e.term||'').toLowerCase().includes(searchTerm) ||
+        (e.description||'').toLowerCase().includes(searchTerm) ||
+        (e.tip||'').toLowerCase().includes(searchTerm)
+    );
+
+    const container = document.getElementById('cardsContainer');
+    if (!container) return;
+
+    if (!filtered.length) {
+        container.innerHTML = `<div class="no-results">🔎 No se encontraron conceptos para "${escapeHtml(searchTerm)}"<br>Intenta con 'VGH', 'MOSFET' o 'cortocircuito'</div>`;
+        return;
+    }
+
+    const catEmoji = { voltajes:'⚡', componentes:'🔩', semiconductores:'💎', medicion:'📏' };
+    container.innerHTML = filtered.map((entry, idx) => {
+        const emoji = catEmoji[entry.category] || '📘';
+        const isCustom = !entry.base;
+        const customIdx = isCustom ? customEntries.findIndex(c => c.term === entry.term && c.description === entry.description) : -1;
+        return `
+        <div class="dict-card">
+            <div class="card-header">
+                <div class="term-name">
+                    <span>${emoji}</span>
+                    <strong>${escapeHtml(entry.term)}</strong>
+                    <span class="term-badge">${getCatLabel(entry.category)}</span>
+                    ${isCustom ? '<span class="badge-custom">tuyo</span>' : ''}
+                    ${isCustom ? `<button class="btn-del-entry" onclick="event.stopPropagation();eliminarConcepto(${customIdx})" title="Eliminar">🗑</button>` : ''}
+                </div>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="card-content">
+                <p>📖 <strong>Definición:</strong> ${escapeHtml(entry.description)}</p>
+                ${entry.tip   ? `<div class="insight-box">🔧 <strong>Tip de taller:</strong> ${escapeHtml(entry.tip)}</div>` : ''}
+                ${entry.extra ? `<div class="code-example">📌 Nota: ${escapeHtml(entry.extra)}</div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleCard(cardElement) {
+    const content = cardElement.querySelector('.card-content');
+    const isExpanded = cardElement.classList.contains('expanded');
+    cardElement.classList.toggle('expanded', !isExpanded);
+    content.style.display = isExpanded ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(e) {
+    const header = e.target.closest('.card-header');
+    if (header) toggleCard(header.closest('.dict-card'));
+});
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+function openBibModal() { document.getElementById('bibModal').classList.add('open'); }
+function closeBibModal() {
+    document.getElementById('bibModal').classList.remove('open');
+    ['bib-f-term','bib-f-desc','bib-f-tip','bib-f-extra'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+}
+document.getElementById('bibModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBibModal();
+});
+
+function guardarConcepto() {
+    const term = document.getElementById('bib-f-term').value.trim();
+    const desc = document.getElementById('bib-f-desc').value.trim();
+    if (!term || !desc) { showBibToast('⚠️ Término y definición son obligatorios'); return; }
+
+    const entry = {
+        term,
+        category: document.getElementById('bib-f-cat').value,
+        description: desc,
+        tip:   document.getElementById('bib-f-tip').value.trim(),
+        extra: document.getElementById('bib-f-extra').value.trim(),
+        base: false,
+        fecha: new Date().toLocaleDateString('es-VE')
+    };
+
+    const custom = loadCustomEntries();
+    custom.unshift(entry);
+    saveCustomEntries(custom);
+    syncToStorage();
+
+    renderLibrary();
+    closeBibModal();
+    showBibToast('✅ Concepto guardado y disponible para el bot');
+}
+
+function eliminarConcepto(idx) {
+    if (!confirm('¿Eliminar este concepto?')) return;
+    const custom = loadCustomEntries();
+    custom.splice(idx, 1);
+    saveCustomEntries(custom);
+    syncToStorage();
+    renderLibrary();
+    showBibToast('🗑️ Concepto eliminado');
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Primer arranque: sync todos los datos base al storage para que el bot los vea
+    syncToStorage();
+
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
             renderLibrary();
         });
-    </script>
+    });
+    document.getElementById('globalSearch')?.addEventListener('input', () => renderLibrary());
+    renderLibrary();
+});
+</script>
 
 <script>
 function toggleFAB() {

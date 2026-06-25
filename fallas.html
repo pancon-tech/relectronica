@@ -840,15 +840,28 @@ let filterDif   = '';
 
 function loadCases() {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        cases = saved ? JSON.parse(saved) : [...defaultCases];
+        const saved = localStorage.getItem(STORAGE_KEY + '_custom');
+        const custom = saved ? JSON.parse(saved) : [];
+        // Siempre fusiona: defaultCases del HTML (puede tener nuevos) + custom del usuario
+        const baseIds = new Set(defaultCases.map(c => c.id));
+        const soloCustom = custom.filter(c => !baseIds.has(c.id));
+        cases = [...defaultCases, ...soloCustom];
+        // Sync completo para el bot
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
     } catch(e) {
         cases = [...defaultCases];
     }
 }
 
 function saveCases() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cases)); } catch(e) {}
+    try {
+        // Guarda solo los casos custom (los del HTML se reconstruyen solos)
+        const baseIds = new Set(defaultCases.map(c => c.id));
+        const custom = cases.filter(c => !baseIds.has(c.id));
+        localStorage.setItem(STORAGE_KEY + '_custom', JSON.stringify(custom));
+        // Sync completo para el bot
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
+    } catch(e) {}
 }
 
 function getNextId() {
