@@ -6,159 +6,292 @@
 <title>Símbolos y Códigos PCB - Relectrónica</title>
 <style>
   :root {
-    --bg-color: #0b131f;
-    --chat-bg: #111c2c;
-    --card-bg: #16223540;
-    --text-color: #ffffff;
-    --text-dim: #93a4bd;
-    --primary-color: #7928ca;
-    --primary-light: #a566f0;
-    --border-color: #22344d;
-    --pas: #4cc9f0;
-    --sem: #c77dff;
-    --elm: #ffb703;
-    --pro: #ff5d73;
-    --osc: #57cc99;
-    --con: #4dd9c7;
-    --mec: #9aa5b1;
-    --pwr: #ff8c42;
-    --sig: #7c9eff;
+    --bg:        #080f1a;
+    --surface:   #0f1d2e;
+    --card:      #131f31;
+    --border:    #1e3048;
+    --text:      #e8edf5;
+    --dim:       #7a90aa;
+    --accent:    #7928ca;
+    --accent-lt: #a566f0;
+    --pas:  #4cc9f0; --sem: #c77dff; --elm: #ffb703;
+    --pro:  #ff5d73; --osc: #57cc99; --con: #4dd9c7;
+    --mec:  #9aa5b1; --pwr: #ff8c42; --sig: #7c9eff;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: radial-gradient(circle at top, #14203380 0%, var(--bg-color) 60%);
-    color: var(--text-color);
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, #1a0a3380 0%, transparent 70%);
+    color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: flex; justify-content: center;
-    margin: 0; padding: 16px;
     min-height: 100vh;
+    display: flex; justify-content: center;
+    padding: 0 0 100px;
   }
-  .app { width: 100%; max-width: 440px; }
+  .app { width: 100%; max-width: 460px; padding: 0 16px; }
 
-  header { padding: 4px 4px 18px; text-align: left; }
-  header .eyebrow {
-    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--primary-light); font-weight: 700; margin-bottom: 6px;
+  /* ══ HEADER ══ */
+  .hero {
+    padding: 28px 4px 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
   }
-  header h1 { font-size: 22px; margin: 0 0 4px; line-height: 1.25; }
-  header p { margin: 0 0 10px; color: var(--text-dim); font-size: 13.5px; }
-  .statsRow { display: flex; gap: 8px; }
-  .statsRow span {
-    font-size: 11px; font-weight: 700; color: var(--primary-light);
-    background: var(--chat-bg); border: 1px solid var(--border-color);
-    padding: 4px 9px; border-radius: 999px;
+  .eyebrow {
+    font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent-lt); font-weight: 700; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .eyebrow::before {
+    content: ''; display: inline-block;
+    width: 18px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+    border-radius: 2px;
+  }
+  .hero h1 {
+    font-size: 26px; font-weight: 800; line-height: 1.15;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 13px; color: var(--dim); line-height: 1.55; margin-bottom: 14px;
+  }
+  .stats-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .stat-pill {
+    font-size: 11px; font-weight: 700; color: var(--accent-lt);
+    background: #1a0a3340; border: 1px solid #7928ca44;
+    padding: 4px 10px; border-radius: 999px;
   }
 
-  .searchWrap { position: relative; margin-bottom: 12px; }
+  /* ══ BÚSQUEDA ══ */
+  .search-wrap { position: relative; margin-bottom: 12px; }
   #search {
-    width: 100%; padding: 14px 42px 14px 16px; font-size: 16px;
-    border-radius: 12px; border: 1.5px solid var(--border-color);
-    background: var(--chat-bg); color: white; outline: none;
-    transition: border-color .15s ease;
+    width: 100%; padding: 13px 42px 13px 16px; font-size: 16px;
+    border-radius: 13px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text); outline: none;
+    transition: border-color .15s, box-shadow .15s;
   }
-  #search:focus { border-color: var(--primary-color); }
+  #search::placeholder { color: var(--dim); }
+  #search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #7928ca22;
+  }
   #clearBtn {
     position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: var(--text-dim); font-size: 18px;
+    background: none; border: none; color: var(--dim); font-size: 18px;
     cursor: pointer; padding: 4px 6px; display: none;
+    transition: color .15s;
   }
+  #clearBtn:hover { color: var(--text); }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+  /* ══ CHIPS RÁPIDOS ══ */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .chip {
-    border: 1px solid var(--border-color); background: var(--chat-bg);
-    color: var(--text-color); font-size: 13px; font-weight: 600;
-    padding: 6px 12px; border-radius: 999px; cursor: pointer;
-    transition: all .15s ease;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--dim); font-size: 12.5px; font-weight: 700;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer;
+    transition: all .15s;
   }
-  .chip:active { transform: scale(.95); }
-  .chip.on { background: var(--primary-color); border-color: var(--primary-color); }
+  .chip:active { transform: scale(.93); }
+  .chip.on {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; box-shadow: 0 2px 10px #7928ca55;
+  }
 
+  /* ══ RESULTADO ══ */
   .result {
-    background: var(--chat-bg); border-radius: 14px; padding: 18px;
-    border-left: 4px solid var(--primary-color); margin-bottom: 18px;
-    animation: fadeIn .18s ease; min-height: 64px;
+    background: var(--surface); border-radius: 16px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 18px; margin-bottom: 18px;
+    animation: fadeIn .18s ease;
   }
-  .result.empty { color: var(--text-dim); display: flex; align-items: center; font-size: 14px; }
+  .result.empty {
+    color: var(--dim); display: flex; align-items: center;
+    font-size: 13.5px; border-left-color: var(--border);
+    min-height: 58px;
+  }
   .result.notfound { border-left-color: var(--pro); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 
-  .res-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .res-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .res-code {
-    font-size: 20px; font-weight: 800; background: var(--primary-color);
-    padding: 4px 12px; border-radius: 8px; letter-spacing: .02em;
+    font-size: 19px; font-weight: 800;
+    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    padding: 4px 13px; border-radius: 9px; letter-spacing: .03em;
+    color: #fff; white-space: nowrap;
   }
-  .res-name { font-size: 16px; font-weight: 700; }
+  .res-name { font-size: 15px; font-weight: 700; flex: 1; }
   .res-cat {
-    margin-left: auto; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
     padding: 3px 9px; border-radius: 999px; white-space: nowrap;
   }
-  .res-desc { font-size: 14px; line-height: 1.5; color: #e7ecf5; margin-bottom: 10px; }
+  .res-desc { font-size: 13.5px; line-height: 1.55; color: #cdd5e0; margin-bottom: 11px; }
   .res-tip {
-    font-size: 13px; line-height: 1.5; color: var(--text-dim);
-    background: #0b131f80; border-radius: 10px; padding: 10px 12px;
+    font-size: 12.5px; line-height: 1.55; color: var(--dim);
+    background: #0a1525; border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 13px;
   }
-  .res-tip b { color: var(--primary-light); }
-  .res-aka { font-size: 11.5px; color: var(--text-dim); margin-top: 8px; }
+  .res-tip b { color: var(--accent-lt); }
+  .res-aka { font-size: 11px; color: var(--dim); margin-top: 9px; }
+  .custom-badge {
+    font-size: 10px; font-weight: 700; color: var(--accent-lt);
+    background: #7928ca22; border: 1px solid #7928ca44;
+    border-radius: 5px; padding: 2px 7px; margin-left: 4px;
+  }
 
-  .matchList { display: flex; flex-direction: column; gap: 8px; }
+  .matchList { display: flex; flex-direction: column; gap: 7px; }
   .matchItem {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-    background: #0b131f80; border-radius: 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 11px; cursor: pointer;
+    transition: border-color .15s;
   }
-  .matchItem:active { background: #0b131fcc; }
+  .matchItem:hover { border-color: var(--accent-lt); }
   .matchItem .mc {
-    font-weight: 800; font-size: 13px; min-width: 38px; text-align: center;
-    padding: 3px 6px; border-radius: 6px; background: var(--border-color);
+    font-weight: 800; font-size: 12.5px; min-width: 40px; text-align: center;
+    padding: 3px 7px; border-radius: 7px; background: var(--border);
   }
-  .matchItem .mn { font-size: 13.5px; flex: 1; }
+  .matchItem .mn { font-size: 13px; flex: 1; }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  /* ══ TABS ══ */
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 13px; padding: 4px;
+  }
   .tabBtn {
-    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border-color);
-    background: var(--chat-bg); color: var(--text-dim); font-weight: 700; font-size: 13px;
-    cursor: pointer; transition: all .15s ease;
+    flex: 1; padding: 10px 8px; border-radius: 10px;
+    border: none; background: transparent;
+    color: var(--dim); font-weight: 700; font-size: 12.5px;
+    cursor: pointer; transition: all .15s;
   }
-  .tabBtn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
+  .tabBtn.active {
+    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    color: #fff; box-shadow: 0 2px 10px #7928ca44;
+  }
   .panel.hidden { display: none; }
 
-  .catGroup { margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
-  .catHead {
-    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-    background: var(--chat-bg); cursor: pointer; font-weight: 700; font-size: 14px;
+  /* ══ ACORDEÓN POR CATEGORÍA ══ */
+  .catGroup {
+    margin-bottom: 8px; border: 1px solid var(--border);
+    border-radius: 13px; overflow: hidden;
   }
-  .catHead .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .catHead .count { margin-left: auto; font-size: 12px; color: var(--text-dim); font-weight: 500; }
-  .catBody { display: none; padding: 6px 10px 10px; }
+  .catHead {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: var(--surface);
+    cursor: pointer; font-weight: 700; font-size: 13.5px;
+    transition: background .15s;
+  }
+  .catHead:hover { background: var(--card); }
+  .catHead .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .catHead .count {
+    margin-left: auto; font-size: 11px; color: var(--dim);
+    font-weight: 500; background: var(--card);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 2px 8px;
+  }
+  .catBody { display: none; padding: 4px 8px 8px; background: var(--bg); }
   .catGroup.open .catBody { display: block; }
   .catGroup.open .chev { transform: rotate(90deg); }
-  .chev { transition: transform .15s ease; color: var(--text-dim); margin-left: 4px; }
+  .chev { transition: transform .15s; color: var(--dim); margin-left: 2px; }
 
   .miniRow {
-    display: flex; align-items: center; gap: 10px; padding: 9px 6px;
-    border-bottom: 1px solid var(--border-color); cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 8px; border-bottom: 1px solid var(--border);
+    cursor: pointer; border-radius: 8px; transition: background .12s;
   }
   .miniRow:last-child { border-bottom: none; }
-  .miniRow .mc { font-weight: 800; font-size: 12.5px; min-width: 44px; }
-  .miniRow .mn { font-size: 13px; color: #d6deea; }
-  .miniRow:active { opacity: .7; }
-
-  .symCard {
-    background: var(--chat-bg); border: 1px solid var(--border-color);
-    border-radius: 12px; padding: 13px 15px; margin-bottom: 10px;
+  .miniRow:hover { background: var(--card); }
+  .miniRow .mc { font-weight: 800; font-size: 12px; min-width: 48px; }
+  .miniRow .mn { font-size: 13px; color: #c8d0de; }
+  .miniRow .custom-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-lt); flex-shrink: 0;
   }
-  .symCard .sn { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; color: var(--primary-light); }
-  .symCard .sm { font-size: 13px; line-height: 1.5; color: #d6deea; }
 
-  footer { text-align: center; font-size: 11.5px; color: var(--text-dim); padding: 18px 10px 4px; line-height: 1.5; }
+  /* ══ SÍMBOLOS GRÁFICOS ══ */
+  .sym-intro {
+    font-size: 12.5px; color: var(--dim); margin-bottom: 12px;
+    line-height: 1.55; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 11px;
+    padding: 10px 13px;
+  }
+  .symCard {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 13px 15px; margin-bottom: 8px;
+    transition: border-color .15s;
+  }
+  .symCard:hover { border-color: var(--accent-lt); }
+  .symCard .sn { font-weight: 700; font-size: 13px; margin-bottom: 5px; color: var(--accent-lt); }
+  .symCard .sm { font-size: 12.5px; line-height: 1.5; color: #bec8d8; }
 
-  /* ── FAB MENÚ ── */
+  /* ══ MODAL AGREGAR ══ */
+  .pcb-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.8); z-index: 9000;
+    align-items: flex-end; justify-content: center;
+  }
+  .pcb-modal-overlay.open { display: flex; }
+  .pcb-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 20px 20px 0 0; padding: 24px 18px 36px;
+    width: 100%; max-width: 480px;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(50px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .pcb-modal-title {
+    font-size: 15px; font-weight: 800; color: var(--accent-lt);
+    margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+  }
+  .pcb-field { margin-bottom: 12px; }
+  .pcb-field label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .pcb-field input, .pcb-field textarea, .pcb-field select {
+    width: 100%; background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 10px; color: var(--text); padding: 10px 13px;
+    font-size: 14px; outline: none; transition: border-color .2s, box-shadow .2s;
+  }
+  .pcb-field input:focus, .pcb-field textarea:focus, .pcb-field select:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px #7928ca1a;
+  }
+  .pcb-field textarea { min-height: 70px; resize: vertical; }
+  .pcb-field select option { background: var(--card); }
+  .pcb-btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  .pcb-btn-save {
+    flex: 1; background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    border: none; border-radius: 11px; color: #fff;
+    padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 2px 12px #7928ca44;
+  }
+  .pcb-btn-cancel {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 11px; color: var(--dim);
+    padding: 13px 18px; font-size: 14px; cursor: pointer;
+  }
+
+  /* ══ FAB AGREGAR (izquierda) ══ */
+  .fab-add {
+    position: fixed; bottom: 22px; left: 18px;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    border: none; color: #fff; font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 7999;
+    box-shadow: 0 3px 14px #7928ca66;
+    transition: transform .15s;
+  }
+  .fab-add:active { transform: scale(.92); }
+
+  /* ══ FAB MENÚ NAV (derecha) ══ */
   .fab-toggle {
     position: fixed; bottom: 20px; right: 18px;
     width: 52px; height: 52px; border-radius: 50%;
-    background: linear-gradient(135deg, #7928ca, #a855f7);
+    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
     border: none; color: white; font-size: 1.4rem; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(121,40,202,0.6);
+    box-shadow: 0 4px 16px #7928ca66;
     display: flex; align-items: center; justify-content: center;
     z-index: 9999; transition: transform 0.25s ease;
   }
@@ -171,44 +304,64 @@
   .fab-items.open { pointer-events: all; opacity: 1; }
   .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .fab-item-label {
-    background-color: #1a273a; color: #e2e8f0; font-size: 0.82rem; font-weight: 600;
-    padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
-    white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    background: var(--surface); color: var(--text); font-size: 0.82rem; font-weight: 600;
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
   }
   .fab-item-btn {
     width: 44px; height: 44px; border-radius: 50%;
-    background-color: #1a273a; border: 1px solid #22344d;
+    background: var(--surface); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,0.4); flex-shrink: 0;
+    font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
   }
-  .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
-  .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
-  .fab-overlay { display: none; position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.5); }
+  .fab-item.active .fab-item-btn {
+    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    border-color: var(--accent-lt);
+  }
+  .fab-item.active .fab-item-label { color: #c4b5fd; border-color: var(--accent); }
+  .fab-overlay { display: none; position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.5); }
   .fab-overlay.open { display: block; }
-  .fab-items.open .fab-item:nth-child(1){animation:fabIn 0.18s ease 0.00s both}
-  .fab-items.open .fab-item:nth-child(2){animation:fabIn 0.18s ease 0.04s both}
-  .fab-items.open .fab-item:nth-child(3){animation:fabIn 0.18s ease 0.08s both}
-  .fab-items.open .fab-item:nth-child(4){animation:fabIn 0.18s ease 0.12s both}
-  .fab-items.open .fab-item:nth-child(5){animation:fabIn 0.18s ease 0.16s both}
-  .fab-items.open .fab-item:nth-child(6){animation:fabIn 0.18s ease 0.20s both}
-  .fab-items.open .fab-item:nth-child(7){animation:fabIn 0.18s ease 0.24s both}
-  .fab-items.open .fab-item:nth-child(8){animation:fabIn 0.18s ease 0.28s both}
-  .fab-items.open .fab-item:nth-child(9){animation:fabIn 0.18s ease 0.32s both}
+  .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease 0.00s both}
+  .fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease 0.04s both}
+  .fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease 0.08s both}
+  .fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease 0.12s both}
+  .fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease 0.16s both}
+  .fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease 0.20s both}
+  .fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease 0.24s both}
+  .fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease 0.28s both}
+  .fab-items.open .fab-item:nth-child(9){animation:fabIn .18s ease 0.32s both}
   @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ══ TOAST ══ */
+  .toast {
+    position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+    background: #0e2a1a; border: 1px solid #22c55e; border-radius: 10px;
+    padding: 9px 18px; font-size: 13px; color: #86efac;
+    z-index: 99999; opacity: 0; transition: opacity .3s;
+    pointer-events: none; white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  }
+  .toast.show { opacity: 1; }
+
+  footer {
+    text-align: center; font-size: 11px; color: var(--dim);
+    padding: 20px 8px 4px; line-height: 1.6;
+    border-top: 1px solid var(--border); margin-top: 20px;
+  }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <header>
+  <header class="hero">
     <div class="eyebrow">Relectrónica · Referencia técnica</div>
-    <h1>Diccionario de símbolos PCB</h1>
-    <p>Escribe la letra o el código que ves serigrafiado en la placa (ej. R, C, Q, LED, TP, VCC, SDA) y te decimos qué es.</p>
-    <div class="statsRow" id="statsRow"></div>
+    <h1>Diccionario de<br>símbolos PCB</h1>
+    <p>Escribe la letra o código serigrafiado en la placa (ej. R, C, Q, LED, TP, VCC, SDA) y te decimos qué es y cómo medirlo.</p>
+    <div class="stats-row" id="statsRow"></div>
   </header>
 
-  <div class="searchWrap">
-    <input id="search" placeholder="Ej: R, C30, Q10, LED, TP..." autocomplete="off" />
+  <div class="search-wrap">
+    <input id="search" placeholder="Ej: R, C30, Q10, LED, TP…" autocomplete="off" />
     <button id="clearBtn">✕</button>
   </div>
 
@@ -224,371 +377,274 @@
   <div id="codesPanel" class="panel"></div>
 
   <div id="symbolsPanel" class="panel hidden">
-    <p style="font-size:12.5px; color:var(--text-dim); margin: 0 0 12px;">
-      Estas marcas no son letras de componente, son señales visuales en la placa. Aprender a leerlas evita errores de polaridad y orientación.
+    <p class="sym-intro">
+      Estas marcas no son letras de componente sino señales visuales en la placa. Aprender a leerlas evita errores de polaridad y orientación.
     </p>
     <div id="symbolsList"></div>
   </div>
 
   <footer>
-    Designadores basados en el estándar IEC 61346 / ANSI Y32.16, usado por la mayoría de fabricantes. Las etiquetas de alimentación y buses (VCC, GND, SDA, etc.) son convención de la industria, no un estándar único. Algunas marcas usan variantes propias del mismo código.
+    Designadores basados en IEC 61346 / ANSI Y32.16. Etiquetas de alimentación y buses (VCC, GND, SDA…) son convención de la industria. Algunas marcas usan variantes propias del mismo código.
   </footer>
 </div>
 
+<!-- FAB navegación -->
 <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
 <div class="fab-items" id="fab-items">
-  <a href="recepcion.html" class="fab-item">
-    <span class="fab-item-label">Recepción</span>
-    <span class="fab-item-btn">📋</span>
-  </a>
-  <a href="fallas.html" class="fab-item">
-    <span class="fab-item-label">Casos de Falla</span>
-    <span class="fab-item-btn">🛠️</span>
-  </a>
-  <a href="componentes.html" class="fab-item">
-    <span class="fab-item-label">Componentes</span>
-    <span class="fab-item-btn">🔍</span>
-  </a>
-  <a href="simbologiacodigopcb.html" class="fab-item active">
-    <span class="fab-item-label">Símbologías PCB</span>
-    <span class="fab-item-btn">🔣</span>
-  </a>
-  <a href="calculadoras.html" class="fab-item">
-    <span class="fab-item-label">Cálculos</span>
-    <span class="fab-item-btn">🧮</span>
-  </a>
-  <a href="hardware.html" class="fab-item">
-    <span class="fab-item-label">Hardware</span>
-    <span class="fab-item-btn">🖼️</span>
-  </a>
-  <a href="biblioteca.html" class="fab-item">
-    <span class="fab-item-label">Biblioteca</span>
-    <span class="fab-item-btn">📘</span>
-  </a>
-  <a href="notas.html" class="fab-item">
-    <span class="fab-item-label">Mis Notas</span>
-    <span class="fab-item-btn">📝</span>
-  </a>
-  <a href="index.html" class="fab-item">
-    <span class="fab-item-label">Chat Técnico</span>
-    <span class="fab-item-btn">💬</span>
-  </a>
+  <a href="recepcion.html" class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+  <a href="fallas.html" class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+  <a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+  <a href="simbologiacodigopcb.html" class="fab-item active"><span class="fab-item-label">Símbologías PCB</span><span class="fab-item-btn">🔣</span></a>
+  <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+  <a href="hardware.html" class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+  <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+  <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+  <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
+<!-- FAB agregar -->
+<button class="fab-add" onclick="openPcbModal()" title="Agregar código PCB">＋</button>
+
+<!-- Modal agregar -->
+<div class="pcb-modal-overlay" id="pcbModal">
+  <div class="pcb-modal">
+    <div class="pcb-modal-title">🔣 Agregar código / símbolo PCB</div>
+    <div class="pcb-field">
+      <label>Código(s) serigrafiado * (separar con coma)</label>
+      <input type="text" id="pcb-f-codes" placeholder="ej. IGBT, Q, TR10…">
+    </div>
+    <div class="pcb-field">
+      <label>Nombre del componente *</label>
+      <input type="text" id="pcb-f-name" placeholder="ej. Transistor de potencia IGBT">
+    </div>
+    <div class="pcb-field">
+      <label>Categoría</label>
+      <select id="pcb-f-cat">
+        <option value="pas">Pasivos</option>
+        <option value="sem" selected>Semiconductores</option>
+        <option value="elm">Electromecánicos</option>
+        <option value="pro">Protección y energía</option>
+        <option value="osc">Osciladores y tiempo</option>
+        <option value="con">Conectores y puntos de prueba</option>
+        <option value="mec">Mecánicos / ensamble</option>
+        <option value="pwr">Líneas de alimentación</option>
+        <option value="sig">Señales y buses de datos</option>
+      </select>
+    </div>
+    <div class="pcb-field">
+      <label>Descripción *</label>
+      <textarea id="pcb-f-desc" placeholder="¿Qué hace este componente?"></textarea>
+    </div>
+    <div class="pcb-field">
+      <label>Tip técnico (opcional)</label>
+      <textarea id="pcb-f-tip" placeholder="Cómo medirlo, falla típica, consejo de taller…" style="min-height:54px"></textarea>
+    </div>
+    <div class="pcb-btn-row">
+      <button class="pcb-btn-cancel" onclick="closePcbModal()">Cancelar</button>
+      <button class="pcb-btn-save" onclick="guardarCodigoPCB()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+/* ══════════════════════════════════════
+   DATOS
+══════════════════════════════════════ */
 const CATS = {
-  pas: { label: "Pasivos",                      color: "var(--pas)" },
-  sem: { label: "Semiconductores",              color: "var(--sem)" },
-  elm: { label: "Electromecánicos",             color: "var(--elm)" },
-  pro: { label: "Protección y energía",         color: "var(--pro)" },
-  osc: { label: "Osciladores y tiempo",         color: "var(--osc)" },
-  con: { label: "Conectores y puntos de prueba",color: "var(--con)" },
-  mec: { label: "Mecánicos / ensamble",         color: "var(--mec)" },
-  pwr: { label: "Líneas de alimentación",       color: "var(--pwr)" },
-  sig: { label: "Señales y buses de datos",     color: "var(--sig)" },
+  pas: { label:"Pasivos",                       color:"var(--pas)" },
+  sem: { label:"Semiconductores",               color:"var(--sem)" },
+  elm: { label:"Electromecánicos",              color:"var(--elm)" },
+  pro: { label:"Protección y energía",          color:"var(--pro)" },
+  osc: { label:"Osciladores y tiempo",          color:"var(--osc)" },
+  con: { label:"Conectores y puntos de prueba", color:"var(--con)" },
+  mec: { label:"Mecánicos / ensamble",          color:"var(--mec)" },
+  pwr: { label:"Líneas de alimentación",        color:"var(--pwr)" },
+  sig: { label:"Señales y buses de datos",      color:"var(--sig)" },
 };
 
 const DB = [
-  // ---------- PASIVOS ----------
-  { codes:["R"], name:"Resistor (resistencia)", cat:"pas",
-    desc:"Limita o regula el flujo de corriente y divide voltajes dentro del circuito.",
-    tip:"Mídela en ohms fuera de circuito. En SMD el valor viene en código de 3-4 dígitos (ej. 472 = 4700Ω); con cuerpo, usa el código de colores." },
-  { codes:["RN","RP","RA"], name:"Red de resistencias (array)", cat:"pas",
-    desc:"Varias resistencias iguales dentro de un solo encapsulado, comunes en buses de datos o líneas pull-up.",
-    tip:"Si solo una línea de un bus falla, revisa continuidad pin a pin: puede ser una sola resistencia interna dañada." },
-  { codes:["C"], name:"Capacitor (condensador)", cat:"pas",
-    desc:"Almacena carga eléctrica, filtra ruido y desacopla la alimentación.",
-    tip:"Los electrolíticos tienen polaridad: banda o franja = terminal negativo. Si está hinchado, abombado o con fuga, reemplázalo siempre." },
-  { codes:["CV","TC"], name:"Capacitor variable / trimmer", cat:"pas",
-    desc:"Capacitor ajustable manualmente con un destornillador, usado para afinar frecuencias en circuitos de radio o sintonía.",
-    tip:"Gírarlo con un destornillador plástico (no metálico) evita desajustar el valor por capacitancia parásita de la herramienta." },
-  { codes:["L"], name:"Inductor / bobina", cat:"pas",
-    desc:"Almacena energía en un campo magnético y filtra señales de alta frecuencia.",
-    tip:"En buen estado su resistencia es casi cero. Si marca circuito abierto, el bobinado interno está roto." },
-  { codes:["FB"], name:"Perla de ferrita (ferrite bead)", cat:"pas",
-    desc:"Filtra ruido de alta frecuencia en líneas de alimentación o de señal, sin afectar la corriente DC.",
-    tip:"Suele estar en serie cerca de puertos USB, antenas o entradas de alimentación. Casi nunca falla, pero revisa continuidad si hay ruido en la línea." },
-  { codes:["RT","NTC","TH"], name:"Termistor NTC", cat:"pas",
-    desc:"Resistencia que baja su valor al subir la temperatura; se usa en sensores y limitación de corriente de arranque.",
-    tip:"Mide la resistencia en frío y luego calienta el componente con un secador: el valor debe bajar notablemente." },
-  { codes:["VR"], name:"Regulador de voltaje / potenciómetro", cat:"pas",
-    desc:"Designador con doble uso: en fuentes de poder suele ser un IC regulador de voltaje; en audio o controles suele ser un potenciómetro (resistencia ajustable).",
-    tip:"El contexto lo define: componente de 3 patas cerca de la entrada de DC = regulador; componente con eje o perilla = potenciómetro." },
-  { codes:["NT","Z"], name:"Red de impedancia / ecualizador", cat:"pas",
-    desc:"Conjunto de componentes pasivos combinados para dar forma a una señal de audio o RF (ecualización, adaptación de impedancia).",
-    tip:"Poco común en electrónica de consumo moderna; más frecuente en equipos de audio profesional y RF." },
-  { codes:["DL"], name:"Línea de retardo (delay line)", cat:"pas",
-    desc:"Retrasa una señal una cantidad de tiempo específica, usada en sincronización de video o audio antiguo.",
-    tip:"Componente raro fuera de equipos de TV/video analógico o radar." },
+  // PASIVOS
+  { codes:["R"], name:"Resistor (resistencia)", cat:"pas", desc:"Limita o regula el flujo de corriente y divide voltajes dentro del circuito.", tip:"Mídela en ohms fuera de circuito. En SMD el valor viene en código 3-4 dígitos (ej. 472 = 4700Ω); con cuerpo, usa el código de colores." },
+  { codes:["RN","RP","RA"], name:"Red de resistencias (array)", cat:"pas", desc:"Varias resistencias iguales dentro de un solo encapsulado, comunes en buses de datos o líneas pull-up.", tip:"Si solo una línea de un bus falla, revisa continuidad pin a pin: puede ser una sola resistencia interna dañada." },
+  { codes:["C"], name:"Capacitor (condensador)", cat:"pas", desc:"Almacena carga eléctrica, filtra ruido y desacopla la alimentación.", tip:"Los electrolíticos tienen polaridad: banda = terminal negativo. Si está hinchado, abombado o con fuga, reemplázalo siempre." },
+  { codes:["CV","TC"], name:"Capacitor variable / trimmer", cat:"pas", desc:"Capacitor ajustable manualmente con destornillador, usado para afinar frecuencias en circuitos de radio o sintonía.", tip:"Gíralo con destornillador plástico (no metálico) para evitar desajuste por capacitancia parásita." },
+  { codes:["L"], name:"Inductor / bobina", cat:"pas", desc:"Almacena energía en un campo magnético y filtra señales de alta frecuencia.", tip:"En buen estado su resistencia es casi cero. Si marca circuito abierto, el bobinado interno está roto." },
+  { codes:["FB"], name:"Perla de ferrita (ferrite bead)", cat:"pas", desc:"Filtra ruido de alta frecuencia en líneas de alimentación o señal, sin afectar la corriente DC.", tip:"Suele estar en serie cerca de puertos USB o antenas. Casi nunca falla, pero revisa continuidad si hay ruido en la línea." },
+  { codes:["RT","NTC","TH"], name:"Termistor NTC", cat:"pas", desc:"Resistencia que baja su valor al subir la temperatura; usado en sensores y limitación de corriente de arranque.", tip:"Mide la resistencia en frío y calienta el componente: el valor debe bajar notablemente." },
+  { codes:["VR"], name:"Potenciómetro / regulador de voltaje", cat:"pas", desc:"Doble uso: cerca de entrada DC = regulador de voltaje (IC); con eje o perilla = potenciómetro.", tip:"El contexto lo define. Siempre busca el código del cuerpo en un datasheet." },
+  { codes:["DL"], name:"Línea de retardo (delay line)", cat:"pas", desc:"Retrasa una señal un tiempo específico, usada en sincronización de video o audio analógico.", tip:"Componente raro fuera de equipos de TV/video analógico o radar." },
 
-  // ---------- SEMICONDUCTORES ----------
-  { codes:["D","CR"], name:"Diodo", cat:"sem",
-    desc:"Permite el paso de corriente en un solo sentido (de ánodo a cátodo).",
-    tip:"La franja en el cuerpo marca el cátodo (–). Pruébalo en modo diodo del multímetro: debe marcar caída de voltaje en un sentido y nada en el otro." },
-  { codes:["DS"], name:"Dispositivo indicador (LED, lámpara, zumbador)", cat:"sem",
-    desc:"Designador formal IEEE para cualquier dispositivo de señalización visible o audible: LED, foco indicador o buzzer.",
-    tip:"En la práctica, muchos fabricantes usan simplemente \"D\" o \"LED\" en vez de \"DS\"; ambos se refieren al mismo tipo de componente." },
-  { codes:["ZD","DZ"], name:"Diodo zener", cat:"sem",
-    desc:"Mantiene un voltaje constante en sus terminales; se usa para regulación o protección.",
-    tip:"Se identifica por el valor de voltaje serigrafiado junto al código (ej. 5V1 = 5.1V)." },
-  { codes:["LED"], name:"LED (diodo emisor de luz)", cat:"sem",
-    desc:"Emite luz al paso de corriente; suele indicar estado o encendido.",
-    tip:"El lado con bisel o pata corta es el cátodo (–); la pata larga es el ánodo (+)." },
-  { codes:["TVS"], name:"Diodo supresor de transitorios", cat:"sem",
-    desc:"Protege contra descargas electrostáticas (ESD) y picos de voltaje en líneas de datos.",
-    tip:"Frecuente justo al lado de conectores USB, HDMI o líneas expuestas al exterior; revísalo primero si un puerto dejó de responder." },
-  { codes:["SCR","THY"], name:"Tiristor (SCR)", cat:"sem",
-    desc:"Interruptor electrónico que conduce solo cuando recibe una señal de disparo en su compuerta.",
-    tip:"Común en controles de potencia, cargadores y arrancadores de motor." },
-  { codes:["TRIAC"], name:"Triac", cat:"sem",
-    desc:"Similar al SCR, pero conduce corriente en ambos sentidos; controla corriente alterna (AC).",
-    tip:"Aparece en dimmers, controles de velocidad de motor y planchas/licuadoras con variador." },
-  { codes:["DIAC"], name:"Diac", cat:"sem",
-    desc:"Diodo bidireccional que conduce solo al superar cierto voltaje; suele usarse junto al TRIAC para dispararlo.",
-    tip:"Búscalo en pares con un TRIAC en circuitos de control de potencia por fase (dimmers)." },
-  { codes:["Q"], name:"Transistor", cat:"sem",
-    desc:"Amplifica o conmuta (enciende/apaga) una señal eléctrica.",
-    tip:"Busca el código impreso en el cuerpo para encontrar el datasheet; confirma si es BJT o MOSFET antes de probarlo, porque se prueban distinto." },
-  { codes:["U","IC"], name:"Circuito integrado (IC)", cat:"sem",
-    desc:"Chip que contiene un circuito completo: lógico, analógico, de control o de potencia.",
-    tip:"El punto, muesca o esquina cortada marca el Pin 1. Busca el código serigrafiado en internet para el datasheet exacto." },
-  { codes:["OK","OPT"], name:"Optoacoplador", cat:"sem",
-    desc:"Transmite una señal entre dos circuitos usando luz, aislándolos eléctricamente.",
-    tip:"Muy común en fuentes conmutadas, separando la etapa de alto voltaje de la de control." },
-  { codes:["BR","BD"], name:"Puente rectificador", cat:"sem",
-    desc:"Convierte corriente alterna (AC) en corriente directa (DC) usando cuatro diodos internos.",
-    tip:"Suele ser un componente cuadrado de 4 patas cerca del transformador o la entrada de AC; revisa cada diodo interno por separado si sospechas falla." },
-  { codes:["V","VT"], name:"Tubo de vacío / válvula electrónica", cat:"sem",
-    desc:"Componente de vidrio que amplifica o rectifica señales mediante el flujo de electrones en el vacío.",
-    tip:"Solo presente en equipos de audio valvular, radios antiguas o aparatos de la era pre-transistor." },
+  // SEMICONDUCTORES
+  { codes:["D","CR"], name:"Diodo", cat:"sem", desc:"Permite el paso de corriente en un solo sentido (de ánodo a cátodo).", tip:"La franja en el cuerpo marca el cátodo (–). Pruébalo en modo diodo del multímetro: debe marcar caída de voltaje en un sentido y nada en el otro." },
+  { codes:["DS"], name:"Dispositivo indicador (LED/lámpara/buzzer)", cat:"sem", desc:"Designador IEEE para cualquier dispositivo de señalización visible o audible.", tip:"En la práctica, muchos fabricantes usan 'D' o 'LED' directamente." },
+  { codes:["ZD","DZ"], name:"Diodo zener", cat:"sem", desc:"Mantiene un voltaje constante en sus terminales; usado para regulación o protección.", tip:"Se identifica por el valor de voltaje serigrafiado junto al código (ej. 5V1 = 5.1V)." },
+  { codes:["LED"], name:"LED (diodo emisor de luz)", cat:"sem", desc:"Emite luz al paso de corriente; suele indicar estado o encendido.", tip:"El lado con bisel o pata corta es el cátodo (–); la pata larga es el ánodo (+)." },
+  { codes:["TVS"], name:"Diodo supresor de transitorios", cat:"sem", desc:"Protege contra ESD y picos de voltaje en líneas de datos.", tip:"Frecuente junto a conectores USB, HDMI o líneas expuestas; revísalo primero si un puerto dejó de responder." },
+  { codes:["SCR","THY"], name:"Tiristor (SCR)", cat:"sem", desc:"Interruptor electrónico que conduce solo cuando recibe señal de disparo en su compuerta.", tip:"Común en controles de potencia, cargadores y arrancadores de motor." },
+  { codes:["TRIAC"], name:"Triac", cat:"sem", desc:"Similar al SCR pero conduce en ambos sentidos; controla corriente alterna AC.", tip:"Aparece en dimmers, controles de velocidad de motor y electrodomésticos con variador." },
+  { codes:["DIAC"], name:"Diac", cat:"sem", desc:"Diodo bidireccional que conduce solo al superar cierto voltaje; suele disparar un TRIAC.", tip:"Búscalo en pares con un TRIAC en circuitos de control de potencia por fase." },
+  { codes:["Q"], name:"Transistor", cat:"sem", desc:"Amplifica o conmuta una señal eléctrica.", tip:"Busca el código impreso para encontrar el datasheet. Confirma si es BJT o MOSFET antes de probarlo, se prueban distinto." },
+  { codes:["U","IC"], name:"Circuito integrado (IC)", cat:"sem", desc:"Chip que contiene un circuito completo: lógico, analógico, de control o de potencia.", tip:"El punto, muesca o esquina cortada marca el Pin 1. Busca el código en internet para el datasheet exacto." },
+  { codes:["OK","OPT"], name:"Optoacoplador", cat:"sem", desc:"Transmite señal entre dos circuitos usando luz, aislándolos eléctricamente.", tip:"Muy común en fuentes conmutadas, separando la etapa de alto voltaje del control." },
+  { codes:["BR","BD"], name:"Puente rectificador", cat:"sem", desc:"Convierte corriente alterna AC en DC usando cuatro diodos internos.", tip:"Suele ser un cuadrado de 4 patas cerca del transformador; revisa cada diodo interno por separado." },
+  { codes:["V","VT"], name:"Tubo de vacío / válvula", cat:"sem", desc:"Amplifica o rectifica señales mediante flujo de electrones en el vacío.", tip:"Solo en equipos de audio valvular, radios antiguas o aparatos pre-transistor." },
 
-  // ---------- ELECTROMECÁNICOS ----------
-  { codes:["K","RY","REL"], name:"Relé", cat:"elm",
-    desc:"Interruptor electromecánico que se activa con una bobina interna.",
-    tip:"Al energizarlo debe sentirse o escucharse un clic. Mide continuidad de los contactos en reposo y activado." },
-  { codes:["SW","S"], name:"Interruptor (switch)", cat:"elm",
-    desc:"Abre o cierra manualmente un circuito.",
-    tip:"Prueba continuidad en ambas posiciones; un switch sucio o gastado da falsos contactos intermitentes." },
-  { codes:["BTN"], name:"Botón / pulsador", cat:"elm",
-    desc:"Interruptor momentáneo que solo conecta mientras se mantiene presionado.",
-    tip:"Frecuente en botones de encendido y volumen; prueba continuidad solo mientras lo mantienes presionado." },
-  { codes:["T","TR","XFMR"], name:"Transformador", cat:"elm",
-    desc:"Transfiere energía entre dos circuitos cambiando el nivel de voltaje por inducción magnética.",
-    tip:"Revisa continuidad del devanado primario y del secundario por separado; nunca deben tener continuidad entre sí." },
-  { codes:["M","MOT"], name:"Motor", cat:"elm",
-    desc:"Convierte energía eléctrica en movimiento mecánico.",
-    tip:"Debe girar libre con la mano cuando está apagado; si está trabado, revisa antes de energizar de nuevo." },
-  { codes:["MG"], name:"Motor-generador", cat:"elm",
-    desc:"Conjunto que combina un motor y un generador en el mismo eje para convertir un tipo de energía eléctrica en otro.",
-    tip:"Poco común hoy en día; aparece en equipos industriales o de respaldo de energía más antiguos." },
-  { codes:["BUZ","LS","SPK"], name:"Buzzer / altavoz", cat:"elm",
-    desc:"Convierte una señal eléctrica en sonido.",
-    tip:"Aplica un pequeño voltaje DC directo: debe producir un clic o tono audible si está sano." },
-  { codes:["MK","MIC"], name:"Micrófono", cat:"elm",
-    desc:"Convierte sonido en una señal eléctrica.",
-    tip:"En micrófonos electret, una pata va a la alimentación a través de una resistencia y la otra a la entrada de audio; revisa polaridad antes de reemplazarlo." },
-  { codes:["FAN"], name:"Ventilador", cat:"elm",
-    desc:"Motor con aspas dedicado a enfriar el equipo o un componente específico.",
-    tip:"Si gira lento o hace ruido, casi siempre son los rodamientos secos; revisa antes de cambiar la fuente por sobrecalentamiento." },
-  { codes:["HR"], name:"Elemento calefactor (heater)", cat:"elm",
-    desc:"Resistencia de potencia dedicada a generar calor de forma controlada.",
-    tip:"Presente en impresoras térmicas, planchas y equipos con control de temperatura; mide su resistencia, debe ser estable y dentro del valor nominal." },
+  // ELECTROMECÁNICOS
+  { codes:["K","RY","REL"], name:"Relé", cat:"elm", desc:"Interruptor electromecánico activado por bobina interna.", tip:"Al energizarlo debe sentirse un clic. Mide continuidad de los contactos en reposo y activado." },
+  { codes:["SW","S"], name:"Interruptor (switch)", cat:"elm", desc:"Abre o cierra manualmente un circuito.", tip:"Prueba continuidad en ambas posiciones; un switch sucio da falsos contactos intermitentes." },
+  { codes:["BTN"], name:"Botón / pulsador", cat:"elm", desc:"Interruptor momentáneo que conecta solo mientras se mantiene presionado.", tip:"Prueba continuidad solo mientras lo mantienes presionado." },
+  { codes:["T","TR","XFMR"], name:"Transformador", cat:"elm", desc:"Transfiere energía entre circuitos cambiando el nivel de voltaje por inducción.", tip:"Revisa continuidad del primario y secundario por separado; nunca deben tener continuidad entre sí." },
+  { codes:["M","MOT"], name:"Motor", cat:"elm", desc:"Convierte energía eléctrica en movimiento mecánico.", tip:"Debe girar libre con la mano cuando está apagado; si está trabado, revisa antes de energizar." },
+  { codes:["BUZ","LS","SPK"], name:"Buzzer / altavoz", cat:"elm", desc:"Convierte señal eléctrica en sonido.", tip:"Aplica un pequeño voltaje DC directo: debe producir un clic o tono audible si está sano." },
+  { codes:["MK","MIC"], name:"Micrófono", cat:"elm", desc:"Convierte sonido en señal eléctrica.", tip:"En micrófonos electret una pata va a alimentación a través de resistencia y la otra a la entrada de audio." },
+  { codes:["FAN"], name:"Ventilador", cat:"elm", desc:"Motor con aspas dedicado a enfriar el equipo o componentes específicos.", tip:"Un ventilador que zumba pero no gira casi siempre tiene rodamiento seco; lubrica o reemplaza." },
 
-  // ---------- PROTECCIÓN Y ENERGÍA ----------
-  { codes:["F"], name:"Fusible", cat:"pro",
-    desc:"Se funde de forma controlada para proteger el resto del circuito ante una sobrecorriente.",
-    tip:"Antes de reemplazarlo, investiga qué causó que se abriera; cambiarlo sin revisar la causa suele repetir la falla." },
-  { codes:["PTC"], name:"Termistor PTC / fusible rearmable", cat:"pro",
-    desc:"Aumenta su resistencia al calentarse y corta la corriente; actúa como un fusible que se restaura solo.",
-    tip:"Si ves 0V después de protección sin daño visible, espera a que enfríe: un PTC disparado se recupera al bajar la temperatura." },
-  { codes:["RV","MOV"], name:"Varistor (MOV)", cat:"pro",
-    desc:"Absorbe picos de voltaje (transitorios) para proteger el resto del circuito.",
-    tip:"Si está agrietado, quemado o reventado, casi siempre indica que la placa recibió un pico de voltaje fuerte; revisa qué más se dañó." },
-  { codes:["GDT"], name:"Descargador de gas", cat:"pro",
-    desc:"Dispositivo que se vuelve conductor ante un voltaje muy alto, desviando descargas a tierra (rayos, sobretensiones de línea).",
-    tip:"Común en equipos de telecomunicaciones y líneas expuestas a descargas atmosféricas." },
-  { codes:["BT","BAT"], name:"Batería / portapilas", cat:"pro",
-    desc:"Fuente de energía portátil que alimenta el circuito.",
-    tip:"Verifica voltaje y polaridad correcta antes de soldar una batería nueva." },
-  { codes:["PS"], name:"Fuente de alimentación (módulo)", cat:"pro",
-    desc:"Bloque o módulo completo que entrega el voltaje ya regulado al resto del circuito." },
-  { codes:["CB"], name:"Disyuntor (circuit breaker)", cat:"pro",
-    desc:"Interruptor de protección que corta el circuito ante sobrecorriente y puede rearmarse manualmente, a diferencia del fusible.",
-    tip:"Frecuente en equipos de mayor potencia (fuentes industriales, electrodomésticos); revisa si está en posición disparada antes de buscar otra falla." },
+  // PROTECCIÓN Y ENERGÍA
+  { codes:["F"], name:"Fusible", cat:"pro", desc:"Interrumpe la corriente cuando supera un límite seguro.", tip:"Antes de reemplazarlo investiga qué lo quemó; si cambia y vuelve a fundir, hay un corto activo." },
+  { codes:["FU"], name:"Fusible (variante formal)", cat:"pro", desc:"Variante del designador F usada por algunos fabricantes europeos y asiáticos.", tip:"Mismo diagnóstico que F: mide continuidad. Si no pita, está abierto." },
+  { codes:["PTC"], name:"Fusible rearmable PTC", cat:"pro", desc:"Aumenta su resistencia al calentarse y corta la corriente; se restaura solo al enfriar.", tip:"Si hay 0V después de un PTC sin daño visible, espera a que enfríe y vuelve a medir." },
+  { codes:["RV","MOV"], name:"Varistor MOV", cat:"pro", desc:"Absorbe picos de voltaje para proteger el circuito.", tip:"Si está agrietado o quemado, la placa recibió un pico fuerte; revisa también qué más se dañó." },
+  { codes:["BT","BAT"], name:"Batería / portapilas", cat:"pro", desc:"Fuente de energía portátil.", tip:"Verifica voltaje y polaridad correcta antes de soldar." },
+  { codes:["PS","PSU"], name:"Fuente de alimentación", cat:"pro", desc:"Designador de bloque o módulo completo de fuente de poder.", tip:"Mide todos los rieles de salida antes de conectar la carga." },
 
-  // ---------- OSCILADORES Y TIEMPO ----------
-  { codes:["X","Y","XTAL","XT"], name:"Cristal de cuarzo", cat:"osc",
-    desc:"Genera una frecuencia de reloj estable, usada por microcontroladores y circuitos digitales.",
-    tip:"Si el equipo no enciende ni el microcontrolador responde, sospecha primero del cristal; se confirma mejor con osciloscopio." },
-  { codes:["OSC"], name:"Oscilador activo", cat:"osc",
-    desc:"Genera una señal de reloj por sí solo, sin necesitar componentes externos como el cristal.",
-    tip:"Se reconoce porque es un módulo metálico de 4 patas con su propio número de parte, no un componente de dos terminales." },
+  // OSCILADORES Y TIEMPO
+  { codes:["X","Y","XTAL","XT"], name:"Cristal de cuarzo", cat:"osc", desc:"Genera frecuencia de reloj estable para microcontroladores y PLLs.", tip:"Si el microcontrolador no responde, sospecha del cristal; confirmar con osciloscopio." },
+  { codes:["OSC"], name:"Oscilador en módulo", cat:"osc", desc:"Cristal de cuarzo con circuito de oscilación integrado en un solo encapsulado.", tip:"Tiene alimentación propia (VCC y GND) además de la salida de reloj." },
+  { codes:["RTC"], name:"Reloj en tiempo real", cat:"osc", desc:"Circuito dedicado a mantener la hora y fecha aunque el equipo esté apagado.", tip:"Si el equipo pierde la hora al desconectar, revisa la batería CR2032 del RTC." },
 
-  // ---------- CONECTORES Y PUNTOS DE PRUEBA ----------
-  { codes:["J","P"], name:"Conector (jack / plug)", cat:"con",
-    desc:"Punto de conexión para cables, cargadores, baterías o módulos externos.",
-    tip:"Por convención J suele ser el conector hembra (jack) y P el macho (plug), aunque algunos fabricantes invierten el criterio." },
-  { codes:["CN"], name:"Conector (alterno)", cat:"con",
-    desc:"Designador alternativo a J/P para cualquier tipo de conector; muy usado en placas fabricadas en Asia.",
-    tip:"Funciona igual que J o P: revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
-  { codes:["JP"], name:"Jumper", cat:"con",
-    desc:"Puente que conecta o configura una opción del circuito (encendido de una función, selección de modo, etc.).",
-    tip:"Revisa si debe ir cerrado con un puente de soldadura, una resistencia de 0Ω o un jumper físico tipo pin." },
-  { codes:["TP"], name:"Punto de prueba (test point)", cat:"con",
-    desc:"Punto designado específicamente para medir voltaje o señal con multímetro u osciloscopio.",
-    tip:"Es el mejor lugar para diagnosticar sin desoldar nada; muchos esquemáticos listan el voltaje esperado en cada TP." },
-  { codes:["TB"], name:"Bloque de terminales", cat:"con",
-    desc:"Bloque con tornillos o resortes para conectar cables externos sin soldadura.",
-    tip:"Revisa que los tornillos estén bien apretados; un falso contacto ahí es una causa común de fallas intermitentes." },
-  { codes:["ANT"], name:"Antena", cat:"con",
-    desc:"Conector o pista de cobre dedicada a transmitir o recibir señal de radiofrecuencia (RF)." },
-  { codes:["USB","SD"], name:"Conector USB / tarjeta SD", cat:"con",
-    desc:"Puerto estándar para transferencia de datos, carga eléctrica o almacenamiento extraíble." },
-  { codes:["FFC","FPC"], name:"Conector de cable plano flexible", cat:"con",
-    desc:"Conector tipo \"zócalo\" para cables planos flexibles (FFC/FPC), muy común en pantallas, cámaras y botones de celulares y laptops.",
-    tip:"La flecha o triángulo impreso en el conector o en el cable indica el lado correcto de inserción (contactos hacia arriba o abajo según el modelo)." },
-  { codes:["HDMI","RCA","AUX"], name:"Conector de audio/video estándar", cat:"con",
-    desc:"Puerto dedicado a transmitir señal de audio y/o video entre equipos." },
-  { codes:["W"], name:"Alambre / puente de cable", cat:"con",
-    desc:"Conexión física por cable o puente soldado entre dos puntos de la placa que el cobre no une directamente." },
+  // CONECTORES Y PUNTOS DE PRUEBA
+  { codes:["J","P","CN"], name:"Conector", cat:"con", desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
+  { codes:["JP"], name:"Jumper", cat:"con", desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico según el esquemático." },
+  { codes:["TP"], name:"Punto de prueba", cat:"con", desc:"Pad designado para medir voltaje o señal sin desoldar componentes.", tip:"Muchos esquemáticos listan el voltaje esperado en cada TP; son el mejor lugar para iniciar el diagnóstico." },
+  { codes:["FFC","FPC"], name:"Conector cable plano flexible", cat:"con", desc:"Conector para cables planos FFC/FPC, común en pantallas, cámaras y teclados.", tip:"La flecha o muesca indica el lado correcto de inserción; invertirlo puede quemar la pantalla." },
+  { codes:["USB"], name:"Conector USB", cat:"con", desc:"Puerto de comunicación y carga universal.", tip:"El TVS junto al USB falla primero tras una descarga; reemplázalo si el puerto no carga ni comunica." },
+  { codes:["HDMI"], name:"Conector HDMI", cat:"con", desc:"Puerto de video y audio digital de alta definición.", tip:"Los pines de HPD y los TVS de protección son los más afectados en fallos de señal." },
 
-  // ---------- MECÁNICOS / ENSAMBLE ----------
-  { codes:["H","HS"], name:"Disipador de calor (heatsink)", cat:"mec",
-    desc:"Pieza metálica que ayuda a disipar el calor generado por un componente de potencia.",
-    tip:"Si un IC de potencia se daña repetidamente, revisa que el disipador tenga buen contacto térmico y no esté flojo." },
-  { codes:["MH"], name:"Orificio de montaje (mounting hole)", cat:"mec",
-    desc:"Punto de fijación mecánica de la placa, normalmente sin conexión eléctrica." },
-  { codes:["FID"], name:"Marca fiducial", cat:"mec",
-    desc:"Punto de referencia óptica para la máquina de montaje SMD automatizado; no es un componente y no se suelda nada ahí." },
-  { codes:["A","AR"], name:"Ensamble / amplificador", cat:"mec",
-    desc:"Designa un subconjunto completo, una placa hija o un módulo amplificador dentro de un circuito mayor." },
-  { codes:["MP"], name:"Pieza mecánica", cat:"mec",
-    desc:"Elemento sin función eléctrica: tornillo, soporte, separador o pieza estructural de la placa." },
-  { codes:["E"], name:"Pieza eléctrica diversa", cat:"mec",
-    desc:"Designador genérico para terminales, lengüetas (lugs) u otras piezas eléctricas que no encajan en otra categoría." },
+  // MECÁNICOS / ENSAMBLE
+  { codes:["H","HS"], name:"Orificio de montaje / disipador", cat:"mec", desc:"Agujero solo mecánico (sin conexión eléctrica) o posición de disipador de calor.", tip:"Si un IC de potencia falla repetidamente, verifica que el disipador tenga buen contacto térmico." },
+  { codes:["MP"], name:"Punto de montaje mecánico", cat:"mec", desc:"Punto de fijación mecánica sin función eléctrica.", tip:"Algunos MP van conectados a GND de chasis; comprueba antes de aislar." },
+  { codes:["DNP","NP"], name:"No instalar (do not populate)", cat:"mec", desc:"Indica que ese componente no debe soldarse en esta versión de la placa.", tip:"Verlo vacío es normal; no es una falla ni un componente faltante por error." },
+  { codes:["FID"], name:"Marca fiducial", cat:"mec", desc:"Punto de referencia para la máquina de colocación automática de componentes (pick & place).", tip:"No tiene función eléctrica; es solo una referencia de alineación visual para la máquina." },
 
-  // ---------- LÍNEAS DE ALIMENTACIÓN ----------
-  { codes:["VCC"], name:"Alimentación positiva (lógica TTL/bipolar)", cat:"pwr",
-    desc:"Etiqueta de la línea de voltaje positivo que alimenta circuitos digitales de tipo bipolar.",
-    tip:"No es un componente, es el nombre de una pista o pad. Revisa con multímetro si tiene el voltaje nominal del IC cercano (5V, 3.3V, etc.)." },
-  { codes:["VDD"], name:"Alimentación positiva (lógica CMOS)", cat:"pwr",
-    desc:"Etiqueta de la línea de voltaje positivo en circuitos digitales tipo CMOS (la mayoría de microcontroladores modernos).",
-    tip:"Equivalente práctico de VCC, pero usado en tecnología CMOS; ambos términos se confunden seguido en hojas de datos." },
-  { codes:["VSS"], name:"Referencia / tierra (lógica CMOS)", cat:"pwr",
-    desc:"Etiqueta del nivel de referencia (0V) en circuitos CMOS, equivalente a GND en ese contexto." },
-  { codes:["VEE"], name:"Alimentación negativa", cat:"pwr",
-    desc:"Etiqueta de un voltaje negativo de alimentación, común en amplificadores operacionales y circuitos analógicos duales." },
-  { codes:["GND"], name:"Tierra / referencia 0V", cat:"pwr",
-    desc:"Punto de referencia común del circuito al que regresa la corriente; el 0V contra el cual se miden los demás voltajes.",
-    tip:"Para medir cualquier voltaje en la placa, la punta negra del multímetro casi siempre debe ir a un punto de GND." },
-  { codes:["AGND"], name:"Tierra analógica", cat:"pwr",
-    desc:"Plano de tierra separado para circuitos analógicos sensibles (audio, sensores), aislado del ruido digital." },
-  { codes:["DGND","PGND"], name:"Tierra digital / tierra de potencia", cat:"pwr",
-    desc:"Plano de tierra dedicado a circuitos digitales (DGND) o a etapas de potencia (PGND), separado de la tierra analógica para evitar interferencia.",
-    tip:"En diseños bien hechos, estos planos solo se unen en un único punto; un puente roto ahí puede causar ruido o mal funcionamiento." },
-  { codes:["VIN"], name:"Voltaje de entrada", cat:"pwr",
-    desc:"Etiqueta del punto donde entra la alimentación externa antes de ser regulada." },
-  { codes:["VOUT"], name:"Voltaje de salida", cat:"pwr",
-    desc:"Etiqueta del punto donde sale el voltaje ya regulado de una fuente o IC regulador." },
-  { codes:["VBAT"], name:"Voltaje de batería", cat:"pwr",
-    desc:"Etiqueta del punto que entrega o recibe directamente el voltaje de la batería del equipo." },
-  { codes:["EN","CE"], name:"Habilitación (enable / chip enable)", cat:"pwr",
-    desc:"Pin que enciende o apaga un IC o regulador; normalmente debe estar en alto (o bajo, según el chip) para que el componente funcione.",
-    tip:"Si un IC parece \"muerto\" pero su alimentación está bien, revisa que este pin tenga el nivel lógico correcto." },
-  { codes:["NC"], name:"No conectado (no connect)", cat:"pwr",
-    desc:"Marca un pin que intencionalmente no tiene conexión interna ni debe usarse.",
-    tip:"No sueldes nada ahí pensando que es un punto de prueba libre; puede dañar el componente si internamente sí está conectado a un nodo crítico." },
+  // LÍNEAS DE ALIMENTACIÓN
+  { codes:["VCC","VDD"], name:"Alimentación positiva digital", cat:"pwr", desc:"Voltaje positivo que alimenta circuitos digitales (3.3V, 5V, 12V típicos).", tip:"Mide con la punta negra en GND; si no hay voltaje, rastrear desde la fuente hacia el IC." },
+  { codes:["GND","AGND","DGND","PGND"], name:"Tierra / referencia 0V", cat:"pwr", desc:"Punto de referencia común al que regresa la corriente.", tip:"La punta negra del multímetro casi siempre va a GND. AGND = tierra analógica, DGND = digital, PGND = potencia." },
+  { codes:["VIN","VBat"], name:"Voltaje de entrada / batería", cat:"pwr", desc:"Línea de voltaje de entrada directa o proveniente de batería.", tip:"Mide antes y después de reguladores para localizar donde cae el voltaje." },
+  { codes:["VBUS"], name:"Voltaje de bus USB (5V)", cat:"pwr", desc:"Línea de 5V proveniente del bus USB.", tip:"Debe medir ~5V cuando hay un cargador o host conectado; si no hay voltaje, revisa el fusible VBUS." },
+  { codes:["NC"], name:"No conectado", cat:"pwr", desc:"Pin intencionalmente sin conexión.", tip:"No sueldes nada ahí; puede dañar el IC si internamente está conectado a un nodo crítico." },
 
-  // ---------- SEÑALES Y BUSES DE DATOS ----------
-  { codes:["TX","RX"], name:"Transmisión / Recepción (serial)", cat:"sig",
-    desc:"Líneas de datos de un puerto serial UART: TX envía datos, RX los recibe.",
-    tip:"TX de un dispositivo debe conectarse a RX del otro (cruzados), no al mismo nombre." },
-  { codes:["SCL","SDA"], name:"Bus I2C (reloj y datos)", cat:"sig",
-    desc:"SCL es la línea de reloj y SDA la línea de datos del bus I2C, usado para comunicar sensores y memorias con el microcontrolador.",
-    tip:"Ambas líneas suelen necesitar resistencias pull-up; si el bus se \"cuelga\", revisa primero esas resistencias y si algún dispositivo retiene la línea en bajo." },
-  { codes:["SCK","MISO","MOSI"], name:"Bus SPI", cat:"sig",
-    desc:"SCK es el reloj, MOSI envía datos del maestro al esclavo y MISO los recibe de vuelta; usado para memorias flash, pantallas y módulos rápidos.",
-    tip:"Cada dispositivo SPI necesita además su propia línea de selección (CS/SS) aparte de estas tres líneas compartidas." },
-  { codes:["CS","SS"], name:"Selección de chip (chip select)", cat:"sig",
-    desc:"Línea que activa un dispositivo específico en un bus SPI compartido; el chip solo responde cuando esta línea está activa.",
-    tip:"Si varios dispositivos comparten el bus SPI pero solo uno falla, sospecha primero de su línea CS individual." },
-  { codes:["RST"], name:"Reinicio (reset)", cat:"sig",
-    desc:"Línea que reinicia un IC o microcontrolador al activarse.",
-    tip:"Es un punto útil de diagnóstico: forzar un reset manual a veces ayuda a confirmar si el procesador está vivo." },
-  { codes:["INT"], name:"Interrupción", cat:"sig",
-    desc:"Línea que un periférico usa para avisar al procesador que necesita atención inmediata." },
-  { codes:["CLK"], name:"Reloj (clock)", cat:"sig",
-    desc:"Línea genérica de señal de temporización que sincroniza el funcionamiento de un circuito digital." },
-  { codes:["BOOT"], name:"Modo de arranque / programación", cat:"sig",
-    desc:"Pin o pad que, al ponerse en un nivel específico durante el encendido, mete al microcontrolador en modo de programación o recuperación.",
-    tip:"Muy usado para reprogramar o reparar un equipo que no arranca: puentear este pad antes de energizar suele forzar el modo de rescate." },
-  { codes:["JTAG"], name:"Puerto de depuración JTAG", cat:"sig",
-    desc:"Conjunto estándar de pines para programar y depurar chips directamente desde una computadora externa.",
-    tip:"Si encuentras una fila de pads sin marcar cerca de un microcontrolador, podría ser un puerto JTAG no poblado." },
-  { codes:["SWD","SWDIO","SWCLK"], name:"Depuración Single Wire (ARM)", cat:"sig",
-    desc:"Interfaz de depuración de dos líneas usada en microcontroladores ARM, alternativa más compacta al JTAG completo." },
-  { codes:["UART"], name:"Puerto serial asíncrono", cat:"sig",
-    desc:"Nombre general del puerto de comunicación serial que usa las líneas TX y RX.",
-    tip:"Frecuente como punto de acceso para depuración o recuperación de equipos embebidos (routers, IoT, electrodomésticos inteligentes)." },
-  { codes:["DNP","NP"], name:"No instalar (do not populate)", cat:"sig",
-    desc:"Anotación en la serigrafía que indica que ese componente no debe soldarse en esta versión específica de la placa.",
-    tip:"Verlo vacío es normal; no es una falla ni un componente faltante por error." },
+  // SEÑALES Y BUSES
+  { codes:["TX","RX"], name:"UART TX/RX", cat:"sig", desc:"Líneas de datos serial: TX envía, RX recibe.", tip:"TX de un dispositivo debe ir a RX del otro (cruzados)." },
+  { codes:["SCL","SDA"], name:"Bus I2C", cat:"sig", desc:"SCL es reloj y SDA datos del bus I2C para sensores y memorias.", tip:"Ambas líneas necesitan resistencias pull-up; si el bus se cuelga, revisa esas resistencias primero." },
+  { codes:["SCK","MISO","MOSI"], name:"Bus SPI", cat:"sig", desc:"SCK reloj, MOSI datos maestro→esclavo, MISO al revés.", tip:"Cada dispositivo SPI necesita su propia línea CS además de las tres compartidas." },
+  { codes:["CS","SS"], name:"Selección de chip (chip select)", cat:"sig", desc:"Activa un dispositivo específico en un bus SPI compartido.", tip:"Si varios SPI funcionan pero uno no, sospecha de su línea CS individual." },
+  { codes:["RST"], name:"Reinicio (reset)", cat:"sig", desc:"Línea que reinicia un IC o microcontrolador al activarse.", tip:"Forzar reset manual ayuda a confirmar si el procesador está vivo." },
+  { codes:["INT"], name:"Interrupción", cat:"sig", desc:"Línea que un periférico usa para avisar al procesador que necesita atención inmediata." },
+  { codes:["CLK"], name:"Reloj (clock)", cat:"sig", desc:"Señal de temporización que sincroniza el funcionamiento del circuito digital.", tip:"Sin reloj el sistema no opera; verificar con osciloscopio." },
+  { codes:["BOOT"], name:"Modo arranque / programación", cat:"sig", desc:"Pin que al ponerse en nivel específico durante el encendido activa el modo de programación.", tip:"Puentear este pad antes de energizar suele forzar el modo de rescate." },
+  { codes:["JTAG"], name:"Puerto de depuración JTAG", cat:"sig", desc:"Pines para programar y depurar chips directamente.", tip:"Una fila de pads sin marcar cerca de un microcontrolador podría ser JTAG no poblado." },
+  { codes:["SWD","SWDIO","SWCLK"], name:"Depuración Single Wire (ARM)", cat:"sig", desc:"Interfaz de depuración de dos líneas usada en microcontroladores ARM.", tip:"Más compacta que JTAG; usa un adaptador ST-Link o J-Link para acceder." },
+  { codes:["UART"], name:"Puerto serial asíncrono", cat:"sig", desc:"Puerto serial TX/RX para depuración o recuperación de equipos embebidos.", tip:"Frecuente como punto de acceso en routers, IoT y electrodomésticos inteligentes." },
+  { codes:["DNP","NP"], name:"No instalar (do not populate)", cat:"sig", desc:"Componente que no debe soldarse en esta versión de la placa.", tip:"Verlo vacío es normal; no es una falla." },
 ];
 
 const SYMBOLS = [
-  { n:"Punto o muesca en un IC", m:"Marca el Pin 1, la referencia para orientar el chip correctamente al soldarlo o identificarlo." },
-  { n:"Esquina achaflanada en un componente SMD rectangular", m:"Indica el Pin 1, muy común en encapsulados QFN y SOIC." },
-  { n:"Banda de color en un diodo", m:"Indica el cátodo (terminal negativo). La corriente fluye del ánodo hacia el cátodo." },
-  { n:"Lado plano o bisel en un LED", m:"Marca el cátodo (–); la pata más larga, cuando existe, es el ánodo (+)." },
-  { n:"Franja en un capacitor electrolítico SMD", m:"Indica el terminal negativo (–). En capacitores con patas, la pata más corta es la negativa." },
-  { n:"Barra ancha en un capacitor de tantalio", m:"¡Cuidado! Aquí la barra marca el terminal POSITIVO (+), justo al revés que en un electrolítico común." },
-  { n:"Símbolo de tierra (líneas horizontales decrecientes)", m:"Indica un punto de GND, la referencia de 0V del circuito." },
-  { n:"Símbolo de tierra de chasis (triángulo)", m:"Tierra física conectada a la carcasa metálica, no siempre es el mismo nodo que la tierra de señal." },
-  { n:"Triángulo con un rayo dentro", m:"Advertencia de alto voltaje: precaución antes de tocar esa zona de la placa." },
-  { n:"Triángulo amarillo o negro con símbolo ESD", m:"Componente sensible a descargas electrostáticas; usa pulsera y tapete antiestático al manipularlo." },
-  { n:"Número junto a un punto en un conector", m:"Marca el Pin 1 del conector, clave para no invertir la conexión al reemplazarlo." },
-  { n:"Triángulo pequeño en un conector tipo header", m:"Señala el Pin 1 de esa fila de pines." },
-  { n:"Flecha o triángulo en un cable o conector plano (FFC/FPC)", m:"Indica el lado correcto de inserción del cable; insertarlo al revés puede dañar pantallas o cámaras." },
-  { n:"Flecha curva sobre un componente", m:"Indica ajuste manual; común en potenciómetros y trimmers de calibración." },
-  { n:"\"+\" y \"–\" junto a un componente", m:"Marca explícita de polaridad, frecuente en baterías, capacitores y conectores de alimentación." },
-  { n:"Área o recuadro punteado / rayado (hatching)", m:"Delimita una zona de alta tensión o de exclusión (\"keepout\") que no debe puentearse ni rutarse." },
-  { n:"Punto metalizado pequeño entre pistas (vía)", m:"Conecta capas internas del PCB; a diferencia de un pad, no está pensado para soldar un componente ahí." },
-  { n:"\"Rev.\" o \"v1.0\" / \"v2.0\" en la serigrafía", m:"Indica la versión o revisión del diseño de la placa; útil para comparar con esquemáticos o boletines de servicio." },
-  { n:"Marca \"CE\"", m:"Indica cumplimiento de normativa europea de seguridad y compatibilidad electromagnética (no confundir con el pin \"CE\" de chip enable)." },
-  { n:"FCC ID", m:"Identificador de certificación de la Comisión Federal de Comunicaciones de EE.UU., obligatorio en equipos que emiten RF." },
-  { n:"Marca RoHS", m:"Indica que el equipo está libre de ciertas sustancias peligrosas (plomo, mercurio, cadmio, entre otras)." },
-  { n:"Símbolo del contenedor tachado (WEEE)", m:"El equipo no debe desecharse con la basura común; requiere reciclaje electrónico especializado." },
-  { n:"Triángulo de flechas (símbolo de reciclaje)", m:"Indica que el material del componente o la carcasa es reciclable." },
+  { n:"Punto o muesca en un IC", m:"Marca el Pin 1. Referencia para orientar el chip correctamente al soldarlo o identificarlo." },
+  { n:"Esquina achaflanada en SMD rectangular", m:"Indica el Pin 1. Muy común en QFN, SOIC y similares." },
+  { n:"Banda de color en un diodo", m:"Indica el cátodo (–). La corriente fluye de ánodo hacia cátodo." },
+  { n:"Lado plano o bisel en un LED", m:"Marca el cátodo (–). La pata más larga es el ánodo (+)." },
+  { n:"Franja en capacitor electrolítico SMD", m:"Indica el terminal negativo (–). En capacitores con patas, la pata más corta es la negativa." },
+  { n:"Barra ancha en capacitor de tantalio", m:"⚠️ Aquí la barra marca el POSITIVO (+). Al revés que en un electrolítico común." },
+  { n:"Símbolo de tierra (líneas horizontales decrecientes)", m:"Indica GND, la referencia de 0V del circuito." },
+  { n:"Símbolo de tierra de chasis (triángulo)", m:"Tierra física conectada a la carcasa metálica. No siempre es el mismo nodo que la tierra de señal." },
+  { n:"Triángulo con rayo dentro", m:"Advertencia de alto voltaje. Precaución antes de tocar esa zona." },
+  { n:"Triángulo con símbolo ESD", m:"Componente sensible a descargas electrostáticas. Usar pulsera y tapete antiestático." },
+  { n:"Número junto a punto en un conector", m:"Marca el Pin 1. Clave para no invertir la conexión al reemplazarlo." },
+  { n:"Triángulo en conector tipo header", m:"Señala el Pin 1 de esa fila de pines." },
+  { n:"Flecha en cable o conector plano FFC/FPC", m:"Indica el lado correcto de inserción. Invertirlo puede dañar pantallas o cámaras." },
+  { n:"Flecha curva sobre un componente", m:"Indica ajuste manual. Común en potenciómetros y trimmers de calibración." },
+  { n:"\"+\" y \"–\" junto a un componente", m:"Marca explícita de polaridad. Frecuente en baterías, capacitores y conectores de alimentación." },
+  { n:"Área o recuadro punteado / rayado", m:"Delimita zona de alta tensión o exclusión (keepout). No puentear ni rutear dentro." },
+  { n:"Punto metalizado pequeño entre pistas (vía)", m:"Conecta capas internas del PCB. No está pensado para soldar componentes." },
+  { n:"\"Rev.\" o versión en serigrafía", m:"Indica la revisión del diseño. Útil para comparar con esquemáticos o boletines de servicio." },
+  { n:"Marca CE", m:"Cumplimiento de normativa europea de seguridad y compatibilidad electromagnética." },
+  { n:"FCC ID", m:"Certificación de la FCC de EE.UU. Obligatorio en equipos que emiten RF." },
+  { n:"Marca RoHS", m:"El equipo está libre de sustancias peligrosas (plomo, mercurio, cadmio, entre otras)." },
+  { n:"Símbolo WEEE (contenedor tachado)", m:"No desecharse con basura común. Requiere reciclaje electrónico especializado." },
+  { n:"Triángulo de flechas (reciclaje)", m:"El material del componente o carcasa es reciclable." },
 ];
 
-// ---------- index ----------
+/* ══════════════════════════════════════
+   STORAGE Y CUSTOM ENTRIES
+══════════════════════════════════════ */
+const PCB_KEY = 'relectronica_pcb_v1';
+
+function loadCustomPCB() {
+  try { return JSON.parse(localStorage.getItem(PCB_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveCustomPCB(arr) {
+  try { localStorage.setItem(PCB_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+function syncPCBToStorage() {
+  try {
+    localStorage.setItem('relectronica_pcb_all', JSON.stringify([...DB, ...loadCustomPCB()]));
+  } catch(e) {}
+}
+
+/* ══════════════════════════════════════
+   ÍNDICE Y INIT CUSTOM
+══════════════════════════════════════ */
 const INDEX = {};
-DB.forEach(item => item.codes.forEach(c => INDEX[c] = item));
+DB.forEach(item => item.codes.forEach(c => INDEX[c.toUpperCase()] = item));
 
-document.getElementById('statsRow').innerHTML = `
-  <span>${Object.keys(INDEX).length} códigos</span>
-  <span>${SYMBOLS.length} símbolos</span>
-  <span>${Object.keys(CATS).length} categorías</span>
-`;
+(function initCustom() {
+  loadCustomPCB().forEach(entry => {
+    DB.push(entry);
+    (entry.codes || []).forEach(c => { INDEX[c.toUpperCase()] = entry; });
+  });
+  syncPCBToStorage();
+  renderStats();
+})();
 
-const COMMON = ["R","C","D","Q","U","L","F","LED","TP","SW","J","BR","GND","VCC","JTAG"];
+function renderStats() {
+  document.getElementById('statsRow').innerHTML =
+    `<span class="stat-pill">${Object.keys(INDEX).length} códigos</span>
+     <span class="stat-pill">${SYMBOLS.length} símbolos</span>
+     <span class="stat-pill">${Object.keys(CATS).length} categorías</span>`;
+}
 
-// ---------- render result ----------
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════════
+   RENDER RESULTADO
+══════════════════════════════════════ */
 const resultEl = document.getElementById('result');
 
 function catBadge(cat) {
   const c = CATS[cat];
+  if (!c) return '';
   return `<span class="res-cat" style="background:${c.color}22;color:${c.color}">${c.label}</span>`;
 }
 
 function renderDetail(item, matchedCode) {
-  const aka = item.codes.length > 1 ? `<div class="res-aka">También aparece como: ${item.codes.join(', ')}</div>` : '';
+  const aka = item.codes.length > 1
+    ? `<div class="res-aka">También aparece como: ${item.codes.join(', ')}</div>` : '';
+  const customBadge = item.custom ? '<span class="custom-badge">tuyo</span>' : '';
   resultEl.className = 'result';
   resultEl.innerHTML = `
     <div class="res-head">
       <span class="res-code">${matchedCode}</span>
-      <span class="res-name">${item.name}</span>
+      <span class="res-name">${item.name}${customBadge}</span>
       ${catBadge(item.cat)}
     </div>
     <div class="res-desc">${item.desc}</div>
@@ -605,18 +661,23 @@ function renderEmpty() {
 function renderNotFound(q) {
   resultEl.className = 'result notfound';
   resultEl.innerHTML = `
-    <div style="font-size:14px;margin-bottom:6px;">No se encontró "<b>${q}</b>" entre los códigos de letra.</div>
-    <div style="font-size:12.5px;color:var(--text-dim);">Revisa que esté bien escrito, o consulta la pestaña <b>Símbolos gráficos</b> si lo que viste no es una letra (un punto, una banda, un triángulo, etc.).</div>
+    <div style="font-size:14px;margin-bottom:6px;">No se encontró "<b>${q}</b>" en los códigos.</div>
+    <div style="font-size:12.5px;color:var(--dim);">Revisa la escritura, o consulta la pestaña <b>Símbolos gráficos</b> si viste un punto, banda o triángulo.</div>
   `;
 }
 
 function renderMatches(matches, q) {
   resultEl.className = 'result';
-  const rows = matches.slice(0, 10).map(item => {
-    const code = item.codes.find(c => c.includes(q)) || item.codes[0];
-    return `<div class="matchItem" data-code="${item.codes[0]}"><span class="mc">${item.codes[0]}</span><span class="mn">${item.name}</span></div>`;
-  }).join('');
-  resultEl.innerHTML = `<div style="font-size:12.5px;color:var(--text-dim);margin-bottom:8px;">Coincidencias para "${q}":</div><div class="matchList">${rows}</div>`;
+  const rows = matches.slice(0, 10).map(item =>
+    `<div class="matchItem" data-code="${item.codes[0]}">
+      <span class="mc">${item.codes[0]}</span>
+      <span class="mn">${item.name}</span>
+    </div>`
+  ).join('');
+  resultEl.innerHTML = `
+    <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">Coincidencias para "${q}":</div>
+    <div class="matchList">${rows}</div>
+  `;
   resultEl.querySelectorAll('.matchItem').forEach(el => {
     el.addEventListener('click', () => {
       const code = el.getAttribute('data-code');
@@ -626,27 +687,33 @@ function renderMatches(matches, q) {
   });
 }
 
+/* ══════════════════════════════════════
+   BÚSQUEDA
+══════════════════════════════════════ */
 function doSearch(raw) {
   const q = raw.trim().toUpperCase();
   document.getElementById('clearBtn').style.display = q ? 'block' : 'none';
   if (!q) { renderEmpty(); return; }
-
   if (INDEX[q]) { renderDetail(INDEX[q], q); return; }
 
   const seen = new Set();
   const matches = [];
   DB.forEach(item => {
     if (seen.has(item)) return;
-    const hit = item.codes.some(c => c.includes(q)) || item.name.toUpperCase().includes(q);
+    const hit = item.codes.some(c => c.toUpperCase().includes(q))
+             || item.name.toUpperCase().includes(q);
     if (hit) { matches.push(item); seen.add(item); }
   });
 
-  if (matches.length === 1) { renderDetail(matches[0], matches[0].codes[0]); }
-  else if (matches.length > 1) { renderMatches(matches, raw.trim()); }
-  else { renderNotFound(raw.trim()); }
+  if (matches.length === 1)      renderDetail(matches[0], matches[0].codes[0]);
+  else if (matches.length > 1)   renderMatches(matches, raw.trim());
+  else                           renderNotFound(raw.trim());
 }
 
-// ---------- chips ----------
+/* ══════════════════════════════════════
+   CHIPS RÁPIDOS
+══════════════════════════════════════ */
+const COMMON = ["R","C","D","Q","U","L","F","LED","TP","SW","J","GND","VCC","TVS","JTAG"];
 const chipsEl = document.getElementById('chips');
 COMMON.forEach(code => {
   const b = document.createElement('button');
@@ -661,58 +728,77 @@ COMMON.forEach(code => {
   chipsEl.appendChild(b);
 });
 
-// ---------- search input ----------
+/* ══════════════════════════════════════
+   INPUT DE BÚSQUEDA
+══════════════════════════════════════ */
 const searchEl = document.getElementById('search');
-searchEl.addEventListener('input', e => doSearch(e.target.value));
+searchEl.addEventListener('input', e => {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  doSearch(e.target.value);
+});
 document.getElementById('clearBtn').addEventListener('click', () => {
   searchEl.value = ''; doSearch(''); searchEl.focus();
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
 });
 
-// ---------- categorized accordion ----------
+/* ══════════════════════════════════════
+   ACORDEÓN POR CATEGORÍA
+══════════════════════════════════════ */
 const codesPanel = document.getElementById('codesPanel');
-Object.keys(CATS).forEach(catKey => {
-  const items = DB.filter(d => d.cat === catKey);
-  if (!items.length) return;
-  const group = document.createElement('div');
-  group.className = 'catGroup';
-  const rows = items.map(item => `
-    <div class="miniRow" data-code="${item.codes[0]}">
-      <span class="mc" style="color:${CATS[catKey].color}">${item.codes.join('/')}</span>
-      <span class="mn">${item.name}</span>
-    </div>
-  `).join('');
-  group.innerHTML = `
-    <div class="catHead">
-      <span class="dot" style="background:${CATS[catKey].color}"></span>
-      <span>${CATS[catKey].label}</span>
-      <span class="count">${items.length}</span>
-      <span class="chev">›</span>
-    </div>
-    <div class="catBody">${rows}</div>
-  `;
-  group.querySelector('.catHead').addEventListener('click', () => group.classList.toggle('open'));
-  group.querySelectorAll('.miniRow').forEach(row => {
-    row.addEventListener('click', () => {
-      const code = row.getAttribute('data-code');
-      searchEl.value = code;
-      doSearch(code);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-  codesPanel.appendChild(group);
-});
-codesPanel.querySelector('.catGroup').classList.add('open');
 
-// ---------- symbols list ----------
+function buildAccordion() {
+  codesPanel.innerHTML = '';
+  Object.keys(CATS).forEach(catKey => {
+    const items = DB.filter(d => d.cat === catKey);
+    if (!items.length) return;
+    const group = document.createElement('div');
+    group.className = 'catGroup';
+    const catColor = CATS[catKey].color;
+    const rows = items.map(item => {
+      const customDot = item.custom ? '<span class="custom-dot"></span>' : '';
+      return `<div class="miniRow" data-code="${item.codes[0]}">
+        <span class="mc" style="color:${catColor}">${item.codes.join('/')}</span>
+        <span class="mn">${item.name}</span>${customDot}
+      </div>`;
+    }).join('');
+    group.innerHTML = `
+      <div class="catHead">
+        <span class="dot" style="background:${catColor}"></span>
+        <span>${CATS[catKey].label}</span>
+        <span class="count">${items.length}</span>
+        <span class="chev">›</span>
+      </div>
+      <div class="catBody">${rows}</div>
+    `;
+    group.querySelector('.catHead').addEventListener('click', () => group.classList.toggle('open'));
+    group.querySelectorAll('.miniRow').forEach(row => {
+      row.addEventListener('click', () => {
+        const code = row.getAttribute('data-code');
+        searchEl.value = code; doSearch(code);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    codesPanel.appendChild(group);
+  });
+  // Abrir la primera categoría por defecto
+  codesPanel.querySelector('.catGroup')?.classList.add('open');
+}
+buildAccordion();
+
+/* ══════════════════════════════════════
+   SÍMBOLOS GRÁFICOS
+══════════════════════════════════════ */
 const symbolsList = document.getElementById('symbolsList');
 SYMBOLS.forEach(s => {
   const card = document.createElement('div');
   card.className = 'symCard';
-  card.innerHTML = `<div class="sn">${s.n}</div><div class="sm">${s.m}</div>`;
+  card.innerHTML = `<div class="sn">🔍 ${s.n}</div><div class="sm">${s.m}</div>`;
   symbolsList.appendChild(card);
 });
 
-// ---------- tabs ----------
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
 document.querySelectorAll('.tabBtn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
@@ -723,219 +809,64 @@ document.querySelectorAll('.tabBtn').forEach(btn => {
   });
 });
 
-
-<style>
-/* ══ MODAL AGREGAR CÓDIGO PCB ══ */
-.pcb-modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.75); z-index: 9000;
-    align-items: flex-end; justify-content: center;
-}
-.pcb-modal-overlay.open { display: flex; }
-.pcb-modal {
-    background: #111c2c; border: 1px solid #22344d;
-    border-radius: 20px 20px 0 0; padding: 22px 18px 34px;
-    width: 100%; max-width: 520px;
-    animation: pcbSlideUp .25s ease;
-}
-@keyframes pcbSlideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
-.pcb-modal-title { font-size: 1rem; font-weight: 700; color: #a566f0; margin-bottom: 16px; }
-.pcb-field { margin-bottom: 11px; }
-.pcb-field label { display: block; font-size: .78rem; color: #93a4bd; margin-bottom: 4px; }
-.pcb-field input, .pcb-field textarea, .pcb-field select {
-    width: 100%; background: #162235; border: 1px solid #22344d;
-    border-radius: 10px; color: #fff; padding: 9px 12px;
-    font-size: .88rem; outline: none; transition: border-color .2s;
-}
-.pcb-field input:focus, .pcb-field textarea:focus, .pcb-field select:focus { border-color: #7928ca; }
-.pcb-field textarea { min-height: 60px; resize: vertical; }
-.pcb-btn-row { display: flex; gap: 10px; margin-top: 14px; }
-.pcb-btn-save {
-    flex: 1; background: linear-gradient(135deg,#7928ca,#a855f7);
-    border: none; border-radius: 10px; color: #fff;
-    padding: 11px; font-size: .9rem; font-weight: 600; cursor: pointer;
-}
-.pcb-btn-cancel {
-    background: #162235; border: 1px solid #22344d;
-    border-radius: 10px; color: #93a4bd;
-    padding: 11px 18px; font-size: .9rem; cursor: pointer;
-}
-.fab-add-pcb {
-    position: fixed; bottom: 22px; left: 18px;
-    width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg,#7928ca,#a855f7);
-    border: none; color: #fff; font-size: 1.4rem;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 8000;
-    box-shadow: 0 2px 12px rgba(121,40,202,.6);
-}
-.badge-pcb-custom { background: #7928ca22; color: #c4b5fd; font-size: .65rem;
-    border: 1px solid #7928ca55; border-radius: 5px; padding: 1px 5px; margin-left: 4px; }
-.pcb-toast {
-    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-    background: #1e3a28; border: 1px solid #22c55e; border-radius: 8px;
-    padding: 8px 16px; font-size: .8rem; color: #86efac;
-    z-index: 99999; opacity: 0; transition: opacity .3s;
-    pointer-events: none; white-space: nowrap;
-}
-.pcb-toast.show { opacity: 1; }
-.del-pcb-btn {
-    background: none; border: none; color: #ef444466; cursor: pointer;
-    font-size: .75rem; padding: 2px 5px; border-radius: 5px;
-    transition: color .2s; margin-left: 6px;
-}
-.del-pcb-btn:hover { color: #ef4444; }
-</style>
-
-<!-- Modal agregar código PCB -->
-<div class="pcb-modal-overlay" id="pcbModal">
-    <div class="pcb-modal">
-        <div class="pcb-modal-title">🔣 Agregar código / símbolo PCB</div>
-        <div class="pcb-field">
-            <label>Código(s) serigrafiado * (separados por coma, ej: Q, TR)</label>
-            <input type="text" id="pcb-f-codes" placeholder="ej. IGBT, Q, TR10…">
-        </div>
-        <div class="pcb-field">
-            <label>Nombre del componente *</label>
-            <input type="text" id="pcb-f-name" placeholder="ej. Transistor de potencia IGBT">
-        </div>
-        <div class="pcb-field">
-            <label>Categoría</label>
-            <select id="pcb-f-cat">
-                <option value="pas">Pasivos</option>
-                <option value="sem" selected>Semiconductores</option>
-                <option value="elm">Electromecánicos</option>
-                <option value="pro">Protección y energía</option>
-                <option value="osc">Osciladores y tiempo</option>
-                <option value="con">Conectores y puntos de prueba</option>
-                <option value="mec">Mecánicos / ensamble</option>
-                <option value="pwr">Líneas de alimentación</option>
-                <option value="sig">Señales y buses de datos</option>
-            </select>
-        </div>
-        <div class="pcb-field">
-            <label>Descripción *</label>
-            <textarea id="pcb-f-desc" placeholder="¿Qué hace este componente?"></textarea>
-        </div>
-        <div class="pcb-field">
-            <label>Tip técnico (opcional)</label>
-            <textarea id="pcb-f-tip" placeholder="Cómo medirlo, falla típica, consejo de taller…" style="min-height:50px"></textarea>
-        </div>
-        <div class="pcb-btn-row">
-            <button class="pcb-btn-cancel" onclick="closePcbModal()">Cancelar</button>
-            <button class="pcb-btn-save" onclick="guardarCodigoPCB()">Guardar</button>
-        </div>
-    </div>
-</div>
-
-<button class="fab-add-pcb" onclick="openPcbModal()" title="Agregar código PCB">＋</button>
-<div class="pcb-toast" id="pcbToast"></div>
-
-<script>
-/* ══ STORAGE ══ */
-const PCB_KEY = 'relectronica_pcb_v1';
-
-function loadCustomPCB() {
-    try { return JSON.parse(localStorage.getItem(PCB_KEY) || '[]'); } catch(e) { return []; }
-}
-function saveCustomPCB(arr) {
-    try { localStorage.setItem(PCB_KEY, JSON.stringify(arr)); } catch(e) {}
+/* ══════════════════════════════════════
+   FAB NAVEGACIÓN
+══════════════════════════════════════ */
+function toggleFAB() {
+  const items = document.getElementById('fab-items');
+  const overlay = document.getElementById('fab-overlay');
+  const btn = document.getElementById('fab-toggle');
+  const open = items.classList.toggle('open');
+  overlay.classList.toggle('open', open);
+  btn.classList.toggle('open', open);
 }
 
-/* Sync total: guarda DB base + custom para que el bot lo lea */
-function syncPCBToStorage() {
-    try {
-        const all = [...DB, ...loadCustomPCB()];
-        localStorage.setItem('relectronica_pcb_all', JSON.stringify(all));
-    } catch(e) {}
-}
-
-function showPcbToast(msg) {
-    const t = document.getElementById('pcbToast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-/* ══ MODAL ══ */
+/* ══════════════════════════════════════
+   MODAL AGREGAR
+══════════════════════════════════════ */
 function openPcbModal() { document.getElementById('pcbModal').classList.add('open'); }
 function closePcbModal() {
-    document.getElementById('pcbModal').classList.remove('open');
-    ['pcb-f-codes','pcb-f-name','pcb-f-desc','pcb-f-tip'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-    });
+  document.getElementById('pcbModal').classList.remove('open');
+  ['pcb-f-codes','pcb-f-name','pcb-f-desc','pcb-f-tip'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
 }
 document.getElementById('pcbModal').addEventListener('click', function(e) {
-    if (e.target === this) closePcbModal();
+  if (e.target === this) closePcbModal();
 });
 
 function guardarCodigoPCB() {
-    const codesRaw = document.getElementById('pcb-f-codes').value.trim();
-    const name     = document.getElementById('pcb-f-name').value.trim();
-    const desc     = document.getElementById('pcb-f-desc').value.trim();
-    if (!codesRaw || !name || !desc) { showPcbToast('⚠️ Código, nombre y descripción son obligatorios'); return; }
+  const codesRaw = document.getElementById('pcb-f-codes').value.trim();
+  const name     = document.getElementById('pcb-f-name').value.trim();
+  const desc     = document.getElementById('pcb-f-desc').value.trim();
+  if (!codesRaw || !name || !desc) {
+    showToast('⚠️ Código, nombre y descripción son obligatorios');
+    return;
+  }
+  const codes = codesRaw.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
+  const entry = {
+    codes, name,
+    cat:    document.getElementById('pcb-f-cat').value,
+    desc,
+    tip:    document.getElementById('pcb-f-tip').value.trim(),
+    custom: true,
+    fecha:  new Date().toLocaleDateString('es-VE')
+  };
 
-    const codes = codesRaw.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
-    const entry = {
-        codes,
-        name,
-        cat: document.getElementById('pcb-f-cat').value,
-        desc,
-        tip: document.getElementById('pcb-f-tip').value.trim(),
-        custom: true,
-        fecha: new Date().toLocaleDateString('es-VE')
-    };
+  const custom = loadCustomPCB();
+  custom.unshift(entry);
+  saveCustomPCB(custom);
 
-    const custom = loadCustomPCB();
-    custom.unshift(entry);
-    saveCustomPCB(custom);
+  // Agregar en runtime al DB e INDEX
+  DB.push(entry);
+  codes.forEach(c => { INDEX[c] = entry; });
 
-    // Agregar al INDEX y al DB en runtime para que la búsqueda también funcione
-    DB.push(entry);
-    entry.codes.forEach(c => { INDEX[c] = entry; });
-
-    syncPCBToStorage();
-    updateStatsRow();
-    showPcbToast('✅ Código guardado y disponible para el bot');
-    closePcbModal();
+  syncPCBToStorage();
+  buildAccordion();
+  renderStats();
+  closePcbModal();
+  showToast('✅ Código guardado y disponible para el bot');
 }
-
-function eliminarCodigoPCB(idx) {
-    if (!confirm('¿Eliminar este código?')) return;
-    const custom = loadCustomPCB();
-    const entry  = custom[idx];
-    custom.splice(idx, 1);
-    saveCustomPCB(custom);
-
-    // Quitar de DB e INDEX en runtime
-    if (entry) {
-        const dbIdx = DB.findIndex(d => d.custom && d.codes[0] === entry.codes[0] && d.name === entry.name);
-        if (dbIdx !== -1) DB.splice(dbIdx, 1);
-        entry.codes.forEach(c => { if (INDEX[c]?.name === entry.name) delete INDEX[c]; });
-    }
-
-    syncPCBToStorage();
-    updateStatsRow();
-    showPcbToast('🗑️ Código eliminado');
-}
-
-function updateStatsRow() {
-    document.getElementById('statsRow').innerHTML = `
-        <span>${Object.keys(INDEX).length} códigos</span>
-        <span>${SYMBOLS.length} símbolos</span>
-        <span>${Object.keys(CATS).length} categorías</span>
-    `;
-}
-
-/* ══ INIT: cargar custom entries al DB e INDEX, luego sync ══ */
-(function initCustomPCB() {
-    const custom = loadCustomPCB();
-    custom.forEach(entry => {
-        DB.push(entry);
-        entry.codes.forEach(c => { INDEX[c] = entry; });
-    });
-    syncPCBToStorage();
-    updateStatsRow();
-})();
 </script>
 </body>
 </html>
