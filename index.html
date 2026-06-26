@@ -642,14 +642,21 @@ function tokenizar(texto) {
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
         .replace(/[^a-z0-9\s]/g, ' ')
         .split(/\s+/)
-        .filter(t => t.length > 2);
+        .filter(t => t.length > 0); // permite tokens cortos como "zd", "r", "c"
 }
 
 // Calcula cuántos tokens de la consulta aparecen en el texto
 function calcularRelevancia(tokens, textoTarget) {
     if (!textoTarget) return 0;
     const targetTokens = tokenizar(textoTarget);
-    return tokens.filter(t => targetTokens.some(tt => tt.includes(t) || t.includes(tt))).length;
+    return tokens.filter(t => targetTokens.some(tt => tt === t || tt.includes(t) || t.includes(tt))).length;
+}
+
+// Extrae posibles códigos PCB de la consulta (palabras en mayúsculas o siglas conocidas)
+function extraerCodigosPCB(consulta) {
+    // Busca palabras de 1-6 caracteres alfanuméricos que parezcan códigos
+    const matches = consulta.toUpperCase().match(/\b[A-Z]{1,6}[0-9]{0,3}\b/g) || [];
+    return [...new Set(matches)];
 }
 
 // Carga y busca en Notas (localStorage: relectronica_notas_v3 o variante)
@@ -776,23 +783,43 @@ const PCB_DATA = [
     { codes:["H","HS"],     name:"Disipador de calor",        desc:"Pieza metálica que disipa el calor de componentes de potencia.", tip:"Si un IC de potencia falla repetidamente, revisa que el disipador tenga buen contacto térmico." },
 ];
 
-function buscarEnPCB(tokens) {
+function buscarEnPCB(tokens, consultaOriginal) {
     try {
         // Lee el storage vivo (incluye DB base + entradas nuevas del usuario)
         const raw = localStorage.getItem('relectronica_pcb_all') || '[]';
         const entries = JSON.parse(raw);
         const fuente = entries.length ? entries : PCB_DATA; // fallback a hardcoded
 
-        const resultados = fuente.map(entry => {
-            const campo = [...(entry.codes||[]), entry.name, entry.desc||entry.description, entry.tip || ''].join(' ');
-            const score = calcularRelevancia(tokens, campo);
-            return { score, entry };
-        }).filter(r => r.score > 0)
-          .sort((a,b) => b.score - a.score)
-          .slice(0, 2);
+        // ── Paso 1: match exacto por código (cubre "ZD", "R", "C", etc.) ──
+        const codigosConsulta = extraerCodigosPCB(consultaOriginal || '');
+        const exactos = new Set();
+        const resultadosExactos = [];
+        fuente.forEach(entry => {
+            const codesUp = (entry.codes || []).map(c => c.toUpperCase());
+            const hit = codigosConsulta.some(c => codesUp.includes(c));
+            if (hit && !exactos.has(entry)) {
+                exactos.add(entry);
+                resultadosExactos.push(entry);
+            }
+        });
 
-        return resultados.map(r => {
-            const e = r.entry;
+        // ── Paso 2: match fuzzy por descripción/nombre ──
+        const resultadosFuzzy = fuente
+            .filter(entry => !exactos.has(entry))
+            .map(entry => {
+                const campo = [...(entry.codes||[]), entry.name, entry.desc||entry.description, entry.tip || ''].join(' ');
+                const score = calcularRelevancia(tokens, campo);
+                return { score, entry };
+            })
+            .filter(r => r.score > 0)
+            .sort((a,b) => b.score - a.score)
+            .slice(0, 2)
+            .map(r => r.entry);
+
+        // Combinar: exactos primero, luego fuzzy, máx 3
+        const combinados = [...resultadosExactos, ...resultadosFuzzy].slice(0, 3);
+
+        return combinados.map(e => {
             const codes = Array.isArray(e.codes) ? e.codes.join('/') : '';
             let txt = `🔣 PCB/SIMBOLOGÍA — [${codes}] ${e.name}: ${e.desc || e.description || ''}`;
             if (e.tip) txt += ` | Tip: ${e.tip}`;
@@ -851,7 +878,7 @@ function buscarEnBiblioteca(tokens) {
 
 // Función principal: busca en todas las fuentes y devuelve contexto enriquecido
 function buscarConocimientoLocal(consulta) {
-    if (!consulta || consulta.length < 3) return '';
+    if (!consulta || consulta.length < 1) return ''; // permite "ZD", "R", etc.
 
     const tokens = tokenizar(consulta);
     if (tokens.length === 0) return '';
@@ -859,7 +886,7 @@ function buscarConocimientoLocal(consulta) {
     const desdeNotas      = buscarEnNotas(tokens);
     const desdeFallas     = buscarEnFallas(tokens);
     const desdeBiblioteca = buscarEnBiblioteca(tokens);
-    const desdePCB        = buscarEnPCB(tokens);
+    const desdePCB        = buscarEnPCB(tokens, consulta); // pasa consulta original para match exacto
 
     const todos = [...desdeNotas, ...desdeFallas, ...desdeBiblioteca, ...desdePCB];
     if (todos.length === 0) return '';
