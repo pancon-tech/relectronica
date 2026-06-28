@@ -2,22 +2,38 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="relectronica.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Símbolos y Códigos PCB - Relectrónica</title>
 <style>
   :root {
-    --bg:        #080f1a;
-    --surface:   #0f1d2e;
-    --card:      #131f31;
-    --border:    #1e3048;
-    --text:      #e8edf5;
-    --dim:       #7a90aa;
-    --accent:    #7928ca;
-    --accent-lt: #a566f0;
-    --pas:  #4cc9f0; --sem: #c77dff; --elm: #ffb703;
-    --pro:  #ff5d73; --osc: #57cc99; --con: #4dd9c7;
-    --mec:  #9aa5b1; --pwr: #ff8c42; --sig: #7c9eff;
-  }
+  --bg: #070C14;
+  --surface: #0D1520;
+  --card: #111E30;
+  --card-hi: #162540;
+  --inp: #070C14;
+  --brd: #1C2D42;
+  --brd-hi: #243852;
+  --pri: #00C8F0;
+  --pri-d: #0099BB;
+  --pri-glow: rgba(0,200,240,0.18);
+  --sec: #7C4FFF;
+  --sec-glow: rgba(124,79,255,0.18);
+  --ok: #00E07A;
+  --ok-bg: rgba(0,224,122,0.08);
+  --warn: #FFB020;
+  --warn-bg: rgba(255,176,32,0.08);
+  --err: #FF3B5B;
+  --err-bg: rgba(255,59,91,0.08);
+  --info: #38AAFF;
+  --info-bg: rgba(56,170,255,0.08);
+  --text: #EDF2F8;
+  --muted: #8BA0B8;
+  --dim: #3D5470;
+  --acc: #00C8F0;
+  --chat: #0D1520;
+  --bot-msg-bg: #162540;
+}
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
@@ -34,7 +50,7 @@
   /* ══ HEADER ══ */
   .hero {
     padding: 28px 4px 22px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--brd);
     margin-bottom: 18px;
   }
   .eyebrow {
@@ -45,13 +61,13 @@
   .eyebrow::before {
     content: ''; display: inline-block;
     width: 18px; height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+    background: linear-gradient(90deg, var(--pri), var(--accent-lt));
     border-radius: 2px;
   }
   .hero h1 {
     font-size: 26px; font-weight: 800; line-height: 1.15;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+    background: linear-gradient(135deg, #fff 0%, #b0eeff 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
@@ -61,7 +77,7 @@
   .stats-row { display: flex; gap: 7px; flex-wrap: wrap; }
   .stat-pill {
     font-size: 11px; font-weight: 700; color: var(--accent-lt);
-    background: #1a0a3340; border: 1px solid #7928ca44;
+    background: #1a0a3340; border: 1px solid var(--sec)44;
     padding: 4px 10px; border-radius: 999px;
   }
 
@@ -69,14 +85,14 @@
   .search-wrap { position: relative; margin-bottom: 12px; }
   #search {
     width: 100%; padding: 13px 42px 13px 16px; font-size: 16px;
-    border-radius: 13px; border: 1.5px solid var(--border);
+    border-radius: 13px; border: 1.5px solid var(--brd);
     background: var(--surface); color: var(--text); outline: none;
     transition: border-color .15s, box-shadow .15s;
   }
   #search::placeholder { color: var(--dim); }
   #search:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px #7928ca22;
+    border-color: var(--pri);
+    box-shadow: 0 0 0 3px var(--sec)22;
   }
   #clearBtn {
     position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
@@ -89,28 +105,28 @@
   /* ══ CHIPS RÁPIDOS ══ */
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .chip {
-    border: 1px solid var(--border); background: var(--surface);
+    border: 1px solid var(--brd); background: var(--surface);
     color: var(--dim); font-size: 12.5px; font-weight: 700;
     padding: 5px 12px; border-radius: 999px; cursor: pointer;
     transition: all .15s;
   }
   .chip:active { transform: scale(.93); }
   .chip.on {
-    background: var(--accent); border-color: var(--accent);
-    color: #fff; box-shadow: 0 2px 10px #7928ca55;
+    background: var(--pri); border-color: var(--pri);
+    color: #fff; box-shadow: 0 2px 10px var(--sec)55;
   }
 
   /* ══ RESULTADO ══ */
   .result {
     background: var(--surface); border-radius: 16px;
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
+    border: 1px solid var(--brd);
+    border-left: 4px solid var(--pri);
     padding: 18px; margin-bottom: 18px;
     animation: fadeIn .18s ease;
   }
   .result.empty {
     color: var(--dim); display: flex; align-items: center;
-    font-size: 13.5px; border-left-color: var(--border);
+    font-size: 13.5px; border-left-color: var(--brd);
     min-height: 58px;
   }
   .result.notfound { border-left-color: var(--pro); }
@@ -119,7 +135,7 @@
   .res-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .res-code {
     font-size: 19px; font-weight: 800;
-    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    background: linear-gradient(135deg,var(--pri),var(--accent-lt));
     padding: 4px 13px; border-radius: 9px; letter-spacing: .03em;
     color: #fff; white-space: nowrap;
   }
@@ -131,14 +147,14 @@
   .res-desc { font-size: 13.5px; line-height: 1.55; color: #cdd5e0; margin-bottom: 11px; }
   .res-tip {
     font-size: 12.5px; line-height: 1.55; color: var(--dim);
-    background: #0a1525; border: 1px solid var(--border);
+    background: #0a1525; border: 1px solid var(--brd);
     border-radius: 10px; padding: 10px 13px;
   }
   .res-tip b { color: var(--accent-lt); }
   .res-aka { font-size: 11px; color: var(--dim); margin-top: 9px; }
   .custom-badge {
     font-size: 10px; font-weight: 700; color: var(--accent-lt);
-    background: #7928ca22; border: 1px solid #7928ca44;
+    background: var(--sec)22; border: 1px solid var(--sec)44;
     border-radius: 5px; padding: 2px 7px; margin-left: 4px;
   }
 
@@ -146,20 +162,20 @@
   .matchItem {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 11px; cursor: pointer;
+    border: 1px solid var(--brd); border-radius: 11px; cursor: pointer;
     transition: border-color .15s;
   }
   .matchItem:hover { border-color: var(--accent-lt); }
   .matchItem .mc {
     font-weight: 800; font-size: 12.5px; min-width: 40px; text-align: center;
-    padding: 3px 7px; border-radius: 7px; background: var(--border);
+    padding: 3px 7px; border-radius: 7px; background: var(--brd);
   }
   .matchItem .mn { font-size: 13px; flex: 1; }
 
   /* ══ TABS ══ */
   .tabs {
     display: flex; gap: 8px; margin-bottom: 14px;
-    background: var(--surface); border: 1px solid var(--border);
+    background: var(--surface); border: 1px solid var(--brd);
     border-radius: 13px; padding: 4px;
   }
   .tabBtn {
@@ -169,14 +185,14 @@
     cursor: pointer; transition: all .15s;
   }
   .tabBtn.active {
-    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
-    color: #fff; box-shadow: 0 2px 10px #7928ca44;
+    background: linear-gradient(135deg,var(--pri),var(--accent-lt));
+    color: #fff; box-shadow: 0 2px 10px var(--sec)44;
   }
   .panel.hidden { display: none; }
 
   /* ══ ACORDEÓN POR CATEGORÍA ══ */
   .catGroup {
-    margin-bottom: 8px; border: 1px solid var(--border);
+    margin-bottom: 8px; border: 1px solid var(--brd);
     border-radius: 13px; overflow: hidden;
   }
   .catHead {
@@ -190,7 +206,7 @@
   .catHead .count {
     margin-left: auto; font-size: 11px; color: var(--dim);
     font-weight: 500; background: var(--card);
-    border: 1px solid var(--border); border-radius: 999px;
+    border: 1px solid var(--brd); border-radius: 999px;
     padding: 2px 8px;
   }
   .catBody { display: none; padding: 4px 8px 8px; background: var(--bg); }
@@ -200,7 +216,7 @@
 
   .miniRow {
     display: flex; align-items: center; gap: 10px;
-    padding: 9px 8px; border-bottom: 1px solid var(--border);
+    padding: 9px 8px; border-bottom: 1px solid var(--brd);
     cursor: pointer; border-radius: 8px; transition: background .12s;
   }
   .miniRow:last-child { border-bottom: none; }
@@ -216,11 +232,11 @@
   .sym-intro {
     font-size: 12.5px; color: var(--dim); margin-bottom: 12px;
     line-height: 1.55; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 11px;
+    border: 1px solid var(--brd); border-radius: 11px;
     padding: 10px 13px;
   }
   .symCard {
-    background: var(--surface); border: 1px solid var(--border);
+    background: var(--surface); border: 1px solid var(--brd);
     border-radius: 12px; padding: 13px 15px; margin-bottom: 8px;
     transition: border-color .15s;
   }
@@ -236,8 +252,8 @@
   }
   .pcb-modal-overlay.open { display: flex; }
   .pcb-modal {
-    background: var(--surface); border: 1px solid var(--border);
-    border-top: 2px solid var(--accent);
+    background: var(--surface); border: 1px solid var(--brd);
+    border-top: 2px solid var(--pri);
     border-radius: 20px 20px 0 0; padding: 24px 18px 36px;
     width: 100%; max-width: 480px;
     animation: slideUp .25s ease;
@@ -250,24 +266,24 @@
   .pcb-field { margin-bottom: 12px; }
   .pcb-field label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
   .pcb-field input, .pcb-field textarea, .pcb-field select {
-    width: 100%; background: var(--card); border: 1.5px solid var(--border);
+    width: 100%; background: var(--card); border: 1.5px solid var(--brd);
     border-radius: 10px; color: var(--text); padding: 10px 13px;
     font-size: 14px; outline: none; transition: border-color .2s, box-shadow .2s;
   }
   .pcb-field input:focus, .pcb-field textarea:focus, .pcb-field select:focus {
-    border-color: var(--accent); box-shadow: 0 0 0 3px #7928ca1a;
+    border-color: var(--pri); box-shadow: 0 0 0 3px var(--sec)1a;
   }
   .pcb-field textarea { min-height: 70px; resize: vertical; }
   .pcb-field select option { background: var(--card); }
   .pcb-btn-row { display: flex; gap: 10px; margin-top: 18px; }
   .pcb-btn-save {
-    flex: 1; background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    flex: 1; background: linear-gradient(135deg,var(--pri),var(--accent-lt));
     border: none; border-radius: 11px; color: #fff;
     padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 2px 12px #7928ca44;
+    box-shadow: 0 2px 12px var(--sec)44;
   }
   .pcb-btn-cancel {
-    background: var(--card); border: 1px solid var(--border);
+    background: var(--card); border: 1px solid var(--brd);
     border-radius: 11px; color: var(--dim);
     padding: 13px 18px; font-size: 14px; cursor: pointer;
   }
@@ -276,11 +292,11 @@
   .fab-add {
     position: fixed; bottom: 22px; left: 18px;
     width: 50px; height: 50px; border-radius: 50%;
-    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    background: linear-gradient(135deg,var(--pri),var(--accent-lt));
     border: none; color: #fff; font-size: 1.5rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 7999;
-    box-shadow: 0 3px 14px #7928ca66;
+    box-shadow: 0 3px 14px var(--sec)66;
     transition: transform .15s;
   }
   .fab-add:active { transform: scale(.92); }
@@ -289,9 +305,9 @@
   .fab-toggle {
     position: fixed; bottom: 20px; right: 18px;
     width: 52px; height: 52px; border-radius: 50%;
-    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    background: linear-gradient(135deg,var(--pri),var(--accent-lt));
     border: none; color: white; font-size: 1.4rem; cursor: pointer;
-    box-shadow: 0 4px 16px #7928ca66;
+    box-shadow: 0 4px 16px var(--sec)66;
     display: flex; align-items: center; justify-content: center;
     z-index: 9999; transition: transform 0.25s ease;
   }
@@ -305,20 +321,20 @@
   .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .fab-item-label {
     background: var(--surface); color: var(--text); font-size: 0.82rem; font-weight: 600;
-    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--brd);
     white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
   }
   .fab-item-btn {
     width: 44px; height: 44px; border-radius: 50%;
-    background: var(--surface); border: 1px solid var(--border);
+    background: var(--surface); border: 1px solid var(--brd);
     display: flex; align-items: center; justify-content: center;
     font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
   }
   .fab-item.active .fab-item-btn {
-    background: linear-gradient(135deg,var(--accent),var(--accent-lt));
+    background: linear-gradient(135deg,var(--pri),var(--accent-lt));
     border-color: var(--accent-lt);
   }
-  .fab-item.active .fab-item-label { color: #c4b5fd; border-color: var(--accent); }
+  .fab-item.active .fab-item-label { color: #b0eeff; border-color: var(--pri); }
   .fab-overlay { display: none; position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.5); }
   .fab-overlay.open { display: block; }
   .fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease 0.00s both}
@@ -336,7 +352,7 @@
   .toast {
     position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
     background: #0e2a1a; border: 1px solid #22c55e; border-radius: 10px;
-    padding: 9px 18px; font-size: 13px; color: #86efac;
+    padding: 9px 18px; font-size: 13px; color: var(--ok);
     z-index: 99999; opacity: 0; transition: opacity .3s;
     pointer-events: none; white-space: nowrap;
     box-shadow: 0 4px 16px rgba(0,0,0,.4);
@@ -346,7 +362,7 @@
   footer {
     text-align: center; font-size: 11px; color: var(--dim);
     padding: 20px 8px 4px; line-height: 1.6;
-    border-top: 1px solid var(--border); margin-top: 20px;
+    border-top: 1px solid var(--brd); margin-top: 20px;
   }
 </style>
 </head>

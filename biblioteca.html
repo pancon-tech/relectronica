@@ -2,22 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+<link rel="stylesheet" href="relectronica.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Relectrónica - Biblioteca Técnica | Diccionario Electrónico</title>
     <style>
             :root {
-            --bg-deep: #0a0f1a;
-            --surface: #111827;
-            --card-bg: #1a2332;
-            --border: #2a3a4e;
-            --primary: #a855f7;
-            --primary-glow: #c084fc;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --accent-cyan: #06b6d4;
-            --accent-amber: #f59e0b;
-            --success: #10b981;
-        }
+  --bg: #070C14;
+  --surface: #0D1520;
+  --card: #111E30;
+  --card-hi: #162540;
+  --inp: #070C14;
+  --brd: #1C2D42;
+  --brd-hi: #243852;
+  --pri: #00C8F0;
+  --pri-d: #0099BB;
+  --pri-glow: rgba(0,200,240,0.18);
+  --sec: #7C4FFF;
+  --sec-glow: rgba(124,79,255,0.18);
+  --ok: #00E07A;
+  --ok-bg: rgba(0,224,122,0.08);
+  --warn: #FFB020;
+  --warn-bg: rgba(255,176,32,0.08);
+  --err: #FF3B5B;
+  --err-bg: rgba(255,59,91,0.08);
+  --info: #38AAFF;
+  --info-bg: rgba(56,170,255,0.08);
+  --text: #EDF2F8;
+  --muted: #8BA0B8;
+  --dim: #3D5470;
+  --acc: #00C8F0;
+  --chat: #0D1520;
+  --bot-msg-bg: #162540;
+}
 
         * {
             margin: 0;
@@ -26,9 +42,9 @@
         }
 
         body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -42,7 +58,7 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--brd);
             backdrop-filter: blur(4px);
             flex-shrink: 0;
         }
@@ -50,7 +66,7 @@
         .logo-box {
             width: 48px;
             height: 48px;
-            background: linear-gradient(145deg, #1e2a3a, #0f172a);
+            background: linear-gradient(145deg, #1e2a3a, var(--bg));
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -67,7 +83,7 @@
         .header-info h1 {
             font-size: 1.35rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--primary-glow));
+            background: linear-gradient(135deg, #fff, var(--pri-glow));
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
@@ -75,7 +91,7 @@
 
         .header-info p {
             font-size: 0.75rem;
-            color: var(--text-dim);
+            color: var(--muted);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -84,9 +100,9 @@
         .status-led {
             width: 8px;
             height: 8px;
-            background: var(--success);
+            background: var(--ok);
             border-radius: 50%;
-            box-shadow: 0 0 5px var(--success);
+            box-shadow: 0 0 5px var(--ok);
         }
 
         /* MAIN SCROLL AREA */
@@ -101,7 +117,7 @@
         .search-section {
             position: sticky;
             top: 0;
-            background: var(--bg-deep);
+            background: var(--bg);
             z-index: 10;
             padding-bottom: 12px;
         }
@@ -116,7 +132,7 @@
         .search-bar {
             flex: 1;
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 1px solid var(--brd);
             color: white;
             padding: 12px 16px;
             border-radius: 40px;
@@ -138,14 +154,14 @@
         }
 
         .filter-chip {
-            background: var(--card-bg);
+            background: var(--card);
             padding: 6px 14px;
             border-radius: 40px;
             font-size: 0.75rem;
             font-weight: 500;
-            color: var(--text-dim);
+            color: var(--muted);
             cursor: pointer;
-            border: 1px solid var(--border);
+            border: 1px solid var(--brd);
             transition: all 0.2s;
         }
 
@@ -157,8 +173,8 @@
 
         /* TARJETAS */
         .dict-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
+            background: var(--card);
+            border: 1px solid var(--brd);
             border-radius: 20px;
             overflow: hidden;
             transition: all 0.2s ease;
@@ -169,7 +185,7 @@
         .dict-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
-            background: #1f2a3e;
+            background: var(--card-hi);
         }
 
         .card-header {
@@ -190,18 +206,18 @@
         }
 
         .term-badge {
-            background: #2d3b4f;
+            background: var(--brd-hi);
             padding: 3px 10px;
             border-radius: 30px;
             font-size: 0.7rem;
             font-weight: 600;
-            color: var(--accent-cyan);
+            color: var(--pri);
         }
 
         .expand-icon {
             font-size: 1rem;
             transition: transform 0.2s;
-            color: var(--text-dim);
+            color: var(--muted);
         }
 
         .dict-card.expanded .expand-icon {
@@ -211,10 +227,10 @@
         .card-content {
             display: none;
             padding: 0 18px 18px 18px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--brd);
             font-size: 0.9rem;
             line-height: 1.55;
-            color: var(--text-dim);
+            color: var(--muted);
             background: rgba(0, 0, 0, 0.2);
         }
 
@@ -227,13 +243,13 @@
             padding: 12px;
             border-radius: 14px;
             margin: 12px 0 6px;
-            border-left: 3px solid var(--accent-amber);
+            border-left: 3px solid var(--warn);
             font-size: 0.85rem;
         }
 
         .code-example {
             font-family: 'Fira Code', monospace;
-            background: #0a0e1a;
+            background: var(--bg);
             padding: 6px 10px;
             border-radius: 12px;
             font-size: 0.8rem;
@@ -253,7 +269,7 @@
             justify-content: space-around;
             align-items: center;
             padding: 8px 0 12px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--brd);
             z-index: 20;
         }
 
@@ -263,7 +279,7 @@
             align-items: center;
             gap: 4px;
             font-size: 0.7rem;
-            color: var(--text-dim);
+            color: var(--muted);
             text-decoration: none;
             transition: 0.2s;
             background: none;
@@ -285,7 +301,7 @@
             width: 5px;
         }
         .library-container::-webkit-scrollbar-track {
-            background: var(--bg-deep);
+            background: var(--bg);
         }
         .library-container::-webkit-scrollbar-thumb {
             background: var(--primary);
@@ -295,7 +311,7 @@
         .no-results {
             text-align: center;
             padding: 40px;
-            color: var(--text-dim);
+            color: var(--muted);
         }
     
         /* ── FAB MENÚ ── */
@@ -306,12 +322,12 @@
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7928ca, #a855f7);
+            background: linear-gradient(135deg,var(--sec),var(--pri));
             border: none;
             color: white;
             font-size: 1.4rem;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(121,40,202,0.6);
+            box-shadow: 0 4px 16px rgba(124,79,255,0.6);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -340,13 +356,13 @@
             text-decoration: none;
         }
         .fab-item-label {
-            background-color: #1a273a;
-            color: #e2e8f0;
+            background-color: var(--card-hi);
+            color: var(--text);
             font-size: 0.82rem;
             font-weight: 600;
             padding: 6px 14px;
             border-radius: 20px;
-            border: 1px solid #22344d;
+            border: 1px solid var(--brd);
             white-space: nowrap;
             box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
@@ -354,8 +370,8 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background-color: #1a273a;
-            border: 1px solid #22344d;
+            background-color: var(--card-hi);
+            border: 1px solid var(--brd);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -363,8 +379,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             flex-shrink: 0;
         }
-        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,#7928ca,#a855f7); border-color:#a855f7; }
-        .fab-item.active .fab-item-label { color:#c4b5fd; border-color:#7928ca; }
+        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,var(--sec),var(--pri)); border-color:var(--pri); }
+        .fab-item.active .fab-item-label { color:#b0eeff; border-color:var(--sec); }
         .fab-overlay {
             display: none;
             position: fixed;
@@ -461,58 +477,58 @@
 }
 .bib-modal-overlay.open { display: flex; }
 .bib-modal {
-    background: #111827; border: 1px solid #2a3a4e;
+    background: var(--surface); border: 1px solid var(--brd-hi);
     border-radius: 20px 20px 0 0; padding: 22px 18px 34px;
     width: 100%; max-width: 520px;
     animation: slideUp .25s ease;
 }
 @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
-.bib-modal-title { font-size: 1rem; font-weight: 700; color: #c4b5fd; margin-bottom: 16px; }
+.bib-modal-title { font-size: 1rem; font-weight: 700; color: #b0eeff; margin-bottom: 16px; }
 .bib-field { margin-bottom: 12px; }
-.bib-field label { display: block; font-size: .78rem; color: #94a3b8; margin-bottom: 4px; }
+.bib-field label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 4px; }
 .bib-field input, .bib-field textarea, .bib-field select {
-    width: 100%; background: #1a2332; border: 1px solid #2a3a4e;
-    border-radius: 10px; color: #f1f5f9; padding: 9px 12px;
+    width: 100%; background: var(--card); border: 1px solid var(--brd-hi);
+    border-radius: 10px; color: var(--text); padding: 9px 12px;
     font-size: .88rem; outline: none;
     transition: border-color .2s;
 }
-.bib-field input:focus, .bib-field textarea:focus, .bib-field select:focus { border-color: #a855f7; }
+.bib-field input:focus, .bib-field textarea:focus, .bib-field select:focus { border-color: var(--pri); }
 .bib-field textarea { min-height: 70px; resize: vertical; }
 .bib-btn-row { display: flex; gap: 10px; margin-top: 16px; }
 .bib-btn-save {
-    flex: 1; background: linear-gradient(135deg,#7928ca,#a855f7);
+    flex: 1; background: linear-gradient(135deg,var(--sec),var(--pri));
     border: none; border-radius: 10px; color: #fff;
     padding: 11px; font-size: .9rem; font-weight: 600; cursor: pointer;
 }
 .bib-btn-cancel {
-    background: #1a2332; border: 1px solid #2a3a4e;
-    border-radius: 10px; color: #94a3b8;
+    background: var(--card); border: 1px solid var(--brd-hi);
+    border-radius: 10px; color: var(--muted);
     padding: 11px 18px; font-size: .9rem; cursor: pointer;
 }
 /* FAB agregar */
 .fab-add-bib {
     position: fixed; bottom: 22px; left: 18px;
     width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg,#7928ca,#a855f7);
+    background: linear-gradient(135deg,var(--sec),var(--pri));
     border: none; color: #fff; font-size: 1.4rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 8000;
-    box-shadow: 0 2px 12px rgba(121,40,202,.6);
+    box-shadow: 0 2px 12px rgba(124,79,255,.6);
 }
 /* badge "tuyo" en cards personalizadas */
-.badge-custom { background: #7928ca22; color: #c4b5fd; font-size: .68rem;
-    border: 1px solid #7928ca55; border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+.badge-custom { background: var(--sec)22; color: #b0eeff; font-size: .68rem;
+    border: 1px solid var(--sec)55; border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
 .btn-del-entry {
-    background: none; border: none; color: #ef444488; cursor: pointer;
+    background: none; border: none; color: var(--err)88; cursor: pointer;
     font-size: .8rem; margin-left: auto; padding: 2px 6px;
     border-radius: 6px; transition: color .2s;
 }
-.btn-del-entry:hover { color: #ef4444; }
+.btn-del-entry:hover { color: var(--err); }
 /* toast */
 .bib-toast {
     position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-    background: #1e3a28; border: 1px solid #22c55e; border-radius: 8px;
-    padding: 8px 16px; font-size: .8rem; color: #86efac;
+    background: rgba(0,224,122,0.08); border: 1px solid #22c55e; border-radius: 8px;
+    padding: 8px 16px; font-size: .8rem; color: var(--ok);
     z-index: 99999; opacity: 0; transition: opacity .3s;
     pointer-events: none; white-space: nowrap;
 }

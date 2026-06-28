@@ -2,10 +2,38 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="relectronica.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relectrónica - Calculadoras Técnicas</title>
 <style>
-:root{--bg:#0b131f;--chat:#111c2c;--fg:#ffffff;--pri:#7928ca;--brd:#22344d;--card:#162235;--inp:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6}
+:root {
+  --bg: #070C14;
+  --surface: #0D1520;
+  --card: #111E30;
+  --card-hi: #162540;
+  --inp: #070C14;
+  --brd: #1C2D42;
+  --brd-hi: #243852;
+  --pri: #00C8F0;
+  --pri-d: #0099BB;
+  --pri-glow: rgba(0,200,240,0.18);
+  --sec: #7C4FFF;
+  --sec-glow: rgba(124,79,255,0.18);
+  --ok: #00E07A;
+  --ok-bg: rgba(0,224,122,0.08);
+  --warn: #FFB020;
+  --warn-bg: rgba(255,176,32,0.08);
+  --err: #FF3B5B;
+  --err-bg: rgba(255,59,91,0.08);
+  --info: #38AAFF;
+  --info-bg: rgba(56,170,255,0.08);
+  --text: #EDF2F8;
+  --muted: #8BA0B8;
+  --dim: #3D5470;
+  --acc: #00C8F0;
+  --chat: #0D1520;
+  --bot-msg-bg: #162540;
+}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
 body{background:var(--bg);color:var(--fg);display:flex;flex-direction:column;min-height:100vh}
 header{background:var(--chat);padding:15px;display:flex;align-items:center;border-bottom:1px solid var(--brd);gap:15px}
@@ -15,17 +43,17 @@ header{background:var(--chat);padding:15px;display:flex;align-items:center;borde
 .sel-c{width:100%;padding:12px;border-radius:8px;background:var(--card);color:var(--fg);border:1px solid var(--brd);font-size:1rem;margin-bottom:20px;outline:none}
 .card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 .card h3{margin-bottom:15px;font-size:1.1rem;border-bottom:1px solid var(--brd);padding-bottom:8px}
-.gi{margin-bottom:14px}.gi label{display:block;font-size:.9rem;margin-bottom:6px;color:#cbd5e1}
+.gi{margin-bottom:14px}.gi label{display:block;font-size:.9rem;margin-bottom:6px;color:var(--muted)}
 .gi small{display:block;margin-top:3px;font-size:.75rem;color:#6b7280}
 input.ci,select.ci,textarea.ci{width:100%;padding:10px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#fff;font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
 input.ci:focus,select.ci:focus,textarea.ci:focus{border-color:var(--pri)}
 input.ci.ok{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok)}
 input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
 .btn{width:100%;padding:12px;border:none;border-radius:6px;background:var(--pri);color:#fff;font-size:1rem;font-weight:bold;cursor:pointer;margin-top:10px}
-.btn:hover{opacity:.9}.btn2{background:#2d3a4e}
+.btn:hover{opacity:.9}.btn2{background:var(--card-hi)}
 .rb{margin-top:16px;padding:14px;border-radius:6px;background:var(--inp);border:1px dashed var(--brd);min-height:44px;font-size:.92rem;line-height:1.75}
 .acc{background:var(--chat);border:1px solid var(--brd);border-radius:8px;margin-bottom:12px}
-.acc summary{padding:12px;font-weight:bold;cursor:pointer;color:#a78bfa;list-style:none;display:flex;align-items:center;gap:8px}
+.acc summary{padding:12px;font-weight:bold;cursor:pointer;color:var(--pri);list-style:none;display:flex;align-items:center;gap:8px}
 .acc summary::-webkit-details-marker{display:none}
 .acc summary::before{content:"▶";font-size:.8rem}
 .acc[open] summary::before{content:"▼"}
@@ -33,53 +61,53 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
 .pb-w{background:var(--inp);border-radius:20px;height:8px;margin:8px 0;overflow:hidden}
 .pb{background:var(--ok);width:0%;height:100%;transition:width .3s}
 .abts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.abts button{flex:1;min-width:110px;background:#2d3a4e;border:none;color:white;padding:8px;border-radius:6px;cursor:pointer;font-size:.8rem}
+.abts button{flex:1;min-width:110px;background:var(--card-hi);border:none;color:white;padding:8px;border-radius:6px;cursor:pointer;font-size:.8rem}
 .abts button:hover{background:#3b4a60}
 .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .badge{background:var(--pri);padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
-.badge-ok{background:#065f46;color:#6ee7b7;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
-.badge-err{background:#7f1d1d;color:#fca5a5;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
+.badge-ok{background:rgba(0,224,122,0.15);color:var(--ok);padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
+.badge-err{background:rgba(255,59,91,0.15);color:var(--err);padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold}
 .hl{border:2px solid var(--warn)!important;background:rgba(245,158,11,.08)}
-.chk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #1e2f45;font-size:.85rem}
+.chk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:.85rem}
 .chk-item:last-child{border-bottom:none}
 .chk-item input[type=checkbox]{margin-top:2px;width:16px;height:16px;accent-color:var(--pri);cursor:pointer;flex-shrink:0}
-.chk-item label{cursor:pointer;flex:1;color:#cbd5e1}
+.chk-item label{cursor:pointer;flex:1;color:var(--muted)}
 .chk-item input:checked+label{text-decoration:line-through;color:#6b7280}
 .ict{width:100%;border-collapse:collapse;font-size:.78rem}
-.ict th{background:#1a2e47;padding:7px 8px;text-align:left;color:#a78bfa;border-bottom:1px solid var(--brd)}
-.ict td{padding:6px 8px;border-bottom:1px solid #1a2636;color:#cbd5e1}
-.ict tr:hover td{background:#1a2e47}
+.ict th{background:var(--card-hi);padding:7px 8px;text-align:left;color:var(--pri);border-bottom:1px solid var(--brd)}
+.ict td{padding:6px 8px;border-bottom:1px solid var(--card);color:var(--muted)}
+.ict tr:hover td{background:var(--card-hi)}
 .zg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.zb{padding:8px 4px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#94a3b8;font-size:.75rem;cursor:pointer;text-align:center;transition:all .2s}
-.zb.sel{background:rgba(121,40,202,.3);border-color:var(--pri);color:#d8b4fe}
-.zb.corto{background:rgba(239,68,68,.15);border-color:var(--err);color:#fca5a5}
-.zb.ok{background:rgba(16,185,129,.1);border-color:var(--ok);color:#6ee7b7}
+.zb{padding:8px 4px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:var(--muted);font-size:.75rem;cursor:pointer;text-align:center;transition:all .2s}
+.zb.sel{background:rgba(124,79,255,.3);border-color:var(--pri);color:#a0dfff}
+.zb.corto{background:rgba(239,68,68,.15);border-color:var(--err);color:var(--err)}
+.zb.ok{background:rgba(16,185,129,.1);border-color:var(--ok);color:var(--ok)}
 .hi-item{background:var(--inp);border:1px solid var(--brd);border-radius:6px;padding:10px;margin-bottom:8px;font-size:.8rem}
 .hi-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .hi-vals{display:flex;flex-wrap:wrap;gap:6px}
-.hchip{background:#1a2e47;padding:2px 8px;border-radius:10px;font-size:.75rem}
-.hchip.bad{background:rgba(239,68,68,.15);color:#fca5a5}
-.hchip.good{background:rgba(16,185,129,.1);color:#6ee7b7}
+.hchip{background:var(--card-hi);padding:2px 8px;border-radius:10px;font-size:.75rem}
+.hchip.bad{background:rgba(239,68,68,.15);color:var(--err)}
+.hchip.good{background:rgba(16,185,129,.1);color:var(--ok)}
 .tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
-.tab{padding:6px 14px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:#94a3b8;cursor:pointer;font-size:.82rem;transition:all .15s}
-.tab.active{background:rgba(121,40,202,.3);border-color:var(--pri);color:#d8b4fe}
+.tab{padding:6px 14px;border-radius:6px;border:1px solid var(--brd);background:var(--inp);color:var(--muted);cursor:pointer;font-size:.82rem;transition:all .15s}
+.tab.active{background:rgba(124,79,255,.3);border-color:var(--pri);color:#a0dfff}
 .tp-pane{display:none}.tp-pane.active{display:block}
 .e-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.e-chip{background:#1a2e47;padding:4px 10px;border-radius:12px;font-size:.8rem;color:#cbd5e1}
-.e-chip.best{background:rgba(121,40,202,.3);border:1px solid var(--pri);color:#d8b4fe;font-weight:bold}
+.e-chip{background:var(--card-hi);padding:4px 10px;border-radius:12px;font-size:.8rem;color:var(--muted)}
+.e-chip.best{background:rgba(124,79,255,.3);border:1px solid var(--pri);color:#a0dfff;font-weight:bold}
 .nota{background:rgba(59,130,246,.08);border-left:3px solid var(--info);padding:8px 10px;border-radius:0 6px 6px 0;font-size:.8rem;color:#93c5fd;margin-bottom:10px;line-height:1.6}
 .sw{display:inline-block;width:18px;height:18px;border-radius:3px;border:1px solid rgba(255,255,255,.2);vertical-align:middle;margin-right:4px}
-.fab-toggle{position:fixed;bottom:20px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7928ca,#a855f7);border:none;color:white;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(121,40,202,.6);display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .25s ease}
+.fab-toggle{position:fixed;bottom:20px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--sec),var(--pri));border:none;color:white;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(124,79,255,.6);display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .25s ease}
 .fab-toggle.open{transform:rotate(90deg)}
 .fab-items{position:fixed;bottom:82px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:9999}
 .fab-items.open{pointer-events:all;opacity:1}
 .fab-item{display:flex;align-items:center;gap:10px;text-decoration:none}
-.fab-item-label{background:#1a273a;color:#e2e8f0;font-size:.82rem;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid #22344d;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.fab-item-btn{width:44px;height:44px;border-radius:50%;background:#1a273a;border:1px solid #22344d;display:flex;align-items:center;justify-content:center;font-size:1.15rem;box-shadow:0 2px 10px rgba(0,0,0,.4);flex-shrink:0}
-.fab-item.active .fab-item-btn{background:linear-gradient(135deg,#7928ca,#a855f7);border-color:#a855f7}
-.fab-item.active .fab-item-label{color:#c4b5fd;border-color:#7928ca}
+.fab-item-label{background:var(--card-hi);color:var(--text);font-size:.82rem;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid var(--brd);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.fab-item-btn{width:44px;height:44px;border-radius:50%;background:var(--card-hi);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:1.15rem;box-shadow:0 2px 10px rgba(0,0,0,.4);flex-shrink:0}
+.fab-item.active .fab-item-btn{background:linear-gradient(135deg,var(--sec),var(--pri));border-color:var(--pri)}
+.fab-item.active .fab-item-label{color:#b0eeff;border-color:var(--sec)}
 .fab-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5)}
 .fab-overlay.open{display:block}
 .fab-items.open .fab-item:nth-child(1){animation:fi .18s ease 0s both}
@@ -333,7 +361,7 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
 <!-- LCD / T-CON -->
 <div id="calc-lcd" class="card" style="display:block">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--brd);padding-bottom:8px">
-    <h3 style="margin:0;color:#a855f7">🖥️ Diagnóstico Maestro LCD / T-CON</h3>
+    <h3 style="margin:0;color:var(--pri)">🖥️ Diagnóstico Maestro LCD / T-CON</h3>
     <span class="badge">v5.0 PRO</span>
   </div>
 
@@ -466,11 +494,11 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
   <details class="acc">
     <summary>🎨 Corrección Gamma</summary>
     <div class="acc-body">
-      <p style="font-size:.75rem;color:#a0aec0;margin-bottom:8px">Los 3 valores deben ser <b>estrictamente descendentes</b>: Alto → Medio → Bajo.</p>
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Los 3 valores deben ser <b>estrictamente descendentes</b>: Alto → Medio → Bajo.</p>
       <div class="g3">
-        <div><label style="font-size:.8rem;color:#94a3b8">Alto (Vγ+)</label><input type="number" step=".1" id="vghi" class="ci" placeholder="14.5 V" oninput="valGamma()"></div>
-        <div><label style="font-size:.8rem;color:#94a3b8">Medio</label><input type="number" step=".1" id="vgmid" class="ci" placeholder="9.2 V" oninput="valGamma()"></div>
-        <div><label style="font-size:.8rem;color:#94a3b8">Bajo (Vγ-)</label><input type="number" step=".1" id="vglo" class="ci" placeholder="3.1 V" oninput="valGamma()"></div>
+        <div><label style="font-size:.8rem;color:var(--muted)">Alto (Vγ+)</label><input type="number" step=".1" id="vghi" class="ci" placeholder="14.5 V" oninput="valGamma()"></div>
+        <div><label style="font-size:.8rem;color:var(--muted)">Medio</label><input type="number" step=".1" id="vgmid" class="ci" placeholder="9.2 V" oninput="valGamma()"></div>
+        <div><label style="font-size:.8rem;color:var(--muted)">Bajo (Vγ-)</label><input type="number" step=".1" id="vglo" class="ci" placeholder="3.1 V" oninput="valGamma()"></div>
       </div>
       <div id="gamma-st" style="margin-top:8px;font-size:.82rem"></div>
       <div class="g2" style="margin-top:10px">
@@ -551,7 +579,7 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
   <details class="acc">
     <summary>🗺️ Localización de Cortocircuitos por Zona</summary>
     <div class="acc-body">
-      <p style="font-size:.75rem;color:#a0aec0;margin-bottom:8px">Toca para ciclar: sin marcar → 🟣 Sospechosa → 🔴 Corto confirmado → 🟢 OK</p>
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Toca para ciclar: sin marcar → 🟣 Sospechosa → 🔴 Corto confirmado → 🟢 OK</p>
       <div class="zg">
         <button class="zb" onclick="tzn(this,'A1')">A1<br><small>Izq-Sup</small></button>
         <button class="zb" onclick="tzn(this,'B1')">B1<br><small>Ctr-Sup</small></button>
@@ -643,7 +671,7 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
       </div>
       <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
         <button onclick="rstChk()" style="background:#2d3a4e;border:none;color:white;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.8rem">🔄 Reiniciar</button>
-        <span id="chk-pg" style="font-size:.8rem;color:#a0aec0"></span>
+        <span id="chk-pg" style="font-size:.8rem;color:var(--muted)"></span>
       </div>
     </div>
   </details>
@@ -691,7 +719,7 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
     <button onclick="expTXT()">📁 Exportar .TXT</button>
     <button onclick="limpLCD()">🗑️ Limpiar</button>
   </div>
-  <button class="btn" onclick="diagLCD()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);margin-top:14px">🚀 Generar Reporte Completo</button>
+  <button class="btn" onclick="diagLCD()" style="background:linear-gradient(135deg,var(--pri),var(--sec));margin-top:14px">🚀 Generar Reporte Completo</button>
   <div class="rb" id="lcd-rb" style="margin-top:15px;line-height:1.75">El reporte aparecerá aquí…</div>
 </div><!-- fin lcd -->
 </div><!-- fin cc -->
@@ -968,7 +996,7 @@ function calcOhm() {
 <b>Corriente I:</b> ${(i*1e6).toFixed(1)} µA &nbsp;= <b>${(i*1000).toFixed(3)} mA</b> &nbsp;= ${i.toFixed(6)} A<br>
 <b>Resistencia R:</b> ${fO(r)}${e24?` <span style="color:#6b7280;font-size:.8rem">(E24 cercano: ${fO(e24.v)}, ${(e24.er*100).toFixed(1)}% err)</span>`:''}<br>
 <b>Potencia P:</b> ${fP(p)}<hr style="border-color:#1e2f45;margin:8px 0">
-<span style="color:#94a3b8;font-size:.85rem"><b>Energía en 1h:</b> ${(p*3600).toFixed(2)} J &nbsp;= ${(p*1000).toFixed(4)} mWh</span>`;
+<span style="color:var(--muted);font-size:.85rem"><b>Energía en 1h:</b> ${(p*3600).toFixed(2)} J &nbsp;= ${(p*1000).toFixed(4)} mWh</span>`;
 }
 
 function limpOhm() {
@@ -1264,7 +1292,7 @@ function actPB() {
   if(!isNaN(ic)){tot++;if(ic<=r.imax)ok++;}
   const pct = tot ? ok/tot*100 : 0;
   const pb = document.getElementById('pb');
-  if(pb){pb.style.width=pct+'%';pb.style.backgroundColor=pct>=80?'#10b981':pct>=50?'#f59e0b':'#ef4444';}
+  if(pb){pb.style.width=pct+'%';pb.style.backgroundColor=pct>=80?'var(--ok)':pct>=50?'var(--warn)':'var(--err)';}
   const sc = document.getElementById('v-score');
   if(sc) sc.textContent = tot ? `${ok}/${tot} en rango (${Math.round(pct)}%)` : '—';
 }
@@ -1349,7 +1377,7 @@ function filtIC(){
 function filtTP(){
   const f=document.getElementById('tp-fil').value;
   const cont=document.getElementById('tp-list');
-  cont.innerHTML=TPS.filter(tp=>!f||tp.t===f).map(tp=>`<div style="padding:7px 0;border-bottom:1px solid #1e2f45;font-size:.82rem"><b style="color:#a78bfa">${tp.l}:</b> <span style="color:#cbd5e1">${tp.d}</span></div>`).join('');
+  cont.innerHTML=TPS.filter(tp=>!f||tp.t===f).map(tp=>`<div style="padding:7px 0;border-bottom:1px solid #1e2f45;font-size:.82rem"><b style="color:var(--pri)">${tp.l}:</b> <span style="color:#cbd5e1">${tp.d}</span></div>`).join('');
 }
 
 function svNotas(){localStorage.setItem('notasLCD',document.getElementById('notas').value);const e=document.getElementById('notas-st');if(e)e.textContent='Guardado '+new Date().toLocaleTimeString('es');}
@@ -1360,16 +1388,16 @@ function guardarLec(){
 }
 function compararLec(){
   const gs=localStorage.getItem('lastLCD');if(!gs){alert('Sin lectura guardada.');return;}const g=JSON.parse(gs);
-  let html=`<b style="color:#a855f7">🔄 Comparativa con lectura del ${g.fecha}:</b><br><br>`;
-  ['vcc','avdd','vcom','vgh','vgl','curr'].forEach(k=>{const cur=parseFloat(document.getElementById(k)?.value),gv=parseFloat(g[k]);if(!isNaN(cur)&&!isNaN(gv)){const d=(cur-gv).toFixed(3);const col=Math.abs(d)>0.5?'#f59e0b':'#10b981';html+=`<span style="color:${col}">${k.toUpperCase()}: ${gv} → ${cur} (${d>=0?'+':''}${d})</span><br>`;}});
-  const rb=document.getElementById('lcd-rb');rb.innerHTML=html+'<hr style="border-color:#22344d;margin:10px 0">'+(rb.innerHTML.startsWith('El reporte')?'':rb.innerHTML);
+  let html=`<b style="color:var(--pri)">🔄 Comparativa con lectura del ${g.fecha}:</b><br><br>`;
+  ['vcc','avdd','vcom','vgh','vgl','curr'].forEach(k=>{const cur=parseFloat(document.getElementById(k)?.value),gv=parseFloat(g[k]);if(!isNaN(cur)&&!isNaN(gv)){const d=(cur-gv).toFixed(3);const col=Math.abs(d)>0.5?'var(--warn)':'var(--ok)';html+=`<span style="color:${col}">${k.toUpperCase()}: ${gv} → ${cur} (${d>=0?'+':''}${d})</span><br>`;}});
+  const rb=document.getElementById('lcd-rb');rb.innerHTML=html+'<hr style="border-color:var(--brd);margin:10px 0">'+(rb.innerHTML.startsWith('El reporte')?'':rb.innerHTML);
 }
 function togHist(){
   const box=document.getElementById('hist-box');box.style.display=box.style.display==='none'?'block':'none';if(box.style.display==='none')return;
   let h=[];try{h=JSON.parse(localStorage.getItem('hLCD')||'[]');}catch(e){}
   if(!h.length){box.innerHTML='<p style="font-size:.8rem;color:#6b7280;padding:8px">Sin historial.</p>';return;}
   const r=RNG[document.getElementById('pt').value]||RNG.tv;
-  box.innerHTML=h.map((lec,i)=>`<div class="hi-item"><div class="hi-hdr"><span style="font-size:.75rem;color:#a78bfa">#${i+1} · ${lec.fecha} · ${(lec.tipo||'').toUpperCase()} ${lec.marca?'· '+lec.marca:''}</span><button onclick="restLec(${i})" style="background:#2d3a4e;border:none;color:#cbd5e1;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:.7rem">Restaurar</button></div><div class="hi-vals">${['vcc','avdd','vcom','vgh','vgl'].map(k=>{const v=parseFloat(lec[k]);const rng=r[k];const ok=rng&&!isNaN(v)&&v>=rng[0]&&v<=rng[1];return v?`<span class="hchip ${ok?'good':'bad'}">${k.toUpperCase()}: ${v}V</span>`:''}).join('')}${lec.curr?`<span class="hchip ${parseFloat(lec.curr)<=r.imax?'good':'bad'}">${lec.curr}mA</span>`:''}</div></div>`).join('');
+  box.innerHTML=h.map((lec,i)=>`<div class="hi-item"><div class="hi-hdr"><span style="font-size:.75rem;color:var(--pri)">#${i+1} · ${lec.fecha} · ${(lec.tipo||'').toUpperCase()} ${lec.marca?'· '+lec.marca:''}</span><button onclick="restLec(${i})" style="background:#2d3a4e;border:none;color:#cbd5e1;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:.7rem">Restaurar</button></div><div class="hi-vals">${['vcc','avdd','vcom','vgh','vgl'].map(k=>{const v=parseFloat(lec[k]);const rng=r[k];const ok=rng&&!isNaN(v)&&v>=rng[0]&&v<=rng[1];return v?`<span class="hchip ${ok?'good':'bad'}">${k.toUpperCase()}: ${v}V</span>`:''}).join('')}${lec.curr?`<span class="hchip ${parseFloat(lec.curr)<=r.imax?'good':'bad'}">${lec.curr}mA</span>`:''}</div></div>`).join('');
 }
 function restLec(i){
   let h=[];try{h=JSON.parse(localStorage.getItem('hLCD')||'[]');}catch(e){}const lec=h[i];if(!lec)return;
@@ -1489,7 +1517,7 @@ function diagLCD() {
   const r=RNG[tipo]||RNG.tv;let al=0,wa=0,sol='';
   const fallosVoltaje=[]; // recolecta {lbl, dir, valor} para la guía específica
   const ts=new Date().toLocaleString('es');
-  let html=`<div style="background:linear-gradient(135deg,rgba(121,40,202,.2),rgba(59,130,246,.1));padding:12px;border-radius:8px;margin-bottom:14px;border:1px solid #4c1d95"><b style="color:#d8b4fe;font-size:1rem">📋 REPORTE DIAGNÓSTICO LCD / T-CON</b><br><span style="color:#94a3b8;font-size:.78rem">Panel: ${tipo.toUpperCase()} ${marca?'· '+marca:''} · Señal: ${senal.toUpperCase()} · ${ts}</span>${sint?`<br><span style="color:var(--warn);font-size:.78rem">Síntoma: ${g('sint').selectedOptions[0]?.text||''}</span>`:''}</div>`;
+  let html=`<div style="background:linear-gradient(135deg,rgba(124,79,255,.2),rgba(59,130,246,.1));padding:12px;border-radius:8px;margin-bottom:14px;border:1px solid #4c1d95"><b style="color:#a0dfff;font-size:1rem">📋 REPORTE DIAGNÓSTICO LCD / T-CON</b><br><span style="color:var(--muted);font-size:.78rem">Panel: ${tipo.toUpperCase()} ${marca?'· '+marca:''} · Señal: ${senal.toUpperCase()} · ${ts}</span>${sint?`<br><span style="color:var(--warn);font-size:.78rem">Síntoma: ${g('sint').selectedOptions[0]?.text||''}</span>`:''}</div>`;
   const ev=(lbl,v,rng,u='V')=>{
     if(isNaN(v))return`<span style="color:#6b7280">⬜ ${lbl}: No medido</span><br>`;
     if(v>=rng[0]&&v<=rng[1])return`<span style="color:var(--ok)">✅ ${lbl}: ${v}${u} (rango ${rng[0]}–${rng[1]}${u})</span><br>`;
@@ -1500,10 +1528,10 @@ function diagLCD() {
     fallosVoltaje.push({lbl, dir, valor:`${v}${u}`});
     return`<span style="color:var(--err)">❌ ${lbl}: ${v}${u} — ${dTxt}</span><br>`;
   };
-  html+=`<b style="color:#a78bfa">⚡ Voltajes:</b><br>`;
+  html+=`<b style="color:var(--pri)">⚡ Voltajes:</b><br>`;
   html+=ev('VCC/VDD',vcc,r.vcc);html+=ev('AVDD',avdd,r.avdd);html+=ev('VCOM',vcom,r.vcom);html+=ev('VGH/VON',vgh,r.vgh);html+=ev('VGL/VOFF',vgl,r.vgl);html+=ev('VREF',vref,r.vref);
   if(!isNaN(tvin)){const ok=tvin>=10&&tvin<=15;if(!ok){al++;sol+=`• Vin T-CON fuera de rango: verificar fuente y fusible.<br>`;fallosVoltaje.push({lbl:'Vin T-CON',dir:tvin<10?'bajo':'alto',valor:`${tvin}V`});}html+=ok?`<span style="color:var(--ok)">✅ Vin T-CON: ${tvin}V</span><br>`:`<span style="color:var(--err)">❌ Vin T-CON: ${tvin}V</span><br>`;}
-  html+=`<br><b style="color:#a78bfa">🔌 Corriente y Térmico:</b><br>`;
+  html+=`<br><b style="color:var(--pri)">🔌 Corriente y Térmico:</b><br>`;
   if(!isNaN(curr)){const ok=curr<=r.imax;if(!ok){al++;sol+=`• Corriente excesiva: buscar corto con fuente limitada. Enfocar en caps cerámicos y IC Gamma.<br>`;fallosVoltaje.push({lbl:'Corriente',dir:'alto',valor:`${curr}mA`});}html+=ok?`<span style="color:var(--ok)">✅ Corriente: ${curr}mA (máx ${r.imax}mA)</span><br>`:`<span style="color:var(--err)">❌ Corriente: ${curr}mA — EXCEDE máximo (${r.imax}mA)</span><br>`;}
   if(!isNaN(rgnd)){const ok=rgnd>200;if(!ok){al++;sol+=`• Corto activo: desconectar panel y medir de nuevo para aislar fuente.<br>`;fallosVoltaje.push({lbl:'R a GND',dir:'bajo',valor:`${rgnd}Ω`});}html+=ok?`<span style="color:var(--ok)">✅ R a GND: ${rgnd}Ω</span><br>`:`<span style="color:var(--err)">❌ R a GND: ${rgnd}Ω — CORTO ACTIVO</span><br>`;}
   const tmap={normal:['var(--ok)','✅ Temperatura IC: Normal'],caliente:['var(--warn)','⚠️ Temperatura IC: Caliente'],quema:['var(--err)','❌ Temperatura IC: QUEMA — desconectar'],frio:['var(--info)','ℹ️ Temperatura IC: Frío — sin energía']};
@@ -1511,10 +1539,10 @@ function diagLCD() {
   if(ttemp==='quema'){al++;sol+=`• IC en quema: reemplazar componente afectado.<br>`;}if(ttemp==='caliente')wa++;
   if(capE==='hinch'||capE==='fuga'){html+=`<span style="color:var(--err)">❌ Condensadores: ${capE==='hinch'?'Hinchados/abombados':'Electrolito seco/fuga'}</span><br>`;al++;sol+=`• Reemplazar todos los electrolíticos de la placa.<br>`;}else if(capE==='ok')html+=`<span style="color:var(--ok)">✅ Condensadores: Sin deformación visible</span><br>`;
   if(rfE==='ab'){html+=`<span style="color:var(--err)">❌ Resistencia fusible: Circuito abierto</span><br>`;al++;sol+=`• Resistencia fusible abierta: revisar corto previo y reemplazar.<br>`;}
-  html+=`<br><b style="color:#a78bfa">🎨 Gamma (${gic.toUpperCase()}):</b><br>`;
+  html+=`<br><b style="color:var(--pri)">🎨 Gamma (${gic.toUpperCase()}):</b><br>`;
   if(!isNaN(ghi)&&!isNaN(gmid)&&!isNaN(glo)){if(ghi>gmid&&gmid>glo)html+=`<span style="color:var(--ok)">✅ Gamma correcto: ${ghi}V → ${gmid}V → ${glo}V (span: ${(ghi-glo).toFixed(1)}V)</span><br>`;else{html+=`<span style="color:var(--err)">❌ Gamma anormal — IC Gamma dañado</span><br>`;al++;sol+=`• Reemplazar IC Gamma (${gic.toUpperCase()}).<br>`;}}else html+=`<span style="color:#6b7280">⬜ Gamma: No medido</span><br>`;
   if(gest==='quem'){html+=`<span style="color:var(--err)">❌ IC Gamma con daño físico visible</span><br>`;al++;}
-  html+=`<br><b style="color:#a78bfa">⏱️ Señales:</b><br>`;
+  html+=`<br><b style="color:var(--pri)">⏱️ Señales:</b><br>`;
   const evS=(lbl,val)=>{if(val==='nm')return`<span style="color:#6b7280">⬜ ${lbl}: No medido</span><br>`;if(val==='ok'||val==='hi')return`<span style="color:var(--ok)">✅ ${lbl}: OK</span><br>`;wa++;sol+=`• Señal ${lbl} anormal: verificar IC en T-CON.<br>`;return`<span style="color:var(--warn)">⚠️ ${lbl}: Anormal (${val})</span><br>`;};
   if(ckv==='ok')html+=`<span style="color:var(--ok)">✅ CKV: Impedancia alta (sin corto)</span><br>`;
   else if(ckv==='cgnd'){html+=`<span style="color:var(--err)">❌ CKV: Corto a GND</span><br>`;al++;sol+=`• CKV a GND: aislar flex laterales uno a uno para ubicar zona dañada.<br>`;}
@@ -1522,7 +1550,7 @@ function diagLCD() {
   else{html+=`<span style="color:var(--warn)">⚠️ CKV: Circuito abierto</span><br>`;wa++;}
   html+=evS('Datos LVDS/eDP',sdat);html+=evS('STV',sstv);html+=evS('OE',soe);html+=evS('STH',ssth);
   if(xdon==='lo'){html+=`<span style="color:var(--err)">❌ XDON: Bajo — display deshabilitado</span><br>`;al++;sol+=`• XDON=LOW: el procesador no habilitó el display. Revisar señal desde el scaler.<br>`;}else if(xdon!=='nm')html+=`<span style="color:var(--ok)">✅ XDON: Alto (habilitado)</span><br>`;
-  html+=`<br><b style="color:#a78bfa">💡 Backlight:</b><br>`;
+  html+=`<br><b style="color:var(--pri)">💡 Backlight:</b><br>`;
   if(blE==='ok')html+=`<span style="color:var(--ok)">✅ Backlight: Funcional</span><br>`;
   else if(blE==='no'){html+=`<span style="color:var(--err)">❌ Backlight: No enciende</span><br>`;al++;sol+=`• Backlight inoperativo: verificar pin ENABLE del driver LED.<br>`;}
   else{html+=`<span style="color:var(--warn)">⚠️ Backlight: ${blE==='parp'?'Parpadea (LED abierto)':blE==='tenue'?'Muy tenue':'Zonas oscuras'}</span><br>`;wa++;}
@@ -1538,8 +1566,8 @@ function diagLCD() {
   if(!isNaN(vcc)&&vcc<2.5&&vcc>0) pats.push({t:`VCC bajo (${vcc}V) → Revisar regulador LDO de 3.3V o corto en carga lógica.`,n:'high'});
   if(!isNaN(rgnd)&&rgnd<100) pats.push({t:`R a GND muy baja (${rgnd}Ω) → Cortocircuito en alimentación. Desconectar panel y medir.`,n:'high'});
   if(!isNaN(curr)&&curr<50&&!isNaN(vcc)&&vcc>0) pats.push({t:'Corriente muy baja con VCC presente → Panel desconectado o flex con mal contacto.',n:'low'});
-  if(pats.length){html+=`<br><b style="color:#a78bfa">🔍 Patrones Detectados:</b><br>`;pats.forEach(p=>{const col=p.n==='high'?'var(--err)':p.n==='med'?'var(--warn)':'var(--info)';html+=`<span style="color:${col}">${p.n==='high'?'🔴':p.n==='med'?'🟡':'🔵'} ${p.t}</span><br>`;});}
-  if(notas.trim()) html+=`<br><b style="color:#a78bfa">📝 Notas:</b><br><span style="color:#cbd5e1;font-size:.85rem">${notas.replace(/\n/g,'<br>')}</span><br>`;
+  if(pats.length){html+=`<br><b style="color:var(--pri)">🔍 Patrones Detectados:</b><br>`;pats.forEach(p=>{const col=p.n==='high'?'var(--err)':p.n==='med'?'var(--warn)':'var(--info)';html+=`<span style="color:${col}">${p.n==='high'?'🔴':p.n==='med'?'🟡':'🔵'} ${p.t}</span><br>`;});}
+  if(notas.trim()) html+=`<br><b style="color:var(--pri)">📝 Notas:</b><br><span style="color:#cbd5e1;font-size:.85rem">${notas.replace(/\n/g,'<br>')}</span><br>`;
 
   // ── Resumen de fallos (texto compacto, como antes) ──────────
   if(al>0||wa>0){const niv=al>=3?'FALLO GRAVE':al>=1?'FALLO DETECTADO':'ADVERTENCIAS';html+=`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);padding:12px;border-radius:8px;margin-top:12px"><b style="color:var(--err)">🛠️ FALLOS DETECTADOS [${niv}: ${al} fallo(s), ${wa} adv.]:</b><br><div style="margin-top:6px;color:#fca5a5;font-size:.88rem;line-height:1.8">${sol}</div></div>`;}
@@ -1549,7 +1577,7 @@ function diagLCD() {
   html += generarGuiaVoltajesFallidos(fallosVoltaje);
 
   const tot=al+wa;const sc=tot===0?['var(--ok)','✅ PANEL OK']:al>=3?['var(--err)','🔴 FALLO GRAVE']:al>=1?['#f97316','🟠 FALLO DETECTADO']:['var(--warn)','🟡 ADVERTENCIAS'];
-  html+=`<div style="margin-top:12px;padding:8px;background:#0d1a2a;border-radius:6px;display:flex;justify-content:space-between"><span style="font-size:.8rem;color:#94a3b8">Evaluación:</span><span style="font-weight:bold;color:${sc[0]}">${sc[1]}</span></div>`;
+  html+=`<div style="margin-top:12px;padding:8px;background:#0d1a2a;border-radius:6px;display:flex;justify-content:space-between"><span style="font-size:.8rem;color:var(--muted)">Evaluación:</span><span style="font-weight:bold;color:${sc[0]}">${sc[1]}</span></div>`;
   g('lcd-rb').innerHTML=html;actPB();
 }
 
