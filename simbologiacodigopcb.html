@@ -5,6 +5,240 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Símbolos y Códigos PCB - Relectrónica</title>
 <style>
+
+/* ══ DESIGN SYSTEM RELECTRÓNICA v3 ══ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:    #050A12;
+  --surf:  #090F1A;
+  --card:  #0D1626;
+  --lift:  #111E32;
+  --inp:   #030608;
+  --brd:   #162440;
+  --brd2:  #1E3050;
+  --cyan:  #00D4FF;
+  --cgl:   rgba(0,212,255,.12);
+  --vio:   #7B5BF5;
+  --vgl:   rgba(123,91,245,.12);
+  --green: #00E590;
+  --amber: #FFB830;
+  --red:   #FF3D5A;
+  --info:  #38AAFF;
+  --t1:    #F0F6FF;
+  --t2:    #7A93B0;
+  --t3:    #3A5270;
+  --font:  'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:  'JetBrains Mono','Fira Code',monospace;
+  /* compat aliases */
+  --bg-deep:var(--bg); --bg-color:var(--bg); --surface:var(--surf); --chat:var(--surf);
+  --card-bg:var(--card); --border:var(--brd); --border-color:var(--brd);
+  --primary:var(--vio); --primary-color:var(--vio); --accent:var(--cyan);
+  --accent-cyan:var(--cyan); --accent-amber:var(--amber);
+  --text-main:var(--t1); --text-color:var(--t1); --text-dim:var(--t2); --fg:var(--t1);
+  --success:var(--green); --ok:var(--green); --warn:var(--amber); --err:var(--red);
+  --muted:var(--t2); --dim:var(--t3);
+  --primary-glow:rgba(123,91,245,.2); --primary-light:rgba(123,91,245,.15);
+  --bot-msg-bg:var(--lift);
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--t1);font-family:var(--font)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:99px}
+
+/* ── HEADER ── */
+header,header.app-header{
+  background:var(--surf) !important;
+  border-bottom:1px solid var(--brd) !important;
+  padding:0 14px !important;
+  height:58px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  position:sticky !important;
+  top:0 !important; z-index:50 !important;
+  box-shadow:none !important;
+}
+header::before{display:none !important}
+header::after{
+  content:'' !important;
+  position:absolute !important;
+  top:0 !important; left:0 !important; right:0 !important;
+  height:2px !important;
+  background:linear-gradient(90deg,var(--vio),var(--cyan),var(--vio)) !important;
+  background-size:200% 100% !important;
+  animation:scanHdr 4s linear infinite !important;
+}
+@keyframes scanHdr{0%{background-position:0%}100%{background-position:200%}}
+
+/* Logo en header */
+header .logo, header .logo-box, header .logo-wrap, header .logo-container{
+  width:38px !important; height:38px !important;
+  border-radius:10px !important;
+  border:1px solid var(--brd) !important;
+  background:var(--card) !important;
+  overflow:hidden !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  flex-shrink:0 !important; font-size:1rem !important;
+  color:var(--cyan) !important;
+}
+header .logo img, header .logo-box img, header .logo-wrap img{
+  width:100% !important; height:100% !important; object-fit:cover !important;
+}
+header .logo span, header .logo-box span{display:none !important}
+
+/* Texto del header */
+header .hinfo, header .header-info, header .hd-info, header .hd-text{
+  flex:1 !important; min-width:0 !important;
+}
+header .hinfo h1, header .header-info h1, header .hd-info h1, header .hd-text h1{
+  font-size:.93rem !important; font-weight:800 !important;
+  letter-spacing:-.02em !important; color:var(--t1) !important;
+  line-height:1.1 !important;
+}
+header .hinfo p, header .header-info p, header .hd-info p, header .hd-text p{
+  font-size:.68rem !important; color:var(--t3) !important;
+  font-weight:500 !important; margin-top:2px !important;
+  display:flex !important; align-items:center !important; gap:4px !important;
+}
+/* status dot */
+header .status-led, header .status-dot, header .online-dot, header .sdot{
+  width:6px !important; height:6px !important;
+  border-radius:50% !important;
+  background:var(--green) !important;
+  box-shadow:0 0 5px var(--green) !important;
+  flex-shrink:0 !important;
+  animation:blinkDot 2.5s ease-in-out infinite !important;
+  display:inline-block !important;
+}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Botón volver en header */
+header .back-btn, .back-btn{
+  margin-left:auto;
+  background:var(--card) !important; border:1px solid var(--brd) !important;
+  border-radius:9px !important; color:var(--t2) !important;
+  padding:5px 12px !important; font-size:.72rem !important;
+  font-weight:600 !important; cursor:pointer !important;
+  text-decoration:none !important; display:flex !important;
+  align-items:center !important; gap:5px !important;
+  transition:all .18s !important; font-family:var(--font) !important;
+  white-space:nowrap !important;
+}
+header .back-btn:hover, .back-btn:hover{
+  border-color:var(--cyan) !important; color:var(--cyan) !important;
+  background:var(--lift) !important;
+}
+
+/* ── FAB TOGGLE BUTTON ── */
+.fab-toggle{
+  position:fixed !important; bottom:20px !important; right:16px !important;
+  width:50px !important; height:50px !important;
+  border-radius:14px !important;
+  background:var(--card) !important;
+  border:1px solid var(--brd) !important;
+  color:var(--cyan) !important;
+  font-size:1.1rem !important; cursor:pointer !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  z-index:9999 !important; transition:all .2s !important;
+  box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 0 1px rgba(0,212,255,.08) !important;
+}
+.fab-toggle:hover{
+  border-color:var(--cyan) !important;
+  background:var(--lift) !important;
+}
+.fab-toggle.open{
+  transform:rotate(45deg) !important;
+  background:var(--cyan) !important;
+  color:#000 !important;
+  border-color:var(--cyan) !important;
+}
+
+/* ── FAB OVERLAY ── */
+.fab-overlay{
+  display:none !important;
+  position:fixed !important; inset:0 !important;
+  z-index:9998 !important;
+  background:rgba(3,6,14,.82) !important;
+  backdrop-filter:blur(3px) !important;
+}
+.fab-overlay.open{display:block !important}
+
+/* ── FAB ITEMS CONTAINER ── */
+.fab-items{
+  position:fixed !important;
+  bottom:82px !important; right:10px !important;
+  display:flex !important; flex-direction:column !important;
+  align-items:flex-end !important; gap:8px !important;
+  pointer-events:none !important; opacity:0 !important;
+  transition:opacity .2s,transform .2s !important;
+  transform:translateY(8px) !important;
+  z-index:9999 !important;
+}
+.fab-items.open{
+  pointer-events:all !important; opacity:1 !important;
+  transform:translateY(0) !important;
+}
+
+/* ── FAB ITEM ROW ── */
+.fab-item{
+  display:flex !important; align-items:center !important;
+  gap:9px !important; text-decoration:none !important;
+}
+.fab-item-label{
+  background:var(--card) !important; color:var(--t2) !important;
+  font-size:.76rem !important; font-weight:600 !important;
+  padding:5px 14px !important; border-radius:10px !important;
+  border:1px solid var(--brd) !important;
+  white-space:nowrap !important; transition:all .16s !important;
+  font-family:var(--font) !important;
+}
+.fab-item-btn{
+  width:40px !important; height:40px !important;
+  border-radius:12px !important;
+  background:var(--card) !important; border:1px solid var(--brd) !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  font-size:1rem !important; flex-shrink:0 !important;
+  transition:all .16s !important;
+}
+.fab-item:hover .fab-item-label{
+  color:var(--cyan) !important; border-color:rgba(0,212,255,.4) !important;
+  background:rgba(0,212,255,.05) !important;
+}
+.fab-item:hover .fab-item-btn{
+  border-color:rgba(0,212,255,.4) !important; background:var(--lift) !important;
+}
+.fab-item.active .fab-item-btn{
+  background:linear-gradient(135deg,var(--vio),var(--cyan)) !important;
+  border-color:transparent !important;
+  box-shadow:0 2px 12px rgba(0,212,255,.3) !important;
+}
+.fab-item.active .fab-item-label{
+  color:var(--cyan) !important; border-color:rgba(0,212,255,.3) !important;
+  background:rgba(0,212,255,.06) !important;
+}
+
+/* Stagger animations */
+.fab-items.open .fab-item:nth-child(1){animation:fabIn .18s ease .00s both}
+.fab-items.open .fab-item:nth-child(2){animation:fabIn .18s ease .03s both}
+.fab-items.open .fab-item:nth-child(3){animation:fabIn .18s ease .06s both}
+.fab-items.open .fab-item:nth-child(4){animation:fabIn .18s ease .09s both}
+.fab-items.open .fab-item:nth-child(5){animation:fabIn .18s ease .12s both}
+.fab-items.open .fab-item:nth-child(6){animation:fabIn .18s ease .15s both}
+.fab-items.open .fab-item:nth-child(7){animation:fabIn .18s ease .18s both}
+.fab-items.open .fab-item:nth-child(8){animation:fabIn .18s ease .21s both}
+.fab-items.open .fab-item:nth-child(9){animation:fabIn .18s ease .24s both}
+.fab-items.open .fab-item:nth-child(10){animation:fabIn .18s ease .27s both}
+.fab-items.open .fab-item:nth-child(11){animation:fabIn .18s ease .30s both}
+.fab-items.open .fab-item:nth-child(12){animation:fabIn .18s ease .33s both}
+@keyframes fabIn{from{opacity:0;transform:translateX(8px) scale(.96)}to{opacity:1;transform:translateX(0) scale(1)}}
+
+/* ── ESTILOS ORIGINALES ── */
+
   :root {
     --bg:        #080f1a;
     --surface:   #0f1d2e;
@@ -348,17 +582,20 @@
     padding: 20px 8px 4px; line-height: 1.6;
     border-top: 1px solid var(--border); margin-top: 20px;
   }
+body{padding-bottom:90px}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <header class="hero">
-    <div class="eyebrow">Relectrónica · Referencia técnica</div>
-    <h1>Diccionario de<br>símbolos PCB</h1>
-    <p>Escribe la letra o código serigrafiado en la placa (ej. R, C, Q, LED, TP, VCC, SDA) y te decimos qué es y cómo medirlo.</p>
-    <div class="stats-row" id="statsRow"></div>
-  </header>
+  <header>
+  <div class="logo"><img src="logo.png" alt="R" onerror="this.parentNode.innerHTML='⚡'"></div>
+  <div class="hinfo">
+    <h1>Relectrónica</h1>
+    <p><span class="status-led"></span>Simbología y Códigos PCB</p>
+  </div>
+  <a href="index.html" class="back-btn">← Chat</a>
+</header>
 
   <div class="search-wrap">
     <input id="search" placeholder="Ej: R, C30, Q10, LED, TP…" autocomplete="off" />
@@ -389,19 +626,24 @@
 </div>
 
 <!-- FAB navegación -->
+
 <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
 <div class="fab-items" id="fab-items">
-  <a href="recepcion.html" class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
-  <a href="fallas.html" class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
-  <a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
-  <a href="simbologiacodigopcb.html" class="fab-item active"><span class="fab-item-label">Símbologías PCB</span><span class="fab-item-btn">🔣</span></a>
-  <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
-  <a href="hardware.html" class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
-  <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
-  <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
-  <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+<a href="recepcion.html" class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+<a href="fallas.html" class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+<a href="componentes.html" class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+<a href="simbologiacodigopcb.html" class="fab-item active"><span class="fab-item-label">Simbología PCB</span><span class="fab-item-btn">🔣</span></a>
+<a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Calculadoras</span><span class="fab-item-btn">🧮</span></a>
+<a href="hardware.html" class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+<a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+<a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+<a href="osciloscopo.html" class="fab-item"><span class="fab-item-label">Osciloscopio IA</span><span class="fab-item-btn">📡</span></a>
+<a href="arbol.html" class="fab-item"><span class="fab-item-label">Árbol Diagnóstico</span><span class="fab-item-btn">🌿</span></a>
+<a href="escaner.html" class="fab-item"><span class="fab-item-label">Escáner de Placa</span><span class="fab-item-btn">🔬</span></a>
+<a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
 
 <!-- FAB agregar -->
 <button class="fab-add" onclick="openPcbModal()" title="Agregar código PCB">＋</button>
