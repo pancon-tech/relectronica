@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relectrónica - Predictor IA Pro</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg:       #0b131f;
+            --chat-bg:  #111c2c;
+            --card-bg:  #162235;
+            --border:   #22344d;
+            --primary:  #7928ca;
+            --accent:   #a855f7;
+            --text:     #ffffff;
+            --muted:    #a0aec0;
+            --dim:      #4a5568;
+            --ok:       #10b981;
+            --warn:     #f59e0b;
+            --err:      #ef4444;
+            --info:     #3b82f6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--chat-bg);
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo-container {
+            width: 44px; height: 44px; border-radius: 8px;
+            overflow: hidden; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); flex-shrink: 0;
+        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .header-info h1 { font-size: 1.1rem; font-weight: 700; }
+        .header-info p  { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+        .status-dot { width: 8px; height: 8px; background: var(--ok); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .header-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+        .hdr-btn {
+            background: none; border: 1px solid var(--border); border-radius: 8px;
+            color: var(--muted); padding: 6px 12px; font-size: 0.75rem; cursor: pointer;
+            transition: all .18s; display: flex; align-items: center; gap: 4px;
+        }
+        .hdr-btn:hover { background: #1e3347; color: #fff; }
+        .hdr-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .hdr-btn.primary:hover { opacity: .85; }
+
+        /* MAIN */
+        .main-content {
+            flex: 1;
+            padding: 14px 14px 20px;
+            max-width: 820px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex; gap: 4px; margin-bottom: 16px;
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+            padding: 4px; flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1; padding: 10px 8px; border-radius: 8px;
+            border: none; background: transparent;
+            color: var(--muted); font-weight: 700; font-size: 0.8rem;
+            cursor: pointer; transition: all .18s; min-width: 70px;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(121,40,202,.4);
+        }
+        .tab:hover:not(.active) { background: rgba(255,255,255,.05); }
+
+        /* PANELS */
+        .panel { display: none; animation: fadeIn .3s ease; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px; margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px 12px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .stat-card .num {
+            font-size: 2rem; font-weight: 800; color: #fff;
+            line-height: 1.2;
+        }
+        .stat-card .label {
+            font-size: 0.65rem; color: var(--muted); text-transform: uppercase;
+            letter-spacing: 0.05em; margin-top: 2px;
+        }
+        .stat-card .icon-bg {
+            position: absolute; right: -5px; bottom: -10px;
+            font-size: 3.5rem; opacity: .06; pointer-events: none;
+        }
+        .stat-card.highlight { border-color: var(--accent); }
+
+        /* CHART BOX */
+        .chart-box {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px; margin-bottom: 16px;
+        }
+        .chart-box .chart-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px;
+        }
+        .chart-box h3 {
+            font-size: 0.9rem; color: var(--accent);
+        }
+        .chart-box .chart-sub {
+            font-size: 0.7rem; color: var(--dim);
+        }
+        .chart-box canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 220px;
+        }
+        .chart-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+
+        /* TABLA DE RIESGO */
+        .risk-table {
+            width: 100%; border-collapse: collapse; font-size: 0.8rem;
+        }
+        .risk-table th {
+            background: var(--chat-bg); padding: 8px 10px; text-align: left;
+            color: var(--accent); border-bottom: 2px solid var(--border);
+            font-weight: 700; text-transform: uppercase; font-size: 0.65rem;
+            letter-spacing: 0.05em;
+        }
+        .risk-table td {
+            padding: 7px 10px; border-bottom: 1px solid var(--border);
+            color: #cbd5e1;
+        }
+        .risk-table tr:hover td { background: rgba(255,255,255,.02); }
+        .risk-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 12px;
+            font-size: 0.65rem; font-weight: 700;
+        }
+        .risk-badge.critico { background: rgba(239,68,68,.2); color: #fca5a5; }
+        .risk-badge.alto    { background: rgba(245,158,11,.2); color: #fcd34d; }
+        .risk-badge.medio   { background: rgba(59,130,246,.2); color: #93c5fd; }
+        .risk-badge.bajo    { background: rgba(16,185,129,.2); color: #6ee7b7; }
+
+        /* FILTROS */
+        .filter-row {
+            display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+        }
+        .filter-row input, .filter-row select {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            color: #fff; padding: 8px 12px; border-radius: 6px;
+            font-size: 0.8rem; outline: none; flex: 1; min-width: 120px;
+        }
+        .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); }
+        .filter-row select option { background: var(--card-bg); }
+
+        /* ALERTA CARD */
+        .alerta-card {
+            background: var(--card-bg); border-radius: 10px;
+            padding: 14px; margin-bottom: 10px;
+            border-left: 4px solid var(--warn);
+        }
+        .alerta-card.critica { border-left-color: var(--err); background: rgba(239,68,68,.05); }
+        .alerta-card.media   { border-left-color: var(--warn); }
+        .alerta-card.baja    { border-left-color: var(--ok); }
+        .alerta-card .titulo { font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .alerta-card .detalle { font-size: 0.8rem; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+        /* IA RESULT */
+        .ia-result {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px; margin-top: 12px;
+        }
+        .ia-result h3 { color: var(--accent); margin-bottom: 8px; }
+        .ia-result .section { margin-top: 12px; }
+        .ia-result .section-title {
+            font-weight: 700; font-size: 0.8rem; color: var(--accent);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ia-result .section-content {
+            font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;
+            padding-left: 6px; margin-top: 4px;
+        }
+        .ia-result ul { padding-left: 20px; margin: 4px 0; }
+        .ia-result li { margin-bottom: 4px; }
+
+        .btn-primary {
+            width: 100%; padding: 14px; border: none; border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff; font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: all .2s;
+            margin: 8px 0; display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary:hover { transform: scale(1.01); opacity: .9; }
+        .btn-primary:disabled { opacity: .4; cursor: default; transform: none; }
+
+        .btn-secondary {
+            padding: 8px 16px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--chat-bg);
+            color: var(--muted); cursor: pointer; font-size: 0.75rem;
+            transition: all .18s;
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: #fff; }
+
+        .typing-dots {
+            display: none; align-items: center; gap: 4px; margin: 8px 0;
+            justify-content: center;
+        }
+        .typing-dots.show { display: flex; }
+        .typing-dots .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent); animation: bounce 1.2s infinite;
+        }
+        .typing-dots .dot:nth-child(2) { animation-delay: .2s; }
+        .typing-dots .dot:nth-child(3) { animation-delay: .4s; }
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+        .empty-state {
+            text-align: center; padding: 40px 20px;
+            color: var(--dim);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 10px; opacity: .4; }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #1e3a28; border: 1px solid #22c55e;
+            border-radius: 8px; padding: 10px 20px;
+            font-size: .82rem; color: #86efac;
+            z-index: 99999; opacity: 0; transition: opacity .3s;
+            pointer-events: none; white-space: nowrap;
+            max-width: 90%;
+        }
+        .toast.show { opacity: 1; }
+        .toast.error { background: #3b0e0e; border-color: #ef4444; color: #fca5a5; }
+
+        /* FAB */
+        .fab-toggle {
+            position: fixed; bottom: 20px; right: 18px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; color: #fff; font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(121,40,202,.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: transform .25s ease;
+        }
+        .fab-toggle.open { transform: rotate(90deg); }
+        .fab-items {
+            position: fixed; bottom: 82px; right: 12px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            pointer-events: none; opacity: 0; transition: opacity .2s ease;
+            z-index: 9999;
+        }
+        .fab-items.open { pointer-events: all; opacity: 1; }
+        .fab-item { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .fab-item-label {
+            background: #1a273a; color: #e2e8f0; font-size: .82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid #22344d;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.5);
+        }
+        .fab-item-btn {
+            width: 44px; height: 44px; border-radius: 50%; background: #1a273a;
+            border: 1px solid #22344d; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0;
+        }
+        .fab-item.active .fab-item-btn { background: linear-gradient(135deg,var(--primary),var(--accent)); border-color: var(--accent); }
+        .fab-item.active .fab-item-label { color:#c4b5fd; border-color: var(--accent); }
+        .fab-overlay { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,.5); }
+        .fab-overlay.open { display:block; }
+        .fab-items.open .fab-item { animation: fabIn .18s ease both; }
+        .fab-items.open .fab-item:nth-child(1){animation-delay:.00s}
+        .fab-items.open .fab-item:nth-child(2){animation-delay:.04s}
+        .fab-items.open .fab-item:nth-child(3){animation-delay:.08s}
+        .fab-items.open .fab-item:nth-child(4){animation-delay:.12s}
+        .fab-items.open .fab-item:nth-child(5){animation-delay:.16s}
+        .fab-items.open .fab-item:nth-child(6){animation-delay:.20s}
+        .fab-items.open .fab-item:nth-child(7){animation-delay:.24s}
+        .fab-items.open .fab-item:nth-child(8){animation-delay:.28s}
+        .fab-items.open .fab-item:nth-child(9){animation-delay:.32s}
+        @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        @media (max-width: 520px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .chart-row { grid-template-columns: 1fr; }
+            .tabs .tab { font-size: 0.7rem; padding: 8px 4px; }
+            .header-actions .hdr-btn { font-size: 0.65rem; padding: 4px 8px; }
+            .risk-table { font-size: 0.7rem; }
+            .risk-table th, .risk-table td { padding: 5px 6px; }
+        }
+        @media (max-width: 380px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container"><img src="logo.png" alt="Relectrónica Logo"></div>
+    <div class="header-info">
+        <h1>Relectrónica</h1>
+        <p><span class="status-dot"></span> Predictor IA Pro</p>
+    </div>
+    <div class="header-actions">
+        <button class="hdr-btn" onclick="cargarDatos()">🔄 Actualizar</button>
+        <button class="hdr-btn" onclick="exportarCSV()">📊 CSV</button>
+        <button class="hdr-btn primary" onclick="analizarConIA()">🤖 IA</button>
+    </div>
+</header>
+
+<div class="main-content">
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+        <button class="tab" data-tab="riesgo">🎯 Matriz de Riesgo</button>
+        <button class="tab" data-tab="alertas">⚠️ Alertas</button>
+        <button class="tab" data-tab="ia">🧠 IA Predictiva</button>
+    </div>
+
+    <!-- PANEL: DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card highlight">
+                <div class="num" id="s-total">0</div>
+                <div class="label">Equipos registrados</div>
+                <div class="icon-bg">📦</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="s-marcas">0</div>
+                <div class="label">Marcas distintas</div>
+                <div class="icon-bg">🏷️</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="s-modelos">0</div>
+                <div class="label">Modelos únicos</div>
+                <div class="icon-bg">📟</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="s-fallas">0</div>
+                <div class="label">Fallas registradas</div>
+                <div class="icon-bg">🔧</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="s-resueltas">0%</div>
+                <div class="label">Tasa de resolución</div>
+                <div class="icon-bg">✔️</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="s-predicciones">0</div>
+                <div class="label">Predicciones activas</div>
+                <div class="icon-bg">🔮</div>
+            </div>
+        </div>
+
+        <!-- Gráficos interactivos con Chart.js -->
+        <div class="chart-box">
+            <div class="chart-header">
+                <h3>📈 Tendencia de fallas por mes</h3>
+                <span class="chart-sub">Evolución temporal</span>
+            </div>
+            <canvas id="chart-timeline"></canvas>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3>🔝 Marcas con más fallas</h3>
+                </div>
+                <canvas id="chart-marcas"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3>📊 Distribución por línea</h3>
+                </div>
+                <canvas id="chart-lineas"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3>🧩 Componentes más cambiados</h3>
+                </div>
+                <canvas id="chart-componentes"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3>📋 Modelos con más fallas</h3>
+                </div>
+                <canvas id="chart-modelos"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL: RIESGO -->
+    <div class="panel" id="panel-riesgo">
+        <div class="filter-row">
+            <input type="text" id="risk-filter" placeholder="🔍 Filtrar por marca o modelo..." oninput="renderRiesgo()">
+            <select id="risk-sort" onchange="renderRiesgo()">
+                <option value="score">Por riesgo</option>
+                <option value="marca">Por marca</option>
+                <option value="fallas">Por número de fallas</option>
+            </select>
+        </div>
+        <div id="risk-table-container">
+            <table class="risk-table">
+                <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Fallas</th>
+                        <th>Componentes críticos</th>
+                        <th>Nivel de riesgo</th>
+                    </tr>
+                </thead>
+                <tbody id="risk-tbody"></tbody>
+            </table>
+        </div>
+        <div class="empty-state" id="risk-empty" style="display:none;">
+            <div class="icon">🔍</div>
+            <p>No hay datos suficientes para evaluar riesgo.</p>
+        </div>
+    </div>
+
+    <!-- PANEL: ALERTAS -->
+    <div class="panel" id="panel-alertas">
+        <div id="alertas-list"></div>
+        <div class="empty-state" id="alertas-empty" style="display:none;">
+            <div class="icon">✅</div>
+            <p>No hay alertas activas. Tus equipos están en buen estado.</p>
+        </div>
+    </div>
+
+    <!-- PANEL: IA -->
+    <div class="panel" id="panel-ia">
+        <button class="btn-primary" id="btn-analizar" onclick="analizarConIA()">
+            🤖 Analizar con IA Predictiva
+        </button>
+        <div class="typing-dots" id="typing-dots">
+            <span style="font-size:.8rem;color:var(--muted)">Analizando datos históricos...</span>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div id="ia-result"></div>
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="exportarReporteIA()">📄 Exportar Reporte</button>
+            <button class="btn-secondary" onclick="guardarRecomendaciones()">💾 Guardar en Notas</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- FAB NAV -->
+<div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
+<div class="fab-items" id="fab-items">
+    <a href="recepcion.html"    class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
+    <a href="fallas.html"       class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
+    <a href="componentes.html"  class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
+    <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
+    <a href="hardware.html"     class="fab-item"><span class="fab-item-label">Hardware</span><span class="fab-item-btn">🖼️</span></a>
+    <a href="biblioteca.html"   class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
+    <a href="notas.html"        class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
+    <a href="predictor.html"    class="fab-item active"><span class="fab-item-label">Predictor</span><span class="fab-item-btn">📈</span></a>
+    <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+</div>
+<button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   CONFIG
+══════════════════════════════════════ */
+const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL";
+
+/* ══════════════════════════════════════
+   ESTADO
+══════════════════════════════════════ */
+let datosHistoricos = [];
+let estadisticas = {};
+let ultimoAnalisisIA = null;
+let alertasGeneradas = [];
+let charts = {};
+
+/* ══════════════════════════════════════
+   CARGAR DATOS DESDE TODOS LOS STORAGES
+══════════════════════════════════════ */
+function cargarDatos() {
+    showToast('🔄 Cargando datos históricos...');
+    const all = [];
+
+    // 1. Órdenes de recepción (relectronica_ordenes_v2)
+    try {
+        const ordenes = JSON.parse(localStorage.getItem('relectronica_ordenes_v2') || '[]');
+        ordenes.forEach(o => {
+            all.push({
+                fuente: 'orden',
+                marca: (o.fabricante || '').trim(),
+                modelo: (o.modelo || '').trim(),
+                falla: (o.falla || '').trim(),
+                solucion: (o.obs || '').trim(),
+                fecha: o.fecha || '',
+                estatus: o.estatus || 'En Diagnóstico',
+                tipo: o.tipo || '',
+                linea: detectarLinea(o.tipo),
+                componentes: extraerComponentes((o.falla || '') + ' ' + (o.obs || ''))
+            });
+        });
+    } catch(e) {}
+
+    // 2. Notas del técnico (relectronica_notas_v3 o relectronica_notas)
+    try {
+        let notas = JSON.parse(localStorage.getItem('relectronica_notas_v3') || '[]');
+        if (!notas.length) notas = JSON.parse(localStorage.getItem('relectronica_notas') || '[]');
+        notas.forEach(n => {
+            all.push({
+                fuente: 'nota',
+                marca: extraerMarcaModelo(n.titulo || ''),
+                modelo: extraerMarcaModelo(n.titulo || ''),
+                falla: (n.falla || n.contenido || '').trim(),
+                solucion: (n.solucion || '').trim(),
+                fecha: n.fecha || '',
+                estatus: 'Reparado',
+                tipo: n.cat || '',
+                linea: detectarLinea(n.cat),
+                componentes: extraerComponentes((n.falla||'') + ' ' + (n.solucion||'') + ' ' + (n.componentes||'') + ' ' + (n.contenido||''))
+            });
+        });
+    } catch(e) {}
+
+    // 3. Casos de falla (relelectronica_fallas_v2)
+    try {
+        const fallas = JSON.parse(localStorage.getItem('relelectronica_fallas_v2') || '[]');
+        fallas.forEach(f => {
+            all.push({
+                fuente: 'falla',
+                marca: extraerMarcaModelo(f.titulo || ''),
+                modelo: extraerMarcaModelo(f.titulo || ''),
+                falla: (f.sintoma || '').trim(),
+                solucion: Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
+                fecha: f.fecha || '',
+                estatus: 'Resuelto',
+                tipo: f.tipo || '',
+                linea: f.linea || detectarLinea(f.tipo),
+                componentes: f.componentes || []
+            });
+        });
+    } catch(e) {}
+
+    if (all.length === 0) {
+        showToast('⚠️ No se encontraron datos. Registra órdenes o notas primero.', true);
+        document.getElementById('stats-grid').innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--dim);">
+                <div style="font-size:3rem;margin-bottom:10px;">📭</div>
+                <p>Aún no hay datos. Empieza registrando reparaciones en <strong>Recepción</strong> o <strong>Notas</strong>.</p>
+            </div>
+        `;
+        return;
+    }
+
+    datosHistoricos = all;
+    procesarEstadisticas();
+    generarAlertas();
+    renderDashboard();
+    renderRiesgo();
+    renderAlertas();
+    showToast(`✅ ${all.length} registros cargados`);
+}
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function detectarLinea(tipo) {
+    const t = (tipo || '').toLowerCase();
+    if (t.includes('marrón') || t.includes('tv') || t.includes('audio') || t.includes('video') || t.includes('monitor')) return 'marron';
+    if (t.includes('blanca') || t.includes('lavadora') || t.includes('nevera') || t.includes('microondas') || t.includes('refrigerador')) return 'blanca';
+    if (t.includes('menor') || t.includes('licuadora') || t.includes('plancha') || t.includes('ventilador') || t.includes('tostadora')) return 'menor';
+    return 'otro';
+}
+
+function extraerMarcaModelo(texto) {
+    if (!texto) return '';
+    const patron = /([A-Za-z0-9\-\s]{2,20})/;
+    const match = texto.match(patron);
+    return match ? match[1].trim() : texto.slice(0, 15);
+}
+
+function extraerComponentes(texto) {
+    if (!texto) return [];
+    const patrones = [
+        /\b(condensador|capacitor|resistor|resistencia|diodo|transistor|mosfet|ic|chip|t-con|backlight|led|fuente|transformador|motor|bomba|termostato|fusible|placa|pwm|regulador|optoacoplador|relé|rele|bobina|inductor|potenciometro|varistor|termistor|zener|schottky|triac|scr)\b/gi,
+        /\b([A-Z0-9]{2,6})\d{1,4}\b/g
+    ];
+    const encontrados = new Set();
+    for (const p of patrones) {
+        const matches = texto.match(p);
+        if (matches) matches.forEach(m => encontrados.add(m.toLowerCase()));
+    }
+    return Array.from(encontrados);
+}
+
+function calcularRiesgo(fallas, componentes) {
+    let score = 0;
+    if (fallas >= 5) score += 3;
+    else if (fallas >= 3) score += 2;
+    else if (fallas >= 1) score += 1;
+    if (componentes && componentes.length > 0) score += 1;
+    if (score >= 4) return { nivel: 'critico', label: '🔴 Crítico', cls: 'critico' };
+    if (score >= 3) return { nivel: 'alto', label: '🟠 Alto', cls: 'alto' };
+    if (score >= 2) return { nivel: 'medio', label: '🟡 Medio', cls: 'medio' };
+    return { nivel: 'bajo', label: '🟢 Bajo', cls: 'bajo' };
+}
+
+/* ══════════════════════════════════════
+   PROCESAR ESTADÍSTICAS
+══════════════════════════════════════ */
+function procesarEstadisticas() {
+    const datos = datosHistoricos;
+    const total = datos.length;
+    const marcas = new Set();
+    const modelos = new Set();
+    const fallasPorMarca = {};
+    const fallasPorModelo = {};
+    const componentesCount = {};
+    const fallasPorMes = {};
+    const fallasPorLinea = { marron: 0, blanca: 0, menor: 0, otro: 0 };
+    let resueltas = 0;
+    let fallasTotales = 0;
+
+    datos.forEach(d => {
+        const mk = d.marca || 'Desconocida';
+        const md = d.modelo || 'Desconocido';
+
+        if (mk) marcas.add(mk);
+        if (md) modelos.add(md);
+        if (d.falla) fallasTotales++;
+
+        fallasPorMarca[mk] = (fallasPorMarca[mk] || 0) + 1;
+        fallasPorModelo[md] = (fallasPorModelo[md] || 0) + 1;
+
+        if (d.estatus === 'Reparado' || d.estatus === 'Resuelto' || d.estatus === 'Entregado') {
+            resueltas++;
+        }
+
+        if (d.linea) {
+            fallasPorLinea[d.linea] = (fallasPorLinea[d.linea] || 0) + 1;
+        }
+
+        if (d.componentes) {
+            d.componentes.forEach(c => {
+                if (c) componentesCount[c] = (componentesCount[c] || 0) + 1;
+            });
+        }
+
+        if (d.fecha) {
+            const mes = d.fecha.slice(0, 7);
+            if (mes) fallasPorMes[mes] = (fallasPorMes[mes] || 0) + 1;
+        }
+    });
+
+    const tasaResolucion = total > 0 ? Math.round((resueltas / total) * 100) : 0;
+    const predicciones = Object.values(fallasPorModelo).filter(v => v >= 3).length;
+
+    estadisticas = {
+        total, marcas: marcas.size, modelos: modelos.size,
+        fallasTotales, resueltas, tasaResolucion, predicciones,
+        fallasPorMarca, fallasPorModelo, componentesCount,
+        fallasPorMes, fallasPorLinea
+    };
+}
+
+/* ══════════════════════════════════════
+   RENDER DASHBOARD (con Chart.js)
+══════════════════════════════════════ */
+function renderDashboard() {
+    const s = estadisticas;
+    document.getElementById('s-total').textContent = s.total;
+    document.getElementById('s-marcas').textContent = s.marcas;
+    document.getElementById('s-modelos').textContent = s.modelos;
+    document.getElementById('s-fallas').textContent = s.fallasTotales;
+    document.getElementById('s-resueltas').textContent = s.tasaResolucion + '%';
+    document.getElementById('s-predicciones').textContent = s.predicciones;
+
+    // Destruir gráficos anteriores
+    Object.values(charts).forEach(c => { if (c) c.destroy(); });
+    charts = {};
+
+    // 1. Timeline (línea)
+    const meses = Object.entries(s.fallasPorMes).sort();
+    charts.timeline = new Chart(document.getElementById('chart-timeline'), {
+        type: 'line',
+        data: {
+            labels: meses.map(m => m[0].slice(5) + '/' + m[0].slice(0,4)),
+            datasets: [{
+                label: 'Fallas por mes',
+                data: meses.map(m => m[1]),
+                borderColor: '#a855f7',
+                backgroundColor: 'rgba(168,85,247,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: '#a855f7',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#a0aec0' } } },
+            scales: {
+                x: { ticks: { color: '#4a5568', maxTicksLimit: 10 } },
+                y: { ticks: { color: '#4a5568', beginAtZero: true } }
+            }
+        }
+    });
+
+    // 2. Marcas (barras)
+    const marcasSorted = Object.entries(s.fallasPorMarca).sort((a,b) => b[1] - a[1]).slice(0, 6);
+    charts.marcas = new Chart(document.getElementById('chart-marcas'), {
+        type: 'bar',
+        data: {
+            labels: marcasSorted.map(m => m[0].length > 12 ? m[0].slice(0,10)+'…' : m[0]),
+            datasets: [{
+                label: 'Fallas',
+                data: marcasSorted.map(m => m[1]),
+                backgroundColor: ['#7928ca','#a855f7','#7c3aed','#6d28d9','#4f46e5','#2563eb'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#4a5568' } },
+                y: { ticks: { color: '#4a5568', beginAtZero: true } }
+            }
+        }
+    });
+
+    // 3. Líneas (doughnut)
+    const lineasMap = { marron: '📺 Marrón', blanca: '🫙 Blanca', menor: '🔌 Menor', otro: '📌 Otro' };
+    const lineasData = Object.entries(s.fallasPorLinea).filter(([k,v]) => v > 0);
+    charts.lineas = new Chart(document.getElementById('chart-lineas'), {
+        type: 'doughnut',
+        data: {
+            labels: lineasData.map(([k]) => lineasMap[k] || k),
+            datasets: [{
+                data: lineasData.map(([,v]) => v),
+                backgroundColor: ['#b45309', '#38bdf8', '#22c55e', '#6b7280'],
+                borderColor: '#0b131f',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#a0aec0', font: { size: 10 } } }
+            }
+        }
+    });
+
+    // 4. Componentes (barras)
+    const compSorted = Object.entries(s.componentesCount).sort((a,b) => b[1] - a[1]).slice(0, 6);
+    charts.componentes = new Chart(document.getElementById('chart-componentes'), {
+        type: 'bar',
+        data: {
+            labels: compSorted.map(c => c[0].length > 12 ? c[0].slice(0,10)+'…' : c[0]),
+            datasets: [{
+                label: 'Veces',
+                data: compSorted.map(c => c[1]),
+                backgroundColor: ['#f59e0b','#fbbf24','#fcd34d','#d97706','#b45309','#92400e'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#4a5568' } },
+                y: { ticks: { color: '#4a5568', beginAtZero: true } }
+            }
+        }
+    });
+
+    // 5. Modelos (barras)
+    const modelosSorted = Object.entries(s.fallasPorModelo).sort((a,b) => b[1] - a[1]).filter(([m]) => m !== 'Desconocido').slice(0, 5);
+    charts.modelos = new Chart(document.getElementById('chart-modelos'), {
+        type: 'bar',
+        data: {
+            labels: modelosSorted.map(m => m[0].length > 14 ? m[0].slice(0,12)+'…' : m[0]),
+            datasets: [{
+                label: 'Fallas',
+                data: modelosSorted.map(m => m[1]),
+                backgroundColor: ['#10b981','#34d399','#6ee7b7','#059669','#047857'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#4a5568' } },
+                y: { ticks: { color: '#4a5568', beginAtZero: true } }
+            }
+        }
+    });
+}
+
+/* ══════════════════════════════════════
+   RENDER RIESGO
+══════════════════════════════════════ */
+function renderRiesgo() {
+    const filter = document.getElementById('risk-filter').value.toLowerCase();
+    const sort = document.getElementById('risk-sort').value;
+    const tbody = document.getElementById('risk-tbody');
+    const empty = document.getElementById('risk-empty');
+
+    const modelos = estadisticas.fallasPorModelo || {};
+    const comps = estadisticas.componentesCount || {};
+
+    let items = Object.entries(modelos)
+        .filter(([modelo]) => modelo !== 'Desconocido')
+        .map(([modelo, fallas]) => {
+            const compsRel = Object.entries(comps)
+                .filter(([c]) => modelo.toLowerCase().includes(c) || c.includes(modelo.toLowerCase()))
+                .slice(0, 3)
+                .map(([c]) => c);
+            const riesgo = calcularRiesgo(fallas, compsRel);
+            const marca = modelo.split(' ')[0] || modelo;
+            return { modelo, fallas, componentes: compsRel, riesgo, marca };
+        })
+        .filter(item => !filter || item.modelo.toLowerCase().includes(filter) || item.marca.toLowerCase().includes(filter));
+
+    if (sort === 'marca') items.sort((a,b) => a.marca.localeCompare(b.marca));
+    else if (sort === 'fallas') items.sort((a,b) => b.fallas - a.fallas);
+    else items.sort((a,b) => {
+        const orden = { critico:0, alto:1, medio:2, bajo:3 };
+        return (orden[a.riesgo.nivel] || 4) - (orden[b.riesgo.nivel] || 4);
+    });
+
+    if (items.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>${item.marca}</td>
+            <td>${item.modelo}</td>
+            <td><strong>${item.fallas}</strong></td>
+            <td>${item.componentes.length ? item.componentes.slice(0,3).join(', ') : '—'}</td>
+            <td><span class="risk-badge ${item.riesgo.cls}">${item.riesgo.label}</span></td>
+        </tr>
+    `).join('');
+}
+
+/* ══════════════════════════════════════
+   GENERAR ALERTAS
+══════════════════════════════════════ */
+function generarAlertas() {
+    const alertas = [];
+    const modelos = estadisticas.fallasPorModelo || {};
+    const comps = estadisticas.componentesCount || {};
+
+    Object.entries(modelos).forEach(([modelo, count]) => {
+        if (count >= 3 && modelo !== 'Desconocido') {
+            alertas.push({
+                tipo: 'modelo_frecuente',
+                titulo: `⚠️ ${modelo} con ${count} fallas registradas`,
+                detalle: `Este modelo ha presentado ${count} fallas. Revisa los casos para identificar patrones. Considera ofrecer mantenimiento preventivo.`,
+                severidad: count >= 5 ? 'critica' : 'media',
+                fecha: new Date().toLocaleDateString('es-VE')
+            });
+        }
+    });
+
+    Object.entries(comps).forEach(([comp, count]) => {
+        if (count >= 2) {
+            alertas.push({
+                tipo: 'componente_comun',
+                titulo: `🔧 Componente "${comp}" aparece en ${count} fallas`,
+                detalle: `Este componente es recurrente en tus reparaciones. Asegúrate de tener stock suficiente y revisa si hay una causa raíz común.`,
+                severidad: count >= 4 ? 'critica' : 'media',
+                fecha: new Date().toLocaleDateString('es-VE')
+            });
+        }
+    });
+
+    alertasGeneradas = alertas;
+}
+
+function renderAlertas() {
+    const container = document.getElementById('alertas-list');
+    const empty = document.getElementById('alertas-empty');
+
+    if (alertasGeneradas.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    container.innerHTML = alertasGeneradas.map(a => `
+        <div class="alerta-card ${a.severidad}">
+            <div class="titulo">
+                ${a.titulo}
+                <span class="risk-badge ${a.severidad === 'critica' ? 'critico' : 'medio'}">${a.severidad.toUpperCase()}</span>
+            </div>
+            <div class="detalle">${a.detalle}</div>
+            <div style="font-size:0.65rem;color:var(--dim);margin-top:6px;">📅 ${a.fecha}</div>
+        </div>
+    `).join('');
+}
+
+/* ══════════════════════════════════════
+   ANÁLISIS CON IA
+══════════════════════════════════════ */
+async function analizarConIA() {
+    const btn = document.getElementById('btn-analizar');
+    const dots = document.getElementById('typing-dots');
+    btn.disabled = true;
+    dots.classList.add('show');
+
+    const resumen = datosHistoricos.slice(0, 25).map(d =>
+        `Marca: ${d.marca || '?'} | Modelo: ${d.modelo || '?'} | Falla: ${d.falla || '?'} | Solución: ${d.solucion || '?'} | Componentes: ${(d.componentes||[]).join(', ')}`
+    ).join('\n');
+
+    const prompt = `Eres un analista experto en reparaciones de electrónica. Con base en el siguiente historial de reparaciones (${datosHistoricos.length} registros), genera un análisis predictivo profundo.
+
+HISTORIAL (muestra):
+${resumen}
+
+Responde ÚNICAMENTE con JSON válido:
+{
+  "tendencias": "Resumen ejecutivo de las principales tendencias (2-3 oraciones)",
+  "recomendaciones": ["Recomendación 1", "Recomendación 2", "Recomendación 3", "Recomendación 4"],
+  "riesgo_alto": ["Modelo o componente 1", "Modelo o componente 2"],
+  "mantenimiento_preventivo": ["Sugerencia 1", "Sugerencia 2", "Sugerencia 3"],
+  "oportunidades": ["Oportunidad de negocio 1", "Oportunidad 2"],
+  "stock_sugerido": ["Componente 1 cantidad", "Componente 2 cantidad"]
+}`;
+
+    try {
+        const resp = await fetch('https://api.cohere.ai/v1/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${COHERE_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'command-r-08-2024',
+                message: prompt,
+                preamble: 'Eres un analista técnico senior. Responde solo con JSON válido.',
+                chat_history: []
+            })
+        });
+
+        const data = await resp.json();
+        dots.classList.remove('show');
+        btn.disabled = false;
+
+        if (!resp.ok || !data.text) {
+            showToast('⚠️ Error al obtener análisis', true);
+            return;
+        }
+
+        let raw = data.text.trim().replace(/```json|```/g, '').trim();
+        const result = JSON.parse(raw);
+        ultimoAnalisisIA = result;
+
+        document.getElementById('ia-result').innerHTML = `
+            <div class="ia-result">
+                <h3>📊 Análisis Predictivo</h3>
+                <div class="section"><div class="section-title">📈 Tendencias</div><div class="section-content">${result.tendencias}</div></div>
+                <div class="section"><div class="section-title">🔧 Recomendaciones</div><div class="section-content"><ul>${(result.recomendaciones||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+                <div class="section"><div class="section-title" style="color:var(--err)">⚠️ Riesgo alto</div><div class="section-content" style="color:#fca5a5;"><ul>${(result.riesgo_alto||[]).map(r => `<li>${r}</li>`).join('') || '<li>No se detectaron riesgos altos.</li>'}</ul></div></div>
+                <div class="section"><div class="section-title" style="color:var(--ok)">🛡️ Mantenimiento preventivo</div><div class="section-content" style="color:#86efac;"><ul>${(result.mantenimiento_preventivo||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+                <div class="section"><div class="section-title" style="color:var(--warn)">💰 Oportunidades</div><div class="section-content" style="color:#fcd34d;"><ul>${(result.oportunidades||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+                <div class="section"><div class="section-title" style="color:var(--info)">📦 Stock sugerido</div><div class="section-content" style="color:#93c5fd;"><ul>${(result.stock_sugerido||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+                <div style="margin-top:12px;font-size:0.7rem;color:var(--dim);">Analizado sobre ${datosHistoricos.length} registros.</div>
+            </div>
+        `;
+        showToast('✅ Análisis completado');
+    } catch (err) {
+        dots.classList.remove('show');
+        btn.disabled = false;
+        showToast('❌ Error al conectar con la IA', true);
+        console.error(err);
+    }
+}
+
+/* ══════════════════════════════════════
+   EXPORTAR
+══════════════════════════════════════ */
+function exportarCSV() {
+    if (!datosHistoricos.length) { showToast('⚠️ No hay datos para exportar', true); return; }
+    let csv = 'Marca,Modelo,Falla,Solución,Estatus,Fecha,Componentes,Línea\n';
+    datosHistoricos.forEach(d => {
+        const comps = (d.componentes||[]).join(';');
+        csv += `"${d.marca}","${d.modelo}","${d.falla}","${d.solucion}","${d.estatus}","${d.fecha}","${comps}","${d.linea||''}"\n`;
+    });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `predictor_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('📊 CSV exportado');
+}
+
+function exportarReporteIA() {
+    if (!ultimoAnalisisIA) { showToast('⚠️ Primero ejecuta el análisis con IA', true); return; }
+    const r = ultimoAnalisisIA;
+    const texto = [
+        '═══════════════════════════════════════',
+        '📊 REPORTE PREDICTIVO RELECTRÓNICA',
+        `📅 ${new Date().toLocaleDateString('es-VE')}`,
+        `📋 Basado en ${datosHistoricos.length} registros`,
+        '═══════════════════════════════════════',
+        '', '📈 TENDENCIAS:', r.tendencias || 'Sin datos',
+        '', '🔧 RECOMENDACIONES:', ...(r.recomendaciones||[]).map((r,i) => `${i+1}. ${r}`),
+        '', '⚠️ RIESGO ALTO:', ...(r.riesgo_alto||[]).map(r => `• ${r}`),
+        '', '🛡️ MANTENIMIENTO PREVENTIVO:', ...(r.mantenimiento_preventivo||[]).map(r => `• ${r}`),
+        '', '💰 OPORTUNIDADES:', ...(r.oportunidades||[]).map(r => `• ${r}`),
+        '', '📦 STOCK SUGERIDO:', ...(r.stock_sugerido||[]).map(r => `• ${r}`),
+        '', '═══════════════════════════════════════'
+    ].join('\n');
+    const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reporte_predictivo_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('📄 Reporte exportado');
+}
+
+function guardarRecomendaciones() {
+    if (!ultimoAnalisisIA) { showToast('⚠️ Primero ejecuta el análisis con IA', true); return; }
+    const r = ultimoAnalisisIA;
+    const texto = [
+        '━━━ RECOMENDACIONES PREDICTIVAS ━━━',
+        `📅 ${new Date().toLocaleDateString('es-VE')}`,
+        '', '📈 Tendencias: ' + (r.tendencias || ''),
+        '', '🔧 Recomendaciones:', ...(r.recomendaciones||[]).map((rec,i) => `${i+1}. ${rec}`),
+        '', '⚠️ Riesgo alto:', ...(r.riesgo_alto||[]).map(ra => `• ${ra}`),
+        '', '🛡️ Mantenimiento preventivo:', ...(r.mantenimiento_preventivo||[]).map(mp => `• ${mp}`),
+        '', '💰 Oportunidades:', ...(r.oportunidades||[]).map(op => `• ${op}`),
+        '', '📦 Stock sugerido:', ...(r.stock_sugerido||[]).map(st => `• ${st}`),
+        '━━━━━━━━━━━━━━━━━━━━━'
+    ].join('\n');
+
+    try {
+        const key = 'relectronica_notas';
+        const notas = JSON.parse(localStorage.getItem(key) || '[]');
+        notas.unshift({
+            id: Date.now(),
+            titulo: '📈 Recomendaciones Predictor IA',
+            contenido: texto,
+            fecha: new Date().toLocaleDateString('es-VE'),
+            cat: 'reparacion',
+            falla: 'Análisis predictivo',
+            solucion: texto
+        });
+        localStorage.setItem(key, JSON.stringify(notas));
+        showToast('💾 Guardado en Mis Notas');
+    } catch(e) { showToast('⚠️ Error al guardar', true); }
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg, error = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (error ? ' error' : '');
+    t.classList.add('show');
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+        if (this.dataset.tab === 'dashboard') {
+            setTimeout(() => renderDashboard(), 100);
+        }
+    });
+});
+
+/* ══════════════════════════════════════
+   FAB
+══════════════════════════════════════ */
+function toggleFAB() {
+    const items = document.getElementById('fab-items');
+    const overlay = document.getElementById('fab-overlay');
+    const btn = document.getElementById('fab-toggle');
+    const open = items.classList.toggle('open');
+    overlay.classList.toggle('open', open);
+    if (btn) btn.classList.toggle('open', open);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    cargarDatos();
+});
+</script>
+</body>
+</html>
