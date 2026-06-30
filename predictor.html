@@ -6,6 +6,9 @@
     <title>Relectrónica - Predictor IA Pro</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- html2canvas + jsPDF para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --bg:       #0b131f;
@@ -118,6 +121,9 @@
             font-size: 0.65rem; color: var(--muted); text-transform: uppercase;
             letter-spacing: 0.05em; margin-top: 2px;
         }
+        .stat-card .trend {
+            font-size: 0.7rem; margin-left: 4px;
+        }
         .stat-card .icon-bg {
             position: absolute; right: -5px; bottom: -10px;
             font-size: 3.5rem; opacity: .06; pointer-events: none;
@@ -128,6 +134,8 @@
         .chart-box {
             background: var(--card-bg); border: 1px solid var(--border);
             border-radius: 10px; padding: 14px; margin-bottom: 16px;
+            position: relative;
+            min-height: 200px;
         }
         .chart-box .chart-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -147,6 +155,58 @@
         .chart-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
+
+        /* SKELETON LOADER */
+        .skeleton {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border-radius: 10px;
+            gap: 12px;
+            z-index: 2;
+        }
+        .skeleton.hidden { display: none; }
+        .skeleton .bar {
+            width: 80%;
+            height: 12px;
+            background: linear-gradient(90deg, var(--border) 25%, var(--chat-bg) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+        .skeleton .bar:nth-child(2) { width: 60%; }
+        .skeleton .bar:nth-child(3) { width: 70%; }
+        .skeleton .bar:nth-child(4) { width: 50%; }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* FILTRO DE FECHAS */
+        .date-filter-row {
+            display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+            align-items: center;
+        }
+        .date-filter-row label {
+            font-size: 0.75rem; color: var(--muted);
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .date-filter-row input {
+            background: var(--chat-bg); border: 1px solid var(--border);
+            color: #fff; padding: 6px 10px; border-radius: 6px;
+            font-size: 0.8rem; outline: none;
+        }
+        .date-filter-row input:focus { border-color: var(--accent); }
+        .date-filter-row .btn-sm {
+            background: var(--primary); border: none; border-radius: 6px;
+            color: #fff; padding: 6px 12px; font-size: 0.7rem;
+            cursor: pointer; font-weight: 700;
+        }
+        .date-filter-row .btn-sm:hover { opacity: .85; }
 
         /* TABLA DE RIESGO */
         .risk-table {
@@ -171,8 +231,11 @@
         .risk-badge.alto    { background: rgba(245,158,11,.2); color: #fcd34d; }
         .risk-badge.medio   { background: rgba(59,130,246,.2); color: #93c5fd; }
         .risk-badge.bajo    { background: rgba(16,185,129,.2); color: #6ee7b7; }
+        .risk-trend-up   { color: var(--err); }
+        .risk-trend-down { color: var(--ok); }
+        .risk-trend-stable { color: var(--warn); }
 
-        /* FILTROS */
+        /* FILTROS RIESGO */
         .filter-row {
             display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
         }
@@ -317,6 +380,7 @@
             .header-actions .hdr-btn { font-size: 0.65rem; padding: 4px 8px; }
             .risk-table { font-size: 0.7rem; }
             .risk-table th, .risk-table td { padding: 5px 6px; }
+            .date-filter-row { flex-direction: column; align-items: stretch; }
         }
         @media (max-width: 380px) {
             .stats-grid { grid-template-columns: 1fr; }
@@ -334,6 +398,7 @@
     <div class="header-actions">
         <button class="hdr-btn" onclick="cargarDatos()">🔄 Actualizar</button>
         <button class="hdr-btn" onclick="exportarCSV()">📊 CSV</button>
+        <button class="hdr-btn" onclick="exportarPDF()">📄 PDF</button>
         <button class="hdr-btn primary" onclick="analizarConIA()">🤖 IA</button>
     </div>
 </header>
@@ -350,6 +415,16 @@
 
     <!-- PANEL: DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
+
+        <!-- Filtro de fechas -->
+        <div class="date-filter-row">
+            <label>📅 Período:</label>
+            <input type="date" id="fecha-inicio">
+            <input type="date" id="fecha-fin">
+            <button class="btn-sm" onclick="aplicarFiltroFechas()">Aplicar</button>
+            <button class="btn-sm" onclick="limpiarFiltroFechas()" style="background:var(--border);">Limpiar</button>
+        </div>
+
         <div class="stats-grid" id="stats-grid">
             <div class="stat-card highlight">
                 <div class="num" id="s-total">0</div>
@@ -383,8 +458,11 @@
             </div>
         </div>
 
-        <!-- Gráficos interactivos con Chart.js -->
+        <!-- Gráficos con Skeleton Loader -->
         <div class="chart-box">
+            <div class="skeleton" id="sk-timeline">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
             <div class="chart-header">
                 <h3>📈 Tendencia de fallas por mes</h3>
                 <span class="chart-sub">Evolución temporal</span>
@@ -394,30 +472,26 @@
 
         <div class="chart-row">
             <div class="chart-box">
-                <div class="chart-header">
-                    <h3>🔝 Marcas con más fallas</h3>
-                </div>
+                <div class="skeleton" id="sk-marcas"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                <div class="chart-header"><h3>🔝 Marcas con más fallas</h3></div>
                 <canvas id="chart-marcas"></canvas>
             </div>
             <div class="chart-box">
-                <div class="chart-header">
-                    <h3>📊 Distribución por línea</h3>
-                </div>
+                <div class="skeleton" id="sk-lineas"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                <div class="chart-header"><h3>📊 Distribución por línea</h3></div>
                 <canvas id="chart-lineas"></canvas>
             </div>
         </div>
 
         <div class="chart-row">
             <div class="chart-box">
-                <div class="chart-header">
-                    <h3>🧩 Componentes más cambiados</h3>
-                </div>
+                <div class="skeleton" id="sk-componentes"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                <div class="chart-header"><h3>🧩 Componentes más cambiados</h3></div>
                 <canvas id="chart-componentes"></canvas>
             </div>
             <div class="chart-box">
-                <div class="chart-header">
-                    <h3>📋 Modelos con más fallas</h3>
-                </div>
+                <div class="skeleton" id="sk-modelos"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                <div class="chart-header"><h3>📋 Modelos con más fallas</h3></div>
                 <canvas id="chart-modelos"></canvas>
             </div>
         </div>
@@ -426,7 +500,7 @@
     <!-- PANEL: RIESGO -->
     <div class="panel" id="panel-riesgo">
         <div class="filter-row">
-            <input type="text" id="risk-filter" placeholder="🔍 Filtrar por marca o modelo..." oninput="renderRiesgo()">
+            <input type="text" id="risk-filter" placeholder="🔍 Filtrar por marca o modelo..." oninput="debounceRenderRiesgo()">
             <select id="risk-sort" onchange="renderRiesgo()">
                 <option value="score">Por riesgo</option>
                 <option value="marca">Por marca</option>
@@ -440,6 +514,7 @@
                         <th>Marca</th>
                         <th>Modelo</th>
                         <th>Fallas</th>
+                        <th>Tendencia</th>
                         <th>Componentes críticos</th>
                         <th>Nivel de riesgo</th>
                     </tr>
@@ -507,77 +582,106 @@ const COHERE_API_KEY = "594SHpSQqQo0yWaa48hHgwDbRCijYSVD2biJOLLL";
    ESTADO
 ══════════════════════════════════════ */
 let datosHistoricos = [];
+let datosFiltrados = [];
 let estadisticas = {};
 let ultimoAnalisisIA = null;
 let alertasGeneradas = [];
 let charts = {};
+let riskPreviousData = {}; // para tendencias
+let debounceTimer = null;
+let filtroFechasActivo = false;
+
+/* ══════════════════════════════════════
+   VALIDACIÓN DE DATOS
+══════════════════════════════════════ */
+function validarDatos(arr) {
+    if (!Array.isArray(arr)) return [];
+    return arr.filter(item => 
+        item && typeof item === 'object' &&
+        (item.marca || item.modelo || item.falla)
+    );
+}
 
 /* ══════════════════════════════════════
    CARGAR DATOS DESDE TODOS LOS STORAGES
 ══════════════════════════════════════ */
 function cargarDatos() {
     showToast('🔄 Cargando datos históricos...');
+    mostrarSkeletons(true);
     const all = [];
 
-    // 1. Órdenes de recepción (relectronica_ordenes_v2)
+    // 1. Órdenes de recepción
     try {
-        const ordenes = JSON.parse(localStorage.getItem('relectronica_ordenes_v2') || '[]');
-        ordenes.forEach(o => {
-            all.push({
-                fuente: 'orden',
-                marca: (o.fabricante || '').trim(),
-                modelo: (o.modelo || '').trim(),
-                falla: (o.falla || '').trim(),
-                solucion: (o.obs || '').trim(),
-                fecha: o.fecha || '',
-                estatus: o.estatus || 'En Diagnóstico',
-                tipo: o.tipo || '',
-                linea: detectarLinea(o.tipo),
-                componentes: extraerComponentes((o.falla || '') + ' ' + (o.obs || ''))
+        const raw = localStorage.getItem('relectronica_ordenes_v2');
+        const ordenes = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(ordenes)) {
+            ordenes.forEach(o => {
+                all.push({
+                    fuente: 'orden',
+                    marca: (o.fabricante || '').trim(),
+                    modelo: (o.modelo || '').trim(),
+                    falla: (o.falla || '').trim(),
+                    solucion: (o.obs || '').trim(),
+                    fecha: o.fecha || '',
+                    estatus: o.estatus || 'En Diagnóstico',
+                    tipo: o.tipo || '',
+                    linea: detectarLinea(o.tipo),
+                    componentes: extraerComponentes((o.falla || '') + ' ' + (o.obs || ''))
+                });
             });
-        });
-    } catch(e) {}
+        }
+    } catch(e) { console.warn('Error cargando órdenes:', e); }
 
-    // 2. Notas del técnico (relectronica_notas_v3 o relectronica_notas)
+    // 2. Notas del técnico
     try {
-        let notas = JSON.parse(localStorage.getItem('relectronica_notas_v3') || '[]');
-        if (!notas.length) notas = JSON.parse(localStorage.getItem('relectronica_notas') || '[]');
-        notas.forEach(n => {
-            all.push({
-                fuente: 'nota',
-                marca: extraerMarcaModelo(n.titulo || ''),
-                modelo: extraerMarcaModelo(n.titulo || ''),
-                falla: (n.falla || n.contenido || '').trim(),
-                solucion: (n.solucion || '').trim(),
-                fecha: n.fecha || '',
-                estatus: 'Reparado',
-                tipo: n.cat || '',
-                linea: detectarLinea(n.cat),
-                componentes: extraerComponentes((n.falla||'') + ' ' + (n.solucion||'') + ' ' + (n.componentes||'') + ' ' + (n.contenido||''))
+        let raw = localStorage.getItem('relectronica_notas_v3');
+        if (!raw) raw = localStorage.getItem('relectronica_notas');
+        const notas = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(notas)) {
+            notas.forEach(n => {
+                all.push({
+                    fuente: 'nota',
+                    marca: extraerMarcaModelo(n.titulo || ''),
+                    modelo: extraerMarcaModelo(n.titulo || ''),
+                    falla: (n.falla || n.contenido || '').trim(),
+                    solucion: (n.solucion || '').trim(),
+                    fecha: n.fecha || '',
+                    estatus: 'Reparado',
+                    tipo: n.cat || '',
+                    linea: detectarLinea(n.cat),
+                    componentes: extraerComponentes((n.falla||'') + ' ' + (n.solucion||'') + ' ' + (n.componentes||'') + ' ' + (n.contenido||''))
+                });
             });
-        });
-    } catch(e) {}
+        }
+    } catch(e) { console.warn('Error cargando notas:', e); }
 
-    // 3. Casos de falla (relelectronica_fallas_v2)
+    // 3. Casos de falla
     try {
-        const fallas = JSON.parse(localStorage.getItem('relelectronica_fallas_v2') || '[]');
-        fallas.forEach(f => {
-            all.push({
-                fuente: 'falla',
-                marca: extraerMarcaModelo(f.titulo || ''),
-                modelo: extraerMarcaModelo(f.titulo || ''),
-                falla: (f.sintoma || '').trim(),
-                solucion: Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
-                fecha: f.fecha || '',
-                estatus: 'Resuelto',
-                tipo: f.tipo || '',
-                linea: f.linea || detectarLinea(f.tipo),
-                componentes: f.componentes || []
+        const raw = localStorage.getItem('relelectronica_fallas_v2');
+        const fallas = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(fallas)) {
+            fallas.forEach(f => {
+                all.push({
+                    fuente: 'falla',
+                    marca: extraerMarcaModelo(f.titulo || ''),
+                    modelo: extraerMarcaModelo(f.titulo || ''),
+                    falla: (f.sintoma || '').trim(),
+                    solucion: Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
+                    fecha: f.fecha || '',
+                    estatus: 'Resuelto',
+                    tipo: f.tipo || '',
+                    linea: f.linea || detectarLinea(f.tipo),
+                    componentes: f.componentes || []
+                });
             });
-        });
-    } catch(e) {}
+        }
+    } catch(e) { console.warn('Error cargando fallas:', e); }
 
-    if (all.length === 0) {
+    // Validar datos
+    datosHistoricos = validarDatos(all);
+    datosFiltrados = [...datosHistoricos];
+
+    if (datosHistoricos.length === 0) {
         showToast('⚠️ No se encontraron datos. Registra órdenes o notas primero.', true);
         document.getElementById('stats-grid').innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--dim);">
@@ -585,16 +689,95 @@ function cargarDatos() {
                 <p>Aún no hay datos. Empieza registrando reparaciones en <strong>Recepción</strong> o <strong>Notas</strong>.</p>
             </div>
         `;
+        mostrarSkeletons(false);
         return;
     }
 
-    datosHistoricos = all;
+    // Guardar estado previo para tendencias
+    guardarEstadoPrevio();
+
     procesarEstadisticas();
     generarAlertas();
     renderDashboard();
     renderRiesgo();
     renderAlertas();
-    showToast(`✅ ${all.length} registros cargados`);
+    mostrarSkeletons(false);
+    showToast(`✅ ${datosHistoricos.length} registros cargados`);
+}
+
+/* ══════════════════════════════════════
+   SKELETON LOADER
+══════════════════════════════════════ */
+function mostrarSkeletons(show) {
+    ['sk-timeline', 'sk-marcas', 'sk-lineas', 'sk-componentes', 'sk-modelos'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', !show);
+    });
+}
+
+/* ══════════════════════════════════════
+   GUARDAR ESTADO PREVIO PARA TENDENCIAS
+══════════════════════════════════════ */
+function guardarEstadoPrevio() {
+    try {
+        const prev = JSON.parse(sessionStorage.getItem('predictor_prev_state') || '{}');
+        riskPreviousData = prev.riskData || {};
+    } catch(e) { riskPreviousData = {}; }
+}
+
+function guardarEstadoActual() {
+    try {
+        const riskData = {};
+        const modelos = estadisticas.fallasPorModelo || {};
+        Object.entries(modelos).forEach(([modelo, count]) => {
+            riskData[modelo] = count;
+        });
+        sessionStorage.setItem('predictor_prev_state', JSON.stringify({ riskData }));
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════
+   FILTRO POR FECHAS
+══════════════════════════════════════ */
+function aplicarFiltroFechas() {
+    const inicio = document.getElementById('fecha-inicio').value;
+    const fin = document.getElementById('fecha-fin').value;
+    if (!inicio && !fin) { limpiarFiltroFechas(); return; }
+
+    filtroFechasActivo = true;
+    datosFiltrados = datosHistoricos.filter(d => {
+        if (!d.fecha) return true;
+        const fecha = d.fecha;
+        if (inicio && fecha < inicio) return false;
+        if (fin && fecha > fin) return false;
+        return true;
+    });
+
+    if (datosFiltrados.length === 0) {
+        showToast('⚠️ No hay datos en el rango seleccionado', true);
+        return;
+    }
+
+    procesarEstadisticasConDatos(datosFiltrados);
+    renderDashboard();
+    renderRiesgo();
+    showToast(`📅 Mostrando ${datosFiltrados.length} registros`);
+}
+
+function limpiarFiltroFechas() {
+    document.getElementById('fecha-inicio').value = '';
+    document.getElementById('fecha-fin').value = '';
+    filtroFechasActivo = false;
+    datosFiltrados = [...datosHistoricos];
+    procesarEstadisticas();
+    renderDashboard();
+    renderRiesgo();
+    showToast('📅 Filtro de fechas eliminado');
+}
+
+function procesarEstadisticasConDatos(datos) {
+    const s = calcularEstadisticas(datos);
+    estadisticas = s;
 }
 
 /* ══════════════════════════════════════
@@ -641,11 +824,15 @@ function calcularRiesgo(fallas, componentes) {
     return { nivel: 'bajo', label: '🟢 Bajo', cls: 'bajo' };
 }
 
-/* ══════════════════════════════════════
-   PROCESAR ESTADÍSTICAS
-══════════════════════════════════════ */
-function procesarEstadisticas() {
-    const datos = datosHistoricos;
+function obtenerTendencia(modelo, fallasActual) {
+    const prev = riskPreviousData[modelo] || 0;
+    if (prev === 0) return { icon: '🆕', cls: 'risk-trend-stable' };
+    if (fallasActual > prev) return { icon: '⬆️', cls: 'risk-trend-up' };
+    if (fallasActual < prev) return { icon: '⬇️', cls: 'risk-trend-down' };
+    return { icon: '➡️', cls: 'risk-trend-stable' };
+}
+
+function calcularEstadisticas(datos) {
     const total = datos.length;
     const marcas = new Set();
     const modelos = new Set();
@@ -691,12 +878,21 @@ function procesarEstadisticas() {
     const tasaResolucion = total > 0 ? Math.round((resueltas / total) * 100) : 0;
     const predicciones = Object.values(fallasPorModelo).filter(v => v >= 3).length;
 
-    estadisticas = {
+    return {
         total, marcas: marcas.size, modelos: modelos.size,
         fallasTotales, resueltas, tasaResolucion, predicciones,
         fallasPorMarca, fallasPorModelo, componentesCount,
         fallasPorMes, fallasPorLinea
     };
+}
+
+/* ══════════════════════════════════════
+   PROCESAR ESTADÍSTICAS
+══════════════════════════════════════ */
+function procesarEstadisticas() {
+    const datos = filtroFechasActivo ? datosFiltrados : datosHistoricos;
+    estadisticas = calcularEstadisticas(datos);
+    guardarEstadoActual();
 }
 
 /* ══════════════════════════════════════
@@ -715,6 +911,16 @@ function renderDashboard() {
     Object.values(charts).forEach(c => { if (c) c.destroy(); });
     charts = {};
 
+    // Colores profesionales
+    const colors = {
+        purple: '#a855f7',
+        purpleLight: 'rgba(168,85,247,0.1)',
+        orange: '#f59e0b',
+        green: '#10b981',
+        blue: '#3b82f6',
+        red: '#ef4444'
+    };
+
     // 1. Timeline (línea)
     const meses = Object.entries(s.fallasPorMes).sort();
     charts.timeline = new Chart(document.getElementById('chart-timeline'), {
@@ -724,17 +930,28 @@ function renderDashboard() {
             datasets: [{
                 label: 'Fallas por mes',
                 data: meses.map(m => m[1]),
-                borderColor: '#a855f7',
-                backgroundColor: 'rgba(168,85,247,0.1)',
+                borderColor: colors.purple,
+                backgroundColor: colors.purpleLight,
                 fill: true,
                 tension: 0.3,
-                pointBackgroundColor: '#a855f7',
-                pointRadius: 4
+                pointBackgroundColor: colors.purple,
+                pointRadius: 4,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: '#a0aec0' } } },
+            plugins: {
+                legend: { labels: { color: '#a0aec0' } },
+                tooltip: {
+                    backgroundColor: '#111c2c',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#22344d',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
             scales: {
                 x: { ticks: { color: '#4a5568', maxTicksLimit: 10 } },
                 y: { ticks: { color: '#4a5568', beginAtZero: true } }
@@ -752,12 +969,23 @@ function renderDashboard() {
                 label: 'Fallas',
                 data: marcasSorted.map(m => m[1]),
                 backgroundColor: ['#7928ca','#a855f7','#7c3aed','#6d28d9','#4f46e5','#2563eb'],
-                borderRadius: 4
+                borderRadius: 4,
+                hoverBackgroundColor: ['#9333ea','#c084fc','#8b5cf6','#7c3aed','#6366f1','#4f46e5']
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111c2c',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#22344d',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
             scales: {
                 x: { ticks: { color: '#4a5568' } },
                 y: { ticks: { color: '#4a5568', beginAtZero: true } }
@@ -776,13 +1004,22 @@ function renderDashboard() {
                 data: lineasData.map(([,v]) => v),
                 backgroundColor: ['#b45309', '#38bdf8', '#22c55e', '#6b7280'],
                 borderColor: '#0b131f',
-                borderWidth: 2
+                borderWidth: 2,
+                hoverOffset: 8
             }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { labels: { color: '#a0aec0', font: { size: 10 } } }
+                legend: { labels: { color: '#a0aec0', font: { size: 10 } } },
+                tooltip: {
+                    backgroundColor: '#111c2c',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#22344d',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
             }
         }
     });
@@ -797,12 +1034,23 @@ function renderDashboard() {
                 label: 'Veces',
                 data: compSorted.map(c => c[1]),
                 backgroundColor: ['#f59e0b','#fbbf24','#fcd34d','#d97706','#b45309','#92400e'],
-                borderRadius: 4
+                borderRadius: 4,
+                hoverBackgroundColor: ['#d97706','#f59e0b','#fbbf24','#b45309','#92400e','#78350f']
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111c2c',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#22344d',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
             scales: {
                 x: { ticks: { color: '#4a5568' } },
                 y: { ticks: { color: '#4a5568', beginAtZero: true } }
@@ -820,12 +1068,23 @@ function renderDashboard() {
                 label: 'Fallas',
                 data: modelosSorted.map(m => m[1]),
                 backgroundColor: ['#10b981','#34d399','#6ee7b7','#059669','#047857'],
-                borderRadius: 4
+                borderRadius: 4,
+                hoverBackgroundColor: ['#059669','#10b981','#34d399','#047857','#065f46']
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111c2c',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#22344d',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
             scales: {
                 x: { ticks: { color: '#4a5568' } },
                 y: { ticks: { color: '#4a5568', beginAtZero: true } }
@@ -835,8 +1094,13 @@ function renderDashboard() {
 }
 
 /* ══════════════════════════════════════
-   RENDER RIESGO
+   RENDER RIESGO (con debounce)
 ══════════════════════════════════════ */
+function debounceRenderRiesgo() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => renderRiesgo(), 300);
+}
+
 function renderRiesgo() {
     const filter = document.getElementById('risk-filter').value.toLowerCase();
     const sort = document.getElementById('risk-sort').value;
@@ -855,7 +1119,8 @@ function renderRiesgo() {
                 .map(([c]) => c);
             const riesgo = calcularRiesgo(fallas, compsRel);
             const marca = modelo.split(' ')[0] || modelo;
-            return { modelo, fallas, componentes: compsRel, riesgo, marca };
+            const tendencia = obtenerTendencia(modelo, fallas);
+            return { modelo, fallas, componentes: compsRel, riesgo, marca, tendencia };
         })
         .filter(item => !filter || item.modelo.toLowerCase().includes(filter) || item.marca.toLowerCase().includes(filter));
 
@@ -878,6 +1143,7 @@ function renderRiesgo() {
             <td>${item.marca}</td>
             <td>${item.modelo}</td>
             <td><strong>${item.fallas}</strong></td>
+            <td><span class="${item.tendencia.cls}">${item.tendencia.icon}</span></td>
             <td>${item.componentes.length ? item.componentes.slice(0,3).join(', ') : '—'}</td>
             <td><span class="risk-badge ${item.riesgo.cls}">${item.riesgo.label}</span></td>
         </tr>
@@ -943,6 +1209,27 @@ function renderAlertas() {
 }
 
 /* ══════════════════════════════════════
+   RECUPERAR IA DE SESSIONSTORAGE
+══════════════════════════════════════ */
+function recuperarIA() {
+    try {
+        const saved = sessionStorage.getItem('predictor_ia_result');
+        if (saved) {
+            ultimoAnalisisIA = JSON.parse(saved);
+            mostrarResultadoIA(ultimoAnalisisIA);
+        }
+    } catch(e) {}
+}
+
+function guardarIA() {
+    try {
+        if (ultimoAnalisisIA) {
+            sessionStorage.setItem('predictor_ia_result', JSON.stringify(ultimoAnalisisIA));
+        }
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════
    ANÁLISIS CON IA
 ══════════════════════════════════════ */
 async function analizarConIA() {
@@ -998,19 +1285,8 @@ Responde ÚNICAMENTE con JSON válido:
         let raw = data.text.trim().replace(/```json|```/g, '').trim();
         const result = JSON.parse(raw);
         ultimoAnalisisIA = result;
-
-        document.getElementById('ia-result').innerHTML = `
-            <div class="ia-result">
-                <h3>📊 Análisis Predictivo</h3>
-                <div class="section"><div class="section-title">📈 Tendencias</div><div class="section-content">${result.tendencias}</div></div>
-                <div class="section"><div class="section-title">🔧 Recomendaciones</div><div class="section-content"><ul>${(result.recomendaciones||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
-                <div class="section"><div class="section-title" style="color:var(--err)">⚠️ Riesgo alto</div><div class="section-content" style="color:#fca5a5;"><ul>${(result.riesgo_alto||[]).map(r => `<li>${r}</li>`).join('') || '<li>No se detectaron riesgos altos.</li>'}</ul></div></div>
-                <div class="section"><div class="section-title" style="color:var(--ok)">🛡️ Mantenimiento preventivo</div><div class="section-content" style="color:#86efac;"><ul>${(result.mantenimiento_preventivo||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
-                <div class="section"><div class="section-title" style="color:var(--warn)">💰 Oportunidades</div><div class="section-content" style="color:#fcd34d;"><ul>${(result.oportunidades||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
-                <div class="section"><div class="section-title" style="color:var(--info)">📦 Stock sugerido</div><div class="section-content" style="color:#93c5fd;"><ul>${(result.stock_sugerido||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
-                <div style="margin-top:12px;font-size:0.7rem;color:var(--dim);">Analizado sobre ${datosHistoricos.length} registros.</div>
-            </div>
-        `;
+        guardarIA();
+        mostrarResultadoIA(result);
         showToast('✅ Análisis completado');
     } catch (err) {
         dots.classList.remove('show');
@@ -1020,8 +1296,51 @@ Responde ÚNICAMENTE con JSON válido:
     }
 }
 
+function mostrarResultadoIA(result) {
+    document.getElementById('ia-result').innerHTML = `
+        <div class="ia-result">
+            <h3>📊 Análisis Predictivo</h3>
+            <div class="section"><div class="section-title">📈 Tendencias</div><div class="section-content">${result.tendencias}</div></div>
+            <div class="section"><div class="section-title">🔧 Recomendaciones</div><div class="section-content"><ul>${(result.recomendaciones||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+            <div class="section"><div class="section-title" style="color:var(--err)">⚠️ Riesgo alto</div><div class="section-content" style="color:#fca5a5;"><ul>${(result.riesgo_alto||[]).map(r => `<li>${r}</li>`).join('') || '<li>No se detectaron riesgos altos.</li>'}</ul></div></div>
+            <div class="section"><div class="section-title" style="color:var(--ok)">🛡️ Mantenimiento preventivo</div><div class="section-content" style="color:#86efac;"><ul>${(result.mantenimiento_preventivo||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+            <div class="section"><div class="section-title" style="color:var(--warn)">💰 Oportunidades</div><div class="section-content" style="color:#fcd34d;"><ul>${(result.oportunidades||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+            <div class="section"><div class="section-title" style="color:var(--info)">📦 Stock sugerido</div><div class="section-content" style="color:#93c5fd;"><ul>${(result.stock_sugerido||[]).map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+            <div style="margin-top:12px;font-size:0.7rem;color:var(--dim);">Analizado sobre ${datosHistoricos.length} registros.</div>
+        </div>
+    `;
+}
+
 /* ══════════════════════════════════════
-   EXPORTAR
+   EXPORTAR PDF
+══════════════════════════════════════ */
+function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+    
+    showToast('📄 Generando PDF...');
+    const panel = document.getElementById('panel-dashboard');
+    
+    html2canvas(panel, {
+        backgroundColor: '#0b131f',
+        scale: 1.5,
+        allowTaint: true,
+        useCORS: true
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 280;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addImage(imgData, 'PNG', 5, 10, imgWidth, imgHeight);
+        doc.save('reporte_predictivo.pdf');
+        showToast('✅ PDF generado');
+    }).catch(err => {
+        showToast('❌ Error al generar PDF', true);
+        console.error(err);
+    });
+}
+
+/* ══════════════════════════════════════
+   EXPORTAR CSV
 ══════════════════════════════════════ */
 function exportarCSV() {
     if (!datosHistoricos.length) { showToast('⚠️ No hay datos para exportar', true); return; }
@@ -1139,10 +1458,32 @@ function toggleFAB() {
 }
 
 /* ══════════════════════════════════════
+   PREDICCIÓN LOCAL (heurística sin IA)
+══════════════════════════════════════ */
+function calcularProbabilidadRecurrencia(modelo) {
+    const registros = datosHistoricos.filter(d => d.modelo === modelo);
+    if (registros.length === 0) return { nivel: 'Sin datos', color: 'var(--dim)' };
+    
+    const fallas = registros.length;
+    const resueltas = registros.filter(d => d.estatus === 'Resuelto' || d.estatus === 'Reparado').length;
+    const tasaExito = fallas > 0 ? (resueltas / fallas) * 100 : 0;
+    
+    // Si tiene más de 3 fallas y tasa de éxito baja → alta recurrencia
+    if (fallas >= 3 && tasaExito < 60) {
+        return { nivel: 'Alta recurrencia', color: 'var(--err)' };
+    } else if (fallas >= 2) {
+        return { nivel: 'Media recurrencia', color: 'var(--warn)' };
+    } else {
+        return { nivel: 'Baja recurrencia', color: 'var(--ok)' };
+    }
+}
+
+/* ══════════════════════════════════════
    INIT
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
+    recuperarIA();
 });
 </script>
 </body>
