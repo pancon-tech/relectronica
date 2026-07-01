@@ -749,6 +749,7 @@ const FALLAS_BASE = [
     { id:10, titulo:"Licuadora – No enciende o gira despacio", linea:"menor", tipo:"FALLA DE CARBONES / INTERRUPTOR", sintoma:"La licuadora no arranca al presionar ninguna velocidad, o gira muy lento con zumbido.", prueba:"Con el vaso retirado, intentar girar el eje del motor manualmente.", pasos:["Revisar el interruptor de velocidades con multímetro en continuidad.","Inspeccionar los carbones del motor: cambiarlos si miden menos de 5 mm.","Limpiar el colector con lija fina si está sucio."], componentes:["Carbones","Colector","Interruptor de velocidades","Motor universal"], tip:"Los carbones de reemplazo deben ser del mismo material y dimensión que los originales." },
     { id:11, titulo:"Plancha – No calienta o calienta poco", linea:"menor", tipo:"FALLA DE TERMOSTATO / RESISTENCIA", sintoma:"La plancha no calienta en ninguna posición del selector, o solo calienta en un nivel.", prueba:"Medir resistencia de la suela con multímetro desconectada de la red.", pasos:["Verificar el fusible térmico de seguridad: medir continuidad.","Revisar el termostato bimetálico.","Medir la resistencia calefactora."], componentes:["Fusible térmico","Termostato bimetálico","Resistencia calefactora","Selector"], tip:"Nunca probar la plancha sin la suela completa ensamblada." },
     { id:12, titulo:"Ventilador – No sopla / No oscila", linea:"menor", tipo:"FALLA DE MOTOR / CONDENSADOR", sintoma:"El ventilador enciende pero no mueve aire o lo mueve muy débilmente.", prueba:"Girar las aspas manualmente. Si hay resistencia, el condensador puede ser el problema.", pasos:["Limpiar el polvo acumulado del motor.","Lubricar los cojinetes del eje.","Medir el condensador de marcha (1.5 µF a 4 µF / 250 V)."], componentes:["Condensador de marcha","Motor principal","Motor de oscilación"], tip:"Un ventilador que oscila pero no sopla bien casi siempre tiene el condensador con capacidad reducida." },
+    { id:13, titulo:"RCA / WESTINGHOUSE – Patrón de colores", linea:"marron", tipo:"FALLA DE TARJETA PRINCIPAL / STANDBY", sintoma:"El televisor muestra el logo brevemente y luego se queda en un patrón de colores fijo.", prueba:"Apague el televisor y desconéctelo de la corriente durante 1-2 minutos y vuelva a encenderlo. Si la falla persiste, se trata de un problema de software.", pasos:["Encienda el televisor y, una vez que aparezca el patrón de colores, déjelo así durante 1-3 minutos.","Localice el botón de encendido manual (standby), generalmente ubicado en el centro inferior, esquinas o laterales del televisor.","Presione el botón de Power una sola vez (no es necesario mantenerlo presionado). Esto eliminará el patrón de colores.","Si el botón de standby no funciona, sustitúyalo por uno nuevo y repita la prueba.","Si ninguno de los pasos anteriores funciona, reemplace la tarjeta principal o realícele el software."], componentes:["Tarjeta principal","Standby","Software"], tip:"Esto ocurre porque en estos modelos, cuando el televisor se actualiza en segundo plano y existe un problema con la descarga, el software queda dañado. Otra causa puede ser que el televisor llegó con el modo de prueba activado." },
 ];
 
 const PCB_DATA = [
@@ -1151,16 +1152,13 @@ function syncBaseKnowledge() {
         const allPCB = [...PCB_DATA, ...customPCB];
         localStorage.setItem('relectronica_pcb_all', JSON.stringify(allPCB));
 
-        // ── Fallas: el bot ya las lee de 'relelectronica_fallas_v2'
-        // que fallas.html mantiene actualizado. Aquí hacemos fallback
-        // con los datos hardcoded en caso de que fallas.html no haya
-        // sido abierta aún en este dispositivo.
-        const fallasSaved = localStorage.getItem('relelectronica_fallas_v2');
-        if (!fallasSaved) {
-            // Si no hay nada en storage, inyectamos los casos base hardcoded
-            // (los mismos que buscarEnFallas usa como fallback)
-            localStorage.setItem('relelectronica_fallas_v2', JSON.stringify(FALLAS_BASE));
-        }
+        // ── Fallas: SIEMPRE reconstruye desde FALLAS_BASE + casos custom del usuario
+        // Así si editas defaultCases en fallas.html y abres el chat, el bot lo ve.
+        const customFallas = JSON.parse(localStorage.getItem('relelectronica_fallas_v2_custom') || '[]');
+        const baseIds = new Set(FALLAS_BASE.map(f => f.id));
+        const soloCustom = customFallas.filter(f => !baseIds.has(f.id));
+        const allFallas = [...FALLAS_BASE, ...soloCustom];
+        localStorage.setItem('relelectronica_fallas_v2', JSON.stringify(allFallas));
     } catch(e) {}
 }
 
