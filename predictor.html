@@ -641,8 +641,8 @@ function cargarDatos() {
             notas.forEach(n => {
                 all.push({
                     fuente: 'nota',
-                    marca: extraerMarcaModelo(n.titulo || ''),
-                    modelo: extraerMarcaModelo(n.titulo || ''),
+                    marca: (n.marca || '').trim() || extraerMarcaModelo(n.titulo || ''),
+                    modelo: (n.modelo || '').trim() || 'Varios',
                     falla: (n.falla || n.contenido || '').trim(),
                     solucion: (n.solucion || '').trim(),
                     fecha: n.fecha || '',
@@ -663,8 +663,8 @@ function cargarDatos() {
             fallas.forEach(f => {
                 all.push({
                     fuente: 'falla',
-                    marca: extraerMarcaModelo(f.titulo || ''),
-                    modelo: extraerMarcaModelo(f.titulo || ''),
+                    marca: (f.marca || '').trim() || extraerMarcaModelo(f.titulo || ''),
+                    modelo: (f.modelo || '').trim() || 'Varios',
                     falla: (f.sintoma || '').trim(),
                     solucion: Array.isArray(f.pasos) ? f.pasos.join(' ') : '',
                     fecha: f.fecha || '',
@@ -838,6 +838,7 @@ function calcularEstadisticas(datos) {
     const modelos = new Set();
     const fallasPorMarca = {};
     const fallasPorModelo = {};
+    const marcaPorModelo = {};
     const componentesCount = {};
     const fallasPorMes = {};
     const fallasPorLinea = { marron: 0, blanca: 0, menor: 0, otro: 0 };
@@ -854,6 +855,7 @@ function calcularEstadisticas(datos) {
 
         fallasPorMarca[mk] = (fallasPorMarca[mk] || 0) + 1;
         fallasPorModelo[md] = (fallasPorModelo[md] || 0) + 1;
+        if (!marcaPorModelo[md] || marcaPorModelo[md] === 'Desconocida') marcaPorModelo[md] = mk;
 
         if (d.estatus === 'Reparado' || d.estatus === 'Resuelto' || d.estatus === 'Entregado') {
             resueltas++;
@@ -881,7 +883,7 @@ function calcularEstadisticas(datos) {
     return {
         total, marcas: marcas.size, modelos: modelos.size,
         fallasTotales, resueltas, tasaResolucion, predicciones,
-        fallasPorMarca, fallasPorModelo, componentesCount,
+        fallasPorMarca, fallasPorModelo, marcaPorModelo, componentesCount,
         fallasPorMes, fallasPorLinea
     };
 }
@@ -1109,6 +1111,7 @@ function renderRiesgo() {
 
     const modelos = estadisticas.fallasPorModelo || {};
     const comps = estadisticas.componentesCount || {};
+    const marcas = estadisticas.marcaPorModelo || {};
 
     let items = Object.entries(modelos)
         .filter(([modelo]) => modelo !== 'Desconocido')
@@ -1118,7 +1121,7 @@ function renderRiesgo() {
                 .slice(0, 3)
                 .map(([c]) => c);
             const riesgo = calcularRiesgo(fallas, compsRel);
-            const marca = modelo.split(' ')[0] || modelo;
+            const marca = marcas[modelo] || 'Desconocida';
             const tendencia = obtenerTendencia(modelo, fallas);
             return { modelo, fallas, componentes: compsRel, riesgo, marca, tendencia };
         })
