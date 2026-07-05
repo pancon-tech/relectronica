@@ -517,8 +517,8 @@ const DB = [
   { codes:["RTC"], name:"Reloj en tiempo real", cat:"osc", desc:"Circuito dedicado a mantener la hora y fecha aunque el equipo esté apagado.", tip:"Si el equipo pierde la hora al desconectar, revisa la batería CR2032 del RTC." },
 
   // CONECTORES Y PUNTOS DE PRUEBA
-  { codes:["J","P","CN"], name:"Conector", cat:"con", desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
-  { codes:["JP"], name:"Jumper", cat:"con", desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico según el esquemático." },
+  { codes:["CON","P","CN"], name:"Conector", cat:"con", desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
+  { codes:["JP","J"], name:"Jumper", cat:"con", desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico según el esquemático." },
   { codes:["TP"], name:"Punto de prueba", cat:"con", desc:"Pad designado para medir voltaje o señal sin desoldar componentes.", tip:"Muchos esquemáticos listan el voltaje esperado en cada TP; son el mejor lugar para iniciar el diagnóstico." },
   { codes:["FFC","FPC"], name:"Conector cable plano flexible", cat:"con", desc:"Conector para cables planos FFC/FPC, común en pantallas, cámaras y teclados.", tip:"La flecha o muesca indica el lado correcto de inserción; invertirlo puede quemar la pantalla." },
   { codes:["USB"], name:"Conector USB", cat:"con", desc:"Puerto de comunicación y carga universal.", tip:"El TVS junto al USB falla primero tras una descarga; reemplázalo si el puerto no carga ni comunica." },
