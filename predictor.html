@@ -500,9 +500,10 @@
     <!-- PANEL: RIESGO -->
     <div class="panel" id="panel-riesgo">
         <div class="filter-row">
-            <input type="text" id="risk-filter" placeholder="🔍 Filtrar por marca o modelo..." oninput="debounceRenderRiesgo()">
+            <input type="text" id="risk-filter" placeholder="🔍 Filtrar por categoría, marca o modelo..." oninput="debounceRenderRiesgo()">
             <select id="risk-sort" onchange="renderRiesgo()">
                 <option value="score">Por riesgo</option>
+                <option value="categoria">Por tipo de equipo</option>
                 <option value="marca">Por marca</option>
                 <option value="fallas">Por número de fallas</option>
             </select>
@@ -511,6 +512,7 @@
             <table class="risk-table">
                 <thead>
                     <tr>
+                        <th>Tipo de equipo</th>
                         <th>Marca</th>
                         <th>Modelo</th>
                         <th>Fallas</th>
@@ -618,6 +620,7 @@ function cargarDatos() {
             ordenes.forEach(o => {
                 all.push({
                     fuente: 'orden',
+                    categoria: (o.tipo || '').trim() || 'Sin tipo de equipo',
                     marca: (o.fabricante || '').trim(),
                     modelo: (o.modelo || '').trim(),
                     falla: (o.falla || '').trim(),
@@ -641,6 +644,7 @@ function cargarDatos() {
             notas.forEach(n => {
                 all.push({
                     fuente: 'nota',
+                    categoria: (n.categoria || '').trim() || 'Sin tipo de equipo',
                     marca: (n.marca || '').trim() || extraerMarcaModelo(n.titulo || ''),
                     modelo: (n.modelo || '').trim() || 'Varios',
                     falla: (n.falla || n.contenido || '').trim(),
@@ -663,6 +667,7 @@ function cargarDatos() {
             fallas.forEach(f => {
                 all.push({
                     fuente: 'falla',
+                    categoria: (f.categoria || '').trim() || 'Sin tipo de equipo',
                     marca: (f.marca || '').trim() || extraerMarcaModelo(f.titulo || ''),
                     modelo: (f.modelo || '').trim() || 'Varios',
                     falla: (f.sintoma || '').trim(),
@@ -839,6 +844,7 @@ function calcularEstadisticas(datos) {
     const fallasPorMarca = {};
     const fallasPorModelo = {};
     const marcaPorModelo = {};
+    const categoriaPorModelo = {};
     const componentesCount = {};
     const fallasPorMes = {};
     const fallasPorLinea = { marron: 0, blanca: 0, menor: 0, otro: 0 };
@@ -856,6 +862,8 @@ function calcularEstadisticas(datos) {
         fallasPorMarca[mk] = (fallasPorMarca[mk] || 0) + 1;
         fallasPorModelo[md] = (fallasPorModelo[md] || 0) + 1;
         if (!marcaPorModelo[md] || marcaPorModelo[md] === 'Desconocida') marcaPorModelo[md] = mk;
+        const cat = d.categoria || 'Sin tipo de equipo';
+        if (!categoriaPorModelo[md] || categoriaPorModelo[md] === 'Sin tipo de equipo') categoriaPorModelo[md] = cat;
 
         if (d.estatus === 'Reparado' || d.estatus === 'Resuelto' || d.estatus === 'Entregado') {
             resueltas++;
@@ -883,7 +891,7 @@ function calcularEstadisticas(datos) {
     return {
         total, marcas: marcas.size, modelos: modelos.size,
         fallasTotales, resueltas, tasaResolucion, predicciones,
-        fallasPorMarca, fallasPorModelo, marcaPorModelo, componentesCount,
+        fallasPorMarca, fallasPorModelo, marcaPorModelo, categoriaPorModelo, componentesCount,
         fallasPorMes, fallasPorLinea
     };
 }
@@ -1112,6 +1120,7 @@ function renderRiesgo() {
     const modelos = estadisticas.fallasPorModelo || {};
     const comps = estadisticas.componentesCount || {};
     const marcas = estadisticas.marcaPorModelo || {};
+    const categorias = estadisticas.categoriaPorModelo || {};
 
     let items = Object.entries(modelos)
         .filter(([modelo]) => modelo !== 'Desconocido')
@@ -1122,12 +1131,14 @@ function renderRiesgo() {
                 .map(([c]) => c);
             const riesgo = calcularRiesgo(fallas, compsRel);
             const marca = marcas[modelo] || 'Desconocida';
+            const categoria = categorias[modelo] || 'Sin tipo de equipo';
             const tendencia = obtenerTendencia(modelo, fallas);
-            return { modelo, fallas, componentes: compsRel, riesgo, marca, tendencia };
+            return { modelo, fallas, componentes: compsRel, riesgo, marca, categoria, tendencia };
         })
-        .filter(item => !filter || item.modelo.toLowerCase().includes(filter) || item.marca.toLowerCase().includes(filter));
+        .filter(item => !filter || item.modelo.toLowerCase().includes(filter) || item.marca.toLowerCase().includes(filter) || item.categoria.toLowerCase().includes(filter));
 
     if (sort === 'marca') items.sort((a,b) => a.marca.localeCompare(b.marca));
+    else if (sort === 'categoria') items.sort((a,b) => a.categoria.localeCompare(b.categoria));
     else if (sort === 'fallas') items.sort((a,b) => b.fallas - a.fallas);
     else items.sort((a,b) => {
         const orden = { critico:0, alto:1, medio:2, bajo:3 };
@@ -1143,6 +1154,7 @@ function renderRiesgo() {
 
     tbody.innerHTML = items.map(item => `
         <tr>
+            <td>${item.categoria}</td>
             <td>${item.marca}</td>
             <td>${item.modelo}</td>
             <td><strong>${item.fallas}</strong></td>
@@ -1242,7 +1254,7 @@ async function analizarConIA() {
     dots.classList.add('show');
 
     const resumen = datosHistoricos.slice(0, 25).map(d =>
-        `Marca: ${d.marca || '?'} | Modelo: ${d.modelo || '?'} | Falla: ${d.falla || '?'} | Solución: ${d.solucion || '?'} | Componentes: ${(d.componentes||[]).join(', ')}`
+        `Tipo de equipo: ${d.categoria || '?'} | Marca: ${d.marca || '?'} | Modelo: ${d.modelo || '?'} | Falla: ${d.falla || '?'} | Solución: ${d.solucion || '?'} | Componentes: ${(d.componentes||[]).join(', ')}`
     ).join('\n');
 
     const prompt = `Eres un analista experto en reparaciones de electrónica. Con base en el siguiente historial de reparaciones (${datosHistoricos.length} registros), genera un análisis predictivo profundo.
@@ -1347,10 +1359,10 @@ function exportarPDF() {
 ══════════════════════════════════════ */
 function exportarCSV() {
     if (!datosHistoricos.length) { showToast('⚠️ No hay datos para exportar', true); return; }
-    let csv = 'Marca,Modelo,Falla,Solución,Estatus,Fecha,Componentes,Línea\n';
+    let csv = 'Tipo de equipo,Marca,Modelo,Falla,Solución,Estatus,Fecha,Componentes,Línea\n';
     datosHistoricos.forEach(d => {
         const comps = (d.componentes||[]).join(';');
-        csv += `"${d.marca}","${d.modelo}","${d.falla}","${d.solucion}","${d.estatus}","${d.fecha}","${comps}","${d.linea||''}"\n`;
+        csv += `"${d.categoria||''}","${d.marca}","${d.modelo}","${d.falla}","${d.solucion}","${d.estatus}","${d.fecha}","${comps}","${d.linea||''}"\n`;
     });
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
