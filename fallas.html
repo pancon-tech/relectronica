@@ -798,6 +798,29 @@ const defaultCases = [
   },
 
   /* ── LÍNEA MENOR ── */
+    {
+    id: 10,
+    categoria: "Cafetere analogica", // Puedes usar "Monitor", "Audio", etc.
+    marca: "RCA / Westinghouse/ Genérico",
+    modelo: "Genérico / Varios",
+    titulo: "Enciende pero no calienta",
+    linea: "menor",
+    tipo: "Falla de Fusibe termico",
+    dificultad: "baja",
+    sintoma: "La cafetera enciende y hace el ciclo completo pero no calienta.",
+    prueba: "Dejala hacer su ciclo.",
+    pasos: [
+      "Destape la cafetera sacando los tornillos que mayormente tiene por debajo.",
+      "Localiza el fusible termico.",
+      "Con el tester mida continuidad en dicho fusible termico.",
+      "Si da continuidad (emite un sonido) el fusible esta bueno y si no da continuidad esta malo. si no da continuidad.",
+      "Reemplaza el fusible termico por uno nuevo y prueba la cafetera de nuevo."
+    ],
+    componentes: ["fusible termico"],
+    tip: "Si no cuenta con un fusible termico puede hacerle un puente(Jumper) al que esta malo y funcionara, aunque no es recomendable, lo mas logico es colocarle uno nuevo.",
+    notaTipo: "tip",
+    fecha: "2026-07-05"
+    },
   {
     id: 10, titulo: "Licuadora – No enciende o gira despacio",
     linea: "menor", tipo: "FALLA DE CARBONES / INTERRUPTOR", dificultad: "baja",
