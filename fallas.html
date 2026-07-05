@@ -185,7 +185,17 @@
         .tech-card[data-linea="menor"].expanded   { border-left-color: #4ade80; }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-        .card-header h3 { font-size: 0.95rem; color: #fff; font-weight: 600; line-height: 1.35; flex: 1; }
+        .card-title-wrap { flex: 1; min-width: 0; }
+        .card-category {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 3px;
+        }
+        .card-header h3 { font-size: 0.95rem; color: #fff; font-weight: 600; line-height: 1.35; }
         .card-arrow { font-size: 0.7rem; color: #4a5568; transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
         .tech-card.expanded .card-arrow { transform: rotate(180deg); color: var(--primary-light); }
 
@@ -538,8 +548,24 @@
         </div>
         <div class="form-row">
             <div class="form-field">
-                <label>Marca / Equipo *</label>
+                <label>Título del caso *</label>
                 <input type="text" id="f-titulo" placeholder="ej. Samsung UN50 / Lavadora Mabe">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>Categoría</label>
+                <input type="text" id="f-categoria" placeholder="ej. Televisor, Lavadora, Cafetera…">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>Marca</label>
+                <input type="text" id="f-marca" placeholder="ej. Samsung, LG, Genérico…">
+            </div>
+            <div class="form-field">
+                <label>Modelo</label>
+                <input type="text" id="f-modelo" placeholder="ej. UN50TU7000 / Varios">
             </div>
         </div>
         <div class="form-row">
@@ -623,6 +649,7 @@ const defaultCases = [
   /* ── LÍNEA MARRÓN ── */
   {
     id: 1, titulo: "Samsung / LG – Reinicio constante o Líneas",
+    categoria: "Televisor", marca: "Samsung / LG", modelo: "Varios (Smart TV LED)",
     linea: "marron", tipo: "FALLA DE PANEL / T-CON", dificultad: "alta",
     sintoma: "El televisor muestra el logo brevemente, se reinicia en bucle o presenta líneas de colores fijas en pantalla.",
     prueba: "Desconectar el cable flex del T-CON hacia el panel. Si el TV deja de reiniciarse, el panel o T-CON es el origen.",
@@ -640,6 +667,7 @@ const defaultCases = [
   },
   {
     id: 2, titulo: "Smart TV – Hay audio pero no da imagen",
+    categoria: "Televisor", marca: "Varios", modelo: "Smart TV LED (genérico)",
     linea: "marron", tipo: "FALLA DE BACKLIGHT", dificultad: "media",
     sintoma: "La TV enciende, se escucha audio normal, pero la pantalla permanece negra.",
     prueba: "Iluminar con linterna muy cerca del panel en cuarto oscuro. Si se ven siluetas de menú, el backlight es el problema.",
@@ -657,6 +685,7 @@ const defaultCases = [
   },
   {
     id: 3, titulo: "TV – No enciende, luz de standby parpadea",
+    categoria: "Televisor", marca: "Varios", modelo: "Varios",
     linea: "marron", tipo: "FALLA DE FUENTE DE PODER", dificultad: "media",
     sintoma: "El TV no arranca. El LED de standby parpadea 3 o más veces y se apaga.",
     prueba: "Medir el voltaje de standby (5 V SB). Si está presente pero el TV no arranca al pulsar encendido, la falla está en la placa de fuente o en la señal PS-ON.",
@@ -674,6 +703,7 @@ const defaultCases = [
   },
   {
     id: 4, titulo: "TV – Imagen con manchas o sombras (clouding)",
+    categoria: "Televisor", marca: "Varios", modelo: "Varios (panel LED)",
     linea: "marron", tipo: "FALLA DE DIFUSORES / BACKLIGHT",  dificultad: "baja",
     sintoma: "Pantalla con zonas más brillantes o zonas oscuras irregulares, especialmente visibles en fondos oscuros o grises.",
     prueba: "Mostrar una imagen gris uniforme. Las manchas serán evidentes.",
@@ -691,6 +721,7 @@ const defaultCases = [
   },
   {
     id: 5, titulo: "Equipo de sonido – No enciende o silencioso",
+    categoria: "Equipo de Sonido", marca: "Varios", modelo: "Varios",
     linea: "marron", tipo: "FALLA DE AMPLIFICADOR / FUENTE", dificultad: "media",
     sintoma: "El equipo no enciende o enciende pero no produce sonido alguno. A veces hay un zumbido de 50/60 Hz.",
     prueba: "Medir voltaje en riel de alimentación del amplificador. Si hay voltaje pero no audio, el IC amplificador puede estar en protección.",
@@ -707,8 +738,11 @@ const defaultCases = [
     fecha: "2024-03-01"
   },
   {
-  "id": 6,
+  "id": 14,
   "titulo": "RCA / WESTINGHOUSE – Patrón de colores",
+  "categoria": "Televisor",
+  "marca": "RCA / Westinghouse",
+  "modelo": "Varios",
   "linea": "marron",
   "tipo": "FALLA DE TATJETA PRINCIPAL / STANDBY",
   "dificultad": "baja",
@@ -730,6 +764,7 @@ const defaultCases = [
   /* ── LÍNEA BLANCA ── */
   {
     id: 6, titulo: "Lavadora – No centrifuga / No desagua",
+    categoria: "Lavadora", marca: "Varios", modelo: "Varios",
     linea: "blanca", tipo: "FALLA DE BOMBA / CAPACITOR", dificultad: "baja",
     sintoma: "La lavadora termina el ciclo de lavado pero no desagua el agua o no pasa a centrifugado.",
     prueba: "Escuchar si la bomba de desagüe hace ruido. Si no hay sonido, verificar que recibe tensión de red durante el ciclo de desagüe.",
@@ -747,6 +782,7 @@ const defaultCases = [
   },
   {
     id: 7, titulo: "Lavadora – No gira el tambor / Error de motor",
+    categoria: "Lavadora", marca: "Varios", modelo: "Varios (motor inverter/carbón)",
     linea: "blanca", tipo: "FALLA DE MOTOR / TARJETA", dificultad: "alta",
     sintoma: "El tambor no gira durante el lavado. Puede mostrar código de error (E3, F5 u otro según marca).",
     prueba: "Girar el tambor manualmente. Si hay mucha resistencia, puede ser un rodamiento o el freno. Si gira libre, el problema es eléctrico.",
@@ -764,6 +800,7 @@ const defaultCases = [
   },
   {
     id: 8, titulo: "Nevera / Refrigerador – No enfría (compresor corre)",
+    categoria: "Nevera / Refrigerador", marca: "Varios", modelo: "Varios",
     linea: "blanca", tipo: "FALLA DE GAS / CAPILAR", dificultad: "alta",
     sintoma: "El compresor trabaja continuamente pero la nevera no alcanza temperatura de refrigeración.",
     prueba: "Palpar el tubo de descarga del compresor: debe estar muy caliente. El tubo de retorno (línea de succión) debe estar frío. Si el retorno está tibio, posible fuga o capilar tapado.",
@@ -781,6 +818,7 @@ const defaultCases = [
   },
   {
     id: 9, titulo: "Microondas – Plato no gira / No calienta",
+    categoria: "Microondas", marca: "Varios", modelo: "Varios",
     linea: "blanca", tipo: "FALLA DE MOTOR GIRO / MAGNETRÓN", dificultad: "media",
     sintoma: "El microondas enciende y el tiempo corre pero no calienta los alimentos. O el plato giratorio no rota.",
     prueba: "Para el calentamiento: colocar un vaso con agua 1 minuto a máxima potencia. Si el agua no calienta, el magnetrón o el capacitor de HV son los sospechosos.",
@@ -799,9 +837,9 @@ const defaultCases = [
 
   /* ── LÍNEA MENOR ── */
     {
-    id: 10,
-    categoria: "Cafetere analogica", // Puedes usar "Monitor", "Audio", etc.
-    marca: "RCA / Westinghouse/ Genérico",
+    id: 13,
+    categoria: "Cafetera",
+    marca: "RCA / Westinghouse / Genérico",
     modelo: "Genérico / Varios",
     titulo: "Enciende pero no calienta",
     linea: "menor",
@@ -823,6 +861,7 @@ const defaultCases = [
     },
   {
     id: 10, titulo: "Licuadora – No enciende o gira despacio",
+    categoria: "Licuadora", marca: "Varios", modelo: "Varios (motor universal)",
     linea: "menor", tipo: "FALLA DE CARBONES / INTERRUPTOR", dificultad: "baja",
     sintoma: "La licuadora no arranca al presionar ninguna velocidad, o gira muy lento con zumbido.",
     prueba: "Con el vaso retirado, intentar girar el eje del motor manualmente. Si está libre, el problema es eléctrico. Si está trabado, el motor o rodamiento están dañados.",
@@ -840,6 +879,7 @@ const defaultCases = [
   },
   {
     id: 11, titulo: "Plancha – No calienta o calienta poco",
+    categoria: "Plancha", marca: "Varios", modelo: "Varios",
     linea: "menor", tipo: "FALLA DE TERMOSTATO / RESISTENCIA", dificultad: "baja",
     sintoma: "La plancha no calienta en ninguna posición del selector, o solo calienta en un nivel.",
     prueba: "Medir resistencia de la suela con multímetro (desconectada de la red). Debe dar un valor según el wattaje: R = V²/W.",
@@ -857,6 +897,7 @@ const defaultCases = [
   },
   {
     id: 12, titulo: "Ventilador de pie – Oscila pero no sopla / No oscila",
+    categoria: "Ventilador", marca: "Varios", modelo: "Varios",
     linea: "menor", tipo: "FALLA DE MOTOR / CONDENSADOR", dificultad: "baja",
     sintoma: "El ventilador enciende pero no mueve aire o lo mueve muy débilmente. O las aspas giran pero el motor de oscilación no funciona.",
     prueba: "Girar las aspas manualmente. Si hay resistencia con el motor encendido, el condensador puede ser el problema.",
@@ -918,6 +959,7 @@ function renderCases() {
 
     let filtered = cases.filter(c => {
         const text = [c.titulo, c.tipo, c.sintoma, c.prueba || '',
+                      c.categoria || '', c.marca || '', c.modelo || '',
                       (c.pasos || []).join(' '), (c.componentes || []).join(' ')]
                      .join(' ').toLowerCase();
         const matchQ = !query || text.includes(query);
@@ -982,7 +1024,10 @@ function buildCard(c) {
     return `
     <div class="tech-card" data-linea="${c.linea}" data-id="${c.id}">
         <div class="card-header">
-            <h3>${c.titulo}</h3>
+            <div class="card-title-wrap">
+                ${c.categoria ? `<span class="card-category">${c.categoria}</span>` : ''}
+                <h3>${c.titulo}</h3>
+            </div>
             <span class="card-arrow">▼</span>
         </div>
         <div class="card-meta">
@@ -991,6 +1036,7 @@ function buildCard(c) {
             <span class="tech-badge badge-dif-${c.dificultad}">${difLabels[c.dificultad] || c.dificultad}</span>
         </div>
         <div class="tech-card-content">
+            ${(c.marca || c.modelo) ? `<div class="info-block"><strong>🏷️ Marca / Modelo</strong><p>${[c.marca, c.modelo].filter(Boolean).join(' — ')}</p></div><hr class="divider">` : ''}
             <div class="info-block"><strong>📋 Síntoma</strong><p>${c.sintoma}</p></div>
             <hr class="divider">
             ${prueba}
@@ -1050,6 +1096,9 @@ function saveCase() {
     const newCase = {
         id: getNextId(),
         titulo,
+        categoria:   document.getElementById('f-categoria').value.trim(),
+        marca:       document.getElementById('f-marca').value.trim(),
+        modelo:      document.getElementById('f-modelo').value.trim(),
         linea:       document.getElementById('f-linea').value,
         tipo,
         dificultad:  document.getElementById('f-dificultad').value,
@@ -1070,7 +1119,7 @@ function saveCase() {
 }
 
 function clearForm() {
-    ['f-titulo','f-tipo','f-sintoma','f-prueba','f-solucion','f-componentes','f-tip'].forEach(id => {
+    ['f-titulo','f-categoria','f-marca','f-modelo','f-tipo','f-sintoma','f-prueba','f-solucion','f-componentes','f-tip'].forEach(id => {
         document.getElementById(id).value = '';
     });
     document.getElementById('f-linea').value = 'marron';
