@@ -512,6 +512,7 @@ const DB = [
 
   // PROTECCIÓN Y ENERGÍA
   { codes:["F"], name:"Fusible", cat:"pro", desc:"Interrumpe la corriente cuando supera un límite seguro.", tip:"Antes de reemplazarlo investiga qué lo quemó; si cambia y vuelve a fundir, hay un corto activo." },
+  { codes:["SA"], name:"Surge Absorber (absorbedor de sobretensiones)", cat:"pro", desc:"Este componente actúa como un dispositivo de protección diseñado para absorber picos de voltaje repentinos, evitando que dañen otros componentes más sensibles del circuito.", tip:"La diferencia principal es que un absorbedor de sobretensiones protege contra picos de voltaje, mientras que un fusible protege contra excesos de corriente (amperaje). Además, el absorbedor es reutilizable y el fusible se destruye al actuar." },
   { codes:["FU"], name:"Fusible (variante formal)", cat:"pro", desc:"Variante del designador F usada por algunos fabricantes europeos y asiáticos.", tip:"Mismo diagnóstico que F: mide continuidad. Si no pita, está abierto." },
   { codes:["PTC"], name:"Fusible rearmable PTC", cat:"pro", desc:"Aumenta su resistencia al calentarse y corta la corriente; se restaura solo al enfriar.", tip:"Si hay 0V después de un PTC sin daño visible, espera a que enfríe y vuelve a medir." },
   { codes:["RV","MOV"], name:"Varistor MOV", cat:"pro", desc:"Absorbe picos de voltaje para proteger el circuito.", tip:"Si está agrietado o quemado, la placa recibió un pico fuerte; revisa también qué más se dañó." },
