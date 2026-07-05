@@ -156,6 +156,13 @@
   }
   .matchItem .mn { font-size: 13px; flex: 1; }
 
+  .res-multi-item {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .res-multi-item:first-of-type { border-top: none; padding-top: 0; }
+  .res-multi-item:last-of-type { padding-bottom: 0; }
+
   /* ══ TABS ══ */
   .tabs {
     display: flex; gap: 8px; margin-bottom: 14px;
@@ -526,9 +533,7 @@ const DB = [
 
   // MECÁNICOS / ENSAMBLE
   { codes:["H","HS"], name:"Orificio de montaje / disipador", cat:"mec", desc:"Agujero solo mecánico (sin conexión eléctrica) o posición de disipador de calor.", tip:"Si un IC de potencia falla repetidamente, verifica que el disipador tenga buen contacto térmico." },
-  { codes:["M"], name:"Module (Modulo).", cat:"sem", desc:"Ubicación específica donde debe instalarse o conectarse un componente de tipo módulo (una pequeña subplaca o componente complejo que integra varias funciones).", tip:"Ojo no confundir con M que también puede referirse a Motor. Para diferenciarlo rápidamente en tu placa, aplica la regla de la conexión:
-Si ves cables saliendo hacia una pieza móvil: Casi siempre es un Motor.
-Si ves una pequeña placa soldada (con muchos pines) sobre la principal: Es un Módulo.." },
+  { codes:["M"], name:"Module (Modulo).", cat:"sem", desc:"Ubicación específica donde debe instalarse o conectarse un componente de tipo módulo (una pequeña subplaca o componente complejo que integra varias funciones).", tip:"Ojo no confundir con M que también puede referirse a Motor. Para diferenciarlo rápidamente en tu placa, aplica la regla de la conexión: Si ves cables saliendo hacia una pieza móvil, casi siempre es un Motor. Si ves una pequeña placa soldada (con muchos pines) sobre la principal, es un Módulo." },
   { codes:["MP"], name:"Punto de montaje mecánico", cat:"mec", desc:"Punto de fijación mecánica sin función eléctrica.", tip:"Algunos MP van conectados a GND de chasis; comprueba antes de aislar." },
   { codes:["DNP","NP"], name:"No instalar (do not populate)", cat:"mec", desc:"Indica que ese componente no debe soldarse en esta versión de la placa.", tip:"Verlo vacío es normal; no es una falla ni un componente faltante por error." },
   { codes:["FID"], name:"Marca fiducial", cat:"mec", desc:"Punto de referencia para la máquina de colocación automática de componentes (pick & place).", tip:"No tiene función eléctrica; es solo una referencia de alineación visual para la máquina." },
@@ -640,12 +645,11 @@ function catBadge(cat) {
   return `<span class="res-cat" style="background:${c.color}22;color:${c.color}">${c.label}</span>`;
 }
 
-function renderDetail(item, matchedCode) {
+function buildDetailCard(item, matchedCode) {
   const aka = item.codes.length > 1
     ? `<div class="res-aka">También aparece como: ${item.codes.join(', ')}</div>` : '';
   const customBadge = item.custom ? '<span class="custom-badge">tuyo</span>' : '';
-  resultEl.className = 'result';
-  resultEl.innerHTML = `
+  return `
     <div class="res-head">
       <span class="res-code">${matchedCode}</span>
       <span class="res-name">${item.name}${customBadge}</span>
@@ -655,6 +659,11 @@ function renderDetail(item, matchedCode) {
     ${item.tip ? `<div class="res-tip">💡 <b>Tip técnico:</b> ${item.tip}</div>` : ''}
     ${aka}
   `;
+}
+
+function renderDetail(item, matchedCode) {
+  resultEl.className = 'result';
+  resultEl.innerHTML = buildDetailCard(item, matchedCode);
 }
 
 function renderEmpty() {
@@ -672,23 +681,13 @@ function renderNotFound(q) {
 
 function renderMatches(matches, q) {
   resultEl.className = 'result';
-  const rows = matches.slice(0, 10).map(item =>
-    `<div class="matchItem" data-code="${item.codes[0]}">
-      <span class="mc">${item.codes[0]}</span>
-      <span class="mn">${item.name}</span>
-    </div>`
+  const cards = matches.slice(0, 10).map(item =>
+    `<div class="res-multi-item">${buildDetailCard(item, item.codes[0])}</div>`
   ).join('');
   resultEl.innerHTML = `
     <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">Coincidencias para "${q}":</div>
-    <div class="matchList">${rows}</div>
+    ${cards}
   `;
-  resultEl.querySelectorAll('.matchItem').forEach(el => {
-    el.addEventListener('click', () => {
-      const code = el.getAttribute('data-code');
-      document.getElementById('search').value = code;
-      doSearch(code);
-    });
-  });
 }
 
 /* ══════════════════════════════════════
@@ -698,7 +697,12 @@ function doSearch(raw) {
   const q = raw.trim().toUpperCase();
   document.getElementById('clearBtn').style.display = q ? 'block' : 'none';
   if (!q) { renderEmpty(); return; }
-  if (INDEX[q]) { renderDetail(INDEX[q], q); return; }
+
+  // Códigos exactos: buscamos TODOS los componentes que lo usen,
+  // no solo el último guardado en INDEX (puede haber códigos compartidos, ej: "M").
+  const exactMatches = DB.filter(item => item.codes.some(c => c.toUpperCase() === q));
+  if (exactMatches.length === 1) { renderDetail(exactMatches[0], q); return; }
+  if (exactMatches.length > 1)   { renderMatches(exactMatches, raw.trim()); return; }
 
   const seen = new Set();
   const matches = [];
