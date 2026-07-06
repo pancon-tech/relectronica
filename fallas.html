@@ -837,9 +837,34 @@ const defaultCases = [
 
   /* ── LÍNEA MENOR ── */
     {
+    id: 14,
+    categoria: "Cafetera analogica", // Puedes usar "Monitor", "Audio", etc.
+    marca: "Genérico",
+    modelo: "Genérico / Varios",
+    titulo: "NO PASA EL AGUA / NO HACE EL CICLO COMPLETO / EL AGUA SALE LENTO",
+    linea: "menor",
+    tipo: "Falla de resistencia tapada",
+    dificultad: "baja",
+    sintoma: "La cafetera enciende pero no hace el ciclo completo (El agua no sale).",
+    prueba: "Dejala hacer su ciclo.",
+    pasos: [
+      "Destape la cafetera sacando los tornillos que mayormente tiene por debajo.",
+      "Localiza la resistencia que esta totalmente visible(Forma de U).",
+      "Sacala completamente, sacandonles las dos manguera y los tornillos que la mantiene pegada.",
+      "Sopla con fuerza en uno de los orificios que tiene la resistencia, y verifica que el aire no sale, esto significa que esta tapa y el agua no puede pasar.",
+      "Cambiala por una nueva y haz la prueba con un poco de agua."
+     "En caso de que no tengas para cambiarla, puedes agarrar un pedazo de alabre o cualquier cosa que se le pareza e instrodurcelo por umo de los orificios de la resistencia, hasta que pueda sacar todo lo que la mantiene tapada."
+     "Arma la cafetera y haz una prueba de 5 ciclos."
+    ],
+    componentes: ["Resistencia"],
+    tip: "La resistencia se tapa mayormente porque el cliente recuela el cafe, haciendo que el sipo del cafe se vaya pegando a la resistencia con el tiempo provocando que se tape.",
+    notaTipo: "tip",
+    fecha: "2026-07-06"
+    },
+    {
     id: 13,
     categoria: "Cafetera analogica", // Puedes usar "Monitor", "Audio", etc.
-    marca: "RCA / Westinghouse/ Genérico",
+    marca: "Genérico",
     modelo: "Genérico / Varios",
     titulo: "ENCIENDE PERO NO CALIENTA",
     linea: "menor",
