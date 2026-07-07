@@ -306,6 +306,43 @@
 
         .divider { border: none; border-top: 1px solid var(--border-color); margin: 10px 0; }
 
+        /* ── PESTAÑAS DE SECCIÓN (Casos / Guías) ── */
+        .section-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        .section-tab {
+            flex: 1;
+            text-align: center;
+            padding: 9px 6px;
+            border-radius: 8px;
+            color: #7c8fa3;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .section-tab.active {
+            background: linear-gradient(135deg, #7928ca, #a855f7);
+            color: #fff;
+        }
+        .badge-equipo {
+            background: #062a2b;
+            color: #5eead4;
+            border: 1px solid #0f766e;
+        }
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
         /* ── SECTION TITLE ── */
         .section-title {
             font-size: 1.05rem;
@@ -487,10 +524,19 @@
     </div>
     <div class="header-stats">
         <div class="stat-pill">🛠️ <span id="total-count">0</span> casos</div>
+        <div class="stat-pill">📘 <span id="total-guias-count">0</span> guías</div>
     </div>
 </header>
 
 <div class="main-content" id="main-content">
+
+    <div class="section-tabs">
+        <div class="section-tab active" id="tab-casos" onclick="switchTab('casos')">🛠️ Casos de Falla</div>
+        <div class="section-tab" id="tab-guias" onclick="switchTab('guias')">📘 Guías Generales</div>
+    </div>
+
+    <!-- ══════════ PANEL: CASOS DE FALLA ══════════ -->
+    <div id="panel-casos">
 
     <!-- BÚSQUEDA Y FILTROS -->
     <div class="search-row">
@@ -536,6 +582,52 @@
         <p>Sin resultados para esa búsqueda.</p>
         <small>Intenta con otra palabra clave o limpia los filtros.</small>
     </div>
+
+    </div>
+    <!-- ══════════ FIN PANEL: CASOS DE FALLA ══════════ -->
+
+    <!-- ══════════ PANEL: GUÍAS GENERALES ══════════ -->
+    <div id="panel-guias" style="display:none">
+
+        <div class="search-row">
+            <input type="text" class="search-bar" id="guides-search" placeholder="🔍  Buscar por equipo, falla, componente…">
+            <button class="filter-btn" id="guide-filter-toggle-btn" onclick="toggleGuideFilterPanel()" title="Filtros">⚙️</button>
+        </div>
+
+        <div class="filter-panel" id="guide-filter-panel">
+            <div class="filter-label">Línea</div>
+            <div class="filter-chips" id="guide-filter-linea">
+                <div class="chip active" data-val="">Todas</div>
+                <div class="chip" data-val="marron">📺 Línea Marrón</div>
+                <div class="chip" data-val="blanca">🫙 Línea Blanca</div>
+                <div class="chip" data-val="menor">🔌 Línea Menor</div>
+            </div>
+            <div class="sort-row">
+                <div class="filter-label" style="margin:0">Ordenar:</div>
+                <select class="sort-select" id="guide-sort-select" onchange="renderGuides()">
+                    <option value="reciente">Más reciente</option>
+                    <option value="alfa">A → Z</option>
+                    <option value="equipo">Por tipo de equipo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section-title">
+            Guías Generales de Reparación
+            <span class="count-bubble" id="guides-visible-count">0</span>
+        </div>
+        <div class="results-info" id="guides-results-info"></div>
+
+        <div id="guides-list"></div>
+
+        <div class="empty-state" id="guides-empty-state">
+            <div class="icon">📘</div>
+            <p>Sin resultados para esa búsqueda.</p>
+            <small>Intenta con otra palabra clave o limpia los filtros.</small>
+        </div>
+
+    </div>
+    <!-- ══════════ FIN PANEL: GUÍAS GENERALES ══════════ -->
 
 </div>
 
@@ -622,6 +714,69 @@
     </div>
 </div>
 
+<!-- MODAL AGREGAR GUÍA -->
+<div class="modal-overlay" id="add-guide-modal">
+    <div class="modal-sheet">
+        <div class="modal-title">
+            📘 Nueva Guía General
+            <button class="modal-close" onclick="closeGuideModal()">✕</button>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>Tipo de equipo *</label>
+                <input type="text" id="g-tipo-equipo" placeholder="ej. Televisor, Cafetera, Lavadora…">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>Línea *</label>
+                <select id="g-linea">
+                    <option value="marron">📺 Línea Marrón (TV, audio)</option>
+                    <option value="blanca">🫙 Línea Blanca (lavadora, nevera…)</option>
+                    <option value="menor">🔌 Línea Menor (licuadora, plancha…)</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Dificultad</label>
+                <select id="g-dificultad">
+                    <option value="baja">🟢 Baja</option>
+                    <option value="media">🟡 Media</option>
+                    <option value="alta">🔴 Alta</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Falla *</label>
+            <input type="text" id="g-falla" placeholder="ej. No enciende / No calienta / No centrifuga">
+        </div>
+        <div class="form-field">
+            <label>Descripción de la falla *</label>
+            <textarea id="g-descripcion" placeholder="¿Cómo se manifiesta esta falla en el equipo?"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Herramientas necesarias (opcional, separadas por coma)</label>
+            <input type="text" id="g-herramientas" placeholder="ej. Multímetro, destornillador plano, cautín">
+        </div>
+        <div class="form-field">
+            <label>Pasos para la reparación *</label>
+            <textarea id="g-pasos" placeholder="Paso 1&#10;Paso 2&#10;Paso 3" style="min-height:90px"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Componentes utilizados (separados por coma)</label>
+            <input type="text" id="g-componentes" placeholder="ej. Resistencia, Fusible térmico, Capacitor">
+        </div>
+        <div class="form-field">
+            <label>Consejo del técnico (opcional)</label>
+            <textarea id="g-consejo" placeholder="Recomendación práctica basada en la experiencia"></textarea>
+        </div>
+        <div class="form-field">
+            <label>Advertencia de seguridad (opcional)</label>
+            <textarea id="g-advertencia" placeholder="Riesgo eléctrico, componente sensible, etc."></textarea>
+        </div>
+        <button class="btn-primary" onclick="saveGuide()">Guardar Guía</button>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- FAB menú navegación -->
@@ -637,7 +792,7 @@
     <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
-<button class="fab-add" onclick="openModal()" title="Agregar caso">＋</button>
+<button class="fab-add" onclick="handleFabAdd()" id="fab-add-btn" title="Agregar caso">＋</button>
 
 <script>
 /* ══════════════════════════════
@@ -1085,13 +1240,14 @@ function toggleFilterPanel() {
     document.getElementById('filter-panel').classList.toggle('open');
 }
 
-function setupChips(groupId, onSelect) {
+function setupChips(groupId, onSelect, renderFn) {
+    const render = renderFn || renderCases;
     document.getElementById(groupId).querySelectorAll('.chip').forEach(chip => {
         chip.addEventListener('click', () => {
             document.getElementById(groupId).querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
             onSelect(chip.dataset.val);
-            renderCases();
+            render();
         });
     });
 }
@@ -1172,13 +1328,288 @@ function toggleFAB() {
     if (btn) btn.classList.toggle('open', open);
 }
 
+/* ══════════════════════════════
+   GUÍAS GENERALES (independiente de predictor)
+   Usa su propia clave de almacenamiento, NUNCA
+   escribe en STORAGE_KEY (relelectronica_fallas_v2),
+   así que predictor.html no la lee ni la usa.
+══════════════════════════════ */
+const STORAGE_KEY_GUIAS = 'relelectronica_guias_v1';
+
+const defaultGuides = [
+  {
+    id: 1,
+    tipoEquipo: "Televisor",
+    linea: "marron",
+    falla: "No enciende / LED de standby parpadea",
+    dificultad: "media",
+    descripcion: "El televisor no arranca al presionar el botón de encendido. El LED de standby parpadea varias veces y se apaga, o simplemente no enciende ningún indicador. Esta guía aplica a la gran mayoría de televisores LED, sin importar la marca.",
+    herramientas: ["Multímetro", "Destornillador de estrella", "Punta de prueba"],
+    pasos: [
+      "Desconectar el TV de la corriente y esperar 1 minuto antes de abrirlo.",
+      "Localizar la placa de fuente de poder (power supply) dentro del televisor.",
+      "Con el TV desconectado, revisar visualmente los condensadores electrolíticos buscando abombamiento o fugas.",
+      "Reconectar y medir el voltaje de standby (5V SB) en el conector principal de la fuente hacia la placa principal.",
+      "Si hay 5V SB pero el TV no arranca, simular la señal de encendido (PS-ON) puenteando el pin correspondiente a tierra por un instante.",
+      "Si al forzar el encendido los rieles de salida (12V, 24V) aparecen y luego se apagan, es probable un corto en la carga (backlight o placa principal); si se mantienen estables, revisar la placa principal.",
+      "Reemplazar los condensadores dañados o el módulo de fuente completo según el diagnóstico."
+    ],
+    componentes: ["Fuente de poder", "Condensadores electrolíticos", "Fusible de línea"],
+    consejo: "El parpadeo del LED de standby suele funcionar como código de error: cuenta los parpadeos y consulta el manual de servicio de la marca, ya que casi siempre apuntan a una sección específica (fuente, backlight, placa principal).",
+    advertencia: "Los televisores mantienen carga en los condensadores de la fuente incluso desconectados. Descárgalos con una resistencia de 10kΩ antes de manipular la placa.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 2,
+    tipoEquipo: "Nevera / Refrigerador",
+    linea: "blanca",
+    falla: "No enfría / El compresor no arranca",
+    dificultad: "media",
+    descripcion: "El refrigerador está conectado y hace ruido de vez en cuando, pero no enfría o el compresor no llega a arrancar. Guía general aplicable a la mayoría de neveras domésticas con compresor convencional (no inverter).",
+    herramientas: ["Multímetro", "Amperímetro de gancho", "Destornillador"],
+    pasos: [
+      "Verificar que el equipo reciba corriente y que el termostato esté en una posición intermedia (no en mínimo).",
+      "Escuchar si el relé de arranque hace 'clic' al conectar; si no suena nada, medir voltaje en la toma del compresor.",
+      "Con el equipo desconectado, medir la resistencia entre los terminales C-S, C-R y S-R del compresor (deben sumar entre sí, ninguna en 0 ni en infinito).",
+      "Revisar el relé de arranque (PTC o de resorte) y el protector térmico (overload): comprobar continuidad de ambos.",
+      "Si el compresor mide bien pero no arranca, reemplazar el relé y protector térmico.",
+      "Si el compresor arranca pero no enfría, revisar si el evaporador tiene exceso de escarcha (posible falla del sistema de deshielo) o sospechar fuga de gas.",
+      "Verificar amperaje de arranque y trabajo del compresor con pinza amperométrica y comparar con la placa de datos."
+    ],
+    componentes: ["Compresor", "Relé de arranque (PTC)", "Protector térmico (overload)", "Termostato"],
+    consejo: "Antes de sospechar del compresor, descarta siempre el relé y el protector térmico: son las piezas más económicas y las que más fallan en comparación con el compresor.",
+    advertencia: "Si el sistema usa gas R-600a (isobutano), es inflamable. Evita trabajar cerca de llamas o chispas y garantiza buena ventilación si sospechas una fuga.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 3,
+    tipoEquipo: "Cafetera",
+    linea: "menor",
+    falla: "Enciende pero no calienta el agua",
+    dificultad: "baja",
+    descripcion: "La cafetera enciende (luz indicadora activa, hace el ciclo) pero el agua permanece fría o tibia y no llega a preparar el café correctamente. Guía general aplicable a la mayoría de cafeteras de goteo domésticas.",
+    herramientas: ["Multímetro", "Destornillador plano"],
+    pasos: [
+      "Desconectar la cafetera y destaparla retirando los tornillos de la base.",
+      "Localizar la resistencia calefactora (generalmente en forma de tubo o U) y el fusible térmico junto a ella.",
+      "Medir continuidad en el fusible térmico con el multímetro; si no da continuidad, está abierto y debe reemplazarse.",
+      "Si el fusible está bien, medir la resistencia calefactora en ohmios; un valor de infinito indica que está abierta (dañada).",
+      "Revisar también que no haya cables sueltos o falsos contactos en la conexión hacia la resistencia.",
+      "Reemplazar la pieza defectuosa (fusible térmico o resistencia) y volver a armar.",
+      "Realizar una prueba con agua durante 2-3 ciclos completos para confirmar que ya calienta correctamente."
+    ],
+    componentes: ["Resistencia calefactora", "Fusible térmico"],
+    consejo: "Si no tienes un fusible térmico de repuesto a mano, puedes puentearlo temporalmente para confirmar el diagnóstico, pero siempre debe reemplazarse por uno nuevo: es una protección de seguridad contra sobrecalentamiento.",
+    advertencia: "Nunca uses la cafetera con el fusible térmico puenteado de forma permanente; sin esa protección, un fallo posterior de la resistencia puede generar riesgo de incendio.",
+    fecha: "2026-07-07"
+  }
+];
+
+let guides = [];
+let guideFilterLinea = '';
+
+function loadGuides() {
+    try {
+        const saved  = localStorage.getItem(STORAGE_KEY_GUIAS + '_custom');
+        const custom = saved ? JSON.parse(saved) : [];
+        const baseIds   = new Set(defaultGuides.map(g => g.id));
+        const soloCustom = custom.filter(g => !baseIds.has(g.id));
+        guides = [...defaultGuides, ...soloCustom];
+        // Guarda solo dentro de su propia clave; jamás toca STORAGE_KEY (fallas)
+        localStorage.setItem(STORAGE_KEY_GUIAS, JSON.stringify(guides));
+    } catch(e) {
+        guides = [...defaultGuides];
+    }
+}
+
+function saveGuides() {
+    try {
+        const baseIds = new Set(defaultGuides.map(g => g.id));
+        const custom  = guides.filter(g => !baseIds.has(g.id));
+        localStorage.setItem(STORAGE_KEY_GUIAS + '_custom', JSON.stringify(custom));
+        localStorage.setItem(STORAGE_KEY_GUIAS, JSON.stringify(guides));
+    } catch(e) {}
+}
+
+function getNextGuideId() {
+    return guides.length ? Math.max(...guides.map(g => g.id)) + 1 : 1;
+}
+
+function renderGuides() {
+    const query   = document.getElementById('guides-search').value.toLowerCase().trim();
+    const sortVal = document.getElementById('guide-sort-select').value;
+
+    let filtered = guides.filter(g => {
+        const text = [g.tipoEquipo, g.falla, g.descripcion,
+                      (g.pasos || []).join(' '), (g.componentes || []).join(' '),
+                      (g.herramientas || []).join(' ')]
+                     .join(' ').toLowerCase();
+        const matchQ = !query || text.includes(query);
+        const matchL = !guideFilterLinea || g.linea === guideFilterLinea;
+        return matchQ && matchL;
+    });
+
+    if (sortVal === 'alfa')        filtered.sort((a,b) => a.falla.localeCompare(b.falla));
+    else if (sortVal === 'equipo') filtered.sort((a,b) => a.tipoEquipo.localeCompare(b.tipoEquipo));
+    else                           filtered.sort((a,b) => b.id - a.id);
+
+    const list    = document.getElementById('guides-list');
+    const empty   = document.getElementById('guides-empty-state');
+    const visEl   = document.getElementById('guides-visible-count');
+    const totEl   = document.getElementById('total-guias-count');
+    const infoEl  = document.getElementById('guides-results-info');
+
+    totEl.textContent = guides.length;
+    visEl.textContent = filtered.length;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'flex';
+        infoEl.innerHTML = '';
+    } else {
+        empty.style.display = 'none';
+        infoEl.innerHTML = (query || guideFilterLinea)
+            ? `Mostrando <span>${filtered.length}</span> de ${guides.length} guías`
+            : '';
+
+        list.innerHTML = filtered.map(g => buildGuideCard(g)).join('');
+        list.querySelectorAll('.tech-card').forEach(el => {
+            el.addEventListener('click', () => toggleCard(el));
+        });
+    }
+}
+
+function buildGuideCard(g) {
+    const lineaLabels = { marron: '📺 Línea Marrón', blanca: '🫙 Línea Blanca', menor: '🔌 Línea Menor' };
+    const difLabels    = { baja: '🟢 Baja', media: '🟡 Media', alta: '🔴 Alta' };
+
+    const pasosHTML = g.pasos && g.pasos.length
+        ? `<ul class="steps-list">${g.pasos.map(p => `<li>${p}</li>`).join('')}</ul>`
+        : '';
+
+    const componentsHTML = g.componentes && g.componentes.length
+        ? `<div class="components-row">${g.componentes.map(x => `<span class="component-tag">${x}</span>`).join('')}</div>`
+        : '';
+
+    const herramientasHTML = g.herramientas && g.herramientas.length
+        ? `<div class="components-row">${g.herramientas.map(x => `<span class="component-tag">${x}</span>`).join('')}</div>`
+        : '';
+
+    const consejo = g.consejo
+        ? `<div class="tip-box">${g.consejo}</div>` : '';
+    const advertencia = g.advertencia
+        ? `<div class="warning-box">${g.advertencia}</div>` : '';
+
+    return `
+    <div class="tech-card" data-linea="${g.linea}" data-id="${g.id}">
+        <div class="card-header">
+            <div class="card-title-wrap">
+                <span class="card-category">${g.tipoEquipo}</span>
+                <h3>${g.falla}</h3>
+            </div>
+            <span class="card-arrow">▼</span>
+        </div>
+        <div class="card-meta">
+            <span class="tech-badge badge-equipo">${g.tipoEquipo}</span>
+            <span class="tech-badge badge-linea-${g.linea}">${lineaLabels[g.linea] || g.linea}</span>
+            ${g.dificultad ? `<span class="tech-badge badge-dif-${g.dificultad}">${difLabels[g.dificultad] || g.dificultad}</span>` : ''}
+        </div>
+        <div class="tech-card-content">
+            <div class="info-block"><strong>📋 Descripción de la falla</strong><p>${g.descripcion}</p></div>
+            <hr class="divider">
+            ${herramientasHTML ? `<div class="info-block"><strong>🧰 Herramientas necesarias</strong>${herramientasHTML}</div><hr class="divider">` : ''}
+            <div class="info-block"><strong>✅ Pasos para la reparación</strong>${pasosHTML}</div>
+            ${componentsHTML ? `<hr class="divider"><div class="info-block"><strong>🔩 Componentes utilizados</strong>${componentsHTML}</div>` : ''}
+            ${consejo}
+            ${advertencia}
+        </div>
+    </div>`;
+}
+
+function toggleGuideFilterPanel() {
+    document.getElementById('guide-filter-panel').classList.toggle('open');
+}
+
+function openGuideModal() {
+    document.getElementById('add-guide-modal').classList.add('open');
+}
+function closeGuideModal() {
+    document.getElementById('add-guide-modal').classList.remove('open');
+}
+document.getElementById('add-guide-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeGuideModal();
+});
+
+function saveGuide() {
+    const tipoEquipo  = document.getElementById('g-tipo-equipo').value.trim();
+    const falla       = document.getElementById('g-falla').value.trim();
+    const descripcion = document.getElementById('g-descripcion').value.trim();
+    const pasosRaw    = document.getElementById('g-pasos').value.trim();
+    if (!tipoEquipo || !falla || !descripcion || !pasosRaw) {
+        showToast('⚠️ Completa los campos obligatorios (*)'); return;
+    }
+    const pasos        = pasosRaw.split('\n').map(s => s.trim()).filter(Boolean);
+    const componentes   = document.getElementById('g-componentes').value.split(',').map(s => s.trim()).filter(Boolean);
+    const herramientas  = document.getElementById('g-herramientas').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    const newGuide = {
+        id: getNextGuideId(),
+        tipoEquipo,
+        linea:       document.getElementById('g-linea').value,
+        dificultad:  document.getElementById('g-dificultad').value,
+        falla,
+        descripcion,
+        herramientas,
+        pasos,
+        componentes,
+        consejo:     document.getElementById('g-consejo').value.trim(),
+        advertencia: document.getElementById('g-advertencia').value.trim(),
+        fecha:       new Date().toISOString().split('T')[0]
+    };
+    guides.unshift(newGuide);
+    saveGuides();
+    renderGuides();
+    closeGuideModal();
+    clearGuideForm();
+    showToast('✅ Guía guardada correctamente');
+}
+
+function clearGuideForm() {
+    ['g-tipo-equipo','g-falla','g-descripcion','g-herramientas','g-pasos','g-componentes','g-consejo','g-advertencia'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('g-linea').value = 'marron';
+    document.getElementById('g-dificultad').value = 'media';
+}
+
+/* ── PESTAÑAS (Casos / Guías) ── */
+let activeTab = 'casos';
+function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('panel-casos').style.display = tab === 'casos' ? 'block' : 'none';
+    document.getElementById('panel-guias').style.display = tab === 'guias' ? 'block' : 'none';
+    document.getElementById('tab-casos').classList.toggle('active', tab === 'casos');
+    document.getElementById('tab-guias').classList.toggle('active', tab === 'guias');
+    const fabBtn = document.getElementById('fab-add-btn');
+    fabBtn.title = tab === 'casos' ? 'Agregar caso' : 'Agregar guía';
+}
+
+function handleFabAdd() {
+    if (activeTab === 'guias') openGuideModal();
+    else openModal();
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', () => {
     loadCases();
+    loadGuides();
     setupChips('filter-linea', val => { filterLinea = val; });
     setupChips('filter-dif',   val => { filterDif   = val; });
+    setupChips('guide-filter-linea', val => { guideFilterLinea = val; }, renderGuides);
     document.getElementById('cases-search').addEventListener('input', renderCases);
+    document.getElementById('guides-search').addEventListener('input', renderGuides);
     renderCases();
+    renderGuides();
 });
 </script>
 </body>
