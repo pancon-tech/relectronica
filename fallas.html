@@ -19,7 +19,12 @@
             --info: #38bdf8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-wrap: break-word; }
 
         body {
             background-color: var(--bg-color);
@@ -28,6 +33,7 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            max-width: 100vw;
         }
 
         /* ── HEADER ── */
@@ -35,6 +41,8 @@
             background-color: var(--chat-bg);
             padding: 13px 16px;
             display: flex;
+            flex-wrap: wrap;
+            row-gap: 8px;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             gap: 12px;
@@ -47,16 +55,26 @@
             border: 1px solid var(--border-color); flex-shrink: 0;
         }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
-        .header-info h1 { font-size: 1.1rem; font-weight: 700; }
-        .header-info p { font-size: 0.8rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; }
-        .status-dot { width: 8px; height: 8px; background-color: var(--primary-light); border-radius: 50%; display: inline-block; }
+        .header-info { min-width: 0; }
+        .header-info h1 { font-size: 1.1rem; font-weight: 700; white-space: nowrap; }
+        .header-info p { font-size: 0.8rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--primary-light); border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
-        /* stats rápidas */
-        .header-stats {
+        /* acciones a la derecha del header (stats + respaldo), agrupadas para que
+           envuelvan juntas a una segunda línea en pantallas angostas */
+        .header-actions {
             margin-left: auto;
             display: flex;
-            gap: 12px;
-            flex-shrink: 0;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            row-gap: 8px;
+        }
+        .header-stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            row-gap: 6px;
         }
         .stat-pill {
             background: rgba(121,40,202,0.18);
@@ -68,14 +86,18 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .stat-pill span { font-weight: 700; color: #fff; }
 
         /* ── MAIN ── */
         .main-content {
             flex: 1;
+            width: 100%;
             padding: 16px 16px 8px 16px;
             overflow-y: auto;
+            overflow-x: hidden;
             margin-bottom: 65px;
             scroll-behavior: smooth;
         }
@@ -620,11 +642,13 @@
         <h1>Relectrónica</h1>
         <p><span class="status-dot"></span> Base de Casos Resueltos</p>
     </div>
-    <div class="header-stats">
-        <div class="stat-pill">🛠️ <span id="total-count">0</span> casos</div>
-        <div class="stat-pill">📘 <span id="total-guias-count">0</span> guías</div>
+    <div class="header-actions">
+        <div class="header-stats">
+            <div class="stat-pill">🛠️ <span id="total-count">0</span> casos</div>
+            <div class="stat-pill">📘 <span id="total-guias-count">0</span> guías</div>
+        </div>
+        <button class="filter-btn" onclick="openBackupModal()" title="Respaldo de datos" style="flex-shrink:0;">💾</button>
     </div>
-    <button class="filter-btn" onclick="openBackupModal()" title="Respaldo de datos" style="flex-shrink:0;">💾</button>
 </header>
 
 <div class="main-content" id="main-content">
@@ -1657,6 +1681,174 @@ const defaultGuides = [
     componentes: ["Resistencia calefactora", "Fusible térmico"],
     consejo: "Si no tienes un fusible térmico de repuesto a mano, puedes puentearlo temporalmente para confirmar el diagnóstico, pero siempre debe reemplazarse por uno nuevo: es una protección de seguridad contra sobrecalentamiento.",
     advertencia: "Nunca uses la cafetera con el fusible térmico puenteado de forma permanente; sin esa protección, un fallo posterior de la resistencia puede generar riesgo de incendio.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 4,
+    tipoEquipo: "Televisor",
+    linea: "marron",
+    falla: "Líneas horizontales o verticales en la pantalla",
+    dificultad: "alta",
+    descripcion: "Aparecen una o varias líneas de color, blancas o negras, fijas en la pantalla (horizontales o verticales), a veces acompañadas de parpadeo. La imagen de fondo puede seguir viéndose parcialmente detrás de las líneas. Guía general aplicable a la mayoría de televisores LED con panel y T-CON separados.",
+    herramientas: ["Destornillador de estrella", "Multímetro", "Cable flex de repuesto (si aplica)"],
+    pasos: [
+      "Confirmar que la falla es del televisor y no de la señal, cambiando de fuente (HDMI, antena, apps) para ver si las líneas persisten en todas.",
+      "Apagar y desconectar el TV; abrir la tapa trasera y ubicar la placa T-CON (entre el panel y la placa principal).",
+      "Revisar visualmente los cables flex que conectan la T-CON al panel: buscar dobleces, quemaduras o conectores flojos.",
+      "Reasentar firmemente los conectores flex de la T-CON, ya que un falso contacto es la causa más común de este síntoma.",
+      "Si las líneas persisten, sustituir la placa T-CON por una compatible y probar de nuevo.",
+      "Si el problema continúa incluso con T-CON nueva, el panel mismo está dañado y no tiene reparación práctica; se recomienda cotizar reemplazo de panel completo o del televisor."
+    ],
+    componentes: ["T-CON", "Cable flex", "Panel LED"],
+    consejo: "Las líneas verticales suelen apuntar a la T-CON o su conexión con el panel; las líneas horizontales que se mueven o cambian de posición al mover el cable flex casi siempre confirman un falso contacto ahí mismo.",
+    advertencia: "El panel es la pieza más costosa del televisor. Antes de cotizar un panel nuevo, agota siempre la revisión de T-CON y cables flex, que son mucho más económicos.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 5,
+    tipoEquipo: "Equipo de Sonido",
+    linea: "marron",
+    falla: "No enciende o no da sonido en uno de los canales",
+    dificultad: "media",
+    descripcion: "El equipo de sonido no enciende en absoluto, o enciende pero uno de los canales (izquierdo, derecho o subwoofer) no reproduce audio mientras el resto funciona con normalidad. Guía general aplicable a la mayoría de minicomponentes y equipos de sonido domésticos.",
+    herramientas: ["Multímetro", "Destornillador", "Cable de prueba / parlante de prueba"],
+    pasos: [
+      "Si no enciende: verificar el fusible de línea de la fuente de poder y medir el voltaje de salida principal.",
+      "Si enciende pero un canal no suena: descartar el parlante primero, probando con otro parlante conocido en ese mismo canal.",
+      "Si el parlante de prueba tampoco suena, revisar la etapa de potencia (amplificador) de ese canal en la placa principal, buscando componentes quemados o soldaduras frías.",
+      "Revisar los conectores y cables entre la placa y los parlantes; los falsos contactos son muy comunes en este tipo de falla.",
+      "Si hay un relé de protección de parlantes, verificar que esté cerrando correctamente (algunos equipos silencian un canal como protección ante un corto detectado).",
+      "Reemplazar el componente dañado (IC de audio, transistor de salida o fusible) según el diagnóstico."
+    ],
+    componentes: ["Fuente de poder", "Etapa de potencia / amplificador", "Relé de protección", "Parlantes"],
+    consejo: "Antes de desarmar nada, siempre prueba con un parlante externo conocido: te ahorra tiempo al confirmar de una vez si el problema es del parlante original o de la placa.",
+    advertencia: "Los capacitores de la fuente de poder pueden mantener carga eléctrica peligrosa incluso desconectados. Descárgalos con precaución antes de manipular la placa.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 6,
+    tipoEquipo: "Lavadora",
+    linea: "blanca",
+    falla: "No centrifuga o no desagua",
+    dificultad: "media",
+    descripcion: "La lavadora lava con normalidad pero la ropa sale empapada porque no centrifuga, o el agua se queda dentro del tambor sin desaguar. Guía general aplicable a la mayoría de lavadoras domésticas automáticas.",
+    herramientas: ["Multímetro", "Destornillador", "Pinzas"],
+    pasos: [
+      "Verificar primero que la manguera de desagüe no esté doblada, obstruida o colocada demasiado alta.",
+      "Revisar el filtro de la bomba de desagüe (generalmente en la parte frontal baja); limpiar objetos o pelusa que lo obstruyan.",
+      "Con la lavadora desconectada, medir continuidad en la bomba de desagüe; si no da continuidad, está dañada.",
+      "Si la bomba funciona pero no centrifuga, revisar la tapa de seguridad (switch de tapa), ya que muchas lavadoras no centrifugan si detectan la tapa abierta o el switch dañado.",
+      "Revisar también la banda (correa) del motor al tambor si el modelo la usa: una banda floja o rota impide el centrifugado aunque el motor gire.",
+      "Reemplazar la pieza defectuosa identificada (bomba, switch de tapa o banda) y probar un ciclo completo."
+    ],
+    componentes: ["Bomba de desagüe", "Switch de tapa", "Banda / correa del motor"],
+    consejo: "El filtro de la bomba tapado es, por mucho, la causa más frecuente de este problema y la más rápida de revisar: siempre empieza por ahí antes de sospechar de la bomba o el motor.",
+    advertencia: "Antes de abrir el filtro de la bomba, coloca un recipiente y toallas debajo: suele salir bastante agua acumulada.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 7,
+    tipoEquipo: "Lavadora",
+    linea: "blanca",
+    falla: "No gira el tambor / posible falla de motor",
+    dificultad: "alta",
+    descripcion: "La lavadora enciende, llena de agua y hace su ciclo, pero el tambor no gira en ningún momento (ni en lavado ni en centrifugado), o se escucha un zumbido sin movimiento. Guía general aplicable a lavadoras con motor directo o por banda.",
+    herramientas: ["Multímetro", "Destornillador", "Llave para tuerca del tambor (si aplica)"],
+    pasos: [
+      "Intentar girar el tambor manualmente con la lavadora apagada y desconectada; si está muy duro o trabado, sospechar de rodamientos.",
+      "Si el tambor gira libre a mano, revisar la banda del motor: verificar que no esté rota, zafada o muy floja.",
+      "Con la lavadora desconectada, medir continuidad y resistencia en los devanados del motor; comparar con las especificaciones del fabricante.",
+      "Revisar el capacitor de arranque del motor (si el modelo lo usa): un capacitor dañado impide que el motor arranque aunque reciba corriente.",
+      "Revisar la placa de control o el módulo de potencia del motor en modelos más modernos, buscando componentes quemados.",
+      "Reemplazar la pieza defectuosa (banda, capacitor o motor) según el diagnóstico y probar un ciclo completo."
+    ],
+    componentes: ["Motor", "Banda / correa", "Capacitor de arranque", "Rodamientos del tambor"],
+    consejo: "El zumbido sin giro casi siempre apunta a capacitor de arranque dañado o banda zafada; ambos son revisiones rápidas antes de sospechar del motor mismo.",
+    advertencia: "Nunca gires el tambor con la mano mientras la lavadora está conectada a la corriente.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 8,
+    tipoEquipo: "Microondas",
+    linea: "blanca",
+    falla: "No calienta (el plato gira y la luz enciende)",
+    dificultad: "alta",
+    descripcion: "El microondas enciende, la luz interior funciona y el plato gira con normalidad, pero la comida sale fría o apenas tibia. Guía general aplicable a la mayoría de microondas domésticos.",
+    herramientas: ["Multímetro (con precaución, ver advertencia)", "Destornillador de estrella"],
+    pasos: [
+      "Confirmar que la puerta cierra bien y que los seguros de puerta (interlocks) hacen clic correctamente; un seguro dañado puede impedir que el magnetrón reciba energía.",
+      "Desconectar el microondas de la corriente y esperar varios minutos antes de abrirlo.",
+      "Localizar el fusible de línea (generalmente cerca de la entrada de corriente) y revisar si está quemado.",
+      "Revisar el fusible térmico del magnetrón y los interlocks de puerta con el multímetro, siempre con el equipo desconectado.",
+      "Si fusibles e interlocks están bien, sospechar del magnetrón o del transformador de alto voltaje.",
+      "Reemplazar la pieza defectuosa identificada; si es el magnetrón o el transformador de alto voltaje, se recomienda que lo haga un técnico con experiencia en alta tensión."
+    ],
+    componentes: ["Magnetrón", "Fusible de línea", "Interlocks de puerta", "Transformador de alto voltaje", "Capacitor de alto voltaje"],
+    consejo: "Antes de sospechar del magnetrón, agota siempre los interlocks de puerta y el fusible: son mucho más comunes y económicos de reemplazar.",
+    advertencia: "El capacitor de alto voltaje del microondas puede retener una carga letal incluso con el equipo desconectado por mucho tiempo. Si no tienes experiencia descargando capacitores de alto voltaje, no abras esta sección del equipo.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 9,
+    tipoEquipo: "Licuadora",
+    linea: "menor",
+    falla: "No enciende o gira muy despacio / sin fuerza",
+    dificultad: "baja",
+    descripcion: "La licuadora no enciende en ninguna velocidad, o gira notablemente más despacio y sin fuerza para triturar. Guía general aplicable a la mayoría de licuadoras domésticas con motor universal (carbones).",
+    herramientas: ["Destornillador", "Multímetro"],
+    pasos: [
+      "Verificar que la jarra esté bien asentada en la base, ya que muchas licuadoras tienen un switch de seguridad que no enciende si no detecta la jarra correctamente colocada.",
+      "Destapar la base del motor y revisar los carbones (escobillas): si están muy gastados o rotos, el motor no arrancará o girará débil.",
+      "Revisar el switch/selector de velocidades: probar continuidad en cada posición con el multímetro.",
+      "Revisar el acople plástico entre el motor y la cuchilla: si está desgastado o roto, el motor gira pero no transmite fuerza a la cuchilla.",
+      "Reemplazar carbones, switch o acople según el diagnóstico.",
+      "Probar con agua antes de usarla con alimentos, confirmando que las velocidades responden con fuerza normal."
+    ],
+    componentes: ["Carbones / escobillas", "Switch de velocidades", "Acople motor-cuchilla"],
+    consejo: "El acople plástico desgastado es una causa muy común y se confunde con 'motor débil': si el motor suena con fuerza pero la cuchilla apenas se mueve, sospecha del acople antes que del motor.",
+    advertencia: "Siempre desconecta la licuadora antes de revisar el área de la cuchilla o el acople.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 10,
+    tipoEquipo: "Plancha",
+    linea: "menor",
+    falla: "No calienta o calienta muy poco",
+    dificultad: "baja",
+    descripcion: "La plancha enciende (luz indicadora activa) pero la suela no calienta, o calienta muy poco y no alcanza temperatura para planchar. Guía general aplicable a la mayoría de planchas domésticas convencionales.",
+    herramientas: ["Multímetro", "Destornillador"],
+    pasos: [
+      "Confirmar que el control de temperatura no esté en la posición mínima o apagada.",
+      "Desconectar la plancha y destaparla retirando los tornillos de la carcasa.",
+      "Localizar el fusible térmico (protección de seguridad) y medir continuidad; si está abierto, no permite el paso de corriente a la resistencia.",
+      "Medir la resistencia calefactora en ohmios; un valor de infinito indica que está abierta (dañada).",
+      "Revisar el termostato: en la posición de máxima temperatura debe cerrar el circuito (dar continuidad); si no cierra, está dañado.",
+      "Reemplazar la pieza defectuosa (fusible térmico, resistencia o termostato) y probar calentamiento gradual con el selector en distintas posiciones."
+    ],
+    componentes: ["Resistencia calefactora", "Termostato", "Fusible térmico"],
+    consejo: "Si la plancha calienta un poco pero no llega a temperatura alta, sospecha primero del termostato antes que de la resistencia: es la causa más común cuando SÍ hay algo de calor.",
+    advertencia: "Nunca elimines o puentees el fusible térmico de forma permanente: es la protección contra sobrecalentamiento e incendio de este tipo de equipo.",
+    fecha: "2026-07-07"
+  },
+  {
+    id: 11,
+    tipoEquipo: "Ventilador",
+    linea: "menor",
+    falla: "No gira, no oscila, o gira muy despacio",
+    dificultad: "baja",
+    descripcion: "El ventilador no enciende en ninguna velocidad, gira muy despacio sin fuerza, o las aspas giran pero no oscila de lado a lado. Guía general aplicable a la mayoría de ventiladores de pie o de mesa domésticos.",
+    herramientas: ["Destornillador", "Multímetro", "Aceite lubricante ligero"],
+    pasos: [
+      "Si no gira en ninguna velocidad: revisar el cable y el switch/selector de velocidades con el multímetro (continuidad en cada posición).",
+      "Si gira muy despacio: apagar, desconectar y girar las aspas a mano; si están muy duras, el motor necesita lubricación en sus bujes.",
+      "Revisar el capacitor de arranque del motor (común en ventiladores de pie); un capacitor dañado hace que el motor zumbe sin arrancar o gire débil.",
+      "Si no oscila: revisar el mecanismo de oscilación (engranaje o biela plástica) detrás del motor, buscando piezas rotas o desconectadas.",
+      "Lubricar los bujes del motor con un poco de aceite ligero si el giro es duro por falta de lubricación.",
+      "Reemplazar el capacitor o el mecanismo de oscilación dañado según corresponda."
+    ],
+    componentes: ["Motor", "Capacitor de arranque", "Switch de velocidades", "Mecanismo de oscilación"],
+    consejo: "Un motor que zumba pero no arranca casi siempre es capacitor de arranque dañado, no motor quemado: es una revisión rápida y económica antes de pensar en cambiar el motor completo.",
+    advertencia: "Desconecta siempre el ventilador antes de tocar las aspas o el mecanismo interno.",
     fecha: "2026-07-07"
   }
 ];
