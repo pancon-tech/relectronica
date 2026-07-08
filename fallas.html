@@ -306,6 +306,109 @@
 
         .divider { border: none; border-top: 1px solid var(--border-color); margin: 10px 0; }
 
+        /* ── IMÁGENES DENTRO DE CARDS ── */
+        .info-image {
+            display: block;
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 8px;
+        }
+        .step-image {
+            display: block;
+            max-width: 100%;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            margin-top: 6px;
+        }
+        .steps-list li { flex-direction: column; }
+        .steps-list li .step-row { display: flex; gap: 10px; align-items: flex-start; width: 100%; }
+        .steps-list li .step-num {
+            background: rgba(121,40,202,0.3);
+            color: #c4b5fd;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .steps-list li .step-text { flex: 1; }
+        .steps-list li .step-image { margin-left: 30px; width: calc(100% - 30px); }
+
+        /* ── ACCIONES DE CARD (editar / eliminar) ── */
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .action-btn {
+            flex: 1;
+            background: #0f1e30;
+            border: 1px solid var(--border-color);
+            color: #a0aec0;
+            border-radius: 7px;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .action-btn:hover { background: #1e3347; color: #fff; }
+        .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+
+        /* ── CONSTRUCTOR DE PASOS (con imagen opcional) ── */
+        .pasos-builder { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+        .paso-row {
+            background: #0b131f;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            padding: 10px;
+        }
+        .paso-row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .paso-num {
+            background: rgba(121,40,202,0.3);
+            color: #c4b5fd;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .paso-remove {
+            background: none;
+            border: none;
+            color: #4a5568;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+        .paso-remove:hover { color: #fca5a5; }
+        .paso-row textarea.paso-texto { min-height: 50px; margin-bottom: 6px; }
+        .paso-row input.paso-imagen { font-size: 0.8rem; }
+        .btn-add-paso {
+            background: rgba(121,40,202,0.12);
+            border: 1px dashed rgba(168,85,247,0.4);
+            color: #c4b5fd;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 2px;
+        }
+        .btn-add-paso:hover { background: rgba(121,40,202,0.2); }
+        .field-hint { font-size: 0.72rem; color: #4a5568; margin-top: 4px; }
+
         /* ── PESTAÑAS DE SECCIÓN (Casos / Guías) ── */
         .section-tabs {
             display: flex;
@@ -420,7 +523,8 @@
         .modal-close:hover { color: #fff; }
         .form-field { margin-bottom: 13px; }
         .form-field label { display: block; font-size: 0.78rem; color: #7c8fa3; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-        .form-field input, .form-field textarea, .form-field select {
+        .form-field input, .form-field textarea, .form-field select,
+        .paso-row input, .paso-row textarea {
             width: 100%;
             background: #0b131f;
             border: 1px solid var(--border-color);
@@ -431,7 +535,9 @@
             outline: none;
             resize: vertical;
         }
-        .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: var(--primary-color); }
+        .paso-row input, .paso-row textarea { background: #111c2c; }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus,
+        .paso-row input:focus, .paso-row textarea:focus { border-color: var(--primary-color); }
         .form-field textarea { min-height: 70px; }
         .form-row { display: flex; gap: 10px; }
         .form-row .form-field { flex: 1; }
@@ -532,6 +638,7 @@
         <div class="stat-pill">🛠️ <span id="total-count">0</span> casos</div>
         <div class="stat-pill">📘 <span id="total-guias-count">0</span> guías</div>
     </div>
+    <button class="filter-btn" onclick="openBackupModal()" title="Respaldo de datos" style="flex-shrink:0;">💾</button>
 </header>
 
 <div class="main-content" id="main-content">
@@ -639,11 +746,11 @@
 
 </div>
 
-<!-- MODAL AGREGAR CASO -->
+<!-- MODAL AGREGAR/EDITAR CASO -->
 <div class="modal-overlay" id="add-modal">
     <div class="modal-sheet">
         <div class="modal-title">
-            ➕ Nuevo Caso de Falla
+            <span id="case-modal-title-text">➕ Nuevo Caso de Falla</span>
             <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
         <div class="form-row">
@@ -695,12 +802,19 @@
             <textarea id="f-sintoma" placeholder="¿Qué presenta el equipo?"></textarea>
         </div>
         <div class="form-field">
+            <label>Imagen del síntoma (opcional)</label>
+            <input type="text" id="f-sintoma-imagen" placeholder="ej. fallas/samsung-lineas.jpg">
+            <div class="field-hint">Coloca la imagen dentro de la carpeta "fallas" (junto a este archivo) y escribe aquí su nombre, ej: fallas/nombre-imagen.jpg</div>
+        </div>
+        <div class="form-field">
             <label>Prueba rápida (opcional)</label>
             <textarea id="f-prueba" placeholder="¿Cómo confirmar la falla?"></textarea>
         </div>
         <div class="form-field">
             <label>Pasos de solución *</label>
-            <textarea id="f-solucion" placeholder="Paso 1&#10;Paso 2&#10;Paso 3" style="min-height:90px"></textarea>
+            <div class="pasos-builder" id="f-pasos-builder"></div>
+            <button type="button" class="btn-add-paso" onclick="addPasoRow('f-pasos-builder')">➕ Agregar paso</button>
+            <div class="field-hint">Cada paso puede llevar su propia imagen (opcional), guardada en la carpeta "fallas".</div>
         </div>
         <div class="form-field">
             <label>Componentes involucrados (separados por coma)</label>
@@ -722,11 +836,11 @@
     </div>
 </div>
 
-<!-- MODAL AGREGAR GUÍA -->
+<!-- MODAL AGREGAR/EDITAR GUÍA -->
 <div class="modal-overlay" id="add-guide-modal">
     <div class="modal-sheet">
         <div class="modal-title">
-            📘 Nueva Guía General
+            <span id="guide-modal-title-text">📘 Nueva Guía General</span>
             <button class="modal-close" onclick="closeGuideModal()">✕</button>
         </div>
         <div class="form-row">
@@ -762,12 +876,19 @@
             <textarea id="g-descripcion" placeholder="¿Cómo se manifiesta esta falla en el equipo?"></textarea>
         </div>
         <div class="form-field">
+            <label>Imagen de la descripción (opcional)</label>
+            <input type="text" id="g-descripcion-imagen" placeholder="ej. guías/cafetera-no-calienta.jpg">
+            <div class="field-hint">Coloca la imagen dentro de la carpeta "guías" (junto a este archivo) y escribe aquí su nombre, ej: guías/nombre-imagen.jpg</div>
+        </div>
+        <div class="form-field">
             <label>Herramientas necesarias (opcional, separadas por coma)</label>
             <input type="text" id="g-herramientas" placeholder="ej. Multímetro, destornillador plano, cautín">
         </div>
         <div class="form-field">
             <label>Pasos para la reparación *</label>
-            <textarea id="g-pasos" placeholder="Paso 1&#10;Paso 2&#10;Paso 3" style="min-height:90px"></textarea>
+            <div class="pasos-builder" id="g-pasos-builder"></div>
+            <button type="button" class="btn-add-paso" onclick="addPasoRow('g-pasos-builder')">➕ Agregar paso</button>
+            <div class="field-hint">Cada paso puede llevar su propia imagen (opcional), guardada en la carpeta "guías".</div>
         </div>
         <div class="form-field">
             <label>Componentes utilizados (separados por coma)</label>
@@ -782,6 +903,23 @@
             <textarea id="g-advertencia" placeholder="Riesgo eléctrico, componente sensible, etc."></textarea>
         </div>
         <button class="btn-primary" onclick="saveGuide()">Guardar Guía</button>
+    </div>
+</div>
+
+<!-- MODAL RESPALDO DE DATOS -->
+<div class="modal-overlay" id="backup-modal">
+    <div class="modal-sheet">
+        <div class="modal-title">
+            💾 Respaldo de datos
+            <button class="modal-close" onclick="closeBackupModal()">✕</button>
+        </div>
+        <p style="color:#94a3b8; font-size:0.85rem; line-height:1.5; margin-bottom:18px;">
+            Tus casos y guías se guardan únicamente en este navegador. Exporta un respaldo de vez en cuando para no perder tu información, o para pasarla a otro dispositivo.
+        </p>
+        <button class="btn-primary" onclick="exportBackup()">⬇️ Exportar respaldo (.json)</button>
+        <button class="btn-primary" style="margin-top:10px; background:#1e3347;" onclick="triggerImportBackup()">⬆️ Importar respaldo</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importBackup(event)">
+        <div class="field-hint" style="margin-top:12px;">Importar un respaldo reemplaza todos los casos y guías actuales por los del archivo.</div>
     </div>
 </div>
 
@@ -1111,16 +1249,38 @@ const defaultCases = [
 let cases = [];
 let filterLinea = '';
 let filterDif   = '';
+let editingCaseId = null;
+
+// Normaliza un paso: acepta tanto texto plano (formato antiguo)
+// como {texto, imagen} (formato nuevo con imagen opcional).
+function normalizarPaso(p) {
+    if (typeof p === 'string') return { texto: p, imagen: '' };
+    return { texto: p.texto || '', imagen: p.imagen || '' };
+}
+function normalizarPasos(pasos) {
+    return (pasos || []).map(normalizarPaso);
+}
 
 function loadCases() {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY + '_custom');
-        const custom = saved ? JSON.parse(saved) : [];
-        // Siempre fusiona: defaultCases del HTML (puede tener nuevos) + custom del usuario
-        const baseIds = new Set(defaultCases.map(c => c.id));
-        const soloCustom = custom.filter(c => !baseIds.has(c.id));
-        cases = [...defaultCases, ...soloCustom];
-        // Sync completo para el bot
+        const savedCustom  = localStorage.getItem(STORAGE_KEY + '_custom');
+        const custom       = savedCustom ? JSON.parse(savedCustom) : [];
+        const savedDeleted = localStorage.getItem(STORAGE_KEY + '_deleted');
+        const deletedIds   = new Set(savedDeleted ? JSON.parse(savedDeleted) : []);
+
+        // El "custom" puede contener casos nuevos O ediciones de casos por defecto (mismo id).
+        const customMap = new Map(custom.map(c => [c.id, c]));
+        const merged = [];
+        defaultCases.forEach(c => {
+            if (deletedIds.has(c.id)) return;
+            merged.push(customMap.has(c.id) ? customMap.get(c.id) : c);
+        });
+        custom.forEach(c => {
+            const esDefault = defaultCases.some(d => d.id === c.id);
+            if (!esDefault && !deletedIds.has(c.id)) merged.push(c);
+        });
+        cases = merged;
+        // Sync completo para el bot / predictor
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
     } catch(e) {
         cases = [...defaultCases];
@@ -1129,11 +1289,19 @@ function loadCases() {
 
 function saveCases() {
     try {
-        // Guarda solo los casos custom (los del HTML se reconstruyen solos)
-        const baseIds = new Set(defaultCases.map(c => c.id));
-        const custom = cases.filter(c => !baseIds.has(c.id));
+        const currentIds = new Set(cases.map(c => c.id));
+        // "Eliminados" = casos por defecto que ya no están en el arreglo actual
+        const deletedIds = defaultCases.filter(d => !currentIds.has(d.id)).map(d => d.id);
+        // "Custom" = casos nuevos, o casos por defecto que fueron editados (contenido distinto)
+        const defaultMap = new Map(defaultCases.map(d => [d.id, d]));
+        const custom = cases.filter(c => {
+            const def = defaultMap.get(c.id);
+            if (!def) return true;
+            return JSON.stringify(def) !== JSON.stringify(c);
+        });
         localStorage.setItem(STORAGE_KEY + '_custom', JSON.stringify(custom));
-        // Sync completo para el bot
+        localStorage.setItem(STORAGE_KEY + '_deleted', JSON.stringify(deletedIds));
+        // Sync completo para el bot / predictor
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
     } catch(e) {}
 }
@@ -1148,9 +1316,10 @@ function renderCases() {
     const sortVal = document.getElementById('sort-select').value;
 
     let filtered = cases.filter(c => {
+        const pasosTexto = normalizarPasos(c.pasos).map(p => p.texto).join(' ');
         const text = [c.titulo, c.tipo, c.sintoma, c.prueba || '',
                       c.categoria || '', c.marca || '', c.modelo || '',
-                      (c.pasos || []).join(' '), (c.componentes || []).join(' ')]
+                      pasosTexto, (c.componentes || []).join(' ')]
                      .join(' ').toLowerCase();
         const matchQ = !query || text.includes(query);
         const matchL = !filterLinea || c.linea === filterLinea;
@@ -1195,8 +1364,13 @@ function buildCard(c) {
     const lineaLabels = { marron: '📺 Línea Marrón', blanca: '🫙 Línea Blanca', menor: '🔌 Línea Menor' };
     const difLabels   = { baja: '🟢 Baja', media: '🟡 Media', alta: '🔴 Alta' };
 
-    const pasosHTML = c.pasos && c.pasos.length
-        ? `<ul class="steps-list">${c.pasos.map(p => `<li>${p}</li>`).join('')}</ul>`
+    const pasos = normalizarPasos(c.pasos);
+    const pasosHTML = pasos.length
+        ? `<ul class="steps-list">${pasos.map((p, i) => `
+            <li>
+                <div class="step-row"><span class="step-num">${i+1}</span><span class="step-text">${p.texto}</span></div>
+                ${p.imagen ? `<img class="step-image" src="${p.imagen}" alt="Paso ${i+1}" onerror="this.style.display='none'">` : ''}
+            </li>`).join('')}</ul>`
         : '';
 
     const componentsHTML = c.componentes && c.componentes.length
@@ -1209,6 +1383,10 @@ function buildCard(c) {
 
     const nota = c.tip
         ? `<div class="${c.notaTipo === 'warning' ? 'warning-box' : 'tip-box'}">${c.tip}</div>`
+        : '';
+
+    const sintomaImagen = c.sintomaImagen
+        ? `<img class="info-image" src="${c.sintomaImagen}" alt="Imagen del síntoma" onerror="this.style.display='none'">`
         : '';
 
     return `
@@ -1227,12 +1405,16 @@ function buildCard(c) {
         </div>
         <div class="tech-card-content">
             ${(c.marca || c.modelo) ? `<div class="info-block"><strong>🏷️ Marca / Modelo</strong><p>${[c.marca, c.modelo].filter(Boolean).join(' — ')}</p></div><hr class="divider">` : ''}
-            <div class="info-block"><strong>📋 Síntoma</strong><p>${c.sintoma}</p></div>
+            <div class="info-block"><strong>📋 Síntoma</strong><p>${c.sintoma}</p>${sintomaImagen}</div>
             <hr class="divider">
             ${prueba}
             <div class="info-block"><strong>✅ Pasos de solución</strong>${pasosHTML}</div>
             ${componentsHTML ? `<hr class="divider"><div class="info-block"><strong>🔩 Componentes</strong>${componentsHTML}</div>` : ''}
             ${nota}
+            <div class="card-actions">
+                <button class="action-btn" onclick="event.stopPropagation(); editCase(${c.id})">✏️ Editar</button>
+                <button class="action-btn danger" onclick="event.stopPropagation(); deleteCase(${c.id})">🗑️ Eliminar</button>
+            </div>
         </div>
     </div>`;
 }
@@ -1260,8 +1442,69 @@ function setupChips(groupId, onSelect, renderFn) {
     });
 }
 
-/* ── MODAL AGREGAR ── */
+/* ── CONSTRUCTOR DE PASOS (compartido entre Casos y Guías) ── */
+function pasoRowHTML(i, p) {
+    p = p || { texto: '', imagen: '' };
+    return `
+    <div class="paso-row" data-idx="${i}">
+        <div class="paso-row-head">
+            <span class="paso-num">${i + 1}</span>
+            <button type="button" class="paso-remove" title="Quitar paso" onclick="removePasoRow(this, ${i})">✕</button>
+        </div>
+        <textarea class="paso-texto" placeholder="Describe este paso…">${(p.texto || '').replace(/</g,'&lt;')}</textarea>
+        <input type="text" class="paso-imagen" placeholder="Imagen de este paso (opcional), ej. fallas/paso1.jpg" value="${(p.imagen || '').replace(/"/g,'&quot;')}">
+    </div>`;
+}
+function renderPasosBuilder(containerId, pasos) {
+    const container = document.getElementById(containerId);
+    const lista = pasos && pasos.length ? pasos : [{ texto: '', imagen: '' }];
+    container.innerHTML = lista.map((p, i) => pasoRowHTML(i, p)).join('');
+}
+function readPasosBuilder(containerId) {
+    const container = document.getElementById(containerId);
+    return [...container.querySelectorAll('.paso-row')].map(row => ({
+        texto:  row.querySelector('.paso-texto').value.trim(),
+        imagen: row.querySelector('.paso-imagen').value.trim()
+    }));
+}
+function addPasoRow(containerId) {
+    const pasos = readPasosBuilder(containerId);
+    pasos.push({ texto: '', imagen: '' });
+    renderPasosBuilder(containerId, pasos);
+}
+function removePasoRow(btn, idx) {
+    const containerId = btn.closest('.pasos-builder').id;
+    const pasos = readPasosBuilder(containerId);
+    pasos.splice(idx, 1);
+    renderPasosBuilder(containerId, pasos);
+}
+
+/* ── MODAL AGREGAR / EDITAR CASO ── */
 function openModal() {
+    editingCaseId = null;
+    document.getElementById('case-modal-title-text').textContent = '➕ Nuevo Caso de Falla';
+    clearForm();
+    document.getElementById('add-modal').classList.add('open');
+}
+function editCase(id) {
+    const c = cases.find(x => x.id === id);
+    if (!c) return;
+    editingCaseId = id;
+    document.getElementById('case-modal-title-text').textContent = '✏️ Editar Caso de Falla';
+    document.getElementById('f-titulo').value          = c.titulo || '';
+    document.getElementById('f-categoria').value        = c.categoria || '';
+    document.getElementById('f-marca').value            = c.marca || '';
+    document.getElementById('f-modelo').value           = c.modelo || '';
+    document.getElementById('f-linea').value             = c.linea || 'marron';
+    document.getElementById('f-dificultad').value        = c.dificultad || 'media';
+    document.getElementById('f-tipo').value              = c.tipo || '';
+    document.getElementById('f-sintoma').value           = c.sintoma || '';
+    document.getElementById('f-sintoma-imagen').value    = c.sintomaImagen || '';
+    document.getElementById('f-prueba').value            = c.prueba || '';
+    document.getElementById('f-componentes').value       = (c.componentes || []).join(', ');
+    document.getElementById('f-tip').value                = c.tip || '';
+    document.getElementById('f-nota-tipo').value           = c.notaTipo || '';
+    renderPasosBuilder('f-pasos-builder', normalizarPasos(c.pasos));
     document.getElementById('add-modal').classList.add('open');
 }
 function closeModal() {
@@ -1275,47 +1518,66 @@ function saveCase() {
     const titulo  = document.getElementById('f-titulo').value.trim();
     const tipo    = document.getElementById('f-tipo').value.trim();
     const sintoma = document.getElementById('f-sintoma').value.trim();
-    const sol     = document.getElementById('f-solucion').value.trim();
-    if (!titulo || !tipo || !sintoma || !sol) {
+    const pasos   = readPasosBuilder('f-pasos-builder').filter(p => p.texto);
+    if (!titulo || !tipo || !sintoma || pasos.length === 0) {
         showToast('⚠️ Completa los campos obligatorios (*)'); return;
     }
-    const pasos       = sol.split('\n').map(s => s.trim()).filter(Boolean);
     const componentes = document.getElementById('f-componentes').value.split(',').map(s => s.trim()).filter(Boolean);
     const tip         = document.getElementById('f-tip').value.trim();
     const notaTipo    = document.getElementById('f-nota-tipo').value;
 
-    const newCase = {
-        id: getNextId(),
+    const datosCaso = {
         titulo,
-        categoria:   document.getElementById('f-categoria').value.trim(),
-        marca:       document.getElementById('f-marca').value.trim(),
-        modelo:      document.getElementById('f-modelo').value.trim(),
-        linea:       document.getElementById('f-linea').value,
+        categoria:     document.getElementById('f-categoria').value.trim(),
+        marca:         document.getElementById('f-marca').value.trim(),
+        modelo:        document.getElementById('f-modelo').value.trim(),
+        linea:         document.getElementById('f-linea').value,
         tipo,
-        dificultad:  document.getElementById('f-dificultad').value,
+        dificultad:    document.getElementById('f-dificultad').value,
         sintoma,
-        prueba:      document.getElementById('f-prueba').value.trim(),
+        sintomaImagen: document.getElementById('f-sintoma-imagen').value.trim(),
+        prueba:        document.getElementById('f-prueba').value.trim(),
         pasos,
         componentes,
         tip,
-        notaTipo,
-        fecha:       new Date().toISOString().split('T')[0]
+        notaTipo
     };
-    cases.unshift(newCase);
+
+    if (editingCaseId !== null) {
+        const idx = cases.findIndex(c => c.id === editingCaseId);
+        if (idx !== -1) {
+            cases[idx] = { ...cases[idx], ...datosCaso };
+        }
+        showToast('✅ Caso actualizado correctamente');
+    } else {
+        cases.unshift({ id: getNextId(), ...datosCaso, fecha: new Date().toISOString().split('T')[0] });
+        showToast('✅ Caso guardado correctamente');
+    }
     saveCases();
     renderCases();
     closeModal();
     clearForm();
-    showToast('✅ Caso guardado correctamente');
+    editingCaseId = null;
+}
+
+function deleteCase(id) {
+    const c = cases.find(x => x.id === id);
+    if (!c) return;
+    if (!confirm(`¿Eliminar el caso "${c.titulo}"? Esta acción no se puede deshacer.`)) return;
+    cases = cases.filter(x => x.id !== id);
+    saveCases();
+    renderCases();
+    showToast('🗑️ Caso eliminado');
 }
 
 function clearForm() {
-    ['f-titulo','f-categoria','f-marca','f-modelo','f-tipo','f-sintoma','f-prueba','f-solucion','f-componentes','f-tip'].forEach(id => {
+    ['f-titulo','f-categoria','f-marca','f-modelo','f-tipo','f-sintoma','f-sintoma-imagen','f-prueba','f-componentes','f-tip'].forEach(id => {
         document.getElementById(id).value = '';
     });
     document.getElementById('f-linea').value = 'marron';
     document.getElementById('f-dificultad').value = 'media';
     document.getElementById('f-nota-tipo').value = '';
+    renderPasosBuilder('f-pasos-builder', []);
 }
 
 /* ── TOAST ── */
@@ -1415,15 +1677,27 @@ const defaultGuides = [
 
 let guides = [];
 let guideFilterLinea = '';
+let editingGuideId = null;
 
 function loadGuides() {
     try {
-        const saved  = localStorage.getItem(STORAGE_KEY_GUIAS + '_custom');
-        const custom = saved ? JSON.parse(saved) : [];
-        const baseIds   = new Set(defaultGuides.map(g => g.id));
-        const soloCustom = custom.filter(g => !baseIds.has(g.id));
-        guides = [...defaultGuides, ...soloCustom];
-        // Guarda solo dentro de su propia clave; jamás toca STORAGE_KEY (fallas)
+        const savedCustom  = localStorage.getItem(STORAGE_KEY_GUIAS + '_custom');
+        const custom       = savedCustom ? JSON.parse(savedCustom) : [];
+        const savedDeleted = localStorage.getItem(STORAGE_KEY_GUIAS + '_deleted');
+        const deletedIds   = new Set(savedDeleted ? JSON.parse(savedDeleted) : []);
+
+        const customMap = new Map(custom.map(g => [g.id, g]));
+        const merged = [];
+        defaultGuides.forEach(g => {
+            if (deletedIds.has(g.id)) return;
+            merged.push(customMap.has(g.id) ? customMap.get(g.id) : g);
+        });
+        custom.forEach(g => {
+            const esDefault = defaultGuides.some(d => d.id === g.id);
+            if (!esDefault && !deletedIds.has(g.id)) merged.push(g);
+        });
+        guides = merged;
+        // Guarda solo dentro de su propia clave; jamás toca STORAGE_KEY (fallas / predictor)
         localStorage.setItem(STORAGE_KEY_GUIAS, JSON.stringify(guides));
     } catch(e) {
         guides = [...defaultGuides];
@@ -1432,9 +1706,16 @@ function loadGuides() {
 
 function saveGuides() {
     try {
-        const baseIds = new Set(defaultGuides.map(g => g.id));
-        const custom  = guides.filter(g => !baseIds.has(g.id));
+        const currentIds = new Set(guides.map(g => g.id));
+        const deletedIds = defaultGuides.filter(d => !currentIds.has(d.id)).map(d => d.id);
+        const defaultMap = new Map(defaultGuides.map(d => [d.id, d]));
+        const custom = guides.filter(g => {
+            const def = defaultMap.get(g.id);
+            if (!def) return true;
+            return JSON.stringify(def) !== JSON.stringify(g);
+        });
         localStorage.setItem(STORAGE_KEY_GUIAS + '_custom', JSON.stringify(custom));
+        localStorage.setItem(STORAGE_KEY_GUIAS + '_deleted', JSON.stringify(deletedIds));
         localStorage.setItem(STORAGE_KEY_GUIAS, JSON.stringify(guides));
     } catch(e) {}
 }
@@ -1448,8 +1729,9 @@ function renderGuides() {
     const sortVal = document.getElementById('guide-sort-select').value;
 
     let filtered = guides.filter(g => {
+        const pasosTexto = normalizarPasos(g.pasos).map(p => p.texto).join(' ');
         const text = [g.tipoEquipo, g.falla, g.descripcion,
-                      (g.pasos || []).join(' '), (g.componentes || []).join(' '),
+                      pasosTexto, (g.componentes || []).join(' '),
                       (g.herramientas || []).join(' ')]
                      .join(' ').toLowerCase();
         const matchQ = !query || text.includes(query);
@@ -1491,8 +1773,13 @@ function buildGuideCard(g) {
     const lineaLabels = { marron: '📺 Línea Marrón', blanca: '🫙 Línea Blanca', menor: '🔌 Línea Menor' };
     const difLabels    = { baja: '🟢 Baja', media: '🟡 Media', alta: '🔴 Alta' };
 
-    const pasosHTML = g.pasos && g.pasos.length
-        ? `<ul class="steps-list">${g.pasos.map(p => `<li>${p}</li>`).join('')}</ul>`
+    const pasos = normalizarPasos(g.pasos);
+    const pasosHTML = pasos.length
+        ? `<ul class="steps-list">${pasos.map((p, i) => `
+            <li>
+                <div class="step-row"><span class="step-num">${i+1}</span><span class="step-text">${p.texto}</span></div>
+                ${p.imagen ? `<img class="step-image" src="${p.imagen}" alt="Paso ${i+1}" onerror="this.style.display='none'">` : ''}
+            </li>`).join('')}</ul>`
         : '';
 
     const componentsHTML = g.componentes && g.componentes.length
@@ -1507,6 +1794,10 @@ function buildGuideCard(g) {
         ? `<div class="tip-box">${g.consejo}</div>` : '';
     const advertencia = g.advertencia
         ? `<div class="warning-box">${g.advertencia}</div>` : '';
+
+    const descripcionImagen = g.descripcionImagen
+        ? `<img class="info-image" src="${g.descripcionImagen}" alt="Imagen de la falla" onerror="this.style.display='none'">`
+        : '';
 
     return `
     <div class="tech-card" data-linea="${g.linea}" data-id="${g.id}">
@@ -1523,13 +1814,17 @@ function buildGuideCard(g) {
             ${g.dificultad ? `<span class="tech-badge badge-dif-${g.dificultad}">${difLabels[g.dificultad] || g.dificultad}</span>` : ''}
         </div>
         <div class="tech-card-content">
-            <div class="info-block"><strong>📋 Descripción de la falla</strong><p>${g.descripcion}</p></div>
+            <div class="info-block"><strong>📋 Descripción de la falla</strong><p>${g.descripcion}</p>${descripcionImagen}</div>
             <hr class="divider">
             ${herramientasHTML ? `<div class="info-block"><strong>🧰 Herramientas necesarias</strong>${herramientasHTML}</div><hr class="divider">` : ''}
             <div class="info-block"><strong>✅ Pasos para la reparación</strong>${pasosHTML}</div>
             ${componentsHTML ? `<hr class="divider"><div class="info-block"><strong>🔩 Componentes utilizados</strong>${componentsHTML}</div>` : ''}
             ${consejo}
             ${advertencia}
+            <div class="card-actions">
+                <button class="action-btn" onclick="event.stopPropagation(); editGuide(${g.id})">✏️ Editar</button>
+                <button class="action-btn danger" onclick="event.stopPropagation(); deleteGuide(${g.id})">🗑️ Eliminar</button>
+            </div>
         </div>
     </div>`;
 }
@@ -1539,6 +1834,27 @@ function toggleGuideFilterPanel() {
 }
 
 function openGuideModal() {
+    editingGuideId = null;
+    document.getElementById('guide-modal-title-text').textContent = '📘 Nueva Guía General';
+    clearGuideForm();
+    document.getElementById('add-guide-modal').classList.add('open');
+}
+function editGuide(id) {
+    const g = guides.find(x => x.id === id);
+    if (!g) return;
+    editingGuideId = id;
+    document.getElementById('guide-modal-title-text').textContent = '✏️ Editar Guía General';
+    document.getElementById('g-tipo-equipo').value        = g.tipoEquipo || '';
+    document.getElementById('g-linea').value               = g.linea || 'marron';
+    document.getElementById('g-dificultad').value           = g.dificultad || 'media';
+    document.getElementById('g-falla').value                = g.falla || '';
+    document.getElementById('g-descripcion').value          = g.descripcion || '';
+    document.getElementById('g-descripcion-imagen').value    = g.descripcionImagen || '';
+    document.getElementById('g-herramientas').value          = (g.herramientas || []).join(', ');
+    document.getElementById('g-componentes').value           = (g.componentes || []).join(', ');
+    document.getElementById('g-consejo').value                = g.consejo || '';
+    document.getElementById('g-advertencia').value            = g.advertencia || '';
+    renderPasosBuilder('g-pasos-builder', normalizarPasos(g.pasos));
     document.getElementById('add-guide-modal').classList.add('open');
 }
 function closeGuideModal() {
@@ -1552,42 +1868,61 @@ function saveGuide() {
     const tipoEquipo  = document.getElementById('g-tipo-equipo').value.trim();
     const falla       = document.getElementById('g-falla').value.trim();
     const descripcion = document.getElementById('g-descripcion').value.trim();
-    const pasosRaw    = document.getElementById('g-pasos').value.trim();
-    if (!tipoEquipo || !falla || !descripcion || !pasosRaw) {
+    const pasos       = readPasosBuilder('g-pasos-builder').filter(p => p.texto);
+    if (!tipoEquipo || !falla || !descripcion || pasos.length === 0) {
         showToast('⚠️ Completa los campos obligatorios (*)'); return;
     }
-    const pasos        = pasosRaw.split('\n').map(s => s.trim()).filter(Boolean);
     const componentes   = document.getElementById('g-componentes').value.split(',').map(s => s.trim()).filter(Boolean);
     const herramientas  = document.getElementById('g-herramientas').value.split(',').map(s => s.trim()).filter(Boolean);
 
-    const newGuide = {
-        id: getNextGuideId(),
+    const datosGuia = {
         tipoEquipo,
-        linea:       document.getElementById('g-linea').value,
-        dificultad:  document.getElementById('g-dificultad').value,
+        linea:             document.getElementById('g-linea').value,
+        dificultad:        document.getElementById('g-dificultad').value,
         falla,
         descripcion,
+        descripcionImagen: document.getElementById('g-descripcion-imagen').value.trim(),
         herramientas,
         pasos,
         componentes,
-        consejo:     document.getElementById('g-consejo').value.trim(),
-        advertencia: document.getElementById('g-advertencia').value.trim(),
-        fecha:       new Date().toISOString().split('T')[0]
+        consejo:           document.getElementById('g-consejo').value.trim(),
+        advertencia:       document.getElementById('g-advertencia').value.trim()
     };
-    guides.unshift(newGuide);
+
+    if (editingGuideId !== null) {
+        const idx = guides.findIndex(g => g.id === editingGuideId);
+        if (idx !== -1) {
+            guides[idx] = { ...guides[idx], ...datosGuia };
+        }
+        showToast('✅ Guía actualizada correctamente');
+    } else {
+        guides.unshift({ id: getNextGuideId(), ...datosGuia, fecha: new Date().toISOString().split('T')[0] });
+        showToast('✅ Guía guardada correctamente');
+    }
     saveGuides();
     renderGuides();
     closeGuideModal();
     clearGuideForm();
-    showToast('✅ Guía guardada correctamente');
+    editingGuideId = null;
+}
+
+function deleteGuide(id) {
+    const g = guides.find(x => x.id === id);
+    if (!g) return;
+    if (!confirm(`¿Eliminar la guía "${g.falla}"? Esta acción no se puede deshacer.`)) return;
+    guides = guides.filter(x => x.id !== id);
+    saveGuides();
+    renderGuides();
+    showToast('🗑️ Guía eliminada');
 }
 
 function clearGuideForm() {
-    ['g-tipo-equipo','g-falla','g-descripcion','g-herramientas','g-pasos','g-componentes','g-consejo','g-advertencia'].forEach(id => {
+    ['g-tipo-equipo','g-falla','g-descripcion','g-descripcion-imagen','g-herramientas','g-componentes','g-consejo','g-advertencia'].forEach(id => {
         document.getElementById(id).value = '';
     });
     document.getElementById('g-linea').value = 'marron';
     document.getElementById('g-dificultad').value = 'media';
+    renderPasosBuilder('g-pasos-builder', []);
 }
 
 /* ── PESTAÑAS (Casos / Guías) ── */
@@ -1605,6 +1940,77 @@ function switchTab(tab) {
 function handleFabAdd() {
     if (activeTab === 'guias') openGuideModal();
     else openModal();
+}
+
+/* ══════════════════════════════
+   RESPALDO DE DATOS (Exportar / Importar)
+   Incluye casos y guías juntos en un solo archivo .json
+══════════════════════════════ */
+function openBackupModal() {
+    document.getElementById('backup-modal').classList.add('open');
+}
+function closeBackupModal() {
+    document.getElementById('backup-modal').classList.remove('open');
+}
+document.getElementById('backup-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeBackupModal();
+});
+
+function exportBackup() {
+    try {
+        const data = {
+            app: 'relectronica-fallas',
+            version: 1,
+            exportado: new Date().toISOString(),
+            cases,
+            guides
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `relectronica-respaldo-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('💾 Respaldo descargado');
+    } catch(e) {
+        showToast('⚠️ No se pudo generar el respaldo');
+    }
+}
+
+function triggerImportBackup() {
+    document.getElementById('import-file-input').click();
+}
+
+function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const data = JSON.parse(e.target.result);
+            const tieneCasos  = Array.isArray(data.cases);
+            const tieneGuias  = Array.isArray(data.guides);
+            if (!tieneCasos && !tieneGuias) {
+                showToast('⚠️ El archivo no contiene datos válidos'); return;
+            }
+            if (!confirm('Esto reemplazará todos tus casos y guías actuales por los del respaldo. ¿Continuar?')) return;
+
+            if (tieneCasos) { cases  = data.cases;  saveCases();  }
+            if (tieneGuias) { guides = data.guides; saveGuides(); }
+
+            renderCases();
+            renderGuides();
+            closeBackupModal();
+            showToast('✅ Respaldo importado correctamente');
+        } catch(err) {
+            showToast('⚠️ Archivo de respaldo inválido');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
 }
 
 /* ── INIT ── */
