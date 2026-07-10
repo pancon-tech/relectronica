@@ -72,8 +72,9 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 
 /* Pestañas de componentes */
 .comp-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.comp-tab{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:7px 13px;font-size:.75rem;color:var(--muted);cursor:pointer}
+.comp-tab{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:7px 13px;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .2s}
 .comp-tab.active{background:rgba(168,85,247,.18);border-color:var(--accent);color:#e9d5ff}
+.comp-tab:hover{background:rgba(168,85,247,.1)}
 
 .comp-panel{display:none}
 .comp-panel.show{display:block}
@@ -83,9 +84,11 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .campo{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
 .campo label{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .campo select,.campo input{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 11px;font-size:.85rem;font-family:inherit;width:100%}
+.campo select{appearance:auto;cursor:pointer}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:.85rem;font-weight:600;cursor:pointer;width:100%}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:.85rem;font-weight:600;cursor:pointer;width:100%;transition:transform .1s}
+.btn:active{transform:scale(.98)}
 .btn.secondary{background:var(--card-bg);border:1px solid var(--border);color:var(--text)}
 
 .color-select-wrap{position:relative}
@@ -95,16 +98,18 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .resistor-vis{display:flex;align-items:center;justify-content:center;margin-bottom:16px;padding:10px 0}
 .resistor-lead{width:30px;height:3px;background:#9ca3af}
 .resistor-body{position:relative;width:130px;height:38px;background:linear-gradient(180deg,#e8cfa0,#d9b378);border-radius:8px;display:flex;align-items:center;justify-content:space-evenly;box-shadow:0 3px 8px rgba(0,0,0,.4)}
-.resistor-band{width:9px;height:100%;border-radius:1px}
+.resistor-band{width:9px;height:100%;border-radius:1px;transition:background .2s}
 
-.guide-list-item{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.guide-list-item{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border .2s}
+.guide-list-item:hover{border-color:var(--accent)}
 .guide-list-item h3{font-size:.9rem}
 .guide-list-item p{font-size:.72rem;color:var(--muted);margin-top:2px}
 .guide-list-item .arrow{color:var(--accent);font-size:1.1rem}
 .guide-detail{display:none}
 .guide-detail.show{display:block}
 .guide-detail-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.btn-back{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:.8rem;cursor:pointer}
+.btn-back{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:.8rem;cursor:pointer;transition:border .2s}
+.btn-back:hover{border-color:var(--accent)}
 .step-card{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
 .step-num{display:inline-block;background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;font-size:.78rem;font-weight:700;margin-right:8px}
 .step-title{font-size:.88rem;font-weight:700;display:inline}
@@ -119,9 +124,14 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .ejercicio-box{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:16px;margin-top:14px}
 .ejercicio-box .pregunta{font-size:1rem;font-weight:700;margin-bottom:8px}
 .ejercicio-box .opciones{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.ejercicio-box .opcion{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem}
-.ejercicio-box .opcion:hover{background:var(--primary)}
-.ejercicio-box .feedback{font-size:.85rem;margin-top:8px}
+.ejercicio-box .opcion{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.85rem;transition:all .2s}
+.ejercicio-box .opcion:hover{background:var(--primary);border-color:var(--primary)}
+.ejercicio-box .feedback{font-size:.85rem;margin-top:8px;padding:8px 12px;border-radius:8px}
+.ejercicio-box .feedback.correcto{background:rgba(16,185,129,.15);color:#6ee7b7}
+.ejercicio-box .feedback.incorrecto{background:rgba(239,68,68,.15);color:#fca5a5}
+
+#resColorResultado{padding:12px;background:var(--input-bg);border-radius:8px;border:1px solid var(--border);font-family:monospace;font-size:.9rem;text-align:center;margin-top:10px}
+#capESR{font-size:.8rem;color:var(--muted);margin-top:8px;padding:8px 12px;background:var(--input-bg);border-radius:6px;border:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -177,7 +187,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       <div class="result-note" id="rNota">—</div>
     </div>
 
-    <!-- PESTAÑAS DE COMPONENTES (ampliado) -->
+    <!-- PESTAÑAS DE COMPONENTES -->
     <div class="comp-tabs" id="compTabs">
       <div class="comp-tab active" data-comp="resistor">🎨 Resistencia</div>
       <div class="comp-tab" data-comp="capacitor">🔋 Capacitor</div>
@@ -189,7 +199,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       <div class="comp-tab" data-comp="sensor">🌡️ Sensores</div>
     </div>
 
-    <!-- PANEL RESISTENCIA (mejorado con modo inverso) -->
+    <!-- PANEL RESISTENCIA -->
     <div class="comp-panel show" id="panel-resistor">
       <div class="section-box">
         <div class="section-box-title">🎨 Resistencia por código de colores</div>
@@ -254,7 +264,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
               <option value="5" selected>5 bandas</option>
             </select>
           </div>
-          <div id="resColorResultado" style="margin-top:10px;padding:10px;background:var(--input-bg);border-radius:8px;border:1px solid var(--border);font-family:monospace;font-size:.9rem;text-align:center;"></div>
+          <div id="resColorResultado">Ingresa un valor para obtener los colores.</div>
         </div>
         <div class="campo" style="margin-top:8px">
           <label>Estado (fallo simulado)</label>
@@ -268,7 +278,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       </div>
     </div>
 
-    <!-- PANEL CAPACITOR (mejorado con ESR) -->
+    <!-- PANEL CAPACITOR -->
     <div class="comp-panel" id="panel-capacitor">
       <div class="section-box">
         <div class="section-box-title">🔋 Capacitor</div>
@@ -308,11 +318,11 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
             <option value="corto">Corto</option>
           </select>
         </div>
-        <div id="capESR" style="margin-top:8px;font-size:.8rem;color:var(--muted)"></div>
+        <div id="capESR">ESR estimado: —</div>
       </div>
     </div>
 
-    <!-- PANEL DIODO (ya estaba bien, añadimos fallo) -->
+    <!-- PANEL DIODO -->
     <div class="comp-panel" id="panel-diodo">
       <div class="section-box">
         <div class="section-box-title">➡️ Diodo / LED</div>
@@ -335,7 +345,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       </div>
     </div>
 
-    <!-- PANEL TRANSISTOR (nuevo) -->
+    <!-- PANEL TRANSISTOR -->
     <div class="comp-panel" id="panel-transistor">
       <div class="section-box">
         <div class="section-box-title">🔺 Transistor bipolar (NPN / PNP)</div>
@@ -361,7 +371,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       </div>
     </div>
 
-    <!-- PANEL FUSIBLE (sin cambios, ya estaba bien) -->
+    <!-- PANEL FUSIBLE -->
     <div class="comp-panel" id="panel-fusible">
       <div class="section-box">
         <div class="section-box-title">🧵 Fusible / Cable / Interruptor</div>
@@ -383,7 +393,7 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       </div>
     </div>
 
-    <!-- PANEL BOBINA (mejorado con fallos) -->
+    <!-- PANEL BOBINA -->
     <div class="comp-panel" id="panel-bobina">
       <div class="section-box">
         <div class="section-box-title">🌀 Bobina / Motor / Transformador</div>
@@ -394,19 +404,19 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
           <select id="bobinaFallo" onchange="calcBobina()">
             <option value="bueno">Bueno</option>
             <option value="abierto">Abierto (OL)</option>
-            <option value="corto">Corto entre vueltas (valor muy bajo)</option>
+            <option value="corto">Corto entre vueltas</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- PANEL SCR / TRIAC (nuevo) -->
+    <!-- PANEL SCR / TRIAC -->
     <div class="comp-panel" id="panel-scr">
       <div class="section-box">
         <div class="section-box-title">⚡ SCR / TRIAC</div>
         <div class="campo"><label>Tipo</label>
           <select id="scrTipo" onchange="calcSCR()">
-            <option value="scr">SCR (rectificador controlado de silicio)</option>
+            <option value="scr">SCR (rectificador controlado)</option>
             <option value="triac">TRIAC (bidireccional)</option>
           </select>
         </div>
@@ -414,21 +424,21 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
           <select id="scrFallo" onchange="calcSCR()">
             <option value="bueno">Bueno</option>
             <option value="abierto">Abierto</option>
-            <option value="corto">Corto (disparado permanentemente)</option>
+            <option value="corto">Corto (disparado)</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- PANEL SENSORES (nuevo) -->
+    <!-- PANEL SENSORES -->
     <div class="comp-panel" id="panel-sensor">
       <div class="section-box">
         <div class="section-box-title">🌡️ Sensores (NTC, PTC, LDR)</div>
         <div class="campo"><label>Tipo</label>
           <select id="sensorTipo" onchange="calcSensor()">
-            <option value="ntc">Termistor NTC (negativo, temp↑ R↓)</option>
-            <option value="ptc">Termistor PTC (positivo, temp↑ R↑)</option>
-            <option value="ldr">LDR (fotorresistencia, luz↑ R↓)</option>
+            <option value="ntc">Termistor NTC (temp↑ R↓)</option>
+            <option value="ptc">Termistor PTC (temp↑ R↑)</option>
+            <option value="ldr">LDR (luz↑ R↓)</option>
           </select>
         </div>
         <div class="campo"><label>Condición ambiental</label>
@@ -528,7 +538,7 @@ function showResultado(o){
 }
 
 /* ============================================================
-   RESISTENCIA
+   RESISTENCIA - CÓDIGO DE COLORES + MODO INVERSO
 ============================================================ */
 function toggleBanda3(){
   const bandas = document.getElementById('resBandas').value;
@@ -583,13 +593,16 @@ function calcResistor(){
   let value = digits * cm.mult;
   const tol = ct.tol;
 
-  // Aplicar fallo
   const fallo = document.getElementById('resFallo').value;
-  let valMostrar = value, valClase = 'ok', notaExtra = '';
+  let valMostrar = formatOhms(value), valClase = 'ok', notaExtra = 'Dentro de tolerancia';
   if(fallo === 'abierto'){ valMostrar = 'OL'; valClase = 'err'; notaExtra = 'Resistencia abierta, no conduce.'; }
   else if(fallo === 'corto'){ valMostrar = '0 Ω'; valClase = 'err'; notaExtra = 'Resistencia en corto, conduce directamente.'; }
-  else if(fallo === 'fuera_tol'){ valMostrar = formatOhms(value * (1 + (Math.random()*0.4+0.2)*(Math.random()>0.5?1:-1))); valClase = 'warn'; notaExtra = 'Valor fuera de tolerancia (±'+tol+'%)'; }
-  else { valMostrar = formatOhms(value); notaExtra = 'Dentro de tolerancia'; }
+  else if(fallo === 'fuera_tol'){ 
+    const desv = (Math.random()*0.4+0.2)*(Math.random()>0.5?1:-1);
+    valMostrar = formatOhms(value * (1 + desv)); 
+    valClase = 'warn'; 
+    notaExtra = 'Valor fuera de tolerancia (±'+tol+'%)'; 
+  }
 
   updateResistorVisual(bandas, c1, c2, c3, cm, ct);
   updateSwatches();
@@ -612,33 +625,37 @@ function calcResistor(){
   });
 }
 
-// Modo inverso: obtener colores desde valor
 function calcResistorInverso(){
   const val = parseFloat(document.getElementById('resValorInput').value);
-  if(isNaN(val) || val <= 0){ document.getElementById('resColorResultado').innerHTML = 'Ingresa un valor válido.'; return; }
   const bandas = document.getElementById('resBandasInv').value;
-  // Encontrar combinación de colores que se aproxime (simplificado: elegir la primera que coincida en orden de magnitud)
+  const el = document.getElementById('resColorResultado');
+  if(isNaN(val) || val <= 0){ el.innerHTML = 'Ingresa un valor válido.'; return; }
+  
   let mejor = null, mejorDiff = Infinity;
-  for(let c1 of DIGIT_COLORS){
-    for(let c2 of DIGIT_COLORS){
-      for(let c3 of (bandas==='5'?DIGIT_COLORS:['negro'])){
+  const digitKeys = bandas==='5' ? DIGIT_COLORS : DIGIT_COLORS;
+  for(let c1 of digitKeys){
+    for(let c2 of digitKeys){
+      const c3List = bandas==='5' ? DIGIT_COLORS : ['negro'];
+      for(let c3 of c3List){
         for(let cm of MULT_COLORS){
           let digits = bandas==='5' ? COLORS[c1].digit*100 + COLORS[c2].digit*10 + COLORS[c3].digit : COLORS[c1].digit*10 + COLORS[c2].digit;
           let v = digits * COLORS[cm].mult;
+          if(v <= 0) continue;
           let diff = Math.abs(Math.log10(v) - Math.log10(val));
-          if(diff < mejorDiff && v>0){
+          if(diff < mejorDiff){
             mejorDiff = diff; mejor = {c1,c2,c3,cm, v};
           }
         }
       }
     }
   }
-  if(mejor){
-    let tol = 'dorado'; // asumimos tolerancia dorada
-    let txt = `Aproximación: ${mejor.c1} ${mejor.c2} ${bandas==='5'?mejor.c3+' ':''}${mejor.cm} → ${formatOhms(mejor.v)} (cercano a ${formatOhms(val)})`;
-    document.getElementById('resColorResultado').innerHTML = txt;
+  if(mejor && mejorDiff < 2){
+    let txt = `Aproximación: ${COLORS[mejor.c1].label}, ${COLORS[mejor.c2].label}`;
+    if(bandas==='5') txt += `, ${COLORS[mejor.c3].label}`;
+    txt += `, mult. ${COLORS[mejor.cm].label} → ${formatOhms(mejor.v)} (cercano a ${formatOhms(val)})`;
+    el.innerHTML = txt;
   } else {
-    document.getElementById('resColorResultado').innerHTML = 'No se encontró combinación exacta.';
+    el.innerHTML = 'No se encontró combinación cercana. Verifica el valor.';
   }
 }
 
@@ -650,7 +667,7 @@ function toggleResModo(){
 }
 
 /* ============================================================
-   CAPACITOR (mejorado)
+   CAPACITOR
 ============================================================ */
 function toggleCapModo(){
   const modo = document.getElementById('capModo').value;
@@ -691,16 +708,16 @@ function calcCapacitor(){
 
   if (pF === null || isNaN(pF) || pF <= 0) {
     showResultado({dial:'Capacitancia (F)', modeIcon:'⊣⊢', modeText:'CAPACITOR', value:'- - - -', beep:'', beepClass:'', nota:'Ingresa el valor o el código de 3 dígitos.'});
+    document.getElementById('capESR').textContent = 'ESR estimado: —';
     return;
   }
 
-  let valMostrar = formatCap(pF), valClase = 'ok', notaExtra = '';
+  let valMostrar = formatCap(pF), valClase = 'ok', notaExtra = 'Capacitor bueno';
   let esr = 'ESR estimado: ' + (pF<1e6 ? 'bajo (<0.1Ω)' : 'moderado (~0.5-2Ω)');
   if(tipo==='electrolitico') esr += ' (los electrolíticos tienen ESR más alto)';
 
   if(fallo === 'abierto'){ valMostrar = 'OL'; valClase='err'; notaExtra = 'Capacitor abierto (seco)'; }
   else if(fallo === 'corto'){ valMostrar = '0 Ω (corto)'; valClase='err'; notaExtra = 'Capacitor en corto'; }
-  else { notaExtra = 'Capacitor bueno'; }
 
   let beepTxt, beepClass;
   if(fallo==='corto'){ beepTxt = '✅ SÍ suena (corto)'; beepClass='ok'; }
@@ -708,7 +725,7 @@ function calcCapacitor(){
   else { beepTxt = '❌ NO suena (normal)'; beepClass='err'; }
 
   if(tipo==='electrolitico') notaExtra += ' Es polarizado, respeta la polaridad.';
-  if(tipo==='arranque') notaExtra += ' Es de arranque AC, no polarizado, descárgalo antes de tocar.';
+  if(tipo==='arranque') notaExtra += ' Es de arranque AC, no polarizado.';
 
   document.getElementById('capESR').textContent = esr;
 
@@ -730,7 +747,7 @@ function calcCapacitor(){
 const DIODOS = {
   rectificador: {vfMin:0.45, vfMax:0.75, nota:'Conduce solo en un sentido. Inverso = OL.'},
   schottky:     {vfMin:0.15, vfMax:0.45, nota:'Caída baja, inverso = OL.'},
-  zener:        {vfMin:0.5,  vfMax:0.7,  nota:'En directo normal, en inverso solo conduce al voltaje Zener (>tester).'},
+  zener:        {vfMin:0.5,  vfMax:0.7,  nota:'En directo normal, en inverso OL (el tester no alcanza el voltaje Zener).'},
   led_rojo:     {vfMin:1.6, vfMax:2.2, nota:'LED rojo/amarillo/naranja. Puede encender tenue.'},
   led_verde:    {vfMin:2.8, vfMax:3.6, nota:'LED verde/azul/blanco. Puede encender tenue.'},
 };
@@ -757,7 +774,7 @@ function calcDiodo(){
 }
 
 /* ============================================================
-   TRANSISTOR (nuevo)
+   TRANSISTOR
 ============================================================ */
 function calcTransistor(){
   const tipo = document.getElementById('transTipo').value;
@@ -766,7 +783,7 @@ function calcTransistor(){
   const fallo = document.getElementById('transFallo').value;
 
   let val = `hFE ≈ ${hfe} · Vbe ≈ ${vbe.toFixed(2)}V`;
-  let valClase = 'ok', nota = `Transistor ${tipo.toUpperCase()} bueno. Mide la unión base-emisor como diodo, y colector-emisor como dos diodos en serie.`;
+  let valClase = 'ok', nota = `Transistor ${tipo.toUpperCase()} bueno. Mide B-E como diodo, C-E como dos diodos en serie.`;
   if(fallo === 'abierto'){ val = 'OL (abierto)'; valClase='err'; nota = 'Una o más uniones abiertas.'; }
   else if(fallo === 'corto'){ val = '0V (corto)'; valClase='err'; nota = 'Uniones en corto.'; }
 
@@ -776,7 +793,7 @@ function calcTransistor(){
     modeText: 'TRANSISTOR ' + tipo.toUpperCase(),
     value: val,
     valClass: valClase,
-    beep: '❌ No usar continuidad, usa el modo hFE o diodo',
+    beep: '❌ No usar continuidad, usa modo hFE o diodo',
     beepClass: 'err',
     nota: nota
   });
@@ -860,12 +877,12 @@ function calcBobina(){
 }
 
 /* ============================================================
-   SCR / TRIAC (nuevo)
+   SCR / TRIAC
 ============================================================ */
 function calcSCR(){
   const tipo = document.getElementById('scrTipo').value;
   const fallo = document.getElementById('scrFallo').value;
-  let val = 'Compuerta → cátodo: diodo normal (0.6-0.8V). Ánodo → cátodo: OL hasta que se dispare.';
+  let val = 'Compuerta → cátodo: diodo normal (0.6-0.8V). Ánodo → cátodo: OL hasta disparo.';
   let valClase = 'ok', nota = 'Para disparar SCR, toca compuerta con ánodo.';
   if(fallo === 'abierto'){ val = 'OL en todas las uniones'; valClase='err'; nota = 'SCR abierto.'; }
   else if(fallo === 'corto'){ val = '0V (conducción permanente)'; valClase='err'; nota = 'SCR en corto (disparado permanentemente).'; }
@@ -888,7 +905,6 @@ function calcSensor(){
   const tipo = document.getElementById('sensorTipo').value;
   const cond = document.getElementById('sensorCond').value;
   const fallo = document.getElementById('sensorFallo').value;
-  let base = 10000; // 10k típico
   let val = '10 kΩ (25°C / luz media)', valClase = 'ok', nota = '';
   if(tipo === 'ntc'){
     if(cond === 'calor') val = '2 kΩ (calor)';
@@ -922,28 +938,28 @@ function calcSensor(){
 }
 
 /* ============================================================
-   GUÍAS PASO A PASO (ampliadas)
+   GUÍAS PASO A PASO
 ============================================================ */
 const GUIAS = [
   {id:'continuidad_bobina', nombre:'Continuidad de bobina', desc:'Motores, transformadores, flyback', dial:'Ω (continuidad)', pasos:[
-    {t:'Desenergizar', b:'Desconecta y descarga.'},
-    {t:'Selecciona continuidad', b:'Símbolo de sonido.'},
-    {t:'Mide entre extremos', b:'Bobina sana: resistencia baja y estable.'},
+    {t:'Desenergizar', b:'Desconecta y descarga los capacitores antes de medir.'},
+    {t:'Selecciona continuidad', b:'El símbolo de sonido (🔊) en el multímetro.'},
+    {t:'Mide entre extremos', b:'Coloca las puntas en los dos terminales del devanado.'},
     {t:'Interpreta', b:'OL = abierta, 0Ω a masa = corto a tierra.'}
   ]},
   {id:'transistor', nombre:'Prueba de transistor NPN/PNP', desc:'Identificar tipo y ganancia', dial:'hFE', pasos:[
-    {t:'Identifica patas', b:'Busca el datasheet (E, B, C).'},
-    {t:'Selecciona modo hFE', b:'En el multímetro, inserta el transistor en el zócalo correspondiente.'},
+    {t:'Identifica patas', b:'Busca el datasheet (E, B, C) o usa un tester de transistores.'},
+    {t:'Selecciona modo hFE', b:'Inserta el transistor en el zócalo correspondiente (NPN o PNP).'},
     {t:'Lee hFE', b:'El valor debe estar en el rango típico (ej. 100-300 para pequeños de señal).'},
     {t:'Mide Vbe', b:'Usa modo diodo entre base y emisor: debe dar ~0.6-0.7V en directa.'}
   ]},
   {id:'scr_triac', nombre:'Prueba de SCR / TRIAC', desc:'Dispositivos de disparo', dial:'Diodo', pasos:[
-    {t:'Identifica terminales', b:'Ánodo (A), cátodo (K), compuerta (G).'},
+    {t:'Identifica terminales', b:'Ánodo (A), cátodo (K), compuerta (G) para SCR.'},
     {t:'Mide compuerta-cátodo', b:'Debe ser como un diodo: 0.6-0.8V en directa, OL en inversa.'},
     {t:'Prueba de disparo', b:'Con una pila de 9V y una resistencia, toca G con A; debe conducir y mantenerse.'}
   ]},
   {id:'capacitor_esr', nombre:'Medición de ESR en capacitores', desc:'Evaluar salud de electrolíticos', dial:'ESR (si disponible)', pasos:[
-    {t:'Descarga el capacitor', b:'Usa una resistencia de 1kΩ.'},
+    {t:'Descarga el capacitor', b:'Usa una resistencia de 1kΩ entre terminales.'},
     {t:'Selecciona función ESR', b:'Si tu multímetro no tiene, usa un medidor de ESR dedicado.'},
     {t:'Mide', b:'Un ESR bajo es bueno (ej. <0.5Ω para 1000µF). ESR alto indica deterioro.'}
   ]}
@@ -975,41 +991,34 @@ function volverGuia(){
 }
 
 /* ============================================================
-   EJERCICIOS (nuevo)
+   EJERCICIOS
 ============================================================ */
-let ejercicios = [];
 let puntuacion = 0;
+
 function generarEjercicio(){
-  // Pregunta aleatoria sobre resistencia (colores -> valor)
-  const comps = ['resistor'];
-  const tipo = comps[Math.floor(Math.random()*comps.length)];
-  if(tipo === 'resistor'){
-    const bandas = 5;
-    const c1 = DIGIT_COLORS[Math.floor(Math.random()*10)];
-    const c2 = DIGIT_COLORS[Math.floor(Math.random()*10)];
-    const c3 = DIGIT_COLORS[Math.floor(Math.random()*10)];
-    const cm = MULT_COLORS[Math.floor(Math.random()*MULT_COLORS.length)];
-    const val = (COLORS[c1].digit*100 + COLORS[c2].digit*10 + COLORS[c3].digit) * COLORS[cm].mult;
-    const opciones = [];
-    const correcto = formatOhms(val);
-    opciones.push(correcto);
-    // Generar 3 distractores
-    while(opciones.length < 4){
-      const f = (Math.random()*0.8+0.6)*(Math.random()>0.5?1:-1);
-      const otro = val * (1 + f);
-      if(otro > 0 && !opciones.includes(formatOhms(otro))){
-        opciones.push(formatOhms(otro));
-      }
+  // Pregunta sobre resistencia (colores -> valor)
+  const bandas = 5;
+  const c1 = DIGIT_COLORS[Math.floor(Math.random()*10)];
+  const c2 = DIGIT_COLORS[Math.floor(Math.random()*10)];
+  const c3 = DIGIT_COLORS[Math.floor(Math.random()*10)];
+  const cm = MULT_COLORS[Math.floor(Math.random()*MULT_COLORS.length)];
+  const val = (COLORS[c1].digit*100 + COLORS[c2].digit*10 + COLORS[c3].digit) * COLORS[cm].mult;
+  const opciones = [];
+  const correcto = formatOhms(val);
+  opciones.push(correcto);
+  while(opciones.length < 4){
+    const f = (Math.random()*0.8+0.6)*(Math.random()>0.5?1:-1);
+    const otro = val * (1 + f);
+    if(otro > 0 && !opciones.includes(formatOhms(otro))){
+      opciones.push(formatOhms(otro));
     }
-    // Mezclar
-    for(let i=opciones.length-1; i>0; i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
-    }
-    const pregunta = `¿Cuál es el valor de una resistencia con bandas: ${COLORS[c1].label}, ${COLORS[c2].label}, ${COLORS[c3].label}, multiplicador ${COLORS[cm].label}?`;
-    return {pregunta, opciones, correcto: correcto};
   }
-  return null;
+  for(let i=opciones.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
+  }
+  const pregunta = `¿Cuál es el valor de una resistencia con bandas: ${COLORS[c1].label}, ${COLORS[c2].label}, ${COLORS[c3].label}, multiplicador ${COLORS[cm].label}?`;
+  return {pregunta, opciones, correcto};
 }
 
 function nuevoEjercicio(){
@@ -1023,18 +1032,21 @@ function nuevoEjercicio(){
     btn.className = 'opcion';
     btn.textContent = op;
     btn.onclick = ()=>{
+      const fb = document.getElementById('ejFeedback');
       if(btn.textContent === ex.correcto){
         puntuacion++;
-        document.getElementById('ejFeedback').innerHTML = '✅ ¡Correcto!';
+        fb.className = 'feedback correcto';
+        fb.innerHTML = '✅ ¡Correcto!';
         document.getElementById('ejPuntuacion').textContent = puntuacion;
       } else {
-        document.getElementById('ejFeedback').innerHTML = `❌ Incorrecto. La respuesta correcta era ${ex.correcto}.`;
+        fb.className = 'feedback incorrecto';
+        fb.innerHTML = `❌ Incorrecto. La respuesta correcta era ${ex.correcto}.`;
       }
-      // Deshabilitar botones
       document.querySelectorAll('#ejOpciones .opcion').forEach(b=>b.style.opacity='0.5');
     };
     cont.appendChild(btn);
   });
+  document.getElementById('ejFeedback').className = 'feedback';
   document.getElementById('ejFeedback').innerHTML = '';
 }
 
@@ -1086,6 +1098,11 @@ toggleCapModo();
 fillBobinaSelect();
 renderGuiaLista();
 calcResistor();
+
+// Inicializar ejercicios cuando se vea la pestaña
+document.querySelector('.top-tab[data-view="ejercicios"]').addEventListener('click', ()=>{
+  if(document.getElementById('ejPregunta').textContent === 'Carga la pregunta...') nuevoEjercicio();
+});
 </script>
 </body>
 </html>
