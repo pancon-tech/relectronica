@@ -109,6 +109,14 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .result-row .value.warn{color:#fcd34d}
 .result-note{font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
 
+/* ===== COMPARE CARD ===== */
+.compare-card{background:var(--chat-bg);border:1px solid rgba(168,85,247,.3);border-radius:14px;padding:16px;margin-bottom:16px}
+.compare-title{font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:12px}
+.verdict-banner{border-radius:10px;padding:10px 12px;font-size:.8rem;margin-top:10px;line-height:1.5;font-weight:600}
+.verdict-banner.good{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#6ee7b7}
+.verdict-banner.bad{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
+.verdict-banner.warnb{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#fcd34d}
+
 /* ===== COMPONENT TABS ===== */
 .comp-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .comp-tab{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:7px 13px;font-size:.75rem;color:var(--muted);cursor:pointer}
@@ -156,6 +164,14 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .dial{font-family:monospace;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:#fcd34d;font-size:.78rem}
 
 .info-banner{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.28);border-radius:10px;padding:10px 12px;font-size:.78rem;color:#e9d5ff;line-height:1.5;margin-bottom:14px}
+
+/* ===== ANIMACIÓN CAPACITOR ===== */
+.cap-anim-wrap{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.cap-anim-symbol{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.cap-plate{width:6px;height:70px;background:#94a3b8;border-radius:2px}
+.cap-fill-track{width:34px;height:70px;background:#0d1526;border:1px solid var(--border);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden}
+.cap-fill{width:100%;height:0%;background:linear-gradient(180deg,#c084fc,#7928ca);transition:height .05s linear}
+.cap-curve-svg{flex:1;min-width:0;height:90px}
 </style>
 </head>
 <body>
@@ -251,6 +267,14 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       <div class="result-note" id="rNota">—</div>
     </div>
 
+    <!-- COMPARACIÓN CON MEDICIÓN REAL -->
+    <div class="compare-card" id="compareCard" style="display:none">
+      <div class="compare-title">🔍 ¿Ya mediste? Compara tu resultado real</div>
+      <div id="compareFields"></div>
+      <button class="btn secondary" onclick="compararMedicion()">Comparar</button>
+      <div id="compareVerdict"></div>
+    </div>
+
     <!-- SELECTOR DE COMPONENTE -->
     <div class="comp-tabs" id="compTabs">
       <div class="comp-tab active" data-comp="resistor">🎨 Resistencia</div>
@@ -258,12 +282,25 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
       <div class="comp-tab" data-comp="diodo">➡️ Diodo / LED</div>
       <div class="comp-tab" data-comp="fusible">🧵 Fusible / Cable</div>
       <div class="comp-tab" data-comp="bobina">🌀 Bobina / Motor</div>
+      <div class="comp-tab" data-comp="transistor">🔺 Transistor</div>
+      <div class="comp-tab" data-comp="termistor">🌡️ Termistor</div>
+      <div class="comp-tab" data-comp="bateria">🔋 Batería / Pila</div>
+      <div class="comp-tab" data-comp="otros">🧩 Otros</div>
     </div>
 
     <!-- PANEL: RESISTENCIA -->
     <div class="comp-panel show" id="panel-resistor">
       <div class="section-box">
-        <div class="section-box-title">🎨 Resistencia por código de colores</div>
+        <div class="section-box-title">🎨 Resistencia</div>
+        <div class="campo">
+          <label>Tipo de código</label>
+          <select id="resModo" onchange="toggleResModo(); calcResistor();">
+            <option value="colores">Código de colores (bandas)</option>
+            <option value="smd">Código SMD numérico (ej. 472, 4R7)</option>
+          </select>
+        </div>
+
+      <div id="resColoresWrap">
         <div class="campo">
           <label>Cantidad de bandas</label>
           <select id="resBandas" onchange="toggleBanda3(); calcResistor();">
@@ -308,6 +345,21 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
           <div class="color-select-wrap"><span class="color-swatch" id="swatch5"></span>
           <select id="bandaTol" onchange="calcResistor()"></select></div>
         </div>
+      </div><!-- fin resColoresWrap -->
+
+      <div id="resSmdWrap" style="display:none">
+        <div class="campo"><label>Código SMD</label>
+          <input type="text" id="resSmdCodigo" placeholder="Ej. 472, 103, 4R7" oninput="calcResistor()">
+        </div>
+        <div class="campo"><label>Tolerancia</label>
+          <select id="resSmdTol" onchange="calcResistor()">
+            <option value="1">±1% (código de 4 dígitos, precisión)</option>
+            <option value="5" selected>±5% (código de 3 dígitos, estándar)</option>
+            <option value="10">±10%</option>
+          </select>
+        </div>
+        <p style="font-size:.74rem;color:var(--muted);line-height:1.5">Formato: 2 dígitos + multiplicador (ej. "472" = 47×10² = 4.7kΩ). Si tiene una "R", esta reemplaza el punto decimal (ej. "4R7" = 4.7Ω). No cubre el código de letras EIA-96 de alta precisión.</p>
+      </div>
       </div>
     </div>
 
@@ -343,6 +395,34 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
             <option value="electrolitico">Electrolítico (polarizado)</option>
             <option value="arranque">De arranque / motor (AC)</option>
           </select>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-box-title">🎬 Animación: cómo carga y descarga</div>
+        <p style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:12px">La forma de la curva es siempre la misma sin importar los valores exactos de R y C — solo cambia qué tan rápido sucede. Por eso al medir en continuidad puede sonar un instante y luego parar.</p>
+
+        <div class="cap-anim-wrap">
+          <div class="cap-anim-symbol">
+            <div class="cap-plate"></div>
+            <div class="cap-fill-track"><div class="cap-fill" id="capFill"></div></div>
+            <div class="cap-plate"></div>
+          </div>
+          <svg id="capCurveSvg" viewBox="0 0 280 120" class="cap-curve-svg">
+            <line x1="24" y1="14" x2="24" y2="100" stroke="#334155" stroke-width="1"/>
+            <line x1="24" y1="100" x2="270" y2="100" stroke="#334155" stroke-width="1"/>
+            <text x="4" y="18" fill="#64748b" font-size="8">100%</text>
+            <text x="10" y="103" fill="#64748b" font-size="8">0%</text>
+            <path id="capCurvePath" d="" fill="none" stroke="#22344d" stroke-width="2"/>
+            <circle id="capCurveDot" cx="24" cy="100" r="4" fill="#a855f7"/>
+          </svg>
+        </div>
+
+        <div id="capAnimCaption" style="text-align:center;font-size:.78rem;color:var(--accent);min-height:18px;margin:6px 0 10px;font-weight:600">Listo para simular</div>
+
+        <div class="row2">
+          <button class="btn" id="btnCargar" onclick="animarCapacitor(true)">⚡ Simular carga</button>
+          <button class="btn secondary" id="btnDescargar" onclick="animarCapacitor(false)">🔻 Simular descarga</button>
         </div>
       </div>
     </div>
@@ -388,6 +468,67 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
         <div class="campo">
           <label>Selecciona el componente</label>
           <select id="bobinaTipo" onchange="calcBobina()"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: TRANSISTOR -->
+    <div class="comp-panel" id="panel-transistor">
+      <div class="section-box">
+        <div class="section-box-title">🔺 Transistor (BJT)</div>
+        <div class="campo">
+          <label>¿Qué quieres probar?</label>
+          <select id="transModo" onchange="calcTransistor()">
+            <option value="union">Uniones B-E / B-C (modo diodo)</option>
+            <option value="hfe">Ganancia hFE (socket dedicado)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Tipo</label>
+          <select id="transTipo" onchange="calcTransistor()">
+            <option value="npn">NPN</option>
+            <option value="pnp">PNP</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Categoría</label>
+          <select id="transCategoria" onchange="calcTransistor()">
+            <option value="pequena">Señal pequeña (ej. BC547, 2N2222, 2N3904)</option>
+            <option value="potencia">Potencia (ej. TIP41, 2N3055, salida de audio)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: TERMISTOR -->
+    <div class="comp-panel" id="panel-termistor">
+      <div class="section-box">
+        <div class="section-box-title">🌡️ Termistor NTC / PTC</div>
+        <div class="campo">
+          <label>Selecciona el tipo</label>
+          <select id="termistorTipo" onchange="calcTermistor()"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: BATERÍA -->
+    <div class="comp-panel" id="panel-bateria">
+      <div class="section-box">
+        <div class="section-box-title">🔋 Batería / Pila</div>
+        <div class="campo">
+          <label>Selecciona el tipo</label>
+          <select id="bateriaTipo" onchange="calcBateria()"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: OTROS -->
+    <div class="comp-panel" id="panel-otros">
+      <div class="section-box">
+        <div class="section-box-title">🧩 Otros componentes</div>
+        <div class="campo">
+          <label>Selecciona el componente</label>
+          <select id="otrosTipo" onchange="calcOtros()"></select>
         </div>
       </div>
     </div>
@@ -439,6 +580,10 @@ function recalcularActivo(comp){
   else if(comp==='diodo') calcDiodo();
   else if(comp==='fusible') calcFusible();
   else if(comp==='bobina') calcBobina();
+  else if(comp==='transistor') calcTransistor();
+  else if(comp==='termistor') calcTermistor();
+  else if(comp==='bateria') calcBateria();
+  else if(comp==='otros') calcOtros();
 }
 
 /* ══════════════════════════════════
@@ -480,9 +625,10 @@ function setDial(posKey, subIcon){
   if (activeEl) activeEl.classList.add('active');
 
   const selectBtn = document.getElementById('selectBtn');
-  if (posKey === 'ohm') {
+  const clustered = ['ohm','hz'];
+  if (clustered.includes(posKey)) {
     selectBtn.classList.add('select-active');
-    selectBtn.textContent = subIcon || 'Ω';
+    selectBtn.textContent = subIcon || (posKey==='ohm' ? 'Ω' : 'Hz');
   } else {
     selectBtn.classList.remove('select-active');
     selectBtn.textContent = 'SEL';
@@ -510,6 +656,99 @@ function showResultado(o){
   const rc = document.getElementById('rContinuidad'); rc.textContent = o.beep || '—';
   rc.className = 'value ' + (o.beepClass==='ok' ? 'ok' : o.beepClass==='err' ? 'err' : 'warn');
   document.getElementById('rNota').textContent = o.nota || '';
+
+  renderCompareBox();
+}
+
+/* ══════════════════════════════════
+   COMPARAR CON LA MEDICIÓN REAL
+══════════════════════════════════ */
+let expectation = null; // se define en cada calc*() antes de llamar showResultado()
+
+function veredicto(ok, msg){ return `<div class="verdict-banner ${ok?'good':'bad'}">${msg}</div>`; }
+function aviso(msg){ return `<div class="verdict-banner warnb">${msg}</div>`; }
+
+function renderCompareBox(){
+  const card = document.getElementById('compareCard');
+  const box  = document.getElementById('compareFields');
+  document.getElementById('compareVerdict').innerHTML = '';
+  if (!expectation) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  if (expectation.kind === 'valor_tolerancia') {
+    const unidades = expectation.unit === 'Ω' ? ['Ω','kΩ','MΩ'] : expectation.unit === 'F' ? ['pF','nF','µF'] : [expectation.unit];
+    box.innerHTML = `<div class="row2">
+      <div class="campo"><label>Valor medido</label><input type="number" step="any" id="cmpValor" placeholder="Ej. 9.8"></div>
+      <div class="campo"><label>Unidad</label><select id="cmpUnidad">${unidades.map(u=>`<option>${u}</option>`).join('')}</select></div>
+    </div>`;
+  } else if (expectation.kind === 'voltaje_directo') {
+    box.innerHTML = `
+      <div class="campo"><label>Voltaje medido en directo (V)</label><input type="number" step="any" id="cmpValor" placeholder="Ej. 0.62"></div>
+      <div class="campo"><label>¿Qué pasó al invertir las puntas?</label>
+        <select id="cmpInverso">
+          <option value="ol">Marcó OL (no conduce) — normal</option>
+          <option value="conduce">También conduce en inverso</option>
+        </select>
+      </div>`;
+  } else if (expectation.kind === 'continuidad') {
+    box.innerHTML = `<div class="campo"><label>¿Sonó el tester?</label>
+      <select id="cmpValor"><option value="si">Sí sonó</option><option value="no">No sonó</option></select></div>`;
+  } else if (expectation.kind === 'rango') {
+    box.innerHTML = `<div class="campo"><label>Resistencia medida (Ω)</label><input type="number" step="any" id="cmpValor" placeholder="Ej. 18"></div>`;
+  }
+}
+
+function compararMedicion(){
+  const v = document.getElementById('compareVerdict');
+  if (!expectation) return;
+
+  if (expectation.kind === 'valor_tolerancia') {
+    const raw = parseFloat(document.getElementById('cmpValor').value);
+    const unidad = document.getElementById('cmpUnidad').value;
+    if (isNaN(raw)) { v.innerHTML = aviso('Ingresa el valor que mediste.'); return; }
+    let base;
+    if (expectation.unit === 'Ω') base = unidad==='kΩ' ? raw*1000 : unidad==='MΩ' ? raw*1e6 : raw;
+    else if (expectation.unit === 'F') base = unidad==='nF' ? raw*1000 : unidad==='µF' ? raw*1e6 : raw;
+    else base = raw;
+    const ok = base >= expectation.min && base <= expectation.max;
+    const rango = `${expectation.fmt(expectation.min)} – ${expectation.fmt(expectation.max)}`;
+    v.innerHTML = veredicto(ok, ok
+      ? `✅ Dentro de rango. Se esperaba entre ${rango} y tu medición encaja — el componente parece estar bueno.`
+      : `❌ Fuera de rango. Se esperaba entre ${rango}. Es probable que el componente esté degradado o no sea el valor correcto para ese lugar del circuito.`);
+  }
+
+  else if (expectation.kind === 'voltaje_directo') {
+    const raw = parseFloat(document.getElementById('cmpValor').value);
+    const inverso = document.getElementById('cmpInverso').value;
+    if (isNaN(raw)) { v.innerHTML = aviso('Ingresa el voltaje medido en directo.'); return; }
+    const dentro = raw >= expectation.min && raw <= expectation.max;
+    if (dentro && inverso === 'ol') {
+      v.innerHTML = veredicto(true, '✅ Se comporta como se espera: conduce en directo dentro del rango típico y no conduce en inverso. Componente bueno.');
+    } else if (inverso === 'conduce') {
+      v.innerHTML = veredicto(false, '❌ Conduce en ambos sentidos — lo más probable es que esté en corto y deba reemplazarse.');
+    } else if (!dentro) {
+      v.innerHTML = aviso(`⚠️ El voltaje directo (${raw}V) está fuera del rango típico (${expectation.min}–${expectation.max}V) para este tipo. Puede ser otro tipo de diodo, o estar parcialmente dañado.`);
+    } else {
+      v.innerHTML = veredicto(true, '✅ Se comporta como se espera.');
+    }
+  }
+
+  else if (expectation.kind === 'continuidad') {
+    const sono = document.getElementById('cmpValor').value === 'si';
+    const ok = sono === expectation.esperaSonido;
+    v.innerHTML = veredicto(ok, ok
+      ? '✅ Coincide con lo esperado.'
+      : `❌ No coincide con lo esperado (se esperaba que ${expectation.esperaSonido ? 'sí sonara' : 'NO sonara'}). Revisa el componente o la conexión.`);
+  }
+
+  else if (expectation.kind === 'rango') {
+    const raw = parseFloat(document.getElementById('cmpValor').value);
+    if (isNaN(raw)) { v.innerHTML = aviso('Ingresa el valor medido.'); return; }
+    const ok = raw >= expectation.min*0.7 && raw <= expectation.max*1.3;
+    v.innerHTML = ok
+      ? veredicto(true, `✅ Dentro del rango orientativo (${formatOhms(expectation.min)} – ${formatOhms(expectation.max)}).`)
+      : aviso(`⚠️ Fuera del rango orientativo (${formatOhms(expectation.min)} – ${formatOhms(expectation.max)}). No es concluyente por sí solo — compáralo con un devanado simétrico si existe, o con el dato del fabricante.`);
+  }
 }
 
 /* ══════════════════════════════════
@@ -576,7 +815,42 @@ function updateResistorVisual(bandas, c1, c2, c3, cm, ct){
   }
 }
 
+function toggleResModo(){
+  const modo = document.getElementById('resModo').value;
+  document.getElementById('resColoresWrap').style.display = modo==='colores' ? 'block' : 'none';
+  document.getElementById('resSmdWrap').style.display = modo==='smd' ? 'block' : 'none';
+}
+
 function calcResistor(){
+  const modo = document.getElementById('resModo').value;
+  if (modo === 'smd') calcResistorSMD();
+  else calcResistorColores();
+}
+
+function beepParaResistencia(value){
+  const umbral = 50;
+  if (value <= umbral*0.7) return {beepTxt:'✅ SÍ debería sonar (resistencia muy baja)', beepClass:'ok'};
+  if (value <= umbral*1.4) return {beepTxt:'⚠️ Puede sonar o no, está cerca del umbral (~30-50Ω según el modelo de tester)', beepClass:'warn'};
+  return {beepTxt:'❌ NO debería sonar (es resistencia normal, no un corto)', beepClass:'err'};
+}
+
+function calcResistorComun(value, tol, modeTextExtra){
+  const {beepTxt, beepClass} = beepParaResistencia(value);
+  expectation = { kind:'valor_tolerancia', unit:'Ω', min: value*(1-tol/100), max: value*(1+tol/100), fmt: formatOhms };
+  showResultado({
+    dial: 'Ω (resistencia)',
+    dialPos: 'ohm',
+    subIcon: 'Ω',
+    modeIcon: 'Ω',
+    modeText: 'RESISTENCIA · ' + modeTextExtra,
+    value: formatOhms(value) + ' ±' + tol + '%',
+    beep: beepTxt,
+    beepClass: beepClass,
+    nota: `Con tolerancia ±${tol}%, se considera buena entre ${formatOhms(value*(1-tol/100))} y ${formatOhms(value*(1+tol/100))}. Mide siempre con el circuito desenergizado y, de ser posible, desuelda al menos una pata para evitar lecturas falsas por otros componentes en paralelo.`
+  });
+}
+
+function calcResistorColores(){
   const bandas = document.getElementById('resBandas').value;
   const c1 = COLORS[document.getElementById('banda1').value];
   const c2 = COLORS[document.getElementById('banda2').value];
@@ -595,23 +869,33 @@ function calcResistor(){
   updateResistorVisual(bandas, c1, c2, c3, cm, ct);
   updateSwatches();
 
-  const umbral = 50;
-  let beepTxt, beepClass;
-  if (value <= umbral*0.7) { beepTxt = '✅ SÍ debería sonar (resistencia muy baja)'; beepClass = 'ok'; }
-  else if (value <= umbral*1.4) { beepTxt = '⚠️ Puede sonar o no, está cerca del umbral (~30-50Ω según el modelo de tester)'; beepClass = 'warn'; }
-  else { beepTxt = '❌ NO debería sonar (es resistencia normal, no un corto)'; beepClass = 'err'; }
+  calcResistorComun(value, tol, bandas + ' bandas');
+}
 
-  showResultado({
-    dial: 'Ω (resistencia)',
-    dialPos: 'ohm',
-    subIcon: 'Ω',
-    modeIcon: 'Ω',
-    modeText: 'RESISTENCIA · ' + bandas + ' bandas',
-    value: formatOhms(value) + ' ±' + tol + '%',
-    beep: beepTxt,
-    beepClass: beepClass,
-    nota: `Con tolerancia ±${tol}%, se considera buena entre ${formatOhms(value*(1-tol/100))} y ${formatOhms(value*(1+tol/100))}. Mide siempre con el circuito desenergizado y, de ser posible, desuelda al menos una pata para evitar lecturas falsas por otros componentes en paralelo.`
-  });
+function calcResistorSMD(){
+  const raw = document.getElementById('resSmdCodigo').value.trim().toUpperCase();
+  const tol = parseFloat(document.getElementById('resSmdTol').value);
+  let value = NaN;
+
+  if (raw.includes('R')) {
+    value = parseFloat(raw.replace('R', '.'));
+  } else if (/^\d{3}$/.test(raw)) {
+    const base = parseInt(raw.slice(0,2));
+    const mult = Math.pow(10, parseInt(raw[2]));
+    value = base * mult;
+  } else if (/^\d{4}$/.test(raw)) {
+    const base = parseInt(raw.slice(0,3));
+    const mult = Math.pow(10, parseInt(raw[3]));
+    value = base * mult;
+  }
+
+  if (isNaN(value) || value <= 0) {
+    expectation = null;
+    showResultado({dial:'Ω (resistencia)', dialPos:'ohm', subIcon:'Ω', modeIcon:'Ω', modeText:'RESISTENCIA · SMD', value:'- - - -', beep:'', beepClass:'', nota:'Ingresa un código SMD válido (ej. 472, 103, 4R7).'});
+    return;
+  }
+
+  calcResistorComun(value, tol, 'SMD');
 }
 
 /* ══════════════════════════════════
@@ -627,6 +911,72 @@ function formatCap(pF){
   if (pF >= 1e6) return (pF/1e6).toFixed(2).replace(/\.00$/,'') + ' µF';
   if (pF >= 1000) return (pF/1000).toFixed(2).replace(/\.00$/,'') + ' nF';
   return pF.toFixed(2).replace(/\.00$/,'') + ' pF';
+}
+
+/* ══════════════════════════════════
+   ANIMACIÓN: CARGA / DESCARGA DEL CAPACITOR
+══════════════════════════════════ */
+let capAnimRunning = false;
+
+function curvePoints(charging){
+  // x: 24 -> 270, y: 100 (0%) -> 14 (100%)
+  const pts = [];
+  const n = 60;
+  for (let i = 0; i <= n; i++){
+    const t = i / n;                 // tiempo normalizado 0..1
+    const frac = charging ? (1 - Math.exp(-5*t)) : Math.exp(-5*t); // curva RC típica
+    const x = 24 + t * 246;
+    const y = 100 - frac * 86;
+    pts.push({x, y, frac});
+  }
+  return pts;
+}
+
+function animarCapacitor(charging){
+  if (capAnimRunning) return;
+  capAnimRunning = true;
+  document.getElementById('btnCargar').disabled = true;
+  document.getElementById('btnDescargar').disabled = true;
+
+  const pts = curvePoints(charging);
+  const pathD = 'M ' + pts.map(p => p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' L ');
+  document.getElementById('capCurvePath').setAttribute('d', pathD);
+  document.getElementById('capCurvePath').setAttribute('stroke', charging ? '#a855f7' : '#f59e0b');
+
+  const dot = document.getElementById('capCurveDot');
+  const fill = document.getElementById('capFill');
+  const caption = document.getElementById('capAnimCaption');
+
+  const duration = 2200;
+  const start = performance.now();
+
+  function frame(now){
+    const elapsed = now - start;
+    const t = Math.min(elapsed / duration, 1);
+    const idx = Math.round(t * (pts.length - 1));
+    const p = pts[idx];
+    dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y);
+    fill.style.height = (p.frac*100).toFixed(0) + '%';
+
+    if (charging) {
+      if (p.frac < 0.3) caption.textContent = '⚡ Cargando… corriente alta, el tester puede sonar aquí';
+      else if (p.frac < 0.85) caption.textContent = '📈 La corriente va bajando a medida que se llena…';
+      else caption.textContent = '✅ Capacitor cargado (~100%) — la corriente ya casi no fluye, deja de sonar';
+    } else {
+      if (p.frac > 0.7) caption.textContent = '🔻 Descargando a través de la resistencia…';
+      else if (p.frac > 0.15) caption.textContent = '📉 El voltaje sigue bajando…';
+      else caption.textContent = '✅ Capacitor descargado (~0%) — ya es seguro manipularlo con precaución';
+    }
+
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      capAnimRunning = false;
+      document.getElementById('btnCargar').disabled = false;
+      document.getElementById('btnDescargar').disabled = false;
+    }
+  }
+  requestAnimationFrame(frame);
 }
 
 function calcCapacitor(){
@@ -654,9 +1004,14 @@ function calcCapacitor(){
   }
 
   if (pF === null || isNaN(pF) || pF <= 0) {
+    expectation = null;
     showResultado({dial:'Capacitancia (F)', dialPos:'cap', subIcon:'⊣⊢', modeIcon:'⊣⊢', modeText:'CAPACITOR', value:'- - - -', beep:'', beepClass:'', nota:'Ingresa el valor o el código de 3 dígitos del capacitor.'});
     return;
   }
+
+  const TOL_CAP = {ceramico:10, electrolitico:20, arranque:8};
+  const tolCap = TOL_CAP[tipo] || 20;
+  expectation = { kind:'valor_tolerancia', unit:'F', min: pF*(1-tolCap/100), max: pF*(1+tolCap/100), fmt: formatCap };
 
   let beepTxt, beepClass, notaExtra;
   if (tipo === 'ceramico' && pF < 10000) {
@@ -698,6 +1053,7 @@ const DIODOS = {
 function calcDiodo(){
   const tipo = document.getElementById('diodoTipo').value;
   const d = DIODOS[tipo];
+  expectation = { kind:'voltaje_directo', min: d.vfMin, max: d.vfMax };
   showResultado({
     dial: 'Diodo (símbolo ▶|)',
     dialPos: 'ohm',
@@ -726,6 +1082,7 @@ function calcFusible(){
   const tipo = document.getElementById('fusibleTipo').value;
   const f = FUSIBLES[tipo];
   const esAislamiento = tipo === 'aislamiento';
+  expectation = { kind:'continuidad', esperaSonido: f.beepClass === 'ok' };
   showResultado({
     dial: esAislamiento ? 'Ω (rango alto)' : 'Ω / continuidad 🔊',
     dialPos: 'ohm',
@@ -768,6 +1125,8 @@ function calcBobina(){
   else if (b.min > 50) { beepTxt = '❌ Probablemente NO suena aunque esté bien — normal en bobinas de muchas vueltas; usa el modo Ω en vez de continuidad'; beepClass = 'warn'; }
   else { beepTxt = '⚠️ Puede sonar o no según el valor exacto — confírmalo mejor con el modo Ω'; beepClass = 'warn'; }
 
+  expectation = { kind:'rango', min: b.min, max: b.max };
+
   showResultado({
     dial: 'Ω (resistencia)',
     dialPos: 'ohm',
@@ -778,6 +1137,153 @@ function calcBobina(){
     beep: beepTxt,
     beepClass: beepClass,
     nota: 'Rango de referencia general; varía según fabricante y potencia. Lo más confiable es comparar ambos devanados simétricos entre sí (deben dar valores parecidos) o contrastar contra el dato del fabricante. Infinito (OL) = bobina abierta/quemada. 0Ω exacto hacia la carcasa metálica = corto a tierra, peligroso.'
+  });
+}
+
+/* ══════════════════════════════════
+   TRANSISTOR (BJT)
+══════════════════════════════════ */
+function calcTransistor(){
+  const modo = document.getElementById('transModo').value;
+  const tipo = document.getElementById('transTipo').value;
+  const cat = document.getElementById('transCategoria').value;
+
+  if (modo === 'union') {
+    expectation = { kind:'voltaje_directo', min: 0.45, max: 0.75 };
+    showResultado({
+      dial: 'Diodo (símbolo ▶|)',
+      dialPos: 'ohm',
+      subIcon: '▶|',
+      modeIcon: '▶|',
+      modeText: 'TRANSISTOR ' + tipo.toUpperCase() + ' · UNIONES',
+      value: '0.45 – 0.75 V directo · OL inverso (en cada unión)',
+      beep: '❌ NO debería sonar en continuidad — usa el modo diodo ▶| para probar cada unión por separado',
+      beepClass: 'err',
+      nota: (tipo === 'npn'
+        ? 'En NPN: con la punta roja en Base, mides directo (0.45-0.75V) hacia Emisor y hacia Colector; con las puntas invertidas, ambas deben marcar OL.'
+        : 'En PNP: con la punta negra en Base, mides directo (0.45-0.75V) hacia Emisor y hacia Colector; con las puntas invertidas, ambas deben marcar OL.'
+      ) + ' Si una unión marca 0Ω en ambos sentidos, está en corto. Si marca OL en ambos sentidos, está abierta. Cualquiera de los dos casos indica transistor dañado.'
+    });
+  } else {
+    expectation = null;
+    const rango = cat === 'pequena' ? '100 – 800' : '10 – 100';
+    showResultado({
+      dial: 'hFE (socket dedicado)',
+      dialPos: 'hz',
+      subIcon: 'hFE',
+      modeIcon: 'hFE',
+      modeText: 'TRANSISTOR ' + tipo.toUpperCase() + ' · GANANCIA',
+      value: rango + ' (típico, varía por modelo)',
+      beep: '',
+      beepClass: '',
+      nota: 'Conecta las 3 patas del transistor en el socket hFE con la orientación E-B-C correcta (revisa el datasheet del modelo específico) y gira el selector a hFE. El valor exacto varía mucho por modelo — lo más útil es comparar contra otro transistor igual que sepas que funciona bien.'
+    });
+  }
+}
+
+/* ══════════════════════════════════
+   TERMISTOR NTC / PTC
+══════════════════════════════════ */
+const TERMISTORES = [
+  {key:'ntc_sensor_temp', label:'NTC — sensor de temperatura (nevera/horno, a temp. ambiente)', min:5000, max:15000},
+  {key:'ntc_inrush',      label:'NTC — limitador de corriente de arranque (fuentes SMPS)', min:2, max:50},
+  {key:'ptc_arranque',    label:'PTC — arranque de compresor (relé de estado sólido)', min:20, max:300},
+  {key:'ptc_proteccion',  label:'PTC — protección de sobrecorriente (rearmable)', min:10, max:200},
+];
+function fillTermistorSelect(){
+  document.getElementById('termistorTipo').innerHTML = TERMISTORES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
+}
+function calcTermistor(){
+  const key = document.getElementById('termistorTipo').value;
+  const t = TERMISTORES.find(x=>x.key===key);
+  expectation = { kind:'rango', min: t.min, max: t.max };
+  const esNTC = key.startsWith('ntc');
+  showResultado({
+    dial: 'Ω (resistencia)',
+    dialPos: 'ohm',
+    subIcon: 'Ω',
+    modeIcon: 'Ω',
+    modeText: (esNTC ? 'NTC' : 'PTC') + ' · A TEMPERATURA AMBIENTE',
+    value: formatOhms(t.min) + ' – ' + formatOhms(t.max) + ' (a temp. ambiente, orientativo)',
+    beep: t.max <= 50 ? '✅ Probablemente SÍ suena' : '❌ Probablemente NO suena — usa el modo Ω',
+    beepClass: t.max <= 50 ? 'ok' : 'warn',
+    nota: esNTC
+      ? 'Un NTC baja su resistencia al calentarse — puedes confirmarlo calentándolo levemente (con cuidado) y viendo si el valor baja. Si se queda fijo o marca OL, está dañado.'
+      : 'Un PTC sube su resistencia al calentarse o al superar cierta corriente — es lo opuesto al NTC. Si se queda fijo en un valor muy bajo o muy alto sin reaccionar, probablemente esté dañado.'
+  });
+}
+
+/* ══════════════════════════════════
+   BATERÍA / PILA
+══════════════════════════════════ */
+const BATERIAS = [
+  {key:'aa_alcalina',  label:'AA / AAA alcalina', min:1.2, max:1.6},
+  {key:'9v_alcalina',  label:'9V alcalina (rectangular)', min:7.2, max:9.5},
+  {key:'liion_18650',  label:'Li-ion 18650 (una celda)', min:3.0, max:4.2},
+  {key:'nimh',         label:'NiMH recargable (AA/AAA)', min:1.0, max:1.4},
+  {key:'boton_cr2032', label:'Litio botón CR2032', min:2.7, max:3.3},
+  {key:'plomo_12v',    label:'Plomo-ácido 12V (moto/UPS pequeño)', min:11.8, max:13.0},
+];
+function fillBateriaSelect(){
+  document.getElementById('bateriaTipo').innerHTML = BATERIAS.map(b=>`<option value="${b.key}">${b.label}</option>`).join('');
+}
+function calcBateria(){
+  const key = document.getElementById('bateriaTipo').value;
+  const b = BATERIAS.find(x=>x.key===key);
+  expectation = { kind:'valor_tolerancia', unit:'V', min:b.min, max:b.max, fmt: v => v.toFixed(2)+' V' };
+  showResultado({
+    dial: 'V⎓ (VDC)',
+    dialPos: 'v',
+    modeIcon: 'V',
+    modeText: 'BATERÍA / PILA · DC',
+    value: b.min.toFixed(2) + ' – ' + b.max.toFixed(2) + ' V',
+    beep: '',
+    beepClass: '',
+    nota: 'Mide siempre en DC (V⎓), respetando polaridad (+ y −). Por debajo del mínimo indicado, la batería está descargada o dañada; sin nada de voltaje, puede estar agotada por completo o el circuito interno abierto.'
+  });
+}
+
+/* ══════════════════════════════════
+   OTROS COMPONENTES
+══════════════════════════════════ */
+const OTROS = {
+  rele_bobina: {
+    label:'Relé — bobina', dial:'Ω (resistencia)', dialPos:'ohm', subIcon:'Ω', modeIcon:'Ω', modeText:'RELÉ · BOBINA',
+    value:'~100 – 400Ω (12-24V) · ~500 – 3000Ω (110-220V)', beep:'⚠️ Depende del voltaje de la bobina — puede sonar o no, mejor confirma con Ω', beepClass:'warn',
+    nota:'Mide entre los dos pines de la bobina (no los de los contactos). Infinito (OL) = bobina abierta.', expectation:{kind:'rango', min:100, max:3000}
+  },
+  rele_contactos: {
+    label:'Relé — contactos NA/NC', dial:'Ω / continuidad 🔊', dialPos:'ohm', subIcon:'🔊', modeIcon:'🔊', modeText:'RELÉ · CONTACTOS',
+    value:'≈ 0 Ω cuando están cerrados · OL cuando abiertos', beep:'✅ SÍ debe sonar en el contacto Normalmente Cerrado (NC) sin energizar la bobina', beepClass:'ok',
+    nota:'Energiza la bobina con el voltaje correcto y verifica que el contacto Normalmente Abierto (NA) pase a sonar, y el NC deje de sonar.', expectation:{kind:'continuidad', esperaSonido:true}
+  },
+  optoacoplador: {
+    label:'Optoacoplador (LED + fototransistor)', dial:'Diodo ▶| (lado LED) + Ω (lado receptor)', dialPos:'ohm', subIcon:'▶|', modeIcon:'▶|', modeText:'OPTOACOPLADOR',
+    value:'LED: 1.0 – 1.4V directo, OL inverso · Receptor: OL sin luz, baja resistencia con luz', beep:'❌ NO debería sonar en continuidad en ninguno de los dos lados por separado', beepClass:'err',
+    nota:'Prueba el lado LED (pines 1-2 típico) como un diodo normal. El lado receptor (pines 3-4) debe marcar OL en reposo; si tienes forma de energizar el LED, la resistencia del receptor debe bajar. Ambos lados deben estar aislados eléctricamente entre sí (OL cruzado).', expectation:{kind:'voltaje_directo', min:1.0, max:1.4}
+  },
+  varistor: {
+    label:'Varistor / MOV (protección de picos)', dial:'Ω (resistencia)', dialPos:'ohm', subIcon:'Ω', modeIcon:'Ω', modeText:'VARISTOR / MOV',
+    value:'OL (infinito) si está bueno', beep:'❌ NO debe sonar — si suena o marca resistencia baja, está dañado/en corto', beepClass:'err',
+    nota:'Un varistor bueno se comporta como un circuito abierto a voltajes normales (por eso no conduce ni suena). Si está en corto, generalmente se ve físicamente agrietado o quemado y debe reemplazarse — nunca reutilices uno que haya absorbido un pico fuerte.', expectation:{kind:'continuidad', esperaSonido:false}
+  },
+  ldr: {
+    label:'Fotoresistencia LDR', dial:'Ω (resistencia)', dialPos:'ohm', subIcon:'Ω', modeIcon:'Ω', modeText:'LDR (FOTORESISTENCIA)',
+    value:'~1kΩ con luz brillante · cientos de kΩ o más en oscuridad', beep:'⚠️ Depende de la luz ambiente — no es una prueba de continuidad típica', beepClass:'warn',
+    nota:'Cubre el sensor con la mano: la resistencia debe subir notablemente. Destápalo hacia la luz: debe bajar. Si no cambia en absoluto, está dañado.', expectation:{kind:'rango', min:500, max:500000}
+  },
+};
+function fillOtrosSelect(){
+  document.getElementById('otrosTipo').innerHTML = Object.entries(OTROS).map(([k,o])=>`<option value="${k}">${o.label}</option>`).join('');
+}
+function calcOtros(){
+  const key = document.getElementById('otrosTipo').value;
+  const o = OTROS[key];
+  expectation = o.expectation ? {...o.expectation} : null;
+  if (expectation && expectation.kind === 'rango' && !expectation.fmt) { /* usa formatOhms por defecto en compararMedicion */ }
+  showResultado({
+    dial: o.dial, dialPos: o.dialPos, subIcon: o.subIcon, modeIcon: o.modeIcon, modeText: o.modeText,
+    value: o.value, beep: o.beep, beepClass: o.beepClass, nota: o.nota
   });
 }
 
@@ -858,10 +1364,14 @@ fillSelect('banda3', DIGIT_COLORS, 'negro');
 fillSelect('bandaMult', MULT_COLORS, 'rojo');
 fillSelect('bandaTol', TOL_COLORS, 'dorado');
 toggleBanda3();
+toggleResModo();
 calcResistor();
 
 toggleCapModo();
 fillBobinaSelect();
+fillTermistorSelect();
+fillBateriaSelect();
+fillOtrosSelect();
 renderGuiaLista();
 </script>
 
