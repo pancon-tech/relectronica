@@ -17,9 +17,7 @@ const ARCHIVOS_CACHE = [
   './predictor.html',
   './inventario.html',
   './codigoserror.html',
-  './seguridad.html',
   './multitester.html',
-  './respaldo.html',
   './logo.png',
   './manifest.json'
 ];
