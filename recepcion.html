@@ -471,6 +471,30 @@
             </div>
         </div>
 
+        <div class="section-box">
+            <div class="section-box-title">💰 Cotización (opcional)</div>
+            <div class="campo">
+                <label>Mano de obra</label>
+                <input type="number" id="cot-mano" step="0.01" min="0" placeholder="0.00" oninput="actualizarCotizacion()">
+            </div>
+            <div class="campo">
+                <label>Repuestos</label>
+                <input type="number" id="cot-rep" step="0.01" min="0" placeholder="0.00" oninput="actualizarCotizacion()">
+            </div>
+            <div class="campo">
+                <label>Impuesto (%)</label>
+                <input type="number" id="cot-imp" step="0.01" min="0" value="0" oninput="actualizarCotizacion()">
+            </div>
+            <div class="campo">
+                <label>Días de garantía sobre la reparación</label>
+                <input type="number" id="cot-garantia" min="0" value="30">
+            </div>
+            <div id="cot-total" style="font-size:.95rem;font-weight:700;color:var(--accent);margin-top:6px">Total: 0.00</div>
+        </div>
+
+        <!-- ALERTA DE GARANTÍA VIGENTE -->
+        <div id="alerta-garantia" style="display:none"></div>
+
         <!-- FICHA PREVIEW -->
         <div class="ficha-preview" id="ficha-preview"></div>
 
@@ -586,6 +610,11 @@
     <a href="biblioteca.html"   class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
     <a href="notas.html"        class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
     <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+<a href="inventario.html" class="fab-item"><span class="fab-item-label">Inventario</span><span class="fab-item-btn">📦</span></a>
+<a href="codigoserror.html" class="fab-item"><span class="fab-item-label">Códigos de Error</span><span class="fab-item-btn">⚠️</span></a>
+<a href="seguridad.html" class="fab-item"><span class="fab-item-label">Seguridad</span><span class="fab-item-btn">🛡️</span></a>
+<a href="multitester.html" class="fab-item"><span class="fab-item-label">Multímetro</span><span class="fab-item-btn">🔬</span></a>
+<a href="respaldo.html" class="fab-item"><span class="fab-item-label">Respaldo</span><span class="fab-item-btn">💾</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
@@ -713,7 +742,28 @@ function generarOrden() {
     const estatus    = document.getElementById('input-estatus').value;
     const obs        = document.getElementById('input-obs').value.trim();
 
-    fichaActual = { id: ticket, fecha: fechaStr, cliente, telefono, fabricante: fab, tipo, modelo: mod, serial, accesorios, condicion, falla: falla||'Por revisar en banco', obs, estatus, ts: Date.now() };
+    const manoObra = parseFloat(document.getElementById('cot-mano').value) || 0;
+    const repuestos = parseFloat(document.getElementById('cot-rep').value) || 0;
+    const impPct = parseFloat(document.getElementById('cot-imp').value) || 0;
+    const subtotal = manoObra + repuestos;
+    const impuesto = subtotal * (impPct/100);
+    const total = subtotal + impuesto;
+    const garantiaDias = parseInt(document.getElementById('cot-garantia').value) || 0;
+
+    // conserva el equipoId si ya existía una ficha (para no perder el vínculo con notas)
+    const equipoId = (fichaActual && fichaActual.equipoId) || ticket;
+
+    fichaActual = { id: ticket, equipoId, fecha: fechaStr, cliente, telefono, fabricante: fab, tipo, modelo: mod, serial, accesorios, condicion, falla: falla||'Por revisar en banco', obs, estatus, ts: Date.now(),
+        cotizacion: (manoObra||repuestos) ? { manoObra, repuestos, impPct, total } : null,
+        garantiaDias, garantiaDesde: Date.now() };
+
+    const cotLineas = fichaActual.cotizacion ? [
+        `─────────────────────────────────`,
+        `Mano de obra : ${manoObra.toFixed(2)}`,
+        `Repuestos    : ${repuestos.toFixed(2)}`,
+        impPct ? `Impuesto (${impPct}%): ${impuesto.toFixed(2)}` : null,
+        `TOTAL        : ${total.toFixed(2)}`,
+    ].filter(Boolean) : [];
 
     const linea = [
         `📋 RELECTRÓNICA — ORDEN DE SERVICIO`,
@@ -734,6 +784,8 @@ function generarOrden() {
         `Falla      : ${falla||'Por revisar en banco'}`,
         estatus ? `Estatus    : ${estatus}` : null,
         obs ? `Nota       : ${obs}` : null,
+        ...cotLineas,
+        garantiaDias ? `Garantía   : ${garantiaDias} días sobre la reparación` : null,
         `─────────────────────────────────`,
         `Gracias por confiar en Relectrónica.`,
     ].filter(Boolean).join('\n');
@@ -780,7 +832,58 @@ function limpiarFormulario() {
     document.getElementById('ficha-preview').classList.remove('show');
     document.getElementById('btn-copiar-wa').style.display = 'none';
     document.getElementById('btn-guardar').style.display   = 'none';
+    ['cot-mano','cot-rep'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cot-imp').value = 0;
+    document.getElementById('cot-garantia').value = 30;
+    actualizarCotizacion();
+    document.getElementById('alerta-garantia').style.display = 'none';
     fichaActual = null;
+}
+
+/* ══════════════════════════════════
+   COTIZACIÓN
+══════════════════════════════════ */
+function actualizarCotizacion() {
+    const manoObra = parseFloat(document.getElementById('cot-mano').value) || 0;
+    const repuestos = parseFloat(document.getElementById('cot-rep').value) || 0;
+    const impPct = parseFloat(document.getElementById('cot-imp').value) || 0;
+    const subtotal = manoObra + repuestos;
+    const total = subtotal + subtotal * (impPct/100);
+    document.getElementById('cot-total').textContent = 'Total: ' + total.toFixed(2);
+}
+
+/* ══════════════════════════════════
+   ALERTA DE GARANTÍA VIGENTE
+   (si el mismo cliente/teléfono trae el mismo modelo
+   dentro del período de garantía de una entrega previa)
+══════════════════════════════════ */
+function verificarGarantia() {
+    const cliente  = document.getElementById('input-cliente').value.trim().toLowerCase();
+    const telefono = document.getElementById('input-telefono').value.trim();
+    const modelo   = document.getElementById('input-modelo').value.trim().toLowerCase();
+    const cont = document.getElementById('alerta-garantia');
+    if ((!cliente && !telefono) || !modelo) { cont.style.display = 'none'; return; }
+
+    const ords = loadOrdenes();
+    const hit = ords.find(o => {
+        if (!o.garantiaDias || !o.garantiaDesde) return false;
+        const vence = o.garantiaDesde + o.garantiaDias * 86400000;
+        if (Date.now() > vence) return false;
+        const mismoCliente = (cliente && o.cliente && o.cliente.toLowerCase() === cliente) ||
+                              (telefono && o.telefono && o.telefono === telefono);
+        const mismoModelo = o.modelo && o.modelo.toLowerCase() === modelo;
+        return mismoCliente && mismoModelo;
+    });
+
+    if (hit) {
+        const vence = new Date(hit.garantiaDesde + hit.garantiaDias * 86400000);
+        cont.style.display = 'block';
+        cont.innerHTML = `<div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);border-radius:10px;padding:10px 12px;font-size:.8rem;color:#6ee7b7;margin-bottom:12px">
+            ✅ Este equipo/cliente tiene una orden previa <b>#${esc(hit.id)}</b> con garantía vigente hasta ${vence.toLocaleDateString('es-VE')}. Verifica si esta visita entra en garantía antes de cobrar de nuevo.
+        </div>`;
+    } else {
+        cont.style.display = 'none';
+    }
 }
 
 /* ══════════════════════════════════
@@ -826,10 +929,17 @@ function renderHistorial() {
             <div class="orden-falla">⚠️ ${esc(o.falla)}</div>
             ${o.obs ? `<div class="orden-obs">💬 ${esc(o.obs)}</div>` : ''}
             <span class="badge-estatus ${bcls}">${esc(o.estatus)}</span>
+            ${o.cotizacion ? `<div style="font-size:.78rem;color:#6ee7b7;margin-top:5px">💰 Total cotizado: ${o.cotizacion.total.toFixed(2)}</div>` : ''}
+            ${o.garantiaDias && o.garantiaDesde ? (() => {
+                const vence = o.garantiaDesde + o.garantiaDias*86400000;
+                const vigente = Date.now() < vence;
+                return `<div style="font-size:.72rem;color:${vigente?'#6ee7b7':'#94a3b8'};margin-top:3px">${vigente?'🛡️ Garantía vigente hasta':'⏱ Garantía venció el'} ${new Date(vence).toLocaleDateString('es-VE')}</div>`;
+            })() : ''}
             ${cambios ? `<div style="margin-top:6px">${cambios}</div>` : ''}
             <div class="orden-acciones">
                 <button class="btn-accion" onclick="copiarOrdenById('${esc(o.id)}')">📋 Copiar</button>
                 <button class="btn-accion" style="border-color:rgba(168,85,247,.35); color:#c4b5fd" onclick="abrirModalEstado('${esc(o.id)}', '${esc(o.estatus)}')">⚡ Cambiar estado</button>
+                <a class="btn-accion" style="border-color:rgba(59,130,246,.35); color:#93c5fd; text-decoration:none; display:inline-flex; align-items:center" href="notas.html?equipo=${encodeURIComponent(o.equipoId||o.id)}">📝 Notas</a>
                 <button class="btn-accion danger" onclick="eliminarOrdenById('${esc(o.id)}')">🗑</button>
             </div>
         </div>`;
@@ -1050,6 +1160,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('input-fecha').valueAsDate = new Date();
     colorearSelect(document.getElementById('input-estatus'));
     document.getElementById('input-estatus').addEventListener('change', function(){ colorearSelect(this); });
+    ['input-cliente','input-telefono','input-modelo'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('blur', verificarGarantia);
+    });
     initVoz();
     document.getElementById('hdr-total').textContent = loadOrdenes().length;
     renderHistorial();

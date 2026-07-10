@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Guía de Multímetro</title>
+<style>
+:root{
+  --bg:#0b131f;--chat-bg:#111c2c;--card-bg:#162235;--border:#22344d;
+  --primary:#7928ca;--accent:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --input-bg:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat-bg);padding:12px 15px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:11px;position:sticky;top:0;z-index:200}
+.logo-container{width:43px;height:43px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);flex-shrink:0;font-size:1.3rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--muted)}
+a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85rem;white-space:nowrap}
+
+.main-content{flex:1;padding:14px 14px 40px;max-width:680px;width:100%;align-self:center}
+
+.list-item{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.list-item h3{font-size:.9rem}
+.list-item p{font-size:.72rem;color:var(--muted);margin-top:2px}
+.list-item .arrow{color:var(--accent);font-size:1.1rem}
+
+.detail{display:none}
+.detail.show{display:block}
+.detail-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.btn-back{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:.8rem;cursor:pointer}
+
+.step-card{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.step-num{display:inline-block;background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;font-size:.78rem;font-weight:700;margin-right:8px}
+.step-title{font-size:.88rem;font-weight:700;display:inline}
+.step-body{font-size:.82rem;color:var(--muted);margin-top:8px;line-height:1.55}
+.value-box{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:.8rem;color:#6ee7b7}
+.value-box.bad{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5}
+.dial{font-family:monospace;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:#fcd34d;font-size:.78rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-container">🔬</div>
+  <div class="header-info"><h1>Guía de Multímetro</h1><p>Mediciones paso a paso</p></div>
+  <a class="back" href="index.html">← Menú</a>
+</header>
+
+<div class="main-content">
+  <div id="listaView">
+    <div id="lista"></div>
+  </div>
+  <div id="detailView" class="detail">
+    <div class="detail-header">
+      <button class="btn-back" onclick="volver()">← Volver</button>
+      <h2 id="detailTitle" style="font-size:1rem"></h2>
+    </div>
+    <div id="detailSteps"></div>
+  </div>
+</div>
+
+<script>
+const GUIAS=[
+  {id:'continuidad_bobina', nombre:'Continuidad de bobina / devanado', desc:'Motores, transformadores, flyback', dial:'Ω (continuidad)', pasos:[
+    {t:'Desenergizar completamente el equipo', b:'Desconecta de la red y descarga capacitores antes de tocar cualquier bobinado.'},
+    {t:'Selecciona la función de continuidad u Ohmios', b:'En la mayoría de multímetros, el símbolo de continuidad es una onda sonora.', v:'Selector en Ω o 🔊'},
+    {t:'Coloca las puntas en los dos extremos del devanado', b:'Aísla el componente del circuito si es posible (desuelda al menos una pata) para evitar lecturas falsas por otros elementos en paralelo.'},
+    {t:'Lee el valor', b:'Una bobina sana muestra una resistencia baja y estable (no infinito, no 0 exacto salvo bobinas muy gruesas de baja resistencia).', v:'Normal: resistencia baja y estable, sin fluctuar', bad:false},
+    {t:'Interpreta el resultado', b:'Infinito (OL) = bobina abierta/quemada. 0 exacto entre bobina y carcasa = corto a tierra, peligroso.', v:'OL = bobina abierta · 0Ω a masa = corto a tierra', bad:true},
+  ]},
+  {id:'fuga_tierra', nombre:'Fuga a tierra (aislamiento)', desc:'Motores, compresores, carcasas metálicas', dial:'Ω (rango alto)', pasos:[
+    {t:'Desenergizar el equipo por completo', b:'Nunca midas fuga a tierra con el equipo conectado a la red.'},
+    {t:'Selecciona Ohmios en el rango más alto', b:'Idealmente un megóhmetro, pero un multímetro común sirve para detectar fugas evidentes.', v:'Selector en Ω, rango alto (MΩ si está disponible)'},
+    {t:'Coloca una punta en un terminal del devanado y la otra en la carcasa metálica', b:'Repite con cada terminal disponible del motor/compresor.'},
+    {t:'Lee el valor', b:'Debe marcar infinito (OL) o resistencia extremadamente alta.', v:'Normal: OL o varios MΩ', bad:false},
+    {t:'Si marca continuidad o baja resistencia a la carcasa', b:'Hay fuga a tierra: el motor o compresor está dañado y es peligroso energizarlo.', v:'Fuga detectada = no energizar, riesgo de choque', bad:true},
+  ]},
+  {id:'diodo_flyback', nombre:'Prueba de diodo / rectificador', desc:'Diodos rectificadores, puente de diodos', dial:'Diodo (símbolo ▶|)', pasos:[
+    {t:'Desenergiza y desuelda al menos una pata del diodo', b:'Para evitar lecturas erróneas por el resto del circuito en paralelo.'},
+    {t:'Selecciona la función de prueba de diodo', b:'Símbolo de diodo en el selector, distinto del de continuidad.', v:'Selector en símbolo de diodo'},
+    {t:'Mide en un sentido y luego invierte las puntas', b:'Un diodo bueno conduce en un solo sentido.'},
+    {t:'Lee los valores', b:'En polarización directa debe mostrar una caída de voltaje (típicamente 0.4–0.7V en silicio). En inversa debe marcar OL (infinito).', v:'Directo: 0.4–0.7V · Inverso: OL', bad:false},
+    {t:'Si conduce en ambos sentidos o en ninguno', b:'El diodo está en corto (ambos sentidos) o abierto (ningún sentido) y debe reemplazarse.', v:'Conduce en ambos = corto · No conduce en ninguno = abierto', bad:true},
+  ]},
+  {id:'capacitor', nombre:'Prueba de capacitor', desc:'Capacitores electrolíticos y de arranque', dial:'Capacitancia (F) o Ω', pasos:[
+    {t:'Desenergiza y descarga el capacitor', b:'Usa una resistencia de 1-10kΩ entre sus terminales antes de manipularlo, nunca lo cortocircuites directo con un destornillador.'},
+    {t:'Desuelda al menos una pata del circuito', b:'Para una lectura confiable, aísla el capacitor.'},
+    {t:'Si tu multímetro mide capacitancia, selecciona esa función', b:'Busca el símbolo de capacitor (⊣⊢) en el selector.', v:'Selector en F (faradios)'},
+    {t:'Compara el valor medido con el valor impreso en el capacitor', b:'Debe estar dentro del rango de tolerancia (usualmente ±20%).', v:'Dentro de tolerancia = capacitor bueno', bad:false},
+    {t:'Si no tienes función de capacitancia, usa Ohmios', b:'La resistencia debe subir progresivamente hasta OL. Si marca 0Ω fijo, está en corto. Si marca OL inmediato sin subir, puede estar abierto o seco.', v:'0Ω fijo = corto · OL inmediato = abierto/seco', bad:true},
+  ]},
+  {id:'voltaje_fuente', nombre:'Voltajes de salida de fuente de poder', desc:'TV, equipos de sonido, fuentes switching', dial:'VDC', pasos:[
+    {t:'Con el equipo energizado y precaución, selecciona VDC', b:'Trabaja con cuidado: hay tensión de red presente en la placa. Usa una sola mano cuando sea posible.', v:'Selector en V⎓ (voltaje DC)'},
+    {t:'Identifica los puntos de salida en el conector principal', b:'Consulta el manual de servicio o busca las etiquetas serigrafiadas en la placa (5V, 12V, 24V, etc.).'},
+    {t:'Coloca la punta negra en tierra (GND) y la roja en cada salida', b:'Mide cada línea de voltaje de forma individual.'},
+    {t:'Compara con los valores esperados', b:'Cada línea debe estar dentro de ±5-10% del valor nominal serigrafiado.', v:'Dentro de ±5-10% del valor nominal = normal', bad:false},
+    {t:'Si un voltaje falta o está muy bajo', b:'Sospecha de capacitor seco/hinchado en esa línea, componente en corto aguas abajo, o falla del optoacoplador/IC de control.', v:'Voltaje ausente o muy bajo = fuente o carga defectuosa', bad:true},
+  ]},
+];
+
+function renderLista(){
+  document.getElementById('lista').innerHTML = GUIAS.map(g=>`
+    <div class="list-item" onclick="verGuia('${g.id}')">
+      <div><h3>${g.nombre}</h3><p>${g.desc}</p></div>
+      <span class="arrow">›</span>
+    </div>`).join('');
+}
+
+function verGuia(id){
+  const g=GUIAS.find(x=>x.id===id);
+  document.getElementById('listaView').style.display='none';
+  document.getElementById('detailView').classList.add('show');
+  document.getElementById('detailTitle').textContent=g.nombre;
+  document.getElementById('detailSteps').innerHTML =
+    `<div style="margin-bottom:10px"><span class="dial">Selector: ${g.dial}</span></div>` +
+    g.pasos.map((p,i)=>`
+    <div class="step-card">
+      <span class="step-num">${i+1}</span><span class="step-title">${p.t}</span>
+      <div class="step-body">${p.b}</div>
+      ${p.v?`<div class="value-box ${p.bad?'bad':''}">${p.v}</div>`:''}
+    </div>`).join('');
+}
+
+function volver(){
+  document.getElementById('listaView').style.display='block';
+  document.getElementById('detailView').classList.remove('show');
+}
+
+renderLista();
+</script>
+</body>
+</html>

@@ -363,6 +363,12 @@
 <!-- ══ MAIN ══ -->
 <div class="main-content">
 
+    <!-- banner de notas vinculadas a un equipo -->
+    <div id="equipo-banner" style="display:none;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:10px 12px;font-size:.8rem;color:#93c5fd;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <span id="equipo-banner-text"></span>
+        <a href="notas.html" style="color:#93c5fd;text-decoration:underline;white-space:nowrap;font-size:.75rem">Ver todas</a>
+    </div>
+
     <!-- búsqueda + filtro -->
     <div class="search-row">
         <input type="text" class="search-bar" id="search-input" placeholder="🔍  Buscar en notas…" oninput="renderNotes()">
@@ -481,6 +487,11 @@
     <a href="biblioteca.html"   class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
     <a href="notas.html"        class="fab-item active"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
     <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+<a href="inventario.html" class="fab-item"><span class="fab-item-label">Inventario</span><span class="fab-item-btn">📦</span></a>
+<a href="codigoserror.html" class="fab-item"><span class="fab-item-label">Códigos de Error</span><span class="fab-item-btn">⚠️</span></a>
+<a href="seguridad.html" class="fab-item"><span class="fab-item-label">Seguridad</span><span class="fab-item-btn">🛡️</span></a>
+<a href="multitester.html" class="fab-item"><span class="fab-item-label">Multímetro</span><span class="fab-item-btn">🔬</span></a>
+<a href="respaldo.html" class="fab-item"><span class="fab-item-label">Respaldo</span><span class="fab-item-btn">💾</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 <button class="fab-add" title="Nueva nota" onclick="openModal()">＋</button>
@@ -505,6 +516,8 @@ let filterCat  = '';
 let filterPin  = '';
 let currentTipo = 'reparacion';
 let expanded   = new Set(); // ids de notas expandidas
+let pendingEquipoId = null; // equipoId a asignar a la próxima nota nueva
+let filterEquipo = null;    // filtro activo por equipo (?equipo=)
 
 /* ══════════════════════════════
    STORAGE
@@ -551,7 +564,8 @@ function renderNotes() {
         const mQ  = !q || txt.includes(q);
         const mC  = !filterCat || n.cat === filterCat;
         const mP  = !filterPin || n.pinned;
-        return mQ && mC && mP;
+        const mE  = !filterEquipo || n.equipoId === filterEquipo;
+        return mQ && mC && mP && mE;
     });
 
     // pinned primero
@@ -607,6 +621,7 @@ function buildCard(n) {
         </div>
         <div class="note-footer">
             <span class="note-cat-badge ${cm.cls}">${cm.label}</span>
+            ${n.equipoId ? `<a href="notas.html?equipo=${encodeURIComponent(n.equipoId)}" onclick="event.stopPropagation()" style="font-size:.68rem;color:#93c5fd;text-decoration:none;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:2px 8px">📎 #${esc(n.equipoId)}</a>` : ''}
             <button style="background:none;border:none;color:#7c8fa3;font-size:.7rem;cursor:pointer;padding:0" 
                 onclick="event.stopPropagation();openEditModal(${n.id})">✏️ Editar</button>
             ${fecha}
@@ -656,6 +671,8 @@ function openModal() {
     document.getElementById('f-edit-id').value = '';
     clearForm();
     setTipo('reparacion');
+    const equipoParam = new URLSearchParams(location.search).get('equipo');
+    if (equipoParam) pendingEquipoId = equipoParam;
     document.getElementById('note-modal').classList.add('open');
 }
 
@@ -731,7 +748,8 @@ function guardarNota() {
             notes[idx] = { ...notes[idx], ...data };
         }
     } else {
-        notes.unshift({ id: nextId(), pinned: false, ...data });
+        notes.unshift({ id: nextId(), pinned: false, equipoId: pendingEquipoId || null, ...data });
+        pendingEquipoId = null;
     }
 
     saveNotes();
@@ -837,6 +855,16 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     setupChips('cat-chips', val => { filterCat = val; });
     setupChips('pin-chips',  val => { filterPin = val; });
+
+    const equipoParam = new URLSearchParams(location.search).get('equipo');
+    if (equipoParam) {
+        filterEquipo = equipoParam;
+        pendingEquipoId = equipoParam;
+        const banner = document.getElementById('equipo-banner');
+        banner.style.display = 'flex';
+        document.getElementById('equipo-banner-text').textContent = `📎 Mostrando notas del equipo #${equipoParam}. Las notas nuevas que crees aquí quedarán vinculadas a este equipo.`;
+    }
+
     renderNotes();
 });
 </script>

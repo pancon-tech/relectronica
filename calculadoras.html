@@ -106,7 +106,10 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
   <option value="ohm">⚡ Ley de Ohm + Potencia</option>
   <option value="sp">⛓️ Serie / Paralelo + Reactancia</option>
   <option value="div">📉 Divisor de Voltaje</option>
+  <option value="term">❄️ Carga Térmica / Capacidad de Nevera</option>
   <option value="lcd" selected>🖥️ Diagnóstico Maestro LCD / T-CON</option>
+  <option value="motor">🌀 Capacitor de Arranque / Motor</option>
+  <option value="consumo">🔋 Consumo Eléctrico y Amperaje</option>
 </select>
 
 <!-- SMD -->
@@ -327,6 +330,79 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
     </div>
     <button class="btn" onclick="calcBJT()">Calcular Polarización</button>
     <div class="rb" id="bjt-rb"></div>
+  </div>
+</div>
+
+<!-- CARGA TÉRMICA / CAPACIDAD NEVERA -->
+<div id="calc-term" class="card" style="display:none">
+  <h3>❄️ Carga Térmica / Capacidad de Enfriamiento</h3>
+  <div class="nota">Úsala para explicarle al cliente por qué "la nevera no enfría" cuando en realidad está sobrecargada, o para saber cuánta potencia de frío (BTU/h) se necesita para bajar la temperatura de lo que le metieron, en el tiempo que espera.</div>
+  <div class="tabs">
+    <div class="tab active" onclick="swT('term','carga',this)">🧊 Potencia Necesaria (BTU/h)</div>
+    <div class="tab" onclick="swT('term','vol',this)">📦 Capacidad Máxima de Carga</div>
+  </div>
+
+  <!-- SUB-TAB: CARGA TÉRMICA -->
+  <div id="term-carga" class="tp-pane active">
+    <div class="nota">Calcula cuánta potencia de frío se necesita para bajar la temperatura de todo lo que se introdujo, en el tiempo deseado. Si el equipo no da esa potencia, nunca va a enfriar bien aunque esté sano.</div>
+    <div class="g2">
+      <div class="gi"><label>Cantidad de unidades:</label><input type="number" step="any" id="tc-cant" class="ci" placeholder="Ej: 10"></div>
+      <div class="gi"><label>Contenido por unidad:</label>
+        <div style="display:flex;gap:6px">
+          <input type="number" step="any" id="tc-vol" class="ci" placeholder="1" style="flex:1">
+          <select id="tc-volu" class="ci" style="width:80px;padding:6px"><option value="L">Litros</option><option value="kg">Kg</option></select>
+        </div>
+      </div>
+      <div class="gi"><label>Tipo de producto:</label>
+        <select id="tc-tipo" class="ci">
+          <option value="agua">Agua / Refrescos / Jugos</option>
+          <option value="cerveza">Cerveza / Bebidas alcohólicas</option>
+          <option value="leche">Leche / Lácteos</option>
+          <option value="carne">Carnes / Embutidos</option>
+          <option value="verdura">Frutas / Verduras</option>
+          <option value="aire">Aire / Local vacío (enfriar ambiente)</option>
+        </select>
+      </div>
+      <div class="gi"><label>Temp. inicial — con la que entra (°C):</label><input type="number" step="any" id="tc-ti" class="ci" placeholder="Ej: 28 (temp. ambiente)"></div>
+      <div class="gi"><label>Temp. final deseada (°C):</label><input type="number" step="any" id="tc-tf" class="ci" placeholder="Ej: 4"></div>
+      <div class="gi"><label>Tiempo deseado para lograrlo (horas):</label><input type="number" step="any" id="tc-t" class="ci" placeholder="Ej: 3"></div>
+    </div>
+    <button class="btn" onclick="calcTermCarga()">Calcular Potencia Necesaria</button>
+    <div class="rb" id="tc-rb">El resultado aparecerá aquí…</div>
+
+    <details class="acc" style="margin-top:14px">
+      <summary>⚖️ Comparar con la capacidad del equipo</summary>
+      <div class="acc-body">
+        <div class="nota">Ingresa la capacidad nominal del equipo (dato de placa, manual o compresor) para saber si alcanza. Se recomienda un margen de al menos 25-30% extra sobre la carga calculada, para compensar aperturas de puerta, aislamiento y pérdidas.</div>
+        <div class="gi"><label>Capacidad del equipo:</label>
+          <div style="display:flex;gap:6px">
+            <input type="number" step="any" id="tc-cap" class="ci" placeholder="Ej: 2000" style="flex:1">
+            <select id="tc-capu" class="ci" style="width:90px;padding:6px"><option value="btu">BTU/h</option><option value="w">Watts</option></select>
+          </div>
+        </div>
+        <button class="btn" onclick="compararEquipo()">Comparar</button>
+        <div class="rb" id="tc-cmp-rb" style="margin-top:10px"></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- SUB-TAB: CAPACIDAD VOLUMÉTRICA -->
+  <div id="term-vol" class="tp-pane">
+    <div class="nota">Aunque el espacio físico alcance, llenar la nevera más allá de cierto punto bloquea la circulación del aire frío entre los evaporadores/rejillas y las zonas alejadas no enfrían igual. Aquí calculas cuánto es prudente cargarle.</div>
+    <div class="g2">
+      <div class="gi"><label>Capacidad total del gabinete (litros):</label><input type="number" step="any" id="tv-cap" class="ci" placeholder="Ej: 300"></div>
+      <div class="gi"><label>Tipo de equipo:</label>
+        <select id="tv-tipo" class="ci">
+          <option value="dom">Doméstico (nevera/congelador de casa)</option>
+          <option value="com">Comercial (vitrina, exhibidora, cava)</option>
+          <option value="frz">Congelador tipo baúl / vertical</option>
+        </select>
+      </div>
+    </div>
+    <div class="gi"><label>Carga actual — número de unidades:</label><input type="number" step="any" id="tv-cant" class="ci" placeholder="Ej: 10"></div>
+    <div class="gi"><label>Volumen por unidad (litros):</label><input type="number" step="any" id="tv-vol" class="ci" placeholder="Ej: 1"></div>
+    <button class="btn" onclick="calcTermVol()">Calcular Capacidad Máxima</button>
+    <div class="rb" id="tv-rb">El resultado aparecerá aquí…</div>
   </div>
 </div>
 
@@ -694,6 +770,78 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
   <button class="btn" onclick="diagLCD()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);margin-top:14px">🚀 Generar Reporte Completo</button>
   <div class="rb" id="lcd-rb" style="margin-top:15px;line-height:1.75">El reporte aparecerá aquí…</div>
 </div><!-- fin lcd -->
+
+<!-- MOTOR / CAPACITOR DE ARRANQUE -->
+<div id="calc-motor" class="card" style="display:none">
+  <h3>🌀 Capacitor de Arranque / Motor</h3>
+  <div class="nota">Estima el capacitor de arranque/marcha para motores monofásicos (compresores, motores de lavadora, bombas) a partir de la potencia o corriente del motor. Siempre verifica el valor contra la placa del motor original cuando sea posible.</div>
+
+  <div class="gi">
+    <label>¿Qué dato tienes disponible?</label>
+    <select class="ci" id="mo-modo" onchange="document.getElementById('mo-hp-w').style.display=this.value=='hp'?'block':'none';document.getElementById('mo-w-w').style.display=this.value=='w'?'block':'none';">
+      <option value="hp">Potencia en HP</option>
+      <option value="w">Potencia en Watts</option>
+    </select>
+  </div>
+  <div class="gi" id="mo-hp-w">
+    <label>Potencia del motor (HP)</label>
+    <input class="ci" id="mo-hp" type="number" step="0.01" placeholder="Ej. 0.33">
+  </div>
+  <div class="gi" id="mo-w-w" style="display:none">
+    <label>Potencia del motor (Watts)</label>
+    <input class="ci" id="mo-w" type="number" placeholder="Ej. 250">
+  </div>
+  <div class="gi">
+    <label>Voltaje de línea</label>
+    <select class="ci" id="mo-v">
+      <option value="110">110-127V</option>
+      <option value="220">220-240V</option>
+    </select>
+  </div>
+  <div class="gi">
+    <label>Tipo de capacitor</label>
+    <select class="ci" id="mo-tipo">
+      <option value="arranque">Arranque (electrolítico, uso intermitente)</option>
+      <option value="marcha">Marcha / permanente (uso continuo)</option>
+    </select>
+  </div>
+  <button class="btn" onclick="calcMotor()">Calcular</button>
+  <div class="rb" id="mo-res">Ingresa los datos del motor…</div>
+</div>
+
+<!-- CONSUMO ELÉCTRICO -->
+<div id="calc-consumo" class="card" style="display:none">
+  <h3>🔋 Consumo Eléctrico y Amperaje</h3>
+  <div class="nota">Calcula la corriente que consume un equipo y estima el consumo/costo eléctrico. Útil para dimensionar cables, breakers y explicarle al cliente el costo de operación.</div>
+
+  <div class="gi">
+    <label>Potencia del equipo (W)</label>
+    <input class="ci" id="co-w" type="number" placeholder="Ej. 1500">
+  </div>
+  <div class="gi">
+    <label>Voltaje de línea</label>
+    <select class="ci" id="co-v">
+      <option value="110">110-127V</option>
+      <option value="220">220-240V</option>
+    </select>
+  </div>
+  <div class="gi">
+    <label>Factor de potencia (FP)</label>
+    <input class="ci" id="co-fp" type="number" step="0.01" value="1" min="0.1" max="1">
+    <small>Usa ~0.6-0.8 para motores/compresores, 1.0 para cargas resistivas (resistencias, planchas).</small>
+  </div>
+  <div class="gi">
+    <label>Horas de uso al día (opcional, para estimar costo)</label>
+    <input class="ci" id="co-h" type="number" step="0.5" placeholder="Ej. 8">
+  </div>
+  <div class="gi">
+    <label>Costo del kWh (opcional, en tu moneda local)</label>
+    <input class="ci" id="co-kwh" type="number" step="0.01" placeholder="Ej. 0.15">
+  </div>
+  <button class="btn" onclick="calcConsumo()">Calcular</button>
+  <div class="rb" id="co-res">Ingresa los datos del equipo…</div>
+</div>
+
 </div><!-- fin cc -->
 
 <!-- FAB -->
@@ -707,16 +855,90 @@ input.ci.bad{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
   <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
   <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
   <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+<a href="inventario.html" class="fab-item"><span class="fab-item-label">Inventario</span><span class="fab-item-btn">📦</span></a>
+<a href="codigoserror.html" class="fab-item"><span class="fab-item-label">Códigos de Error</span><span class="fab-item-btn">⚠️</span></a>
+<a href="seguridad.html" class="fab-item"><span class="fab-item-label">Seguridad</span><span class="fab-item-btn">🛡️</span></a>
+<a href="multitester.html" class="fab-item"><span class="fab-item-label">Multímetro</span><span class="fab-item-btn">🔬</span></a>
+<a href="respaldo.html" class="fab-item"><span class="fab-item-label">Respaldo</span><span class="fab-item-btn">💾</span></a>
 </div>
 <button class="fab-toggle" id="fab-btn" onclick="tFAB()">☰</button>
 <script>
 // ═══════════════════════════
 //  NAVEGACIÓN PRINCIPAL
 // ═══════════════════════════
+function calcMotor() {
+  const modo = document.getElementById('mo-modo').value;
+  let watts;
+  if (modo === 'hp') {
+    const hp = parseFloat(document.getElementById('mo-hp').value);
+    if (!hp || hp <= 0) { document.getElementById('mo-res').innerHTML = '⚠️ Ingresa la potencia en HP.'; return; }
+    watts = hp * 746;
+  } else {
+    watts = parseFloat(document.getElementById('mo-w').value);
+    if (!watts || watts <= 0) { document.getElementById('mo-res').innerHTML = '⚠️ Ingresa la potencia en Watts.'; return; }
+  }
+  const v = parseFloat(document.getElementById('mo-v').value);
+  const tipo = document.getElementById('mo-tipo').value;
+
+  // Corriente aproximada (motor monofásico, FP ~0.6 típico en arranque)
+  const corriente = watts / (v * 0.6);
+
+  // Fórmulas de estimación de campo (uF ~ constante x Amperios), muy usadas como punto de partida:
+  // Arranque: ~150-200 uF por Amperio de línea; Marcha: ~15-25 uF por Amperio (mucho menor y de trabajo continuo)
+  let ufMin, ufMax, voltajeRec;
+  if (tipo === 'arranque') {
+    ufMin = corriente * 130; ufMax = corriente * 200;
+    voltajeRec = v <= 110 ? '110-165V (típico 165V)' : '250-330V (típico 330V)';
+  } else {
+    ufMin = corriente * 12; ufMax = corriente * 22;
+    voltajeRec = v <= 110 ? '125-165V' : '370-440V';
+  }
+
+  document.getElementById('mo-res').innerHTML = `
+    <b>Potencia estimada:</b> ${watts.toFixed(0)} W<br>
+    <b>Corriente aproximada:</b> ~${corriente.toFixed(2)} A<br>
+    <b>Capacitor sugerido (${tipo}):</b> ${ufMin.toFixed(0)} – ${ufMax.toFixed(0)} µF<br>
+    <b>Voltaje de aislamiento recomendado:</b> ${voltajeRec}<br>
+    <span style="color:#f59e0b;font-size:.85rem">⚠️ Esto es una estimación de campo para orientarte cuando no tienes el dato original. Siempre prioriza el valor impreso en el motor o el manual de servicio si está disponible.</span>
+  `;
+}
+
+function calcConsumo() {
+  const w = parseFloat(document.getElementById('co-w').value);
+  const v = parseFloat(document.getElementById('co-v').value);
+  const fp = parseFloat(document.getElementById('co-fp').value) || 1;
+  const horas = parseFloat(document.getElementById('co-h').value);
+  const kwh = parseFloat(document.getElementById('co-kwh').value);
+
+  if (!w || w <= 0) { document.getElementById('co-res').innerHTML = '⚠️ Ingresa la potencia del equipo en Watts.'; return; }
+
+  const corriente = w / (v * fp);
+  let breaker = corriente * 1.25; // margen de seguridad 25%
+  const calibresSugeridos = breaker <= 15 ? '14 AWG' : breaker <= 20 ? '12 AWG' : breaker <= 30 ? '10 AWG' : breaker <= 40 ? '8 AWG' : '6 AWG o mayor (verificar con tabla local)';
+
+  let html = `
+    <b>Corriente consumida:</b> ~${corriente.toFixed(2)} A<br>
+    <b>Breaker recomendado (con 25% margen):</b> ≥ ${breaker.toFixed(1)} A<br>
+    <b>Calibre de cable orientativo:</b> ${calibresSugeridos}<br>
+  `;
+
+  if (horas > 0) {
+    const kwhDia = (w / 1000) * horas;
+    const kwhMes = kwhDia * 30;
+    html += `<b>Consumo diario:</b> ${kwhDia.toFixed(2)} kWh<br><b>Consumo mensual estimado:</b> ${kwhMes.toFixed(1)} kWh<br>`;
+    if (kwh > 0) {
+      html += `<b>Costo estimado al mes:</b> ${(kwhMes * kwh).toFixed(2)} (en tu moneda local)<br>`;
+    }
+  }
+  html += `<span style="color:#f59e0b;font-size:.85rem">⚠️ Calibres y breakers son orientativos; confirma siempre con la norma eléctrica de tu país (NOM, NEC, RETIE, etc.).</span>`;
+
+  document.getElementById('co-res').innerHTML = html;
+}
+
 function swC(v) {
-  const ids = ['calc-smd','calc-col','calc-ohm','calc-sp','calc-div','calc-lcd'];
+  const ids = ['calc-smd','calc-col','calc-ohm','calc-sp','calc-div','calc-term','calc-lcd','calc-motor','calc-consumo'];
   ids.forEach(id => { const e = document.getElementById(id); if(e) e.style.display = 'none'; });
-  const map = {smd:'calc-smd', col:'calc-col', ohm:'calc-ohm', sp:'calc-sp', div:'calc-div', lcd:'calc-lcd'};
+  const map = {smd:'calc-smd', col:'calc-col', ohm:'calc-ohm', sp:'calc-sp', div:'calc-div', term:'calc-term', lcd:'calc-lcd', motor:'calc-motor', consumo:'calc-consumo'};
   const el = document.getElementById(map[v]);
   if(el) el.style.display = 'block';
 }
@@ -1132,6 +1354,113 @@ function calcBJT() {
   rb.innerHTML = `<b>VB:</b> ${vb.toFixed(3)} V &nbsp;|&nbsp; <b>VE:</b> ${ve.toFixed(3)} V &nbsp;|&nbsp; <b>IB:</b> ${(ib*1e6).toFixed(1)} µA<br>
 <b>R1 (superior, a VCC):</b> ${fO(r1c)}<br><small style="color:#6b7280">E24: ${e1?fO(e1.v):'—'}</small><br>
 <b>R2 (inferior, a GND):</b> ${fO(r2c)}<br><small style="color:#6b7280">E24: ${e2?fO(e2.v):'—'}</small>`;
+}
+
+// ═══════════════════════════
+//  CARGA TÉRMICA / CAPACIDAD NEVERA
+// ═══════════════════════════
+// Calor específico (kJ/kg·°C) y densidad (kg/L) aproximados por tipo de producto
+const TERM_PROD = {
+  agua:    {c:4.186, d:1.00, nombre:'Agua / Refrescos / Jugos'},
+  cerveza: {c:4.00,  d:1.01, nombre:'Cerveza / Bebidas alcohólicas'},
+  leche:   {c:3.90,  d:1.03, nombre:'Leche / Lácteos'},
+  carne:   {c:3.50,  d:1.05, nombre:'Carnes / Embutidos'},
+  verdura: {c:3.70,  d:0.95, nombre:'Frutas / Verduras'},
+  aire:    {c:1.005, d:0.0012,nombre:'Aire'}
+};
+let _ultQtc = null; // guarda el último resultado en BTU/h para comparar con el equipo
+
+function fBTU(v){ return v.toLocaleString('es',{maximumFractionDigits:0}) + ' BTU/h'; }
+function fWatt(v){ return v.toLocaleString('es',{maximumFractionDigits:0}) + ' W'; }
+
+function calcTermCarga() {
+  const rb = document.getElementById('tc-rb');
+  const cant = parseFloat(document.getElementById('tc-cant').value);
+  const vol  = parseFloat(document.getElementById('tc-vol').value);
+  const volu = document.getElementById('tc-volu').value;
+  const tipo = document.getElementById('tc-tipo').value;
+  const ti = parseFloat(document.getElementById('tc-ti').value);
+  const tf = parseFloat(document.getElementById('tc-tf').value);
+  const t  = parseFloat(document.getElementById('tc-t').value);
+
+  if(isNaN(cant)||isNaN(vol)||isNaN(ti)||isNaN(tf)||isNaN(t)||t<=0||cant<=0||vol<=0) {
+    rb.innerHTML = '⚠️ Completa cantidad, contenido, temperaturas y tiempo (mayor que 0).';
+    return;
+  }
+  const dT = ti - tf;
+  if(dT <= 0) {
+    rb.innerHTML = '⚠️ La temperatura final debe ser <b>menor</b> que la inicial (tiene que enfriar, no calentar).';
+    _ultQtc = null;
+    return;
+  }
+  const p = TERM_PROD[tipo];
+  // masa total en kg
+  const masaTotal = volu === 'kg' ? (cant*vol) : (cant*vol*p.d);
+  const Q_kJ = masaTotal * p.c * dT;          // energía total a extraer
+  const Q_kcal = Q_kJ / 4.186;
+  const Q_BTU = Q_kJ * 0.9478;
+  const potencia_kJh = Q_kJ / t;
+  const potencia_W = potencia_kJh * 0.2778;
+  const potencia_BTUh = Q_BTU / t;
+  _ultQtc = potencia_BTUh;
+
+  rb.innerHTML = `<b>Masa total a enfriar:</b> ${masaTotal.toFixed(2)} kg (${p.nombre})<br>
+<b>Energía total a extraer:</b> ${Q_kJ.toFixed(0)} kJ &nbsp;(${Q_kcal.toFixed(0)} kcal · ${Q_BTU.toFixed(0)} BTU)<br>
+<b style="color:#6ee7b7">Potencia de frío necesaria:</b><br>
+&nbsp;&nbsp;≈ ${fBTU(potencia_BTUh)} &nbsp;|&nbsp; ≈ ${fWatt(potencia_W)}<br>
+<small style="color:#6b7280">Esto es lo que necesita el sistema de refrigeración SOLO para bajar la temperatura de esta carga en ${t} h. No incluye pérdidas por aislamiento, aperturas de puerta ni el resto del gabinete — usa un margen de seguridad de 25-30% al comparar con la capacidad del equipo.</small>`;
+}
+
+function compararEquipo() {
+  const rb = document.getElementById('tc-cmp-rb');
+  if(_ultQtc === null) { rb.innerHTML = '⚠️ Primero calcula la potencia necesaria arriba.'; return; }
+  const cap = parseFloat(document.getElementById('tc-cap').value);
+  const capu = document.getElementById('tc-capu').value;
+  if(isNaN(cap)||cap<=0) { rb.innerHTML = '⚠️ Introduce la capacidad del equipo.'; return; }
+  const capBTU = capu === 'w' ? cap * 3.412 : cap;
+  const margenReq = _ultQtc * 1.3; // 30% de margen recomendado
+  let html = `<b>Carga calculada:</b> ${fBTU(_ultQtc)}<br><b>Capacidad del equipo:</b> ${fBTU(capBTU)}<br><b>Con margen recomendado (+30%):</b> ${fBTU(margenReq)}<br><br>`;
+  if(capBTU >= margenReq) {
+    html += `<span class="badge-ok">✅ SUFICIENTE</span> El equipo tiene potencia de sobra para esta carga en el tiempo indicado.`;
+  } else if(capBTU >= _ultQtc) {
+    html += `<span style="background:#78350f;color:#fcd34d;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:bold">⚠️ JUSTO / SIN MARGEN</span> Alcanza en teoría, pero sin margen para pérdidas de aislamiento, aperturas de puerta o ambiente caluroso. Va a tardar más de lo esperado o no sostener la temperatura si se repite la carga seguido.`;
+  } else {
+    html += `<span class="badge-err">❌ INSUFICIENTE</span> El equipo NO tiene la potencia necesaria para enfriar esa carga en ese tiempo. Por eso "no enfría": no es que esté averiado, es que le están pidiendo más frío del que puede dar. Sugiere al cliente reducir la cantidad que introduce de una vez, darle más tiempo, o enfriar previamente el producto antes de meterlo.`;
+  }
+  rb.innerHTML = html;
+}
+
+function calcTermVol() {
+  const rb = document.getElementById('tv-rb');
+  const cap = parseFloat(document.getElementById('tv-cap').value);
+  const tipo = document.getElementById('tv-tipo').value;
+  const cant = parseFloat(document.getElementById('tv-cant').value);
+  const vol  = parseFloat(document.getElementById('tv-vol').value);
+  if(isNaN(cap)||cap<=0) { rb.innerHTML = '⚠️ Introduce la capacidad total del gabinete.'; return; }
+
+  // Factor de llenado seguro recomendado para mantener circulación de aire
+  const factores = { dom:0.70, com:0.75, frz:0.80 };
+  const nombres  = { dom:'Doméstico', com:'Comercial (vitrina/exhibidora)', frz:'Congelador' };
+  const factor = factores[tipo];
+  const maxRecom = cap * factor;
+
+  let html = `<b>Capacidad total del gabinete:</b> ${cap.toFixed(0)} L<br>
+<b>Carga máxima recomendada (${(factor*100).toFixed(0)}% — ${nombres[tipo]}):</b> ${maxRecom.toFixed(0)} L<br>
+<small style="color:#6b7280">Más allá de este punto, el aire frío no circula bien entre los productos y las zonas alejadas de la rejilla/evaporador se quedan calientes, aunque el compresor esté funcionando perfecto.</small>`;
+
+  if(!isNaN(cant) && !isNaN(vol) && cant>0 && vol>0) {
+    const cargaActual = cant*vol;
+    const pct = (cargaActual/cap*100);
+    const pctMax = (cargaActual/maxRecom*100);
+    html += `<hr style="border-color:var(--brd);margin:10px 0"><b>Carga actual:</b> ${cant} unidades × ${vol} L = <b>${cargaActual.toFixed(1)} L</b> (${pct.toFixed(0)}% del gabinete)<br>`;
+    if(cargaActual <= maxRecom) {
+      html += `<span class="badge-ok">✅ DENTRO DEL LÍMITE</span> Ocupa ${pctMax.toFixed(0)}% de la carga máxima recomendada. La circulación de aire debería mantenerse correcta.`;
+    } else {
+      const exceso = cargaActual - maxRecom;
+      html += `<span class="badge-err">❌ SOBRECARGADO</span> Excede en ${exceso.toFixed(1)} L (${(pctMax-100).toFixed(0)}% de más) la carga recomendada. Esto bloquea la circulación de aire frío — es muy probable que sea la causa de que "no enfríe" en ciertas zonas, aunque el sistema esté sano. Recomienda retirar ${Math.ceil(exceso/vol)} unidad(es) o redistribuir dejando espacio libre frente a las rejillas/salidas de aire.`;
+    }
+  }
+  rb.innerHTML = html;
 }
 
 // ═══════════════════════════

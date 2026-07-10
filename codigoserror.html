@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Códigos de Error</title>
+<style>
+:root{
+  --bg:#0b131f;--chat-bg:#111c2c;--card-bg:#162235;--border:#22344d;
+  --primary:#7928ca;--accent:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --input-bg:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat-bg);padding:12px 15px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:11px;position:sticky;top:0;z-index:200}
+.logo-container{width:43px;height:43px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);flex-shrink:0;font-size:1.3rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--muted)}
+a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85rem;white-space:nowrap}
+
+.main-content{flex:1;padding:14px 14px 40px;max-width:680px;width:100%;align-self:center}
+
+.toolbar{display:flex;gap:8px;margin-bottom:10px}
+.toolbar input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 12px;font-size:.85rem}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:.75rem;color:var(--muted);cursor:pointer}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.err-card{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.err-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.err-code{font-family:monospace;font-weight:700;color:#fff;background:rgba(168,85,247,.18);border:1px solid rgba(168,85,247,.3);padding:3px 10px;border-radius:6px;font-size:.85rem}
+.err-brand{font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.err-equipo{font-size:.72rem;color:var(--muted)}
+.err-desc{font-size:.85rem;margin:6px 0 8px;font-weight:600}
+.err-causa{font-size:.8rem;color:var(--muted);line-height:1.5}
+.err-causa b{color:#c4b5fd}
+
+.empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-container">⚠️</div>
+  <div class="header-info"><h1>Códigos de Error</h1><p>Por marca y tipo de equipo</p></div>
+  <a class="back" href="index.html">← Menú</a>
+</header>
+
+<div class="main-content">
+  <div class="toolbar">
+    <input id="buscar" placeholder="🔍 Buscar código, marca o síntoma...">
+  </div>
+  <div class="chips" id="chipsCategoria"></div>
+  <div id="lista"></div>
+</div>
+
+<script>
+const DB=[
+ {marca:"LG",equipo:"Lavadora",cat:"Línea blanca",codigo:"LE / dE",desc:"Error de bloqueo de tapa / puerta o motor bloqueado",causa:"Revisar el switch de puerta, cableado del motor y si el tambor gira libremente a mano."},
+ {marca:"LG",equipo:"Lavadora",cat:"Línea blanca",codigo:"OE",desc:"No desagua",causa:"Filtro de bomba obstruido, bomba de drenaje dañada o manguera doblada/tapada."},
+ {marca:"LG",equipo:"Lavadora",cat:"Línea blanca",codigo:"UE",desc:"Carga desbalanceada",causa:"Redistribuir la ropa; revisar amortiguadores y resortes de suspensión del tambor."},
+ {marca:"Samsung",equipo:"Lavadora",cat:"Línea blanca",codigo:"4E / 4C",desc:"No llega agua / error de suministro",causa:"Revisar llave de paso, filtro de la válvula de entrada y la válvula misma."},
+ {marca:"Samsung",equipo:"Lavadora",cat:"Línea blanca",codigo:"5E / 5C",desc:"No desagua",causa:"Filtro/bomba de drenaje obstruida, manguera doblada."},
+ {marca:"Samsung",equipo:"Lavadora",cat:"Línea blanca",codigo:"UE",desc:"Desbalance de carga",causa:"Redistribuir ropa; revisar sensor de balance y suspensión."},
+ {marca:"Whirlpool",equipo:"Lavadora",cat:"Línea blanca",codigo:"F1",desc:"Error de tarjeta de control principal",causa:"Revisar conexiones de la placa; en muchos casos requiere reemplazo de tarjeta."},
+ {marca:"Whirlpool",equipo:"Lavadora",cat:"Línea blanca",codigo:"F5",desc:"Error de switch de puerta/tapa",causa:"Revisar el switch y su cableado."},
+ {marca:"Mabe",equipo:"Lavadora",cat:"Línea blanca",codigo:"E1",desc:"No llena de agua a tiempo",causa:"Revisar presión de agua, filtro de válvula y válvula de entrada."},
+ {marca:"Mabe",equipo:"Lavadora",cat:"Línea blanca",codigo:"E2",desc:"No desagua a tiempo",causa:"Bomba o manguera de drenaje obstruida."},
+ {marca:"LG",equipo:"Refrigerador",cat:"Línea blanca",codigo:"Er FF / Er rF",desc:"Falla en sensor del congelador o nevera",causa:"Revisar sensor de temperatura (termistor) y su conector."},
+ {marca:"Samsung",equipo:"Refrigerador",cat:"Línea blanca",codigo:"22E / 22C",desc:"Falla en el motor del ventilador del evaporador",causa:"Revisar motor del fan de evaporador, posible hielo bloqueándolo (revisar sistema de descongelamiento)."},
+ {marca:"Samsung",equipo:"Refrigerador",cat:"Línea blanca",codigo:"5E / SE",desc:"Falla del sensor / interruptor tipo touch",causa:"Revisar panel de control y su cableado."},
+ {marca:"Genérico",equipo:"Aire Acondicionado (Split)",cat:"Línea blanca",codigo:"E1",desc:"Protección por alta/baja presión o sensor de temperatura",causa:"Revisar presión de gas, sensor de la unidad evaporadora y filtros sucios."},
+ {marca:"Genérico",equipo:"Aire Acondicionado (Split)",cat:"Línea blanca",codigo:"E5 / E6",desc:"Falla de comunicación entre unidad interior y exterior",causa:"Revisar cableado de comunicación entre las dos unidades y conexiones en tarjetas."},
+ {marca:"Genérico",equipo:"Microondas",cat:"Línea blanca",codigo:"E-1 / dE",desc:"Puerta no cierra bien / switch de puerta",causa:"Revisar los 3 switches de seguridad de la puerta y bisagras."},
+ {marca:"Samsung / LG",equipo:"Smart TV",cat:"Línea marrón",codigo:"Reinicio constante",desc:"El TV enciende y se apaga en bucle",causa:"Revisar capacitores hinchados en fuente de poder, y voltajes de salida (12V/24V/5V)."},
+ {marca:"Genérico",equipo:"Smart TV",cat:"Línea marrón",codigo:"Luz standby parpadea",desc:"No enciende, LED parpadea en patrón",causa:"Contar los parpadeos: suele indicar código de falla de protección de la fuente o backlight; revisar manual de servicio de la placa T-CON/fuente."},
+ {marca:"Genérico",equipo:"Equipo de sonido",cat:"Línea marrón",codigo:"PROTECT",desc:"Amplificador entra en modo protección",causa:"Revisar transistores/IC de salida en corto, parlantes en corto o capacitores de la fuente."},
+ {marca:"Genérico",equipo:"Cafetera",cat:"Línea menor",codigo:"Luz parpadea sin calentar",desc:"Enciende pero no calienta",causa:"Revisar térmico/fusible de seguridad y resistencia calefactora (continuidad)."},
+];
+
+let filtroCategoria='';
+
+function render(){
+  const q=document.getElementById('buscar').value.toLowerCase().trim();
+  const cont=document.getElementById('lista');
+  const filtrados=DB.filter(d=>{
+    const matchCat = !filtroCategoria || d.cat===filtroCategoria;
+    const matchQ = !q || (d.marca+d.equipo+d.codigo+d.desc+d.causa).toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  if(!filtrados.length){ cont.innerHTML='<div class="empty">No se encontraron resultados. Prueba con otra marca, código o síntoma.</div>'; return; }
+  cont.innerHTML=filtrados.map(d=>`
+    <div class="err-card">
+      <div class="err-top">
+        <span class="err-code">${d.codigo}</span>
+        <span class="err-brand">${d.marca}</span>
+      </div>
+      <div class="err-equipo">${d.equipo} · ${d.cat}</div>
+      <div class="err-desc">${d.desc}</div>
+      <div class="err-causa"><b>Qué revisar:</b> ${d.causa}</div>
+    </div>`).join('');
+}
+
+function initChips(){
+  const cats=[...new Set(DB.map(d=>d.cat))];
+  const cont=document.getElementById('chipsCategoria');
+  cont.innerHTML = `<span class="chip active" data-cat="">Todas</span>` +
+    cats.map(c=>`<span class="chip" data-cat="${c}">${c}</span>`).join('');
+  cont.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      cont.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      filtroCategoria=ch.dataset.cat;
+      render();
+    });
+  });
+}
+
+document.getElementById('buscar').addEventListener('input', render);
+initChips();
+render();
+</script>
+</body>
+</html>

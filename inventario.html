@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Inventario de Repuestos</title>
+<style>
+:root{
+  --bg:#0b131f;--chat-bg:#111c2c;--card-bg:#162235;--border:#22344d;
+  --primary:#7928ca;--accent:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --input-bg:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat-bg);padding:12px 15px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:11px;position:sticky;top:0;z-index:200}
+.logo-container{width:43px;height:43px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);flex-shrink:0;font-size:1.3rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--muted)}
+a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85rem;white-space:nowrap}
+
+.main-content{flex:1;padding:14px 14px 90px;max-width:680px;width:100%;align-self:center}
+
+.stats-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.stat-pill{background:rgba(121,40,202,.18);border:1px solid rgba(168,85,247,.25);border-radius:10px;padding:8px 12px;font-size:.72rem;color:#c4b5fd;flex:1;min-width:100px;text-align:center}
+.stat-pill b{display:block;font-size:1.2rem;color:#fff}
+.stat-pill.warn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:#fcd34d}
+.stat-pill.warn b{color:#fcd34d}
+
+.toolbar{display:flex;gap:8px;margin-bottom:12px}
+.toolbar input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 12px;font-size:.85rem}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn.secondary{background:var(--card-bg);border:1px solid var(--border);color:var(--text)}
+
+.item-card{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.item-card.low{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.06)}
+.item-info h3{font-size:.92rem;margin-bottom:3px}
+.item-info p{font-size:.72rem;color:var(--muted)}
+.item-qty{display:flex;align-items:center;gap:8px}
+.qty-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);font-size:1rem;cursor:pointer}
+.qty-val{min-width:28px;text-align:center;font-weight:700}
+.qty-val.low{color:#f87171}
+.del-btn{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px}
+
+.empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:.85rem}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--chat-bg);border:1px solid var(--border);border-radius:14px;padding:18px;width:100%;max-width:420px}
+.modal h2{font-size:1rem;margin-bottom:14px;color:var(--accent)}
+.campo{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.campo label{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.campo input,.campo select{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 11px;font-size:.85rem}
+.modal-actions{display:flex;gap:8px;margin-top:14px}
+.modal-actions .btn{flex:1}
+
+.fab-add{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;font-size:1.6rem;border:none;box-shadow:0 4px 14px rgba(121,40,202,.5);cursor:pointer;z-index:100}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--border);padding:10px 18px;border-radius:20px;font-size:.8rem;z-index:600;opacity:0;transition:opacity .25s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-container">📦</div>
+  <div class="header-info"><h1>Inventario</h1><p>Repuestos y stock del taller</p></div>
+  <a class="back" href="index.html">← Menú</a>
+</header>
+
+<div class="main-content">
+  <div class="stats-row">
+    <div class="stat-pill">Ítems<b id="statTotal">0</b></div>
+    <div class="stat-pill">Unidades<b id="statUnidades">0</b></div>
+    <div class="stat-pill warn">Bajo stock<b id="statBajo">0</b></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="buscar" placeholder="🔍 Buscar repuesto...">
+    <button class="btn secondary" onclick="exportarCSV()">⬇️ CSV</button>
+  </div>
+
+  <div id="lista"></div>
+</div>
+
+<button class="fab-add" onclick="abrirModal()">＋</button>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitle">Nuevo repuesto</h2>
+    <div class="campo"><label>Nombre</label><input id="fNombre" placeholder="Ej. Capacitor 450V 35uF"></div>
+    <div class="campo"><label>Categoría</label>
+      <select id="fCategoria">
+        <option>Capacitores</option><option>Resistencias</option><option>Semiconductores</option>
+        <option>Motores</option><option>Fusibles</option><option>Módulos/Placas</option>
+        <option>Mangueras/Empaques</option><option>Cables</option><option>Otro</option>
+      </select>
+    </div>
+    <div class="campo"><label>Cantidad</label><input id="fCantidad" type="number" min="0" value="1"></div>
+    <div class="campo"><label>Stock mínimo (alerta)</label><input id="fMinimo" type="number" min="0" value="2"></div>
+    <div class="campo"><label>Ubicación / Gaveta</label><input id="fUbicacion" placeholder="Ej. Gaveta 3"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn" onclick="guardarItem()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='relectronica_inventario';
+let items=[];
+let editId=null;
+
+function load(){ try{ items=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ items=[]; } }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+
+function render(){
+  const q=document.getElementById('buscar').value.toLowerCase().trim();
+  const cont=document.getElementById('lista');
+  const filtrados=items.filter(i=> !q || i.nombre.toLowerCase().includes(q) || i.categoria.toLowerCase().includes(q));
+  if(!filtrados.length){ cont.innerHTML='<div class="empty">Sin repuestos registrados aún. Toca ＋ para agregar el primero.</div>'; }
+  else{
+    cont.innerHTML=filtrados.map(i=>{
+      const low = i.cantidad <= i.minimo;
+      return `<div class="item-card ${low?'low':''}">
+        <div class="item-info">
+          <h3>${esc(i.nombre)}</h3>
+          <p>${esc(i.categoria)} ${i.ubicacion?'· '+esc(i.ubicacion):''} ${low?'· <span style="color:#f87171">⚠️ bajo stock</span>':''}</p>
+        </div>
+        <div class="item-qty">
+          <button class="qty-btn" onclick="cambiarCantidad(${i.id},-1)">−</button>
+          <span class="qty-val ${low?'low':''}">${i.cantidad}</span>
+          <button class="qty-btn" onclick="cambiarCantidad(${i.id},1)">+</button>
+          <button class="del-btn" onclick="eliminar(${i.id})">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('statTotal').textContent=items.length;
+  document.getElementById('statUnidades').textContent=items.reduce((a,i)=>a+i.cantidad,0);
+  document.getElementById('statBajo').textContent=items.filter(i=>i.cantidad<=i.minimo).length;
+}
+
+function cambiarCantidad(id,delta){
+  const it=items.find(i=>i.id===id);
+  if(!it) return;
+  it.cantidad=Math.max(0,it.cantidad+delta);
+  save(); render();
+}
+function eliminar(id){
+  if(!confirm('¿Eliminar este repuesto del inventario?')) return;
+  items=items.filter(i=>i.id!==id);
+  save(); render(); showToast('🗑️ Eliminado');
+}
+function abrirModal(){
+  editId=null;
+  document.getElementById('modalTitle').textContent='Nuevo repuesto';
+  document.getElementById('fNombre').value='';
+  document.getElementById('fCategoria').value='Capacitores';
+  document.getElementById('fCantidad').value=1;
+  document.getElementById('fMinimo').value=2;
+  document.getElementById('fUbicacion').value='';
+  document.getElementById('modalBg').classList.add('show');
+}
+function cerrarModal(){ document.getElementById('modalBg').classList.remove('show'); }
+function guardarItem(){
+  const nombre=document.getElementById('fNombre').value.trim();
+  if(!nombre){ showToast('⚠️ Falta el nombre'); return; }
+  const nuevo={
+    id: Date.now(),
+    nombre,
+    categoria: document.getElementById('fCategoria').value,
+    cantidad: parseInt(document.getElementById('fCantidad').value)||0,
+    minimo: parseInt(document.getElementById('fMinimo').value)||0,
+    ubicacion: document.getElementById('fUbicacion').value.trim()
+  };
+  items.push(nuevo);
+  save(); render(); cerrarModal();
+  showToast('✅ Repuesto guardado');
+}
+function exportarCSV(){
+  if(!items.length){ showToast('⚠️ No hay datos para exportar'); return; }
+  let csv='Nombre,Categoria,Cantidad,Minimo,Ubicacion\n';
+  items.forEach(i=>{ csv+=`"${i.nombre}","${i.categoria}",${i.cantidad},${i.minimo},"${i.ubicacion}"\n`; });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='inventario_relectronica.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('buscar').addEventListener('input', render);
+load(); render();
+</script>
+</body>
+</html>

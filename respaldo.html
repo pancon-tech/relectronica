@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Respaldo de Datos</title>
+<style>
+:root{
+  --bg:#0b131f;--chat-bg:#111c2c;--card-bg:#162235;--border:#22344d;
+  --primary:#7928ca;--accent:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --input-bg:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat-bg);padding:12px 15px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:11px;position:sticky;top:0;z-index:200}
+.logo-container{width:43px;height:43px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);flex-shrink:0;font-size:1.3rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--muted)}
+a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85rem;white-space:nowrap}
+
+.main-content{flex:1;padding:14px 14px 40px;max-width:600px;width:100%;align-self:center}
+.section-box{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.section-box-title{font-size:.9rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+.section-box p{font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:.85rem;font-weight:600;cursor:pointer;width:100%}
+.btn.secondary{background:var(--card-bg);border:1px solid var(--border);color:var(--text)}
+.btn.danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fca5a5}
+input[type=file]{display:none}
+.data-table{width:100%;font-size:.78rem;color:var(--muted);margin-top:6px}
+.data-table td{padding:4px 0;border-bottom:1px solid var(--border)}
+.data-table td:last-child{text-align:right;color:#fff;font-weight:600}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--border);padding:10px 18px;border-radius:20px;font-size:.8rem;z-index:600;opacity:0;transition:opacity .25s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-container">💾</div>
+  <div class="header-info"><h1>Respaldo de Datos</h1><p>Exporta e importa toda la información</p></div>
+  <a class="back" href="index.html">← Menú</a>
+</header>
+
+<div class="main-content">
+  <div class="section-box">
+    <div class="section-box-title">📊 Datos guardados en este dispositivo</div>
+    <table class="data-table" id="resumenTabla"></table>
+  </div>
+
+  <div class="section-box">
+    <div class="section-box-title">⬇️ Exportar respaldo</div>
+    <p>Descarga un archivo con todas tus órdenes, notas, casos, inventario y checklists. Guárdalo en tu correo o nube por si cambias de celular.</p>
+    <button class="btn" onclick="exportarTodo()">Descargar respaldo (.json)</button>
+  </div>
+
+  <div class="section-box">
+    <div class="section-box-title">⬆️ Restaurar respaldo</div>
+    <p>Selecciona un archivo de respaldo previamente exportado. Esto reemplazará los datos actuales de los módulos incluidos en el archivo.</p>
+    <button class="btn secondary" onclick="document.getElementById('fileInput').click()">Elegir archivo</button>
+    <input type="file" id="fileInput" accept="application/json">
+  </div>
+
+  <div class="section-box">
+    <div class="section-box-title">🗑️ Borrar todos los datos</div>
+    <p>Elimina permanentemente todos los datos guardados de Relectrónica en este dispositivo. No se puede deshacer.</p>
+    <button class="btn danger" onclick="borrarTodo()">Borrar todo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEYS={
+  'relectronica_ordenes_v2':'Órdenes de recepción',
+  'relectronica_notas_v3':'Notas',
+  'relectronica_inventario':'Inventario de repuestos',
+  'relectronica_seguridad_checks':'Checklists de seguridad',
+  'relelectronica_fallas_v2_custom':'Casos de falla agregados',
+  'relelectronica_guias_v1_custom':'Guías agregadas',
+};
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+function contarItems(key){
+  try{
+    const raw=localStorage.getItem(key);
+    if(!raw) return 0;
+    const parsed=JSON.parse(raw);
+    if(Array.isArray(parsed)) return parsed.length;
+    if(typeof parsed==='object') return Object.keys(parsed).length;
+    return 1;
+  }catch(e){ return 0; }
+}
+
+function renderResumen(){
+  const tabla=document.getElementById('resumenTabla');
+  tabla.innerHTML = Object.entries(KEYS).map(([key,label])=>
+    `<tr><td>${label}</td><td>${contarItems(key)}</td></tr>`
+  ).join('');
+}
+
+function exportarTodo(){
+  const data={ fecha: new Date().toISOString(), app:'Relectrónica', datos:{} };
+  Object.keys(KEYS).forEach(key=>{
+    const raw=localStorage.getItem(key);
+    if(raw){ try{ data.datos[key]=JSON.parse(raw); }catch(e){} }
+  });
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const fecha=new Date().toISOString().slice(0,10);
+  a.href=url; a.download=`relectronica_respaldo_${fecha}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ Respaldo descargado');
+}
+
+document.getElementById('fileInput').addEventListener('change', function(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    try{
+      const data=JSON.parse(evt.target.result);
+      if(!data.datos){ showToast('⚠️ Archivo inválido'); return; }
+      if(!confirm('Esto reemplazará los datos actuales de los módulos incluidos en el respaldo. ¿Continuar?')) return;
+      Object.entries(data.datos).forEach(([key,val])=>{
+        localStorage.setItem(key, JSON.stringify(val));
+      });
+      renderResumen();
+      showToast('✅ Datos restaurados. Recarga los módulos para verlos.');
+    }catch(err){ showToast('⚠️ No se pudo leer el archivo'); }
+  };
+  reader.readAsText(file);
+});
+
+function borrarTodo(){
+  if(!confirm('¿Seguro que quieres borrar TODOS los datos guardados? Esta acción no se puede deshacer.')) return;
+  if(!confirm('Confirma una vez más: se perderán órdenes, notas, inventario y checklists guardados.')) return;
+  Object.keys(KEYS).forEach(key=> localStorage.removeItem(key));
+  renderResumen();
+  showToast('🗑️ Todos los datos fueron eliminados');
+}
+
+renderResumen();
+</script>
+</body>
+</html>

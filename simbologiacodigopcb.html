@@ -156,13 +156,6 @@
   }
   .matchItem .mn { font-size: 13px; flex: 1; }
 
-  .res-multi-item {
-    padding: 16px 0;
-    border-top: 1px solid var(--border);
-  }
-  .res-multi-item:first-of-type { border-top: none; padding-top: 0; }
-  .res-multi-item:last-of-type { padding-bottom: 0; }
-
   /* ══ TABS ══ */
   .tabs {
     display: flex; gap: 8px; margin-bottom: 14px;
@@ -407,6 +400,11 @@
   <a href="biblioteca.html" class="fab-item"><span class="fab-item-label">Biblioteca</span><span class="fab-item-btn">📘</span></a>
   <a href="notas.html" class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
   <a href="index.html" class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
+<a href="inventario.html" class="fab-item"><span class="fab-item-label">Inventario</span><span class="fab-item-btn">📦</span></a>
+<a href="codigoserror.html" class="fab-item"><span class="fab-item-label">Códigos de Error</span><span class="fab-item-btn">⚠️</span></a>
+<a href="seguridad.html" class="fab-item"><span class="fab-item-label">Seguridad</span><span class="fab-item-btn">🛡️</span></a>
+<a href="multitester.html" class="fab-item"><span class="fab-item-label">Multímetro</span><span class="fab-item-btn">🔬</span></a>
+<a href="respaldo.html" class="fab-item"><span class="fab-item-label">Respaldo</span><span class="fab-item-btn">💾</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
@@ -486,7 +484,6 @@ const DB = [
 
   // SEMICONDUCTORES
   { codes:["D","CR"], name:"Diodo", cat:"sem", desc:"Permite el paso de corriente en un solo sentido (de ánodo a cátodo).", tip:"La franja en el cuerpo marca el cátodo (–). Pruébalo en modo diodo del multímetro: debe marcar caída de voltaje en un sentido y nada en el otro." },
-  { codes:["PC"], name:"Photocoupler (Fotoacoplador)", cat:"sem", desc:"Es un componente electrónico que transfiere señales eléctricas entre dos circuitos aislados utilizando luz.", tip:"Nunca conectes nada que consuma mucha energía directamente a la salida del photocoupler." },
   { codes:["DS"], name:"Dispositivo indicador (LED/lámpara/buzzer)", cat:"sem", desc:"Designador IEEE para cualquier dispositivo de señalización visible o audible.", tip:"En la práctica, muchos fabricantes usan 'D' o 'LED' directamente." },
   { codes:["ZD","DZ"], name:"Diodo zener", cat:"sem", desc:"Mantiene un voltaje constante en sus terminales; usado para regulación o protección.", tip:"Se identifica por el valor de voltaje serigrafiado junto al código (ej. 5V1 = 5.1V)." },
   { codes:["LED"], name:"LED (diodo emisor de luz)", cat:"sem", desc:"Emite luz al paso de corriente; suele indicar estado o encendido.", tip:"El lado con bisel o pata corta es el cátodo (–); la pata larga es el ánodo (+)." },
@@ -512,7 +509,6 @@ const DB = [
 
   // PROTECCIÓN Y ENERGÍA
   { codes:["F"], name:"Fusible", cat:"pro", desc:"Interrumpe la corriente cuando supera un límite seguro.", tip:"Antes de reemplazarlo investiga qué lo quemó; si cambia y vuelve a fundir, hay un corto activo." },
-  { codes:["SA"], name:"Surge Absorber (absorbedor de sobretensiones)", cat:"pro", desc:"Este componente actúa como un dispositivo de protección diseñado para absorber picos de voltaje repentinos, evitando que dañen otros componentes más sensibles del circuito.", tip:"La diferencia principal es que un absorbedor de sobretensiones protege contra picos de voltaje, mientras que un fusible protege contra excesos de corriente (amperaje). Además, el absorbedor es reutilizable y el fusible se destruye al actuar." },
   { codes:["FU"], name:"Fusible (variante formal)", cat:"pro", desc:"Variante del designador F usada por algunos fabricantes europeos y asiáticos.", tip:"Mismo diagnóstico que F: mide continuidad. Si no pita, está abierto." },
   { codes:["PTC"], name:"Fusible rearmable PTC", cat:"pro", desc:"Aumenta su resistencia al calentarse y corta la corriente; se restaura solo al enfriar.", tip:"Si hay 0V después de un PTC sin daño visible, espera a que enfríe y vuelve a medir." },
   { codes:["RV","MOV"], name:"Varistor MOV", cat:"pro", desc:"Absorbe picos de voltaje para proteger el circuito.", tip:"Si está agrietado o quemado, la placa recibió un pico fuerte; revisa también qué más se dañó." },
@@ -521,13 +517,12 @@ const DB = [
 
   // OSCILADORES Y TIEMPO
   { codes:["X","Y","XTAL","XT"], name:"Cristal de cuarzo", cat:"osc", desc:"Genera frecuencia de reloj estable para microcontroladores y PLLs.", tip:"Si el microcontrolador no responde, sospecha del cristal; confirmar con osciloscopio." },
-  { codes:["OSC","X"], name:"Oscillator (Oscilador)", cat:"sem", desc:"Un oscilador es un dispositivo o circuito electrónico que convierte corriente continua en una señal de corriente alterna periódica.", tip:" Ojo X también puede referirse a un Cristal de cuarzo. Para diferenciar un Cristal de un Oscilador de un vistazo en una placa, mira el número de pines y su forma: El Cristal (XTAL): Pines: Casi siempre tiene 2 pines (a veces 3 o 4, pero los otros son para conexión a tierra de la carcasa). Aspecto: Parece una pequeña lata metálica aplanada o un componente cerámico pequeño. No tiene ninguna marca de positivo o negativo porque no se alimenta. El Oscilador (OSC): Pines: Siempre tiene 4 pines (o más). Aspecto: Es un paquete más cuadrado o rectangular, con una forma muy definida. Lo más importante: tiene una marca (un punto o una muesca) en una de las esquinas para indicar cuál es el pin 1. Necesita alimentación, así que sus pines se usan para VCC (voltaje) y GND (tierra)." },
-  { codes:["OSC","X"], name:"Oscilador en módulo", cat:"osc", desc:"Cristal de cuarzo con circuito de oscilación integrado en un solo encapsulado.", tip:"Tiene alimentación propia (VCC y GND) además de la salida de reloj." },
+  { codes:["OSC"], name:"Oscilador en módulo", cat:"osc", desc:"Cristal de cuarzo con circuito de oscilación integrado en un solo encapsulado.", tip:"Tiene alimentación propia (VCC y GND) además de la salida de reloj." },
   { codes:["RTC"], name:"Reloj en tiempo real", cat:"osc", desc:"Circuito dedicado a mantener la hora y fecha aunque el equipo esté apagado.", tip:"Si el equipo pierde la hora al desconectar, revisa la batería CR2032 del RTC." },
 
   // CONECTORES Y PUNTOS DE PRUEBA
-  { codes:["CON","P","CN"], name:"Conector", cat:"con", desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
-  { codes:["JP","J"], name:"Jumper", cat:"con", desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico según el esquemático." },
+  { codes:["J","P","CN"], name:"Conector", cat:"con", desc:"Punto de conexión para cables, cargadores o módulos externos.", tip:"Revisa el número de pines y la serigrafía del pin 1 antes de desconectar." },
+  { codes:["JP"], name:"Jumper", cat:"con", desc:"Puente que conecta o configura una opción del circuito.", tip:"Revisa si debe ir con soldadura, resistencia de 0Ω o jumper físico según el esquemático." },
   { codes:["TP"], name:"Punto de prueba", cat:"con", desc:"Pad designado para medir voltaje o señal sin desoldar componentes.", tip:"Muchos esquemáticos listan el voltaje esperado en cada TP; son el mejor lugar para iniciar el diagnóstico." },
   { codes:["FFC","FPC"], name:"Conector cable plano flexible", cat:"con", desc:"Conector para cables planos FFC/FPC, común en pantallas, cámaras y teclados.", tip:"La flecha o muesca indica el lado correcto de inserción; invertirlo puede quemar la pantalla." },
   { codes:["USB"], name:"Conector USB", cat:"con", desc:"Puerto de comunicación y carga universal.", tip:"El TVS junto al USB falla primero tras una descarga; reemplázalo si el puerto no carga ni comunica." },
@@ -535,7 +530,6 @@ const DB = [
 
   // MECÁNICOS / ENSAMBLE
   { codes:["H","HS"], name:"Orificio de montaje / disipador", cat:"mec", desc:"Agujero solo mecánico (sin conexión eléctrica) o posición de disipador de calor.", tip:"Si un IC de potencia falla repetidamente, verifica que el disipador tenga buen contacto térmico." },
-  { codes:["M"], name:"Module (Modulo)", cat:"mec", desc:"Ubicación específica donde debe instalarse o conectarse un componente de tipo módulo (una pequeña subplaca o componente complejo que integra varias funciones).", tip:"Ojo no confundir con M que también puede referirse a Motor. Para diferenciarlo rápidamente en tu placa, aplica la regla de la conexión: Si ves cables saliendo hacia una pieza móvil, casi siempre es un Motor. Si ves una pequeña placa soldada (con muchos pines) sobre la principal, es un Módulo." },
   { codes:["MP"], name:"Punto de montaje mecánico", cat:"mec", desc:"Punto de fijación mecánica sin función eléctrica.", tip:"Algunos MP van conectados a GND de chasis; comprueba antes de aislar." },
   { codes:["DNP","NP"], name:"No instalar (do not populate)", cat:"mec", desc:"Indica que ese componente no debe soldarse en esta versión de la placa.", tip:"Verlo vacío es normal; no es una falla ni un componente faltante por error." },
   { codes:["FID"], name:"Marca fiducial", cat:"mec", desc:"Punto de referencia para la máquina de colocación automática de componentes (pick & place).", tip:"No tiene función eléctrica; es solo una referencia de alineación visual para la máquina." },
@@ -647,11 +641,12 @@ function catBadge(cat) {
   return `<span class="res-cat" style="background:${c.color}22;color:${c.color}">${c.label}</span>`;
 }
 
-function buildDetailCard(item, matchedCode) {
+function renderDetail(item, matchedCode) {
   const aka = item.codes.length > 1
     ? `<div class="res-aka">También aparece como: ${item.codes.join(', ')}</div>` : '';
   const customBadge = item.custom ? '<span class="custom-badge">tuyo</span>' : '';
-  return `
+  resultEl.className = 'result';
+  resultEl.innerHTML = `
     <div class="res-head">
       <span class="res-code">${matchedCode}</span>
       <span class="res-name">${item.name}${customBadge}</span>
@@ -661,11 +656,6 @@ function buildDetailCard(item, matchedCode) {
     ${item.tip ? `<div class="res-tip">💡 <b>Tip técnico:</b> ${item.tip}</div>` : ''}
     ${aka}
   `;
-}
-
-function renderDetail(item, matchedCode) {
-  resultEl.className = 'result';
-  resultEl.innerHTML = buildDetailCard(item, matchedCode);
 }
 
 function renderEmpty() {
@@ -683,13 +673,23 @@ function renderNotFound(q) {
 
 function renderMatches(matches, q) {
   resultEl.className = 'result';
-  const cards = matches.slice(0, 10).map(item =>
-    `<div class="res-multi-item">${buildDetailCard(item, item.codes[0])}</div>`
+  const rows = matches.slice(0, 10).map(item =>
+    `<div class="matchItem" data-code="${item.codes[0]}">
+      <span class="mc">${item.codes[0]}</span>
+      <span class="mn">${item.name}</span>
+    </div>`
   ).join('');
   resultEl.innerHTML = `
     <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">Coincidencias para "${q}":</div>
-    ${cards}
+    <div class="matchList">${rows}</div>
   `;
+  resultEl.querySelectorAll('.matchItem').forEach(el => {
+    el.addEventListener('click', () => {
+      const code = el.getAttribute('data-code');
+      document.getElementById('search').value = code;
+      doSearch(code);
+    });
+  });
 }
 
 /* ══════════════════════════════════════
@@ -699,12 +699,7 @@ function doSearch(raw) {
   const q = raw.trim().toUpperCase();
   document.getElementById('clearBtn').style.display = q ? 'block' : 'none';
   if (!q) { renderEmpty(); return; }
-
-  // Códigos exactos: buscamos TODOS los componentes que lo usen,
-  // no solo el último guardado en INDEX (puede haber códigos compartidos, ej: "M").
-  const exactMatches = DB.filter(item => item.codes.some(c => c.toUpperCase() === q));
-  if (exactMatches.length === 1) { renderDetail(exactMatches[0], q); return; }
-  if (exactMatches.length > 1)   { renderMatches(exactMatches, raw.trim()); return; }
+  if (INDEX[q]) { renderDetail(INDEX[q], q); return; }
 
   const seen = new Set();
   const matches = [];

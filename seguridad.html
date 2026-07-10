@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relectrónica - Seguridad y Protocolos</title>
+<style>
+:root{
+  --bg:#0b131f;--chat-bg:#111c2c;--card-bg:#162235;--border:#22344d;
+  --primary:#7928ca;--accent:#a855f7;--text:#ffffff;--muted:#a0aec0;--dim:#4a5568;
+  --input-bg:#080d16;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--chat-bg);padding:12px 15px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:11px;position:sticky;top:0;z-index:200}
+.logo-container{width:43px;height:43px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);flex-shrink:0;font-size:1.3rem}
+.header-info h1{font-size:1.05rem;font-weight:700}
+.header-info p{font-size:.78rem;color:var(--muted)}
+a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85rem;white-space:nowrap}
+
+.main-content{flex:1;padding:14px 14px 40px;max-width:680px;width:100%;align-self:center}
+
+.warn-banner{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:.8rem;color:#fca5a5;line-height:1.5}
+
+.eq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.eq-btn{background:var(--chat-bg);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;font-size:.82rem}
+.eq-btn .ico{font-size:1.5rem;display:block;margin-bottom:6px}
+.eq-btn.active{border-color:var(--accent);background:rgba(168,85,247,.1)}
+
+.check-list{display:none}
+.check-list.show{display:block}
+.check-item{background:var(--chat-bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.check-item.done{opacity:.55}
+.check-item.done .check-text{text-decoration:line-through}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--dim);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:.8rem}
+.check-item.done .check-box{background:var(--ok);border-color:var(--ok)}
+.check-text{font-size:.85rem;line-height:1.4}
+.check-item.critico{border-left:3px solid var(--err)}
+
+.progress-bar{height:6px;background:var(--card-bg);border-radius:4px;overflow:hidden;margin:10px 0 16px}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+.progress-label{font-size:.72rem;color:var(--muted);margin-bottom:4px}
+
+.reset-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 14px;font-size:.78rem;cursor:pointer;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-container">🛡️</div>
+  <div class="header-info"><h1>Seguridad y Protocolos</h1><p>Checklist antes de intervenir</p></div>
+  <a class="back" href="index.html">← Menú</a>
+</header>
+
+<div class="main-content">
+  <div class="warn-banner">⚠️ Estas listas son una guía general de buenas prácticas. Siempre respeta las normas de seguridad eléctrica locales y el manual de servicio del fabricante.</div>
+
+  <div class="eq-grid" id="eqGrid"></div>
+
+  <div id="progressWrap" style="display:none">
+    <div class="progress-label" id="progressLabel">0 / 0 completados</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="listaContainer"></div>
+  <button class="reset-btn" id="resetBtn" style="display:none" onclick="resetChecklist()">↺ Reiniciar checklist</button>
+</div>
+
+<script>
+const PROTOCOLOS={
+  tv: {nombre:"TV / Monitor", ico:"📺", items:[
+    {t:"Desconectar de la red eléctrica antes de abrir la carcasa", c:1},
+    {t:"Esperar y descargar capacitores electrolíticos de la fuente (usar resistencia de descarga, no cortocircuitar directo)", c:1},
+    {t:"Usar pulsera antiestática (ESD) al manipular la placa principal / T-CON", c:0},
+    {t:"No tocar el flyback ni el backlight con el equipo energizado", c:1},
+    {t:"Verificar visualmente capacitores hinchados o fugados antes de energizar", c:0},
+    {t:"Probar con lámpara serie o variac antes de conectar directo a 110/220V", c:0},
+  ]},
+  microondas: {nombre:"Microondas", ico:"🔥", items:[
+    {t:"Desconectar de la red antes de abrir", c:1},
+    {t:"Descargar el capacitor de alto voltaje con una resistencia de descarga (no con destornillador directo)", c:1},
+    {t:"No energizar el magnetrón fuera de la cavidad ni sin carga (agua) dentro", c:1},
+    {t:"Revisar los 3 switches de seguridad de la puerta antes de dar por buena la reparación", c:0},
+    {t:"Verificar que no haya fugas de radiación con detector si se manipuló la puerta", c:0},
+  ]},
+  lavadora: {nombre:"Lavadora", ico:"🧺", items:[
+    {t:"Desconectar de la red y cerrar la llave de agua", c:1},
+    {t:"Vaciar el agua restante de tina y mangueras antes de mover el equipo", c:0},
+    {t:"Cuidado con bordes filosos del tambor y contrapesos de concreto al inclinar el equipo", c:0},
+    {t:"Verificar puesta a tierra antes de volver a energizar", c:1},
+  ]},
+  nevera: {nombre:"Refrigeración", ico:"❄️", items:[
+    {t:"Desconectar de la red antes de manipular componentes eléctricos", c:1},
+    {t:"No perforar líneas de refrigerante sin recuperar el gas primero", c:1},
+    {t:"Trabajar en zona ventilada al soldar o manipular el sistema sellado", c:0},
+    {t:"Revisar el relé/protector térmico del compresor antes de asumir compresor quemado", c:0},
+    {t:"Usar guantes y gafas al soldar con oxiacetileno o soplete", c:1},
+  ]},
+  linea_menor: {nombre:"Línea menor", ico:"🔌", items:[
+    {t:"Desconectar el equipo antes de abrir carcasa", c:1},
+    {t:"Revisar cable de poder y clavija por daño antes de energizar", c:0},
+    {t:"Verificar continuidad de resistencias calefactoras antes de reconectar", c:0},
+    {t:"Aislar bien empalmes y terminales antes de cerrar el equipo", c:1},
+  ]},
+  placas: {nombre:"Placas / PCB", ico:"🔧", items:[
+    {t:"Usar pulsera o tapete antiestático al manipular componentes SMD", c:0},
+    {t:"Desconectar la placa de la fuente antes de soldar", c:1},
+    {t:"Verificar polaridad de capacitores y diodos antes de soldar reemplazos", c:0},
+    {t:"No usar soldador sin punta a tierra cerca de componentes sensibles (CMOS/ICs)", c:0},
+  ]},
+};
+
+let equipoActual=null;
+const STORAGE_KEY='relectronica_seguridad_checks';
+
+function loadChecks(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }catch(e){ return {}; } }
+function saveChecks(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+
+function initGrid(){
+  const grid=document.getElementById('eqGrid');
+  grid.innerHTML=Object.entries(PROTOCOLOS).map(([key,p])=>
+    `<div class="eq-btn" data-key="${key}"><span class="ico">${p.ico}</span>${p.nombre}</div>`
+  ).join('');
+  grid.querySelectorAll('.eq-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>seleccionarEquipo(btn.dataset.key));
+  });
+}
+
+function seleccionarEquipo(key){
+  equipoActual=key;
+  document.querySelectorAll('.eq-btn').forEach(b=>b.classList.toggle('active', b.dataset.key===key));
+  renderChecklist();
+}
+
+function renderChecklist(){
+  const p=PROTOCOLOS[equipoActual];
+  const checks=loadChecks();
+  const doneSet=new Set(checks[equipoActual]||[]);
+  const cont=document.getElementById('listaContainer');
+  cont.innerHTML = p.items.map((it,idx)=>`
+    <div class="check-item ${doneSet.has(idx)?'done':''} ${it.c?'critico':''}" data-idx="${idx}">
+      <div class="check-box">${doneSet.has(idx)?'✓':''}</div>
+      <div class="check-text">${it.t}${it.c?' <span style="color:#fca5a5">(crítico)</span>':''}</div>
+    </div>`).join('');
+  cont.querySelectorAll('.check-item').forEach(el=>{
+    el.addEventListener('click',()=>toggleCheck(parseInt(el.dataset.idx)));
+  });
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('resetBtn').style.display='inline-block';
+  updateProgress();
+}
+
+function toggleCheck(idx){
+  const checks=loadChecks();
+  const arr=new Set(checks[equipoActual]||[]);
+  if(arr.has(idx)) arr.delete(idx); else arr.add(idx);
+  checks[equipoActual]=[...arr];
+  saveChecks(checks);
+  renderChecklist();
+}
+
+function updateProgress(){
+  const p=PROTOCOLOS[equipoActual];
+  const checks=loadChecks();
+  const done=(checks[equipoActual]||[]).length;
+  const total=p.items.length;
+  document.getElementById('progressLabel').textContent=`${done} / ${total} completados`;
+  document.getElementById('progressFill').style.width=(total?done/total*100:0)+'%';
+}
+
+function resetChecklist(){
+  const checks=loadChecks();
+  checks[equipoActual]=[];
+  saveChecks(checks);
+  renderChecklist();
+}
+
+initGrid();
+</script>
+</body>
+</html>
