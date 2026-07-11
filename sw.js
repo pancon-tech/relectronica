@@ -1,4 +1,4 @@
-const CACHE_NAME = 'relectronica-v2';
+const CACHE_NAME = 'relectronica-v3';
 
 // Archivos a guardar en caché para uso offline
 const ARCHIVOS_CACHE = [
@@ -18,6 +18,7 @@ const ARCHIVOS_CACHE = [
   './inventario.html',
   './codigoserror.html',
   './multitester.html',
+  './simulador.html',
   './logo.png',
   './manifest.json'
 ];
