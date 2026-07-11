@@ -57,24 +57,39 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .btn-cancel{background:var(--card-bg);color:var(--muted);border:1px solid var(--border)!important}
 
 /* ══ FOTO OVERLAY ══ */
-.photo-controls{position:absolute;top:8px;right:8px;background:rgba(17,28,44,.92);border:1px solid var(--border);border-radius:8px;padding:8px 10px;z-index:20;display:none;align-items:center;gap:8px;font-size:.72rem;color:var(--muted)}
+.photo-controls{position:absolute;top:8px;right:8px;background:rgba(17,28,44,.95);border:1px solid var(--border);border-radius:10px;padding:9px 10px;z-index:20;display:none;flex-direction:column;gap:7px;font-size:.72rem;color:var(--muted);min-width:150px}
 .photo-controls.show{display:flex}
-.photo-controls input[type=range]{width:70px}
-.photo-controls button{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);color:#fca5a5;border-radius:6px;padding:3px 7px;font-size:.68rem;cursor:pointer}
+.photo-controls .pc-row{display:flex;align-items:center;gap:6px}
+.photo-controls input[type=range]{flex:1;width:auto}
+.photo-controls .pc-btns{display:flex;gap:5px}
+.photo-controls button{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 8px;font-size:.7rem;cursor:pointer;flex:1}
+.photo-controls button.pc-mode{background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.4);color:#d8b4fe}
+.photo-controls button.pc-mode.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff}
+.photo-controls button.pc-danger{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);color:#fca5a5}
+.photo-hint{position:absolute;top:8px;left:8px;right:170px;background:rgba(168,85,247,.18);border:1px solid rgba(168,85,247,.4);border-radius:8px;padding:7px 11px;font-size:.74rem;color:#e9d5ff;z-index:21;display:none;pointer-events:none}
+.photo-hint.show{display:block}
+
+/* ══ ZOOM / DESHACER (controles flotantes) ══ */
+.float-controls{position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:6px;z-index:25}
+.fc-btn{width:38px;height:38px;border-radius:10px;background:rgba(17,28,44,.95);border:1px solid var(--border);color:#fff;font-size:1.05rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.fc-btn:active{transform:scale(.94)}
+.zoom-pct{font-size:.62rem;text-align:center;color:var(--muted);background:rgba(17,28,44,.95);border-radius:6px;padding:2px 0}
+
+.cancel-pending{position:absolute;top:52px;left:8px;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.4);color:#fca5a5;border-radius:8px;padding:6px 12px;font-size:.75rem;z-index:22;display:none;cursor:pointer}
+.cancel-pending.show{display:block}
 
 /* ══ LEYENDA ══ */
 .legend{position:absolute;bottom:8px;left:8px;background:rgba(17,28,44,.92);border:1px solid var(--border);border-radius:8px;padding:6px 10px;z-index:20;display:none;font-size:.68rem;color:var(--muted);align-items:center;gap:6px}
 .legend.show{display:flex}
 .legend .bar{width:70px;height:8px;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#a855f7,#ef4444)}
 
-/* ══ VISTA 3D ══ */
-#view3dWrap{position:fixed;inset:0;background:var(--bg);z-index:400;display:none;flex-direction:column}
-#view3dWrap.show{display:flex}
-#canvas3d{flex:1;touch-action:none}
-.v3d-header{background:var(--chat-bg);padding:11px 14px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:10px}
-.v3d-header h3{font-size:.9rem;color:var(--accent);flex:1}
-.v3d-close{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:.78rem;cursor:pointer}
-.v3d-hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:.72rem;color:var(--dim)}
+/* ══ MODAL VALOR — chips de valores rápidos ══ */
+.val-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.val-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 4px;font-size:.82rem;color:#fff;text-align:center;cursor:pointer;flex:1 1 26%;min-width:60px}
+.val-chip:active{background:var(--primary)}
+.val-chip.other{background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.35);color:#d8b4fe}
+.val-custom{display:none;margin-top:4px}
+.val-custom.show{display:block}
 
 /* ══ TOAST ══ */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:11px 18px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .3s;z-index:600;max-width:88%;text-align:center}
@@ -86,7 +101,7 @@ input[type=file]{display:none}
 <body>
 <header>
   <div class="logo-container">🔌</div>
-  <div class="header-info"><h1>Simulador de Circuitos</h1><p>Arma, simula y visualiza en 3D</p></div>
+  <div class="header-info"><h1>Simulador de Circuitos</h1><p>Arma, simula y visualiza voltaje/corriente</p></div>
   <a class="back" href="index.html">← Menú</a>
 </header>
 
@@ -98,23 +113,36 @@ input[type=file]{display:none}
   <div class="tbtn" data-tool="diode"><span class="ic">▷|</span>Diodo</div>
   <div class="tbtn" data-tool="transistor"><span class="ic">🔺</span>Transist.</div>
   <div class="tbtn" data-tool="switch"><span class="ic">🔘</span>Interr.</div>
+  <div class="tbtn" data-tool="capacitor"><span class="ic">‖</span>Capacit.</div>
   <div class="tbtn" data-tool="ground"><span class="ic">⏚</span>Tierra</div>
   <div class="tbtn" id="btnPhoto"><span class="ic">📷</span>Foto ref.</div>
   <div class="tbtn action" id="btnSim"><span class="ic">▶️</span>Simular</div>
-  <div class="tbtn action" id="btn3d"><span class="ic">🧊</span>Ver 3D</div>
+  <div class="tbtn" id="btnUndo"><span class="ic">↩️</span>Deshacer</div>
   <div class="tbtn danger" id="btnClear"><span class="ic">🗑️</span>Limpiar</div>
 </div>
 
 <div class="canvas-wrap" id="canvasWrap">
-  <div class="hint-bar" id="hintBar">Selecciona una herramienta y toca el lienzo. <b>Cable/Resist./Batería/LED/Diodo/Interr.</b> = 2 toques · <b>Transistor</b> = 3 toques (Base, Colector, Emisor) · <b>Tierra</b> = 1 toque.</div>
+  <div class="hint-bar" id="hintBar">Toca una herramienta abajo para empezar. Luego toca el lienzo donde quieras colocar la pieza.</div>
+  <div class="cancel-pending" id="cancelPending">✕ Cancelar punto actual</div>
+  <div class="photo-hint" id="photoHint">📷 Modo ajustar foto: arrastra para mover, usa +/− para acercar. Toca "Listo" cuando esté bien ubicada.</div>
   <div class="photo-controls" id="photoControls">
-    📷 Opacidad <input type="range" id="photoOpacity" min="5" max="90" value="35">
-    <button id="btnPhotoRemove">Quitar</button>
+    <div class="pc-row"><span>Opacidad</span><input type="range" id="photoOpacity" min="10" max="95" value="45"></div>
+    <div class="pc-btns">
+      <button class="pc-mode" id="btnPhotoAdjust">✥ Ajustar</button>
+      <button id="btnPhotoZoomOut">−</button>
+      <button id="btnPhotoZoomIn">+</button>
+    </div>
+    <button class="pc-danger" id="btnPhotoRemove">🗑️ Quitar foto</button>
   </div>
   <div class="legend" id="legend">
     <span>Bajo V</span><div class="bar"></div><span>Alto V</span>
   </div>
-  <svg id="svgCanvas" width="1400" height="1400"></svg>
+  <div class="float-controls">
+    <div class="fc-btn" id="btnZoomIn">➕</div>
+    <div class="zoom-pct" id="zoomPct">100%</div>
+    <div class="fc-btn" id="btnZoomOut">➖</div>
+  </div>
+  <svg id="svgCanvas" width="1400" height="1400" viewBox="0 0 1400 1400"></svg>
 </div>
 
 <div class="info-panel" id="infoPanel">
@@ -128,23 +156,16 @@ input[type=file]{display:none}
 <div class="overlay" id="valOverlay">
   <div class="modal">
     <h3 id="valTitle">Valor</h3>
-    <label id="valLabel">Valor</label>
-    <input id="valInput" type="text" inputmode="decimal">
+    <div class="val-chips" id="valChips"></div>
+    <div class="val-custom" id="valCustomWrap">
+      <label id="valLabel">Valor personalizado</label>
+      <input id="valInput" type="text" inputmode="decimal">
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="valCancel">Cancelar</button>
-      <button class="btn-ok" id="valOk">Aceptar</button>
+      <button class="btn-ok" id="valOk" style="display:none">Aceptar</button>
     </div>
   </div>
-</div>
-
-<!-- Vista 3D -->
-<div id="view3dWrap">
-  <div class="v3d-header">
-    <h3>Vista 3D — bloques por voltaje</h3>
-    <button class="v3d-close" id="close3d">Cerrar ✕</button>
-  </div>
-  <canvas id="canvas3d"></canvas>
-  <div class="v3d-hint">Arrastra para rotar · el color y la altura de cada bloque representan el voltaje en ese punto</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -252,19 +273,46 @@ let groundPoint=null;
 let compCounter=1;
 let lastSim=null; // {nodeVoltages, results:[{compId, I, V}]}
 let selectedCompId=null;
+let zoomLevel=1;
+let hoverPoint=null;
+let undoStack=[];
 const STORAGE_KEY='relectronica_simulador_v1';
 
 function pid(p){ return p.x+','+p.y; }
 function snap(x,y){ return { x: Math.round(x/GRID)*GRID, y: Math.round(y/GRID)*GRID }; }
 
+// convierte coordenadas de pantalla a coordenadas del SVG usando la matriz de transformación
+// real (funciona correctamente sin importar el zoom o el scroll aplicado)
 function svgPoint(evt){
-  const rect = svg.getBoundingClientRect();
-  const cx = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left + canvasWrap.scrollLeft;
-  const cy = (evt.touches ? evt.touches[0].clientY : evt.clientY) - rect.top + canvasWrap.scrollTop;
-  return snap(cx, cy);
+  const t = evt.changedTouches ? evt.changedTouches[0] : (evt.touches ? evt.touches[0] : evt);
+  const pt = svg.createSVGPoint();
+  pt.x = t.clientX; pt.y = t.clientY;
+  const ctm = svg.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  const loc = pt.matrixTransform(ctm.inverse());
+  return snap(loc.x, loc.y);
+}
+function svgPointRaw(evt){ // sin snap, para arrastrar la foto con precisión
+  const t = evt.changedTouches ? evt.changedTouches[0] : (evt.touches ? evt.touches[0] : evt);
+  const pt = svg.createSVGPoint();
+  pt.x = t.clientX; pt.y = t.clientY;
+  const ctm = svg.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  return pt.matrixTransform(ctm.inverse());
 }
 
+/* ══ ZOOM ══ */
+function setZoom(z){
+  zoomLevel = Math.max(0.4, Math.min(2.5, z));
+  svg.setAttribute('width', 1400*zoomLevel);
+  svg.setAttribute('height', 1400*zoomLevel);
+  document.getElementById('zoomPct').textContent = Math.round(zoomLevel*100)+'%';
+}
+document.getElementById('btnZoomIn').addEventListener('click', ()=>setZoom(zoomLevel+0.2));
+document.getElementById('btnZoomOut').addEventListener('click', ()=>setZoom(zoomLevel-0.2));
+
 /* ══ TOOLBAR ══ */
+const TOOL_STEPS={wire:2,resistor:2,battery:2,led:2,diode:2,switch:2,capacitor:2,transistor:3,ground:1};
 document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const t = btn.dataset.tool;
@@ -272,62 +320,121 @@ document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
     document.querySelectorAll('.tbtn[data-tool]').forEach(b=>b.classList.toggle('active', b.dataset.tool===tool));
     updateHint();
     closeInfo();
+    renderAll();
   });
 });
 function updateHint(){
   const hb=document.getElementById('hintBar');
-  const msgs={
-    wire:'Cable: toca el punto inicial y luego el final.',
-    resistor:'Resistencia: toca inicio y fin, luego indica el valor en ohms.',
-    battery:'Batería/fuente DC: toca el punto (+) y luego el punto (−), indica el voltaje.',
-    led:'LED: toca ánodo (+) y luego cátodo (−).',
-    diode:'Diodo: toca ánodo (+) y luego cátodo (−).',
-    transistor:'Transistor NPN: toca en orden Base, Colector, Emisor (3 toques).',
-    switch:'Interruptor: toca inicio y fin. Luego tócalo para abrir/cerrar.',
-    ground:'Tierra: toca el punto de referencia (0V) del circuito.'
-  };
-  hb.innerHTML = tool ? msgs[tool] : 'Selecciona una herramienta y toca el lienzo. <b>Cable/Resist./Batería/LED/Diodo/Interr.</b> = 2 toques · <b>Transistor</b> = 3 toques · <b>Tierra</b> = 1 toque.';
+  const cp=document.getElementById('cancelPending');
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería',led:'LED',diode:'Diodo',transistor:'Transistor (Base→Colector→Emisor)',switch:'Interruptor',capacitor:'Capacitor',ground:'Tierra'};
+  if(!tool){
+    hb.innerHTML='👆 Toca una herramienta abajo para empezar, o toca una pieza ya colocada para ver sus datos.';
+    cp.classList.remove('show');
+    return;
+  }
+  const total = TOOL_STEPS[tool];
+  const step = pending.length+1;
+  if(tool==='ground'){
+    hb.innerHTML='<b>Tierra:</b> toca el punto que será tu referencia de 0V.';
+  } else if(tool==='transistor'){
+    const labels=['Base','Colector','Emisor'];
+    hb.innerHTML=`<b>${names[tool]}</b> — Paso ${step}/3: toca el punto de <b>${labels[pending.length]||''}</b>`;
+  } else {
+    const labels = step===1 ? 'punto inicial' : 'punto final';
+    hb.innerHTML=`<b>${names[tool]}</b> — Paso ${step}/${total}: toca el ${labels}`;
+  }
+  cp.classList.toggle('show', pending.length>0);
 }
+document.getElementById('cancelPending').addEventListener('click', ()=>{ pending=[]; updateHint(); renderAll(); });
 
 svg.addEventListener('click', (e)=>{
+  if(photoAdjustMode) return; // en modo ajuste de foto, los toques mueven la foto, no colocan piezas
   if(!tool) { trySelectComponent(e); return; }
   const p = svgPoint(e);
-  if(tool==='ground'){ groundPoint=p; renderAll(); saveState(); return; }
+  if(tool==='ground'){
+    if(groundPoint) undoStack.push({type:'ground', prev:groundPoint});
+    else undoStack.push({type:'ground', prev:null});
+    groundPoint=p; renderAll(); saveState(); updateHint();
+    showToast('⏚ Tierra colocada');
+    return;
+  }
   if(tool==='transistor'){
     pending.push(p);
     if(pending.length===3){
-      addComponent('transistor', pending.slice(), {beta:150});
+      const c=addComponent('transistor', pending.slice(), {beta:150});
+      undoStack.push({type:'component', id:c.id});
       pending=[];
+      showToast('✅ Transistor colocado — toca Simular cuando termines el circuito');
     }
-    renderAll();
+    renderAll(); updateHint();
     return;
   }
   pending.push(p);
   if(pending.length===2){
     const [p1,p2]=pending;
-    if(p1.x===p2.x && p1.y===p2.y){ pending=[]; return; }
+    if(p1.x===p2.x && p1.y===p2.y){ pending=[]; updateHint(); renderAll(); return; }
     pending=[];
     if(tool==='wire' || tool==='switch'){
-      addComponent(tool,[p1,p2],{closed:true});
-      renderAll(); saveState();
+      const c=addComponent(tool,[p1,p2],{closed:true});
+      undoStack.push({type:'component', id:c.id});
+      renderAll(); saveState(); updateHint();
+    } else if(tool==='led'){
+      const c=addComponent('led',[p1,p2],{value:2});
+      undoStack.push({type:'component', id:c.id});
+      renderAll(); saveState(); updateHint();
+    } else if(tool==='diode'){
+      const c=addComponent('diode',[p1,p2],{});
+      undoStack.push({type:'component', id:c.id});
+      renderAll(); saveState(); updateHint();
     } else {
-      const defs={resistor:{label:'Resistencia (ohms)',def:'1000'}, battery:{label:'Voltaje (V) — 1er punto tocado = borne +',def:'9'}, led:{label:'Tipo de LED',def:'rojo'}, diode:{label:'Diodo (1N4148 genérico)',def:''}};
-      if(tool==='led'){
-        addComponent('led',[p1,p2],{value:2});
+      const titles={resistor:'⚡ Elige la resistencia', battery:'🔋 Elige el voltaje (1er punto tocado = borne +)', capacitor:'‖ Elige la capacitancia'};
+      const defaultVals={resistor:'1000',battery:'9',capacitor:'100'};
+      openValueModal(titles[tool], tool, defaultVals[tool], (val)=>{
+        let num = parseFloat(val);
+        let c;
+        if(tool==='capacitor'){
+          if(!num || num<=0) num=100;
+          c=addComponent(tool,[p1,p2],{value:num*1e-6});
+        } else {
+          c=addComponent(tool,[p1,p2],{value:num||(tool==='resistor'?1000:9)});
+        }
+        undoStack.push({type:'component', id:c.id});
         renderAll(); saveState();
-      } else if(tool==='diode'){
-        addComponent('diode',[p1,p2],{});
-        renderAll(); saveState();
-      } else {
-        openValueModal(defs[tool].label, defs[tool].def, (val)=>{
-          addComponent(tool,[p1,p2],{value:parseFloat(val)||(tool==='resistor'?1000:9)});
-          renderAll(); saveState();
-        });
-      }
+        showToast('✅ Componente colocado');
+      });
     }
   } else {
+    updateHint();
     renderAll();
   }
+});
+
+// vista previa en vivo: muestra dónde caerá la pieza antes de confirmar el 2do/3er toque
+svg.addEventListener('pointermove', (e)=>{
+  if(photoAdjustMode || !tool) return;
+  hoverPoint = svgPoint(e);
+  requestRenderPreview();
+});
+svg.addEventListener('pointerleave', ()=>{ hoverPoint=null; });
+let previewQueued=false;
+function requestRenderPreview(){
+  if(previewQueued) return;
+  previewQueued=true;
+  requestAnimationFrame(()=>{ previewQueued=false; renderAll(); });
+}
+
+/* ══ DESHACER ══ */
+document.getElementById('btnUndo').addEventListener('click', ()=>{
+  if(!undoStack.length){ showToast('No hay nada que deshacer'); return; }
+  const action=undoStack.pop();
+  if(action.type==='component'){
+    components = components.filter(c=>c.id!==action.id);
+  } else if(action.type==='ground'){
+    groundPoint = action.prev;
+  }
+  lastSim=null; pending=[]; closeInfo();
+  renderAll(); saveState(); updateHint();
+  showToast('↩️ Deshecho');
 });
 
 function addComponent(type, pts, extra){
@@ -336,22 +443,50 @@ function addComponent(type, pts, extra){
   return c;
 }
 
-/* ══ MODAL VALOR ══ */
+/* ══ MODAL VALOR — chips rápidos, sin necesidad de escribir en la mayoría de casos ══ */
 const valOverlay=document.getElementById('valOverlay');
+const valChipsEl=document.getElementById('valChips');
+const valCustomWrap=document.getElementById('valCustomWrap');
+const valOkBtn=document.getElementById('valOk');
 let valCallback=null;
-function openValueModal(label, def, cb){
-  document.getElementById('valLabel').textContent=label;
-  document.getElementById('valInput').value=def;
+
+const PRESETS={
+  resistor:[['220Ω','220'],['330Ω','330'],['470Ω','470'],['1kΩ','1000'],['2.2kΩ','2200'],['4.7kΩ','4700'],['10kΩ','10000'],['47kΩ','47000'],['100kΩ','100000']],
+  battery:[['1.5V','1.5'],['3V','3'],['3.3V','3.3'],['5V','5'],['6V','6'],['9V','9'],['12V','12'],['24V','24']],
+  capacitor:[['1µF','1'],['10µF','10'],['47µF','47'],['100µF','100'],['220µF','220'],['470µF','470'],['1000µF','1000']]
+};
+
+function openValueModal(title, tool, def, cb){
+  document.getElementById('valTitle').textContent=title;
   valCallback=cb;
+  valChipsEl.innerHTML='';
+  valCustomWrap.classList.remove('show');
+  valOkBtn.style.display='none';
+
+  (PRESETS[tool]||[]).forEach(([label,val])=>{
+    const chip=document.createElement('div');
+    chip.className='val-chip'; chip.textContent=label;
+    chip.addEventListener('click', ()=>{ valOverlay.classList.remove('show'); if(valCallback) valCallback(val); });
+    valChipsEl.appendChild(chip);
+  });
+  const other=document.createElement('div');
+  other.className='val-chip other'; other.textContent='✏️ Otro valor...';
+  other.addEventListener('click', ()=>{
+    valCustomWrap.classList.add('show');
+    valOkBtn.style.display='block';
+    document.getElementById('valInput').value=def;
+    setTimeout(()=>document.getElementById('valInput').focus(),80);
+  });
+  valChipsEl.appendChild(other);
+
   valOverlay.classList.add('show');
-  setTimeout(()=>document.getElementById('valInput').focus(),80);
 }
-document.getElementById('valOk').addEventListener('click', ()=>{
+valOkBtn.addEventListener('click', ()=>{
   const v=document.getElementById('valInput').value;
   valOverlay.classList.remove('show');
   if(valCallback) valCallback(v);
 });
-document.getElementById('valCancel').addEventListener('click', ()=>{ valOverlay.classList.remove('show'); });
+document.getElementById('valCancel').addEventListener('click', ()=>{ valOverlay.classList.remove('show'); pending=[]; renderAll(); });
 
 /* ══════════════════════════════════════════════════════════════
    DIBUJO DE COMPONENTES (SVG)
@@ -424,6 +559,36 @@ function drawResistor(g,c,colorFn){
   g.appendChild(label);
 }
 function formatOhms(v){ if(v>=1e6) return (v/1e6)+'MΩ'; if(v>=1000) return (v/1000)+'kΩ'; return v+'Ω'; }
+function formatFarads(v){ // v en Faradios
+  if(v>=1e-3) return (v*1e3)+'mF';
+  if(v>=1e-6) return (v*1e6)+'µF';
+  if(v>=1e-9) return (v*1e9)+'nF';
+  return (v*1e12)+'pF';
+}
+
+function drawCapacitor(g,c,colorFn,chargePct){
+  const [p1,p2]=c.pts;
+  const color = colorFn ? colorFn(c) : '#67e8f9';
+  const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
+  const ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
+  const midA={x:p1.x+ux*(len/2-6), y:p1.y+uy*(len/2-6)};
+  const midB={x:p1.x+ux*(len/2+6), y:p1.y+uy*(len/2+6)};
+  g.appendChild(el('line',{x1:p1.x,y1:p1.y,x2:midA.x,y2:midA.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  g.appendChild(el('line',{x1:midB.x,y1:midB.y,x2:p2.x,y2:p2.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  // dos placas paralelas
+  g.appendChild(el('line',{x1:midA.x+nx*13,y1:midA.y+ny*13,x2:midA.x-nx*13,y2:midA.y-ny*13,stroke:'#fff','stroke-width':3,'data-comp':c.id}));
+  g.appendChild(el('line',{x1:midB.x+nx*13,y1:midB.y+ny*13,x2:midB.x-nx*13,y2:midB.y-ny*13,stroke:'#fff','stroke-width':3,'data-comp':c.id}));
+  // barra de nivel de carga (0-100%) junto al símbolo
+  if(chargePct!==undefined && chargePct!==null){
+    const pct=Math.max(0,Math.min(1,chargePct));
+    const barLen=26, ox=midpoint([p1,p2]).x + nx*20, oy=midpoint([p1,p2]).y + ny*20;
+    g.appendChild(el('rect',{x:ox-barLen/2,y:oy-3,width:barLen,height:6,rx:3,fill:'#0b131f',stroke:'#22344d','stroke-width':1}));
+    g.appendChild(el('rect',{x:ox-barLen/2,y:oy-3,width:barLen*pct,height:6,rx:3,fill:'#22d3ee'}));
+  }
+  const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-16, fill:'#67e8f9','font-size':11,'text-anchor':'middle','data-comp':c.id});
+  label.textContent = formatFarads(c.value);
+  g.appendChild(label);
+}
 
 function drawBattery(g,c,colorFn){
   const [p1,p2]=c.pts;
@@ -500,6 +665,14 @@ function drawPendingMarkers(g){
     t.textContent = tool==='transistor' ? ['B','C','E'][i] : (i+1);
     g.appendChild(t);
   });
+  // vista previa: línea punteada desde el último punto hasta donde está el dedo/cursor ahora
+  if(pending.length>0 && hoverPoint){
+    const last=pending[pending.length-1];
+    g.appendChild(el('line',{x1:last.x,y1:last.y,x2:hoverPoint.x,y2:hoverPoint.y,stroke:'#a855f7','stroke-width':2,'stroke-dasharray':'6,5',opacity:0.7}));
+    g.appendChild(el('circle',{cx:hoverPoint.x,cy:hoverPoint.y,r:7,fill:'rgba(168,85,247,.25)',stroke:'#a855f7','stroke-width':2}));
+  } else if(pending.length===0 && tool && hoverPoint){
+    g.appendChild(el('circle',{cx:hoverPoint.x,cy:hoverPoint.y,r:7,fill:'rgba(168,85,247,.18)',stroke:'#a855f7','stroke-width':1.5,'stroke-dasharray':'3,3'}));
+  }
 }
 
 /* animación de corriente: puntos moviéndose por la línea, proporcional a |I| */
@@ -524,10 +697,14 @@ function renderAll(){
   svg.innerHTML='';
   const gGrid=el('g',{}); drawGrid(gGrid); svg.appendChild(gGrid);
 
-  // capa foto (si existe)
+  // capa foto (si existe) — posición y tamaño ajustables por el usuario
   if(photoDataUrl){
-    const img=el('image',{href:photoDataUrl, x:0,y:0,width:1400,height:1400,opacity: document.getElementById('photoOpacity').value/100, preserveAspectRatio:'xMidYMid meet'});
+    const w = photoNatural.w*photoTransform.scale, h = photoNatural.h*photoTransform.scale;
+    const img=el('image',{href:photoDataUrl, x:photoTransform.x, y:photoTransform.y, width:w, height:h, opacity: document.getElementById('photoOpacity').value/100, preserveAspectRatio:'xMidYMid meet'});
     svg.appendChild(img);
+    if(photoAdjustMode){
+      svg.appendChild(el('rect',{x:photoTransform.x,y:photoTransform.y,width:w,height:h,fill:'none',stroke:'#a855f7','stroke-width':2,'stroke-dasharray':'8,6'}));
+    }
   }
 
   let vmin=0,vmax=0, colorFn=null;
@@ -549,6 +726,15 @@ function renderAll(){
     else if(c.type==='led') drawDiode(gComp,c,colorFn,true);
     else if(c.type==='diode') drawDiode(gComp,c,colorFn,false);
     else if(c.type==='transistor') drawTransistor(gComp,c,colorFn);
+    else if(c.type==='capacitor'){
+      let pct=null;
+      if(lastSim){
+        const va=lastSim.nodeVoltages[pid(c.pts[0])]??0, vb=lastSim.nodeVoltages[pid(c.pts[1])]??0;
+        const range=(vmax-vmin)||1;
+        pct=Math.abs(va-vb)/range;
+      }
+      drawCapacitor(gComp,c,colorFn,pct);
+    }
   });
   svg.appendChild(gComp);
   drawGround(gComp, groundPoint);
@@ -584,15 +770,12 @@ function renderAll(){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SIMULACIÓN
+   SIMULACIÓN (DC estático, o transitorio si hay capacitores)
 ══════════════════════════════════════════════════════════════ */
 document.getElementById('btnSim').addEventListener('click', runSimulation);
+let simBatteries=[], playTimer=null;
 
-function runSimulation(){
-  if(!groundPoint){ showToast('⚠️ Coloca un punto de Tierra (referencia 0V) antes de simular'); return; }
-  const batteries = components.filter(c=>c.type==='battery');
-  if(!batteries.length){ showToast('⚠️ Agrega al menos una Batería/fuente DC'); return; }
-
+function buildStaticCircuit(){
   const pointsSet = new Set([pid(groundPoint)]);
   components.forEach(c=>c.pts.forEach(p=>pointsSet.add(pid(p))));
   const points = Array.from(pointsSet);
@@ -601,7 +784,7 @@ function runSimulation(){
   components.filter(c=>c.type==='switch' && c.closed).forEach(c=>wires.push({a:pid(c.pts[0]), b:pid(c.pts[1])}));
 
   const resistors = components.filter(c=>c.type==='resistor').map(c=>({a:pid(c.pts[0]),b:pid(c.pts[1]),r:c.value}));
-  const vsources = batteries.map(c=>({a:pid(c.pts[0]),b:pid(c.pts[1]),v:c.value}));
+  const vsources = simBatteries.map(c=>({a:pid(c.pts[0]),b:pid(c.pts[1]),v:c.value}));
   const diodes = components.filter(c=>c.type==='diode'||c.type==='led').map(c=>{
     if(c.type==='led') return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-20, vt:0.052};
     return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-12, vt:0.02585};
@@ -609,37 +792,113 @@ function runSimulation(){
   const transistors = components.filter(c=>c.type==='transistor').map(c=>({
     b:pid(c.pts[0]), c:pid(c.pts[1]), e:pid(c.pts[2]), beta:c.beta||150, is:1e-14, vt:0.02585
   }));
+  return { points, ground: pid(groundPoint), wires, resistors, vsources, diodes, transistors };
+}
 
-  const circuit = { points, ground: pid(groundPoint), wires, resistors, vsources, isources:[], diodes, transistors };
-  let sim;
-  try { sim = simulateCircuit(circuit); }
-  catch(e){ showToast('⚠️ Error al simular: revisa las conexiones'); return; }
-
-  // calcular corriente por componente para animación e info
-  const results = [];
+// calcula corriente por componente para animación e info, a partir de un set de voltajes de nodo
+function computeResultsForFrame(nodeVoltages, vsourceCurrents, capCurrents){
+  const results=[];
   components.forEach(c=>{
-    const va=sim.nodeVoltages[pid(c.pts[0])] ?? 0;
-    const vb=sim.nodeVoltages[pid(c.pts[c.pts.length-1])] ?? 0;
+    const va=nodeVoltages[pid(c.pts[0])] ?? 0;
+    const vb=nodeVoltages[pid(c.pts[c.pts.length-1])] ?? 0;
     let I=0;
     if(c.type==='resistor') I=(va-vb)/c.value;
     else if(c.type==='wire') I=(va-vb)/WIRE_R;
     else if(c.type==='switch') I = c.closed ? (va-vb)/WIRE_R : 0;
     else if(c.type==='led') { const vd=va-vb; I=1e-20*(Math.exp(vd/0.052)-1); }
     else if(c.type==='diode') { const vd=va-vb; I=1e-12*(Math.exp(vd/0.02585)-1); }
+    else if(c.type==='capacitor'){ I = (capCurrents && capCurrents[c.id]!==undefined) ? capCurrents[c.id] : 0; }
     else if(c.type==='battery'){
-      const k = batteries.indexOf(c);
-      I = -sim.vsourceCurrents[k]; // corriente convencional saliendo del + de la batería
+      const k = simBatteries.indexOf(c);
+      I = vsourceCurrents ? -vsourceCurrents[k] : 0; // corriente convencional saliendo del + de la batería
     } else if(c.type==='transistor'){
-      const vbe = (sim.nodeVoltages[pid(c.pts[0])]??0) - (sim.nodeVoltages[pid(c.pts[2])]??0);
+      const vbe = (nodeVoltages[pid(c.pts[0])]??0) - (nodeVoltages[pid(c.pts[2])]??0);
       const ib = 1e-14*(Math.exp(vbe/0.02585)-1);
-      I = ib*(c.beta||150); // corriente de colector aprox, usada solo para animación
+      I = ib*(c.beta||150);
     }
     results.push({ compId:c.id, I, pts:[c.pts[0], c.pts[c.pts.length-1]] });
   });
+  return results;
+}
 
-  lastSim = { nodeVoltages: sim.nodeVoltages, results };
-  renderAll();
-  showToast('✅ Simulación completa — toca un componente para ver detalles');
+function runSimulation(){
+  if(playTimer){ clearInterval(playTimer); playTimer=null; }
+  if(!groundPoint){ showToast('⚠️ Coloca un punto de Tierra (referencia 0V) antes de simular'); return; }
+  simBatteries = components.filter(c=>c.type==='battery');
+  if(!simBatteries.length){ showToast('⚠️ Agrega al menos una Batería/fuente DC'); return; }
+
+  const capacitors = components.filter(c=>c.type==='capacitor');
+  const base = buildStaticCircuit();
+
+  if(!capacitors.length){
+    let sim;
+    try { sim = simulateCircuit(base); }
+    catch(e){ showToast('⚠️ Error al simular: revisa las conexiones'); return; }
+    lastSim = { nodeVoltages: sim.nodeVoltages, results: computeResultsForFrame(sim.nodeVoltages, sim.vsourceCurrents, null) };
+    renderAll();
+    showToast('✅ Simulación completa — toca un componente para ver detalles');
+    return;
+  }
+
+  runTransient(base, capacitors);
+}
+
+function runTransient(base, capacitors){
+  // estimar constante de tiempo tau = R * C para calibrar duración de la simulación
+  const resistorVals = base.resistors.map(r=>r.r);
+  const Ravg = resistorVals.length ? resistorVals.reduce((a,b)=>a+b,0)/resistorVals.length : 1000;
+  const maxC = Math.max(...capacitors.map(c=>c.value));
+  let tau = Ravg*maxC;
+  if(!isFinite(tau) || tau<=0) tau=0.1;
+  const durationSim = Math.max(0.02, Math.min(30, 6*tau));
+  const steps = 70;
+  const dt = durationSim/steps;
+
+  const vprev = {}; capacitors.forEach(c=>vprev[c.id]=0);
+  const frames = [];
+
+  for(let step=1; step<=steps; step++){
+    const resistorsExt = base.resistors.concat(capacitors.map(c=>({
+      a:pid(c.pts[0]), b:pid(c.pts[1]), r: dt/c.value
+    })));
+    const isourcesExt = capacitors.map(c=>{
+      const Geq = c.value/dt;
+      return { a:pid(c.pts[0]), b:pid(c.pts[1]), i: -(Geq*vprev[c.id]) };
+    });
+    const circuit = Object.assign({}, base, { resistors: resistorsExt, isources: isourcesExt });
+    let sim;
+    try { sim = simulateCircuit(circuit); }
+    catch(e){ showToast('⚠️ Error en la simulación transitoria'); return; }
+
+    const capCurrents={};
+    capacitors.forEach(c=>{
+      const va=sim.nodeVoltages[pid(c.pts[0])]??0, vb=sim.nodeVoltages[pid(c.pts[1])]??0;
+      const vnow=va-vb, Geq=c.value/dt;
+      capCurrents[c.id]=Geq*(vnow - vprev[c.id]);
+      vprev[c.id]=vnow;
+    });
+    frames.push({ nodeVoltages: sim.nodeVoltages, vsourceCurrents: sim.vsourceCurrents, capCurrents });
+  }
+
+  showToast('🔋 Simulando carga/descarga del capacitor...');
+  playFrames(frames);
+}
+
+function playFrames(frames){
+  let i=0;
+  const totalMs=2600;
+  const stepMs=Math.max(20, totalMs/frames.length);
+  if(playTimer) clearInterval(playTimer);
+  playTimer=setInterval(()=>{
+    const f=frames[i];
+    lastSim = { nodeVoltages: f.nodeVoltages, results: computeResultsForFrame(f.nodeVoltages, f.vsourceCurrents, f.capCurrents) };
+    renderAll();
+    i++;
+    if(i>=frames.length){
+      clearInterval(playTimer); playTimer=null;
+      showToast('✅ Simulación completa — vuelve a tocar Simular para repetir la carga');
+    }
+  }, stepMs);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -658,12 +917,13 @@ function trySelectComponent(e){
 const infoPanel=document.getElementById('infoPanel');
 function openInfo(c){
   selectedCompId=c.id;
-  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor'};
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor',capacitor:'Capacitor'};
   document.getElementById('infoTitle').textContent=names[c.type]||c.type;
   let rows='';
   if(c.type==='resistor') rows+=`<div class="info-row"><span>Valor</span><b>${formatOhms(c.value)}</b></div>`;
   if(c.type==='battery') rows+=`<div class="info-row"><span>Voltaje</span><b>${c.value} V</b></div>`;
   if(c.type==='transistor') rows+=`<div class="info-row"><span>Beta (hFE)</span><b>${c.beta}</b></div>`;
+  if(c.type==='capacitor') rows+=`<div class="info-row"><span>Capacitancia</span><b>${formatFarads(c.value)}</b></div>`;
   if(lastSim){
     const r = lastSim.results.find(x=>x.compId===c.id);
     const va=lastSim.nodeVoltages[pid(c.pts[0])], vb=lastSim.nodeVoltages[pid(c.pts[c.pts.length-1])];
@@ -673,6 +933,11 @@ function openInfo(c){
     if(r){
       rows+=`<div class="info-row"><span>Corriente</span><b>${formatAmps(r.I)}</b></div>`;
       if(va!==undefined && vb!==undefined) rows+=`<div class="info-row"><span>Potencia</span><b>${(Math.abs(va-vb)*Math.abs(r.I)*1000).toFixed(2)} mW</b></div>`;
+    }
+    if(c.type==='capacitor' && va!==undefined && vb!==undefined){
+      const vc=Math.abs(va-vb);
+      rows+=`<div class="info-row"><span>Carga (Q)</span><b>${(c.value*vc*1e6).toFixed(2)} µC</b></div>`;
+      rows+=`<div class="info-row"><span>Energía almacenada</span><b>${(0.5*c.value*vc*vc*1e3).toFixed(3)} mJ</b></div>`;
     }
   } else {
     rows+=`<div class="info-row"><span colspan=2>Presiona <b>Simular</b> para ver voltajes y corrientes</span></div>`;
@@ -699,131 +964,78 @@ document.getElementById('infoDel').addEventListener('click', ()=>{
 ══════════════════════════════════════════════════════════════ */
 document.getElementById('btnClear').addEventListener('click', ()=>{
   if(!confirm('¿Borrar todo el circuito?')) return;
-  components=[]; groundPoint=null; lastSim=null; pending=[]; photoDataUrl=null;
+  components=[]; groundPoint=null; lastSim=null; pending=[]; photoDataUrl=null; undoStack=[];
+  setPhotoAdjustMode(false);
   document.getElementById('photoControls').classList.remove('show');
+  setZoom(1);
   renderAll(); saveState();
 });
 
 /* ══════════════════════════════════════════════════════════════
-   FOTO DE REFERENCIA (superposición, no reconocimiento automático)
+   FOTO DE REFERENCIA — con arrastre y zoom para ajustarla (no hay
+   reconocimiento automático: el usuario calca el circuito encima)
 ══════════════════════════════════════════════════════════════ */
 let photoDataUrl=null;
+let photoTransform={x:150,y:150,scale:1}; // x,y = esquina superior izq. en coords del lienzo; scale = tamaño relativo a 1100px base
+let photoNatural={w:1100,h:1100};
+let photoAdjustMode=false;
+let photoDragStart=null;
+
 document.getElementById('btnPhoto').addEventListener('click', ()=>document.getElementById('photoInput').click());
 document.getElementById('photoInput').addEventListener('change', (e)=>{
   const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=(ev)=>{
     photoDataUrl=ev.target.result;
-    document.getElementById('photoControls').classList.add('show');
-    renderAll();
-    showToast('📷 Foto cargada como referencia — calca el circuito encima con las herramientas');
+    const imgProbe=new Image();
+    imgProbe.onload=()=>{
+      // ajuste inicial: centrar la foto y escalarla para que quepa dentro del lienzo
+      const nw=imgProbe.naturalWidth||1100, nh=imgProbe.naturalHeight||1100;
+      const fitScale = Math.min(1100/nw, 1100/nh);
+      photoNatural={w:nw,h:nh};
+      photoTransform={ x:(1400-nw*fitScale)/2, y:(1400-nh*fitScale)/2, scale:fitScale };
+      document.getElementById('photoControls').classList.add('show');
+      setPhotoAdjustMode(true);
+      renderAll();
+      showToast('📷 Foto cargada — arrástrala para ubicarla y usa +/− para el tamaño');
+    };
+    imgProbe.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 document.getElementById('photoOpacity').addEventListener('input', renderAll);
 document.getElementById('btnPhotoRemove').addEventListener('click', ()=>{
-  photoDataUrl=null; document.getElementById('photoControls').classList.remove('show'); renderAll();
+  photoDataUrl=null; setPhotoAdjustMode(false);
+  document.getElementById('photoControls').classList.remove('show'); renderAll();
 });
 
-/* ══════════════════════════════════════════════════════════════
-   VISTA 3D (proyección isométrica, sin librerías externas —
-   así funciona offline igual que el resto de la app)
-══════════════════════════════════════════════════════════════ */
-const view3dWrap=document.getElementById('view3dWrap');
-const c3d=document.getElementById('canvas3d');
-const ctx3d=c3d.getContext('2d');
-let rot=0.6, rotX=0.5, dragging=false, lastX=0,lastY=0;
-
-document.getElementById('btn3d').addEventListener('click', ()=>{
-  view3dWrap.classList.add('show');
-  resize3d();
-  draw3d();
+function setPhotoAdjustMode(on){
+  photoAdjustMode = on && !!photoDataUrl;
+  document.getElementById('btnPhotoAdjust').classList.toggle('active', photoAdjustMode);
+  document.getElementById('btnPhotoAdjust').textContent = photoAdjustMode ? '✓ Listo' : '✥ Ajustar';
+  document.getElementById('photoHint').classList.toggle('show', photoAdjustMode);
+  svg.style.cursor = photoAdjustMode ? 'move' : 'crosshair';
+}
+document.getElementById('btnPhotoAdjust').addEventListener('click', ()=>{ setPhotoAdjustMode(!photoAdjustMode); });
+document.getElementById('btnPhotoZoomIn').addEventListener('click', ()=>{
+  photoTransform.scale*=1.12; renderAll();
 });
-document.getElementById('close3d').addEventListener('click', ()=>view3dWrap.classList.remove('show'));
-function resize3d(){ c3d.width=c3d.clientWidth*devicePixelRatio; c3d.height=c3d.clientHeight*devicePixelRatio; }
-window.addEventListener('resize', ()=>{ if(view3dWrap.classList.contains('show')){ resize3d(); draw3d(); } });
-
-c3d.addEventListener('pointerdown', e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; });
-window.addEventListener('pointermove', e=>{
-  if(!dragging) return;
-  rot += (e.clientX-lastX)*0.008;
-  rotX = Math.max(0.15, Math.min(1.3, rotX + (e.clientY-lastY)*0.006));
-  lastX=e.clientX; lastY=e.clientY;
-  draw3d();
+document.getElementById('btnPhotoZoomOut').addEventListener('click', ()=>{
+  photoTransform.scale=Math.max(0.05, photoTransform.scale/1.12); renderAll();
 });
-window.addEventListener('pointerup', ()=>dragging=false);
 
-function iso(x,y,z){
-  const cx=Math.cos(rot), sx=Math.sin(rot);
-  const rx = x*cx - y*sx;
-  const ry = x*sx + y*cx;
-  const sy = ry*Math.sin(rotX) - z*Math.cos(rotX);
-  return { x:rx, y:sy };
-}
-
-function draw3d(){
-  const W=c3d.width, H=c3d.height;
-  ctx3d.setTransform(1,0,0,1,0,0);
-  ctx3d.clearRect(0,0,W,H);
-  ctx3d.fillStyle='#0b131f'; ctx3d.fillRect(0,0,W,H);
-
-  if(!components.length){
-    ctx3d.fillStyle='#a0aec0'; ctx3d.font='16px sans-serif'; ctx3d.textAlign='center';
-    ctx3d.fillText('Arma un circuito primero', W/2, H/2);
-    return;
-  }
-
-  // centro del circuito
-  let allPts=[]; components.forEach(c=>c.pts.forEach(p=>allPts.push(p)));
-  if(groundPoint) allPts.push(groundPoint);
-  const cx0=allPts.reduce((s,p)=>s+p.x,0)/allPts.length;
-  const cy0=allPts.reduce((s,p)=>s+p.y,0)/allPts.length;
-  const scale = Math.min(W,H) / (Math.max(...allPts.map(p=>Math.hypot(p.x-cx0,p.y-cy0)))*2.6 || 500);
-
-  const vals = lastSim ? Object.values(lastSim.nodeVoltages) : [0];
-  const vmin=Math.min(...vals,0), vmax=Math.max(...vals,0.001);
-
-  // colores base por tipo (altura del bloque)
-  const heights={wire:6,switch:6,resistor:22,battery:34,led:26,diode:20,transistor:30};
-
-  const items=[];
-  components.forEach(c=>{
-    const mid=midpoint(c.pts);
-    const v = lastSim ? ( (lastSim.nodeVoltages[pid(c.pts[0])]||0) + (lastSim.nodeVoltages[pid(c.pts[c.pts.length-1])]||0) )/2 : 0;
-    items.push({x:(mid.x-cx0)*scale, y:(mid.y-cy0)*scale, h:heights[c.type]||16, v, type:c.type});
-  });
-  if(groundPoint) items.push({x:(groundPoint.x-cx0)*scale, y:(groundPoint.y-cy0)*scale, h:4, v:0, type:'ground'});
-
-  // ordenar por profundidad (pintor)
-  items.sort((a,b)=> (a.x+a.y) - (b.x+b.y));
-
-  const originX=W/2, originY=H/2+40;
-  items.forEach(it=>{
-    const color = lastSim ? voltageColor(it.v, vmin, vmax) : (it.type==='ground'?'#e2e8f0':'#a855f7');
-    const w=18;
-    const base=iso(it.x-w,it.y-w,0), base2=iso(it.x+w,it.y-w,0), base3=iso(it.x+w,it.y+w,0), base4=iso(it.x-w,it.y+w,0);
-    const top =iso(it.x-w,it.y-w,it.h), top2=iso(it.x+w,it.y-w,it.h), top3=iso(it.x+w,it.y+w,it.h), top4=iso(it.x-w,it.y+w,it.h);
-    function pt(p){ return [originX+p.x, originY+p.y]; }
-    // cara superior
-    ctx3d.beginPath();
-    [top,top2,top3,top4].forEach((p,i)=>{ const[px,py]=pt(p); i===0?ctx3d.moveTo(px,py):ctx3d.lineTo(px,py); });
-    ctx3d.closePath(); ctx3d.fillStyle=color; ctx3d.fill(); ctx3d.strokeStyle='#0b131f'; ctx3d.lineWidth=1.4; ctx3d.stroke();
-    // cara lateral derecha (base3->base2->top2->top3)
-    ctx3d.beginPath();
-    [base2,base3,top3,top2].forEach((p,i)=>{ const[px,py]=pt(p); i===0?ctx3d.moveTo(px,py):ctx3d.lineTo(px,py); });
-    ctx3d.closePath(); ctx3d.fillStyle=shade(color,-30); ctx3d.fill(); ctx3d.stroke();
-    // cara lateral frontal (base4->base3->top3->top4)
-    ctx3d.beginPath();
-    [base4,base3,top3,top4].forEach((p,i)=>{ const[px,py]=pt(p); i===0?ctx3d.moveTo(px,py):ctx3d.lineTo(px,py); });
-    ctx3d.closePath(); ctx3d.fillStyle=shade(color,-55); ctx3d.fill(); ctx3d.stroke();
-  });
-}
-function shade(hex,amt){
-  const n=parseInt(hex.slice(1),16);
-  let r=(n>>16)+amt, g=((n>>8)&0xff)+amt, b=(n&0xff)+amt;
-  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
-  return '#'+(r<<16|g<<8|b).toString(16).padStart(6,'0');
-}
+svg.addEventListener('pointerdown', (e)=>{
+  if(!photoAdjustMode) return;
+  photoDragStart = { pointer: svgPointRaw(e), origin: {x:photoTransform.x, y:photoTransform.y} };
+});
+window.addEventListener('pointermove', (e)=>{
+  if(!photoAdjustMode || !photoDragStart) return;
+  const now = svgPointRaw(e);
+  photoTransform.x = photoDragStart.origin.x + (now.x - photoDragStart.pointer.x);
+  photoTransform.y = photoDragStart.origin.y + (now.y - photoDragStart.pointer.y);
+  renderAll();
+});
+window.addEventListener('pointerup', ()=>{ photoDragStart=null; });
 
 /* ══════════════════════════════════════════════════════════════
    PERSISTENCIA
