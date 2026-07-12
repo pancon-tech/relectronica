@@ -114,6 +114,8 @@ input[type=file]{display:none}
   <div class="tbtn" data-tool="transistor"><span class="ic">🔺</span>Transist.</div>
   <div class="tbtn" data-tool="switch"><span class="ic">🔘</span>Interr.</div>
   <div class="tbtn" data-tool="capacitor"><span class="ic">‖</span>Capacit.</div>
+  <div class="tbtn" data-tool="acsource"><span class="ic">⏦</span>Fuente CA</div>
+  <div class="tbtn" data-tool="fuse"><span class="ic">🧯</span>Fusible</div>
   <div class="tbtn" data-tool="ground"><span class="ic">⏚</span>Tierra</div>
   <div class="tbtn" id="btnPhoto"><span class="ic">📷</span>Foto ref.</div>
   <div class="tbtn action" id="btnSim"><span class="ic">▶️</span>Simular</div>
@@ -312,7 +314,7 @@ document.getElementById('btnZoomIn').addEventListener('click', ()=>setZoom(zoomL
 document.getElementById('btnZoomOut').addEventListener('click', ()=>setZoom(zoomLevel-0.2));
 
 /* ══ TOOLBAR ══ */
-const TOOL_STEPS={wire:2,resistor:2,battery:2,led:2,diode:2,switch:2,capacitor:2,transistor:3,ground:1};
+const TOOL_STEPS={wire:2,resistor:2,battery:2,led:2,diode:2,switch:2,capacitor:2,acsource:2,fuse:2,transistor:3,ground:1};
 document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const t = btn.dataset.tool;
@@ -326,7 +328,7 @@ document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
 function updateHint(){
   const hb=document.getElementById('hintBar');
   const cp=document.getElementById('cancelPending');
-  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería',led:'LED',diode:'Diodo',transistor:'Transistor (Base→Colector→Emisor)',switch:'Interruptor',capacitor:'Capacitor',ground:'Tierra'};
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería',led:'LED',diode:'Diodo',transistor:'Transistor (Base→Colector→Emisor)',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible',ground:'Tierra'};
   if(!tool){
     hb.innerHTML='👆 Toca una herramienta abajo para empezar, o toca una pieza ya colocada para ver sus datos.';
     cp.classList.remove('show');
@@ -386,6 +388,25 @@ svg.addEventListener('click', (e)=>{
       const c=addComponent('diode',[p1,p2],{});
       undoStack.push({type:'component', id:c.id});
       renderAll(); saveState(); updateHint();
+    } else if(tool==='fuse'){
+      openValueModal('🧯 Elige el amperaje del fusible', 'fuse', '2', (val)=>{
+        let num=parseFloat(val); if(!num||num<=0) num=2;
+        const c=addComponent('fuse',[p1,p2],{rating:num, blown:false});
+        undoStack.push({type:'component', id:c.id});
+        renderAll(); saveState();
+        showToast('✅ Fusible colocado');
+      });
+    } else if(tool==='acsource'){
+      openValueModal('⏦ Elige el voltaje CA (RMS) — como el secundario del transformador', 'acsource', '25', (val)=>{
+        let vrms=parseFloat(val); if(!vrms||vrms<=0) vrms=25;
+        openValueModal('⏱️ Elige la frecuencia de la red eléctrica', 'freq', '60', (fval)=>{
+          let freq=parseFloat(fval)||60;
+          const c=addComponent('acsource',[p1,p2],{vrms, freq, vpeak:vrms*Math.SQRT2});
+          undoStack.push({type:'component', id:c.id});
+          renderAll(); saveState();
+          showToast('✅ Fuente CA colocada');
+        });
+      });
     } else {
       const titles={resistor:'⚡ Elige la resistencia', battery:'🔋 Elige el voltaje (1er punto tocado = borne +)', capacitor:'‖ Elige la capacitancia'};
       const defaultVals={resistor:'1000',battery:'9',capacitor:'100'};
@@ -453,7 +474,10 @@ let valCallback=null;
 const PRESETS={
   resistor:[['220Ω','220'],['330Ω','330'],['470Ω','470'],['1kΩ','1000'],['2.2kΩ','2200'],['4.7kΩ','4700'],['10kΩ','10000'],['47kΩ','47000'],['100kΩ','100000']],
   battery:[['1.5V','1.5'],['3V','3'],['3.3V','3.3'],['5V','5'],['6V','6'],['9V','9'],['12V','12'],['24V','24']],
-  capacitor:[['1µF','1'],['10µF','10'],['47µF','47'],['100µF','100'],['220µF','220'],['470µF','470'],['1000µF','1000']]
+  capacitor:[['1µF','1'],['10µF','10'],['47µF','47'],['100µF','100'],['220µF','220'],['470µF','470'],['1000µF','1000'],['4700µF','4700']],
+  fuse:[['0.5A','0.5'],['1A','1'],['2A','2'],['3A','3'],['5A','5'],['8A','8'],['10A','10'],['15A','15']],
+  acsource:[['9V','9'],['12V','12'],['15V','15'],['18V','18'],['24V','24'],['25V','25'],['30V','30'],['110V','110'],['220V','220']],
+  freq:[['60Hz (América)','60'],['50Hz (Europa/Asia)','50']]
 };
 
 function openValueModal(title, tool, def, cb){
@@ -658,6 +682,61 @@ function drawGround(g,p){
   g.appendChild(el('circle',{cx:p.x,cy:p.y,r:4,fill:'#e2e8f0'}));
 }
 
+function drawACSource(g,c,colorFn){
+  const [p1,p2]=c.pts;
+  const color = colorFn ? colorFn(c) : '#fb923c';
+  const mid=midpoint([p1,p2]);
+  const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
+  const ux=dx/len, uy=dy/len;
+  const r=15;
+  const edgeA={x:mid.x-ux*r,y:mid.y-uy*r}, edgeB={x:mid.x+ux*r,y:mid.y+uy*r};
+  g.appendChild(el('line',{x1:p1.x,y1:p1.y,x2:edgeA.x,y2:edgeA.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  g.appendChild(el('line',{x1:edgeB.x,y1:edgeB.y,x2:p2.x,y2:p2.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  g.appendChild(el('circle',{cx:mid.x,cy:mid.y,r,fill:'#1a273a',stroke:color,'stroke-width':2,'data-comp':c.id}));
+  // squiggle senoidal dentro del círculo
+  const nx=-uy, ny=ux;
+  let path='M'+(mid.x-ux*9+nx*0)+','+(mid.y-uy*9+ny*0);
+  for(let i=-9;i<=9;i+=3){
+    const px=mid.x+ux*i, py=mid.y+uy*i;
+    const off=Math.sin((i/9)*Math.PI)*6;
+    path+=' L'+(px+nx*off)+','+(py+ny*off);
+  }
+  g.appendChild(el('path',{d:path, stroke:color, fill:'none','stroke-width':1.8}));
+  const label=el('text',{x:mid.x, y:mid.y-r-6, fill:color,'font-size':10.5,'text-anchor':'middle','font-weight':'bold','data-comp':c.id});
+  label.textContent=c.vrms+'V~ '+c.freq+'Hz';
+  g.appendChild(label);
+}
+
+function drawFuse(g,c,colorFn){
+  const [p1,p2]=c.pts;
+  const blown = !!c.blown;
+  const color = blown ? '#ef4444' : (colorFn ? colorFn(c) : '#fbbf24');
+  const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
+  const ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
+  const bodyLen=Math.min(len*0.5,34), start=(len-bodyLen)/2;
+  const leadA={x:p1.x+ux*start,y:p1.y+uy*start};
+  const leadB={x:p2.x-ux*start,y:p2.y-uy*start};
+  g.appendChild(el('line',{x1:p1.x,y1:p1.y,x2:leadA.x,y2:leadA.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  g.appendChild(el('line',{x1:leadB.x,y1:leadB.y,x2:p2.x,y2:p2.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+  // cuerpo del fusible: cápsula
+  const capPts=[
+    {x:leadA.x+nx*7,y:leadA.y+ny*7},{x:leadB.x+nx*7,y:leadB.y+ny*7},
+    {x:leadB.x-nx*7,y:leadB.y-ny*7},{x:leadA.x-nx*7,y:leadA.y-ny*7}
+  ];
+  const capPath='M'+capPts.map(p=>p.x+','+p.y).join(' L')+' Z';
+  g.appendChild(el('path',{d:capPath, fill:'rgba(251,191,36,.12)', stroke:color,'stroke-width':2,'data-comp':c.id}));
+  if(blown){
+    // línea quebrada indicando fusible fundido
+    const mid=midpoint([leadA,leadB]);
+    g.appendChild(el('line',{x1:mid.x-nx*8,y1:mid.y-ny*8,x2:mid.x+nx*8,y2:mid.y+ny*8,stroke:'#ef4444','stroke-width':2.5,'data-comp':c.id}));
+  } else {
+    g.appendChild(el('line',{x1:leadA.x,y1:leadA.y,x2:leadB.x,y2:leadB.y,stroke:color,'stroke-width':1.5,'data-comp':c.id}));
+  }
+  const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-14, fill:blown?'#ef4444':'#fbbf24','font-size':10.5,'text-anchor':'middle','font-weight':'bold','data-comp':c.id});
+  label.textContent = blown ? ('⚡'+c.rating+'A FUNDIDO') : (c.rating+'A');
+  g.appendChild(label);
+}
+
 function drawPendingMarkers(g){
   pending.forEach((p,i)=>{
     g.appendChild(el('circle',{cx:p.x,cy:p.y,r:6,fill:'none',stroke:'#a855f7','stroke-width':2}));
@@ -726,6 +805,8 @@ function renderAll(){
     else if(c.type==='led') drawDiode(gComp,c,colorFn,true);
     else if(c.type==='diode') drawDiode(gComp,c,colorFn,false);
     else if(c.type==='transistor') drawTransistor(gComp,c,colorFn);
+    else if(c.type==='acsource') drawACSource(gComp,c,colorFn);
+    else if(c.type==='fuse') drawFuse(gComp,c,colorFn);
     else if(c.type==='capacitor'){
       let pct=null;
       if(lastSim){
@@ -773,18 +854,25 @@ function renderAll(){
    SIMULACIÓN (DC estático, o transitorio si hay capacitores)
 ══════════════════════════════════════════════════════════════ */
 document.getElementById('btnSim').addEventListener('click', runSimulation);
-let simBatteries=[], playTimer=null;
+let simVSources=[], playTimer=null; // orden combinado: [...baterías DC, ...fuentes CA] — el índice debe coincidir con circuit.vsources
 
-function buildStaticCircuit(){
+function buildStaticCircuit(t){
   const pointsSet = new Set([pid(groundPoint)]);
   components.forEach(c=>c.pts.forEach(p=>pointsSet.add(pid(p))));
   const points = Array.from(pointsSet);
 
   const wires = components.filter(c=>c.type==='wire').map(c=>({a:pid(c.pts[0]), b:pid(c.pts[1])}));
   components.filter(c=>c.type==='switch' && c.closed).forEach(c=>wires.push({a:pid(c.pts[0]), b:pid(c.pts[1])}));
+  // fusibles intactos conducen como cable; los fundidos quedan totalmente excluidos (circuito abierto)
+  components.filter(c=>c.type==='fuse' && !c.blown).forEach(c=>wires.push({a:pid(c.pts[0]), b:pid(c.pts[1])}));
 
   const resistors = components.filter(c=>c.type==='resistor').map(c=>({a:pid(c.pts[0]),b:pid(c.pts[1]),r:c.value}));
-  const vsources = simBatteries.map(c=>({a:pid(c.pts[0]),b:pid(c.pts[1]),v:c.value}));
+  const vsources = simVSources.map(c=>{
+    if(c.type==='battery') return {a:pid(c.pts[0]),b:pid(c.pts[1]),v:c.value};
+    // fuente CA evaluada en el instante t (si no se da t, arranca en 0)
+    const tt = t||0;
+    return {a:pid(c.pts[0]),b:pid(c.pts[1]),v: c.vpeak*Math.sin(2*Math.PI*c.freq*tt)};
+  });
   const diodes = components.filter(c=>c.type==='diode'||c.type==='led').map(c=>{
     if(c.type==='led') return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-20, vt:0.052};
     return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-12, vt:0.02585};
@@ -805,12 +893,13 @@ function computeResultsForFrame(nodeVoltages, vsourceCurrents, capCurrents){
     if(c.type==='resistor') I=(va-vb)/c.value;
     else if(c.type==='wire') I=(va-vb)/WIRE_R;
     else if(c.type==='switch') I = c.closed ? (va-vb)/WIRE_R : 0;
+    else if(c.type==='fuse') I = c.blown ? 0 : (va-vb)/WIRE_R;
     else if(c.type==='led') { const vd=va-vb; I=1e-20*(Math.exp(vd/0.052)-1); }
     else if(c.type==='diode') { const vd=va-vb; I=1e-12*(Math.exp(vd/0.02585)-1); }
     else if(c.type==='capacitor'){ I = (capCurrents && capCurrents[c.id]!==undefined) ? capCurrents[c.id] : 0; }
-    else if(c.type==='battery'){
-      const k = simBatteries.indexOf(c);
-      I = vsourceCurrents ? -vsourceCurrents[k] : 0; // corriente convencional saliendo del + de la batería
+    else if(c.type==='battery' || c.type==='acsource'){
+      const k = simVSources.indexOf(c);
+      I = (vsourceCurrents && k>=0) ? -vsourceCurrents[k] : 0; // corriente convencional saliendo del borne +
     } else if(c.type==='transistor'){
       const vbe = (nodeVoltages[pid(c.pts[0])]??0) - (nodeVoltages[pid(c.pts[2])]??0);
       const ib = 1e-14*(Math.exp(vbe/0.02585)-1);
@@ -824,48 +913,84 @@ function computeResultsForFrame(nodeVoltages, vsourceCurrents, capCurrents){
 function runSimulation(){
   if(playTimer){ clearInterval(playTimer); playTimer=null; }
   if(!groundPoint){ showToast('⚠️ Coloca un punto de Tierra (referencia 0V) antes de simular'); return; }
-  simBatteries = components.filter(c=>c.type==='battery');
-  if(!simBatteries.length){ showToast('⚠️ Agrega al menos una Batería/fuente DC'); return; }
+  const batteries = components.filter(c=>c.type==='battery');
+  const acSources = components.filter(c=>c.type==='acsource');
+  simVSources = [...batteries, ...acSources];
+  if(!simVSources.length){ showToast('⚠️ Agrega al menos una Batería o Fuente CA'); return; }
+
+  // reiniciar fusibles al estado intacto al comenzar una nueva simulación
+  components.filter(c=>c.type==='fuse').forEach(c=>c.blown=false);
 
   const capacitors = components.filter(c=>c.type==='capacitor');
-  const base = buildStaticCircuit();
+  const fuses = components.filter(c=>c.type==='fuse');
 
-  if(!capacitors.length){
+  if(!capacitors.length && !acSources.length){
+    const base = buildStaticCircuit(0);
     let sim;
     try { sim = simulateCircuit(base); }
     catch(e){ showToast('⚠️ Error al simular: revisa las conexiones'); return; }
+
+    // revisar fusibles: si alguno excede su amperaje, se funde y se re-resuelve el circuito
+    let blownAny=false;
+    fuses.forEach(c=>{
+      const va=sim.nodeVoltages[pid(c.pts[0])]??0, vb=sim.nodeVoltages[pid(c.pts[1])]??0;
+      const I=Math.abs((va-vb)/WIRE_R);
+      if(I>c.rating){ c.blown=true; blownAny=true; }
+    });
+    if(blownAny){
+      const base2 = buildStaticCircuit(0);
+      try { sim = simulateCircuit(base2); } catch(e){}
+      showToast('🔥 ¡Un fusible se fundió! Corriente por encima de su capacidad');
+    }
+
     lastSim = { nodeVoltages: sim.nodeVoltages, results: computeResultsForFrame(sim.nodeVoltages, sim.vsourceCurrents, null) };
     renderAll();
-    showToast('✅ Simulación completa — toca un componente para ver detalles');
+    if(!blownAny) showToast('✅ Simulación completa — toca un componente para ver detalles');
     return;
   }
 
-  runTransient(base, capacitors);
+  runTransient(capacitors, acSources, fuses);
 }
 
-function runTransient(base, capacitors){
-  // estimar constante de tiempo tau = R * C para calibrar duración de la simulación
-  const resistorVals = base.resistors.map(r=>r.r);
+function runTransient(capacitors, acSources, fuses){
+  // duración: si hay CA, mostrar varios ciclos completos; si hay capacitores, cubrir su tiempo de carga (6*tau)
+  const baseProbe = buildStaticCircuit(0);
+  const resistorVals = baseProbe.resistors.map(r=>r.r);
   const Ravg = resistorVals.length ? resistorVals.reduce((a,b)=>a+b,0)/resistorVals.length : 1000;
-  const maxC = Math.max(...capacitors.map(c=>c.value));
-  let tau = Ravg*maxC;
-  if(!isFinite(tau) || tau<=0) tau=0.1;
-  const durationSim = Math.max(0.02, Math.min(30, 6*tau));
-  const steps = 70;
+  let durationSim = 0.02;
+  if(capacitors.length){
+    const maxC = Math.max(...capacitors.map(c=>c.value));
+    let tau = Ravg*maxC;
+    if(!isFinite(tau)||tau<=0) tau=0.1;
+    durationSim = Math.max(durationSim, 6*tau);
+  }
+  let minPeriod = Infinity;
+  if(acSources.length){
+    const minFreq = Math.min(...acSources.map(c=>c.freq));
+    minPeriod = 1/minFreq;
+    durationSim = Math.max(durationSim, 5*minPeriod);
+  }
+  durationSim = Math.min(30, durationSim);
+  let steps = acSources.length ? Math.min(500, Math.max(120, Math.round(durationSim/minPeriod*40))) : 70;
   const dt = durationSim/steps;
 
   const vprev = {}; capacitors.forEach(c=>vprev[c.id]=0);
   const frames = [];
 
   for(let step=1; step<=steps; step++){
-    const resistorsExt = base.resistors.concat(capacitors.map(c=>({
-      a:pid(c.pts[0]), b:pid(c.pts[1]), r: dt/c.value
-    })));
+    const t = step*dt;
+    const base = buildStaticCircuit(t);
+    // fusibles: usa el estado (fundido o no) determinado en el paso anterior
+    const fuseResistors = fuses.map(c=>({ a:pid(c.pts[0]), b:pid(c.pts[1]), r: c.blown ? 1e9 : WIRE_R }));
+    const capResistors = capacitors.map(c=>({ a:pid(c.pts[0]), b:pid(c.pts[1]), r: dt/c.value }));
     const isourcesExt = capacitors.map(c=>{
       const Geq = c.value/dt;
       return { a:pid(c.pts[0]), b:pid(c.pts[1]), i: -(Geq*vprev[c.id]) };
     });
-    const circuit = Object.assign({}, base, { resistors: resistorsExt, isources: isourcesExt });
+    const circuit = Object.assign({}, base, {
+      resistors: base.resistors.concat(capResistors, fuseResistors),
+      isources: isourcesExt
+    });
     let sim;
     try { sim = simulateCircuit(circuit); }
     catch(e){ showToast('⚠️ Error en la simulación transitoria'); return; }
@@ -877,17 +1002,25 @@ function runTransient(base, capacitors){
       capCurrents[c.id]=Geq*(vnow - vprev[c.id]);
       vprev[c.id]=vnow;
     });
+    // revisar si algún fusible debe fundirse para el siguiente paso
+    fuses.forEach(c=>{
+      if(c.blown) return;
+      const va=sim.nodeVoltages[pid(c.pts[0])]??0, vb=sim.nodeVoltages[pid(c.pts[1])]??0;
+      const I=Math.abs((va-vb)/WIRE_R);
+      if(I>c.rating) c.blown=true;
+    });
     frames.push({ nodeVoltages: sim.nodeVoltages, vsourceCurrents: sim.vsourceCurrents, capCurrents });
   }
 
-  showToast('🔋 Simulando carga/descarga del capacitor...');
-  playFrames(frames);
+  const anyBlown = fuses.some(c=>c.blown);
+  showToast(acSources.length ? '⚡ Simulando ciclo de CA / carga del filtro...' : '🔋 Simulando carga/descarga del capacitor...');
+  playFrames(frames, anyBlown);
 }
 
-function playFrames(frames){
+function playFrames(frames, anyBlown){
   let i=0;
-  const totalMs=2600;
-  const stepMs=Math.max(20, totalMs/frames.length);
+  const totalMs=2800;
+  const stepMs=Math.max(16, totalMs/frames.length);
   if(playTimer) clearInterval(playTimer);
   playTimer=setInterval(()=>{
     const f=frames[i];
@@ -896,7 +1029,7 @@ function playFrames(frames){
     i++;
     if(i>=frames.length){
       clearInterval(playTimer); playTimer=null;
-      showToast('✅ Simulación completa — vuelve a tocar Simular para repetir la carga');
+      showToast(anyBlown ? '🔥 ¡Un fusible se fundió durante la simulación!' : '✅ Simulación completa — vuelve a tocar Simular para repetir');
     }
   }, stepMs);
 }
@@ -917,13 +1050,22 @@ function trySelectComponent(e){
 const infoPanel=document.getElementById('infoPanel');
 function openInfo(c){
   selectedCompId=c.id;
-  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor',capacitor:'Capacitor'};
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible'};
   document.getElementById('infoTitle').textContent=names[c.type]||c.type;
   let rows='';
   if(c.type==='resistor') rows+=`<div class="info-row"><span>Valor</span><b>${formatOhms(c.value)}</b></div>`;
   if(c.type==='battery') rows+=`<div class="info-row"><span>Voltaje</span><b>${c.value} V</b></div>`;
   if(c.type==='transistor') rows+=`<div class="info-row"><span>Beta (hFE)</span><b>${c.beta}</b></div>`;
   if(c.type==='capacitor') rows+=`<div class="info-row"><span>Capacitancia</span><b>${formatFarads(c.value)}</b></div>`;
+  if(c.type==='acsource'){
+    rows+=`<div class="info-row"><span>Voltaje RMS</span><b>${c.vrms} V~</b></div>`;
+    rows+=`<div class="info-row"><span>Voltaje pico</span><b>${c.vpeak.toFixed(2)} V</b></div>`;
+    rows+=`<div class="info-row"><span>Frecuencia</span><b>${c.freq} Hz</b></div>`;
+  }
+  if(c.type==='fuse'){
+    rows+=`<div class="info-row"><span>Amperaje nominal</span><b>${c.rating} A</b></div>`;
+    rows+=`<div class="info-row"><span>Estado</span><b style="color:${c.blown?'#ef4444':'#10b981'}">${c.blown?'🔥 FUNDIDO':'✅ Intacto'}</b></div>`;
+  }
   if(lastSim){
     const r = lastSim.results.find(x=>x.compId===c.id);
     const va=lastSim.nodeVoltages[pid(c.pts[0])], vb=lastSim.nodeVoltages[pid(c.pts[c.pts.length-1])];
