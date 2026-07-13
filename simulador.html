@@ -30,8 +30,8 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .tbtn.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5}
 
 /* ══ CANVAS AREA ══ */
-.canvas-wrap{flex:1;overflow:auto;position:relative;background:var(--bg);-webkit-overflow-scrolling:touch}
-#svgCanvas{display:block;touch-action:manipulation;cursor:crosshair}
+.canvas-wrap{flex:1;overflow:auto;position:relative;background:var(--bg);-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+#svgCanvas{display:block;touch-action:pan-x pan-y;cursor:crosshair}
 .hint-bar{position:absolute;top:8px;left:8px;right:8px;background:rgba(17,28,44,.92);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:.74rem;color:var(--muted);z-index:20;pointer-events:none;backdrop-filter:blur(4px)}
 .hint-bar b{color:var(--accent)}
 
@@ -43,6 +43,18 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .info-row b{color:#fff}
 .info-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
 .info-del{margin-top:10px;width:100%;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fca5a5;border-radius:8px;padding:9px;font-size:.82rem;cursor:pointer}
+.info-actions{display:flex;gap:8px;margin-top:6px}
+.info-name-row{margin-bottom:8px}
+.info-name-row label{font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px}
+.info-name-row input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:#fff;padding:8px 10px;font-size:.85rem}
+.info-actions button{flex:1;border-radius:8px;padding:9px;font-size:.8rem;cursor:pointer;border:1px solid var(--border)}
+.info-edit{background:rgba(56,189,248,.14);border-color:rgba(56,189,248,.35)!important;color:#7dd3fc}
+.info-move{background:rgba(168,85,247,.14);border-color:rgba(168,85,247,.35)!important;color:#d8b4fe}
+.info-move.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff}
+
+/* ══ HANDLES DE MOVER/ROTAR ══ */
+.move-hint{position:absolute;top:8px;left:8px;right:8px;background:rgba(168,85,247,.18);border:1px solid rgba(168,85,247,.4);border-radius:8px;padding:7px 11px;font-size:.74rem;color:#e9d5ff;z-index:23;display:none;text-align:center}
+.move-hint.show{display:block}
 
 /* ══ MODAL VALOR ══ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:500;padding:20px}
@@ -57,8 +69,12 @@ a.back{margin-left:auto;color:var(--accent);text-decoration:none;font-size:.85re
 .btn-cancel{background:var(--card-bg);color:var(--muted);border:1px solid var(--border)!important}
 
 /* ══ FOTO OVERLAY ══ */
-.photo-controls{position:absolute;top:8px;right:8px;background:rgba(17,28,44,.95);border:1px solid var(--border);border-radius:10px;padding:9px 10px;z-index:20;display:none;flex-direction:column;gap:7px;font-size:.72rem;color:var(--muted);min-width:150px}
+.photo-controls{position:absolute;top:8px;right:8px;z-index:20;display:none;flex-direction:column;align-items:flex-end;gap:6px}
 .photo-controls.show{display:flex}
+.pc-toggle{width:38px;height:38px;border-radius:10px;background:rgba(17,28,44,.95);border:1px solid var(--border);color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pc-toggle.active{background:linear-gradient(135deg,var(--primary),var(--accent));border-color:var(--accent)}
+.pc-body{background:rgba(17,28,44,.97);border:1px solid var(--border);border-radius:10px;padding:9px 10px;display:none;flex-direction:column;gap:7px;font-size:.72rem;color:var(--muted);min-width:150px}
+.pc-body.show{display:flex}
 .photo-controls .pc-row{display:flex;align-items:center;gap:6px}
 .photo-controls input[type=range]{flex:1;width:auto}
 .photo-controls .pc-btns{display:flex;gap:5px}
@@ -115,6 +131,7 @@ input[type=file]{display:none}
   <div class="tbtn" data-tool="switch"><span class="ic">🔘</span>Interr.</div>
   <div class="tbtn" data-tool="capacitor"><span class="ic">‖</span>Capacit.</div>
   <div class="tbtn" data-tool="acsource"><span class="ic">⏦</span>Fuente CA</div>
+  <div class="tbtn" data-tool="bridge"><span class="ic">◇</span>Puente</div>
   <div class="tbtn" data-tool="fuse"><span class="ic">🧯</span>Fusible</div>
   <div class="tbtn" data-tool="ground"><span class="ic">⏚</span>Tierra</div>
   <div class="tbtn" id="btnPhoto"><span class="ic">📷</span>Foto ref.</div>
@@ -126,15 +143,20 @@ input[type=file]{display:none}
 <div class="canvas-wrap" id="canvasWrap">
   <div class="hint-bar" id="hintBar">Toca una herramienta abajo para empezar. Luego toca el lienzo donde quieras colocar la pieza.</div>
   <div class="cancel-pending" id="cancelPending">✕ Cancelar punto actual</div>
+  <div class="move-hint" id="moveHint">✋ Arrastra los círculos para mover cada extremo (como rotar) o el centro morado para mover toda la pieza. Toca "✓ Listo" cuando termines.</div>
   <div class="photo-hint" id="photoHint">📷 Modo ajustar foto: arrastra para mover, usa +/− para acercar. Toca "Listo" cuando esté bien ubicada.</div>
   <div class="photo-controls" id="photoControls">
-    <div class="pc-row"><span>Opacidad</span><input type="range" id="photoOpacity" min="10" max="95" value="45"></div>
-    <div class="pc-btns">
-      <button class="pc-mode" id="btnPhotoAdjust">✥ Ajustar</button>
-      <button id="btnPhotoZoomOut">−</button>
-      <button id="btnPhotoZoomIn">+</button>
+    <div class="pc-toggle" id="pcToggle">📷</div>
+    <div class="pc-body" id="pcBody">
+      <div class="pc-row"><span>Opacidad</span><input type="range" id="photoOpacity" min="10" max="95" value="45"></div>
+      <div class="pc-btns">
+        <button class="pc-mode" id="btnPhotoAdjust">✥ Ajustar</button>
+        <button id="btnPhotoZoomOut">−</button>
+        <button id="btnPhotoZoomIn">+</button>
+      </div>
+      <button id="btnPhotoCenter">🎯 Recentrar foto</button>
+      <button class="pc-danger" id="btnPhotoRemove">🗑️ Quitar foto</button>
     </div>
-    <button class="pc-danger" id="btnPhotoRemove">🗑️ Quitar foto</button>
   </div>
   <div class="legend" id="legend">
     <span>Bajo V</span><div class="bar"></div><span>Alto V</span>
@@ -150,7 +172,15 @@ input[type=file]{display:none}
 <div class="info-panel" id="infoPanel">
   <button class="info-close" id="infoClose">✕</button>
   <h3 id="infoTitle">Componente</h3>
+  <div class="info-name-row">
+    <label>Nombre / etiqueta</label>
+    <input type="text" id="infoNameInput" placeholder="Ej: C1, filtro principal...">
+  </div>
   <div id="infoBody"></div>
+  <div class="info-actions">
+    <button class="info-edit" id="infoEdit">✏️ Editar valor</button>
+    <button class="info-move" id="infoMove">✋ Mover / Rotar</button>
+  </div>
   <button class="info-del" id="infoDel">🗑️ Eliminar componente</button>
 </div>
 
@@ -313,8 +343,41 @@ function setZoom(z){
 document.getElementById('btnZoomIn').addEventListener('click', ()=>setZoom(zoomLevel+0.2));
 document.getElementById('btnZoomOut').addEventListener('click', ()=>setZoom(zoomLevel-0.2));
 
+/* ══ PINCH TO ZOOM (2 dedos) ══ */
+let pinchState=null;
+function touchDist(t1,t2){ return Math.hypot(t1.clientX-t2.clientX, t1.clientY-t2.clientY); }
+canvasWrap.addEventListener('touchstart', (e)=>{
+  if(e.touches.length===2){
+    const rect=canvasWrap.getBoundingClientRect();
+    pinchState = {
+      startDist: touchDist(e.touches[0], e.touches[1]),
+      startZoom: zoomLevel,
+      midClientX: (e.touches[0].clientX+e.touches[1].clientX)/2,
+      midClientY: (e.touches[0].clientY+e.touches[1].clientY)/2,
+      startScrollLeft: canvasWrap.scrollLeft,
+      startScrollTop: canvasWrap.scrollTop,
+      rectLeft: rect.left, rectTop: rect.top
+    };
+  }
+}, {passive:true});
+canvasWrap.addEventListener('touchmove', (e)=>{
+  if(pinchState && e.touches.length===2){
+    e.preventDefault();
+    const d = touchDist(e.touches[0], e.touches[1]);
+    const scale = d/pinchState.startDist;
+    setZoom(pinchState.startZoom*scale);
+    const factor = zoomLevel/pinchState.startZoom;
+    const originX = pinchState.midClientX - pinchState.rectLeft + pinchState.startScrollLeft;
+    const originY = pinchState.midClientY - pinchState.rectTop + pinchState.startScrollTop;
+    canvasWrap.scrollLeft = originX*factor - (pinchState.midClientX-pinchState.rectLeft);
+    canvasWrap.scrollTop = originY*factor - (pinchState.midClientY-pinchState.rectTop);
+  }
+}, {passive:false});
+canvasWrap.addEventListener('touchend', (e)=>{ if(e.touches.length<2) pinchState=null; }, {passive:true});
+canvasWrap.addEventListener('touchcancel', ()=>{ pinchState=null; }, {passive:true});
+
 /* ══ TOOLBAR ══ */
-const TOOL_STEPS={wire:2,resistor:2,battery:2,led:2,diode:2,switch:2,capacitor:2,acsource:2,fuse:2,transistor:3,ground:1};
+const TOOL_STEPS={wire:2,resistor:2,battery:2,led:2,diode:2,switch:2,capacitor:2,acsource:2,fuse:2,transistor:3,bridge:1,ground:1};
 document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const t = btn.dataset.tool;
@@ -328,7 +391,7 @@ document.querySelectorAll('.tbtn[data-tool]').forEach(btn=>{
 function updateHint(){
   const hb=document.getElementById('hintBar');
   const cp=document.getElementById('cancelPending');
-  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería',led:'LED',diode:'Diodo',transistor:'Transistor (Base→Colector→Emisor)',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible',ground:'Tierra'};
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería',led:'LED',diode:'Diodo',transistor:'Transistor (Base→Colector→Emisor)',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible',bridge:'Puente Rectificador',ground:'Tierra'};
   if(!tool){
     hb.innerHTML='👆 Toca una herramienta abajo para empezar, o toca una pieza ya colocada para ver sus datos.';
     cp.classList.remove('show');
@@ -341,6 +404,8 @@ function updateHint(){
   } else if(tool==='transistor'){
     const labels=['Base','Colector','Emisor'];
     hb.innerHTML=`<b>${names[tool]}</b> — Paso ${step}/3: toca el punto de <b>${labels[pending.length]||''}</b>`;
+  } else if(tool==='bridge'){
+    hb.innerHTML=`<b>${names[tool]}</b>: toca el centro donde quieras colocarlo. Sale con forma y tamaño estándar — luego puedes ajustarlo.`;
   } else {
     const labels = step===1 ? 'punto inicial' : 'punto final';
     hb.innerHTML=`<b>${names[tool]}</b> — Paso ${step}/${total}: toca el ${labels}`;
@@ -351,6 +416,7 @@ document.getElementById('cancelPending').addEventListener('click', ()=>{ pending
 
 svg.addEventListener('click', (e)=>{
   if(photoAdjustMode) return; // en modo ajuste de foto, los toques mueven la foto, no colocan piezas
+  if(movingCompId && e.target.closest('[data-handle]')) return; // ignorar el "click" que sigue a arrastrar un handle
   if(!tool) { trySelectComponent(e); return; }
   const p = svgPoint(e);
   if(tool==='ground'){
@@ -369,6 +435,19 @@ svg.addEventListener('click', (e)=>{
       showToast('✅ Transistor colocado — toca Simular cuando termines el circuito');
     }
     renderAll(); updateHint();
+    return;
+  }
+  if(tool==='bridge'){
+    const size=3*GRID;
+    const c=addComponent('bridge', [
+      {x:p.x, y:p.y-size},   // AC1 (arriba)
+      {x:p.x, y:p.y+size},   // AC2 (abajo)
+      {x:p.x+size, y:p.y},   // DC+ (derecha)
+      {x:p.x-size, y:p.y}    // DC- (izquierda)
+    ], {size});
+    undoStack.push({type:'component', id:c.id});
+    showToast('✅ Puente colocado — usa "Editar valor" para cambiar su tamaño, o arrastra sus puntas para ajustarlo');
+    renderAll(); saveState();
     return;
   }
   pending.push(p);
@@ -408,20 +487,26 @@ svg.addEventListener('click', (e)=>{
         });
       });
     } else {
-      const titles={resistor:'⚡ Elige la resistencia', battery:'🔋 Elige el voltaje (1er punto tocado = borne +)', capacitor:'‖ Elige la capacitancia'};
+      const titles={resistor:'⚡ Elige la resistencia', battery:'🔋 Elige el voltaje (1er punto tocado = borne +)', capacitor:'‖ Elige la capacitancia (1er punto = borne +)'};
       const defaultVals={resistor:'1000',battery:'9',capacitor:'100'};
       openValueModal(titles[tool], tool, defaultVals[tool], (val)=>{
         let num = parseFloat(val);
-        let c;
         if(tool==='capacitor'){
           if(!num || num<=0) num=100;
-          c=addComponent(tool,[p1,p2],{value:num*1e-6});
+          const valueF = num*1e-6;
+          openValueModal('⚡ Elige el voltaje nominal del capacitor', 'capvolt', '25', (vval)=>{
+            const vrating = parseFloat(vval)||25;
+            const c=addComponent(tool,[p1,p2],{value:valueF, vrating});
+            undoStack.push({type:'component', id:c.id});
+            renderAll(); saveState();
+            showToast('✅ Componente colocado');
+          });
         } else {
-          c=addComponent(tool,[p1,p2],{value:num||(tool==='resistor'?1000:9)});
+          const c=addComponent(tool,[p1,p2],{value:num||(tool==='resistor'?1000:9)});
+          undoStack.push({type:'component', id:c.id});
+          renderAll(); saveState();
+          showToast('✅ Componente colocado');
         }
-        undoStack.push({type:'component', id:c.id});
-        renderAll(); saveState();
-        showToast('✅ Componente colocado');
       });
     }
   } else {
@@ -458,8 +543,16 @@ document.getElementById('btnUndo').addEventListener('click', ()=>{
   showToast('↩️ Deshecho');
 });
 
+const NAME_PREFIX={resistor:'R',capacitor:'C',battery:'V',led:'LED',diode:'D',transistor:'Q',switch:'SW',acsource:'AC',fuse:'F',bridge:'BR'};
+let typeCounters={};
+function nextName(type){
+  const pre=NAME_PREFIX[type];
+  if(!pre) return '';
+  typeCounters[pre]=(typeCounters[pre]||0)+1;
+  return pre+typeCounters[pre];
+}
 function addComponent(type, pts, extra){
-  const c = Object.assign({ id:'c'+(compCounter++), type, pts }, extra||{});
+  const c = Object.assign({ id:'c'+(compCounter++), type, pts, name: nextName(type) }, extra||{});
   components.push(c);
   return c;
 }
@@ -477,7 +570,10 @@ const PRESETS={
   capacitor:[['1µF','1'],['10µF','10'],['47µF','47'],['100µF','100'],['220µF','220'],['470µF','470'],['1000µF','1000'],['4700µF','4700']],
   fuse:[['0.5A','0.5'],['1A','1'],['2A','2'],['3A','3'],['5A','5'],['8A','8'],['10A','10'],['15A','15']],
   acsource:[['9V','9'],['12V','12'],['15V','15'],['18V','18'],['24V','24'],['25V','25'],['30V','30'],['110V','110'],['220V','220']],
-  freq:[['60Hz (América)','60'],['50Hz (Europa/Asia)','50']]
+  freq:[['60Hz (América)','60'],['50Hz (Europa/Asia)','50']],
+  capvolt:[['6.3V','6.3'],['10V','10'],['16V','16'],['25V','25'],['35V','35'],['50V','50'],['63V','63'],['100V','100'],['400V','400']],
+  beta:[['100','100'],['150','150'],['200','200'],['300','300']],
+  bridgesize:[['Pequeño','56'],['Mediano','84'],['Grande','112'],['Muy grande','168']]
 };
 
 function openValueModal(title, tool, def, cb){
@@ -552,6 +648,10 @@ function drawWireLike(g, c, colorFn){
     const mid=midpoint([p1,p2]);
     const circle=el('circle',{cx:mid.x,cy:mid.y,r:7,fill: c.closed?'#10b981':'#ef4444', stroke:'#0b131f','stroke-width':2,'data-comp':c.id});
     g.appendChild(circle);
+    if(c.name){
+      const t=el('text',{x:mid.x,y:mid.y-13,fill:'#a0aec0','font-size':10,'text-anchor':'middle'});
+      t.textContent=c.name; g.appendChild(t);
+    }
   }
 }
 
@@ -579,7 +679,7 @@ function drawResistor(g,c,colorFn){
   g.appendChild(el('path',{d:path, stroke:color, fill:'none','stroke-width':3,'stroke-linejoin':'round','data-comp':c.id}));
   const mid=midpoint([p1,p2]);
   const label=el('text',{x:mid.x, y:mid.y-12, fill:'#fcd34d','font-size':11,'text-anchor':'middle','data-comp':c.id});
-  label.textContent = formatOhms(c.value);
+  label.textContent = (c.name?c.name+' · ':'') + formatOhms(c.value);
   g.appendChild(label);
 }
 function formatOhms(v){ if(v>=1e6) return (v/1e6)+'MΩ'; if(v>=1000) return (v/1000)+'kΩ'; return v+'Ω'; }
@@ -590,9 +690,9 @@ function formatFarads(v){ // v en Faradios
   return (v*1e12)+'pF';
 }
 
-function drawCapacitor(g,c,colorFn,chargePct){
+function drawCapacitor(g,c,colorFn,chargePct,overVoltage){
   const [p1,p2]=c.pts;
-  const color = colorFn ? colorFn(c) : '#67e8f9';
+  const color = overVoltage ? '#ef4444' : (colorFn ? colorFn(c) : '#67e8f9');
   const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy)||1;
   const ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
   const midA={x:p1.x+ux*(len/2-6), y:p1.y+uy*(len/2-6)};
@@ -602,15 +702,20 @@ function drawCapacitor(g,c,colorFn,chargePct){
   // dos placas paralelas
   g.appendChild(el('line',{x1:midA.x+nx*13,y1:midA.y+ny*13,x2:midA.x-nx*13,y2:midA.y-ny*13,stroke:'#fff','stroke-width':3,'data-comp':c.id}));
   g.appendChild(el('line',{x1:midB.x+nx*13,y1:midB.y+ny*13,x2:midB.x-nx*13,y2:midB.y-ny*13,stroke:'#fff','stroke-width':3,'data-comp':c.id}));
+  // polaridad: el primer punto tocado (p1) es el borne +, el segundo (p2) es el −
+  const plusPos={x:p1.x+ux*(len/2-20), y:p1.y+uy*(len/2-20)};
+  const minusPos={x:p2.x-ux*(len/2-20), y:p2.y-uy*(len/2-20)};
+  const plusT=el('text',{x:plusPos.x,y:plusPos.y+4,fill:'#f87171','font-size':13,'text-anchor':'middle','font-weight':'bold'}); plusT.textContent='+'; g.appendChild(plusT);
+  const minusT=el('text',{x:minusPos.x,y:minusPos.y+4,fill:'#60a5fa','font-size':13,'text-anchor':'middle','font-weight':'bold'}); minusT.textContent='−'; g.appendChild(minusT);
   // barra de nivel de carga (0-100%) junto al símbolo
   if(chargePct!==undefined && chargePct!==null){
     const pct=Math.max(0,Math.min(1,chargePct));
     const barLen=26, ox=midpoint([p1,p2]).x + nx*20, oy=midpoint([p1,p2]).y + ny*20;
     g.appendChild(el('rect',{x:ox-barLen/2,y:oy-3,width:barLen,height:6,rx:3,fill:'#0b131f',stroke:'#22344d','stroke-width':1}));
-    g.appendChild(el('rect',{x:ox-barLen/2,y:oy-3,width:barLen*pct,height:6,rx:3,fill:'#22d3ee'}));
+    g.appendChild(el('rect',{x:ox-barLen/2,y:oy-3,width:barLen*pct,height:6,rx:3,fill: overVoltage?'#ef4444':'#22d3ee'}));
   }
-  const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-16, fill:'#67e8f9','font-size':11,'text-anchor':'middle','data-comp':c.id});
-  label.textContent = formatFarads(c.value);
+  const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-16, fill: overVoltage?'#ef4444':'#67e8f9','font-size':11,'text-anchor':'middle','data-comp':c.id});
+  label.textContent = (c.name?c.name+' · ':'') + formatFarads(c.value) + (c.vrating?('/'+c.vrating+'V'):'') + (overVoltage?' ⚠️':'');
   g.appendChild(label);
 }
 
@@ -628,7 +733,7 @@ function drawBattery(g,c,colorFn){
   // placa corta (-) cerca de p2
   g.appendChild(el('line',{x1:midB.x+nx*7,y1:midB.y+ny*7,x2:midB.x-nx*7,y2:midB.y-ny*7,stroke:'#fff','stroke-width':6,'data-comp':c.id}));
   const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-14, fill:'#86efac','font-size':11,'text-anchor':'middle','data-comp':c.id});
-  label.textContent=c.value+'V';
+  label.textContent=(c.name?c.name+' · ':'')+c.value+'V';
   g.appendChild(label);
   const plus=el('text',{x:p1.x+ (p1.x<p2.x?-10:10), y:p1.y+4, fill:'#fff','font-size':11,'text-anchor':'middle'});
   plus.textContent='+';
@@ -656,6 +761,11 @@ function drawDiode(g,c,colorFn,isLed){
       g.appendChild(el('line',{x1:ox,y1:oy,x2:ox+8,y2:oy-8,stroke:'#fde047','stroke-width':1.5}));
     }
   }
+  if(c.name){
+    const mid=midpoint([p1,p2]);
+    const t=el('text',{x:mid.x,y:mid.y-14,fill:isLed?'#fde047':'#94a3b8','font-size':10,'text-anchor':'middle'});
+    t.textContent=c.name; g.appendChild(t);
+  }
 }
 
 function drawTransistor(g,c,colorFn){
@@ -670,7 +780,50 @@ function drawTransistor(g,c,colorFn){
   });
   g.appendChild(el('circle',{cx:center.x,cy:center.y,r:14,fill:'#1a273a',stroke:color,'stroke-width':2,'data-comp':c.id}));
   const label=el('text',{x:center.x,y:center.y+4,fill:color,'font-size':10,'text-anchor':'middle','font-weight':'bold'});
-  label.textContent='NPN'; g.appendChild(label);
+  label.textContent=c.name||'NPN'; g.appendChild(label);
+}
+
+function segmentIntersection(p1,p2,p3,p4){
+  const d1x=p2.x-p1.x, d1y=p2.y-p1.y;
+  const d2x=p4.x-p3.x, d2y=p4.y-p3.y;
+  const denom = d1x*d2y - d1y*d2x;
+  if(Math.abs(denom)<1e-9) return null; // paralelas, no hay cruce único
+  const t = ((p3.x-p1.x)*d2y - (p3.y-p1.y)*d2x)/denom;
+  const u = ((p3.x-p1.x)*d1y - (p3.y-p1.y)*d1x)/denom;
+  const eps=0.02;
+  if(t>eps && t<1-eps && u>eps && u<1-eps) return { x:p1.x+t*d1x, y:p1.y+t*d1y };
+  return null;
+}
+
+function drawJunctionsAndCrossings(g){
+  // puntos de unión reales: donde 3 o más terminales de piezas coinciden en el mismo punto
+  const countMap={};
+  components.forEach(c=>c.pts.forEach(p=>{ const k=pid(p); countMap[k]=(countMap[k]||0)+1; }));
+  if(groundPoint){ const k=pid(groundPoint); countMap[k]=(countMap[k]||0)+1; }
+  Object.keys(countMap).forEach(k=>{
+    if(countMap[k]>=3){
+      const [x,y]=k.split(',').map(Number);
+      g.appendChild(el('circle',{cx:x,cy:y,r:4.5,fill:'#e2e8f0'}));
+    }
+  });
+
+  // cables que se cruzan visualmente SIN conectarse: se dibuja un "salto" para dejarlo claro
+  const wires = components.filter(c=>c.type==='wire');
+  for(let i=0;i<wires.length;i++){
+    for(let j=i+1;j<wires.length;j++){
+      const w1=wires[i], w2=wires[j];
+      const shares = w1.pts.some(p1=>w2.pts.some(p2=>p1.x===p2.x&&p1.y===p2.y));
+      if(shares) continue;
+      const ip = segmentIntersection(w1.pts[0], w1.pts[1], w2.pts[0], w2.pts[1]);
+      if(!ip) continue;
+      const dx=w2.pts[1].x-w2.pts[0].x, dy=w2.pts[1].y-w2.pts[0].y, len=Math.hypot(dx,dy)||1;
+      const ux=dx/len, uy=dy/len, nx=-uy, ny=ux, r=7;
+      const a1={x:ip.x-ux*r, y:ip.y-uy*r}, a2={x:ip.x+ux*r, y:ip.y+uy*r};
+      const path=`M${a1.x},${a1.y} Q${ip.x+nx*10},${ip.y+ny*10} ${a2.x},${a2.y}`;
+      g.appendChild(el('path',{d:path, stroke:'#0b131f', 'stroke-width':6, fill:'none'}));
+      g.appendChild(el('path',{d:path, stroke:'#7dd3fc', 'stroke-width':2.5, fill:'none'}));
+    }
+  }
 }
 
 function drawGround(g,p){
@@ -703,7 +856,7 @@ function drawACSource(g,c,colorFn){
   }
   g.appendChild(el('path',{d:path, stroke:color, fill:'none','stroke-width':1.8}));
   const label=el('text',{x:mid.x, y:mid.y-r-6, fill:color,'font-size':10.5,'text-anchor':'middle','font-weight':'bold','data-comp':c.id});
-  label.textContent=c.vrms+'V~ '+c.freq+'Hz';
+  label.textContent=(c.name?c.name+' · ':'')+c.vrms+'V~ '+c.freq+'Hz';
   g.appendChild(label);
 }
 
@@ -733,15 +886,54 @@ function drawFuse(g,c,colorFn){
     g.appendChild(el('line',{x1:leadA.x,y1:leadA.y,x2:leadB.x,y2:leadB.y,stroke:color,'stroke-width':1.5,'data-comp':c.id}));
   }
   const label=el('text',{x:midpoint([p1,p2]).x, y:midpoint([p1,p2]).y-14, fill:blown?'#ef4444':'#fbbf24','font-size':10.5,'text-anchor':'middle','font-weight':'bold','data-comp':c.id});
-  label.textContent = blown ? ('⚡'+c.rating+'A FUNDIDO') : (c.rating+'A');
+  label.textContent = (c.name?c.name+' · ':'') + (blown ? ('⚡'+c.rating+'A FUNDIDO') : (c.rating+'A'));
   g.appendChild(label);
+}
+
+function diodeOnEdge(g, pFrom, pTo, color){
+  // dibuja el símbolo de un diodo (triángulo+barra) a lo largo del borde entre dos vértices del diamante
+  const dx=pTo.x-pFrom.x, dy=pTo.y-pFrom.y, len=Math.hypot(dx,dy)||1;
+  const ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
+  const bodyLen=Math.min(len*0.7, 16), start=(len-bodyLen)/2;
+  const leadA={x:pFrom.x+ux*start, y:pFrom.y+uy*start};
+  const leadB={x:pTo.x-ux*start, y:pTo.y-uy*start};
+  g.appendChild(el('line',{x1:pFrom.x,y1:pFrom.y,x2:leadA.x,y2:leadA.y,stroke:color,'stroke-width':2.5}));
+  g.appendChild(el('line',{x1:leadB.x,y1:leadB.y,x2:pTo.x,y2:pTo.y,stroke:color,'stroke-width':2.5}));
+  const t1={x:leadA.x+nx*6,y:leadA.y+ny*6}, t2={x:leadA.x-nx*6,y:leadA.y-ny*6};
+  g.appendChild(el('path',{d:'M'+t1.x+','+t1.y+' L'+t2.x+','+t2.y+' L'+leadB.x+','+leadB.y+' Z', fill:color, stroke:color}));
+  g.appendChild(el('line',{x1:leadB.x+nx*6,y1:leadB.y+ny*6,x2:leadB.x-nx*6,y2:leadB.y-ny*6,stroke:color,'stroke-width':2.5}));
+}
+
+function drawBridge(g,c,colorFn){
+  // pts: [AC1, AC2, DC+, DC-] — topología interna siempre correcta sin importar dónde se toquen los puntos.
+  // Se dibuja como el diagrama clásico: arriba/abajo = CA (~), derecha = DC+, izquierda = DC-
+  const [pac1,pac2,pdp,pdn]=c.pts;
+  const center=midpoint([pac1,pac2,pdp,pdn]);
+  const color=colorFn?colorFn(c):'#94a3b8';
+  const r=22;
+  const vTop={x:center.x,y:center.y-r}, vRight={x:center.x+r,y:center.y}, vBottom={x:center.x,y:center.y+r}, vLeft={x:center.x-r,y:center.y};
+  [[vTop,pac1,'~'],[vBottom,pac2,'~'],[vRight,pdp,'+'],[vLeft,pdn,'−']].forEach(([v,p,lbl])=>{
+    g.appendChild(el('line',{x1:v.x,y1:v.y,x2:p.x,y2:p.y,stroke:color,'stroke-width':3,'data-comp':c.id}));
+    const lx=p.x+(p.x<center.x?-11:11), ly=p.y+(p.y<center.y?-7:13);
+    const t=el('text',{x:lx,y:ly,fill: lbl==='+' ? '#f87171' : (lbl==='−' ? '#60a5fa' : '#e2e8f0'), 'font-size':11,'text-anchor':'middle','font-weight':'bold'});
+    t.textContent=lbl; g.appendChild(t);
+  });
+  // los 4 diodos, en la misma disposición que un diagrama de puente rectificador clásico
+  diodeOnEdge(g, vTop, vRight, color);    // AC1 -> DC+
+  diodeOnEdge(g, vBottom, vRight, color); // AC2 -> DC+
+  diodeOnEdge(g, vLeft, vTop, color);     // DC- -> AC1
+  diodeOnEdge(g, vLeft, vBottom, color);  // DC- -> AC2
+  if(c.name){
+    const t=el('text',{x:center.x,y:center.y-r-13,fill:color,'font-size':10.5,'text-anchor':'middle','font-weight':'bold'});
+    t.textContent=c.name; g.appendChild(t);
+  }
 }
 
 function drawPendingMarkers(g){
   pending.forEach((p,i)=>{
     g.appendChild(el('circle',{cx:p.x,cy:p.y,r:6,fill:'none',stroke:'#a855f7','stroke-width':2}));
     const t=el('text',{x:p.x,y:p.y-10,fill:'#a855f7','font-size':10,'text-anchor':'middle'});
-    t.textContent = tool==='transistor' ? ['B','C','E'][i] : (i+1);
+    t.textContent = tool==='transistor' ? ['B','C','E'][i] : (tool==='bridge' ? ['~','~','+','−'][i] : (i+1));
     g.appendChild(t);
   });
   // vista previa: línea punteada desde el último punto hasta donde está el dedo/cursor ahora
@@ -807,18 +999,22 @@ function renderAll(){
     else if(c.type==='transistor') drawTransistor(gComp,c,colorFn);
     else if(c.type==='acsource') drawACSource(gComp,c,colorFn);
     else if(c.type==='fuse') drawFuse(gComp,c,colorFn);
+    else if(c.type==='bridge') drawBridge(gComp,c,colorFn);
     else if(c.type==='capacitor'){
-      let pct=null;
+      let pct=null, overVoltage=false;
       if(lastSim){
         const va=lastSim.nodeVoltages[pid(c.pts[0])]??0, vb=lastSim.nodeVoltages[pid(c.pts[1])]??0;
         const range=(vmax-vmin)||1;
         pct=Math.abs(va-vb)/range;
+        if(c.vrating && Math.abs(va-vb)>c.vrating) overVoltage=true;
       }
-      drawCapacitor(gComp,c,colorFn,pct);
+      drawCapacitor(gComp,c,colorFn,pct,overVoltage);
     }
   });
   svg.appendChild(gComp);
   drawGround(gComp, groundPoint);
+
+  const gJunc=el('g',{}); drawJunctionsAndCrossings(gJunc); svg.appendChild(gJunc);
 
   // etiquetas de voltaje en nodos + animación de corriente
   if(lastSim){
@@ -848,6 +1044,7 @@ function renderAll(){
   }
 
   const gPend=el('g',{}); drawPendingMarkers(gPend); svg.appendChild(gPend);
+  const gMove=el('g',{}); drawMoveHandles(gMove); svg.appendChild(gMove);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -876,6 +1073,16 @@ function buildStaticCircuit(t){
   const diodes = components.filter(c=>c.type==='diode'||c.type==='led').map(c=>{
     if(c.type==='led') return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-20, vt:0.052};
     return {a:pid(c.pts[0]), b:pid(c.pts[1]), is:1e-12, vt:0.02585};
+  });
+  // puente rectificador: 4 diodos internos con topología fija y correcta (AC1,AC2 -> DC+ ; DC- -> AC1,AC2)
+  components.filter(c=>c.type==='bridge').forEach(c=>{
+    const [ac1,ac2,dp,dn]=c.pts.map(pid);
+    diodes.push(
+      {a:ac1, b:dp, is:1e-9, vt:0.0259},
+      {a:ac2, b:dp, is:1e-9, vt:0.0259},
+      {a:dn, b:ac1, is:1e-9, vt:0.0259},
+      {a:dn, b:ac2, is:1e-9, vt:0.0259}
+    );
   });
   const transistors = components.filter(c=>c.type==='transistor').map(c=>({
     b:pid(c.pts[0]), c:pid(c.pts[1]), e:pid(c.pts[2]), beta:c.beta||150, is:1e-14, vt:0.02585
@@ -945,7 +1152,9 @@ function runSimulation(){
 
     lastSim = { nodeVoltages: sim.nodeVoltages, results: computeResultsForFrame(sim.nodeVoltages, sim.vsourceCurrents, null) };
     renderAll();
-    if(!blownAny) showToast('✅ Simulación completa — toca un componente para ver detalles');
+    const overCap = checkCapacitorOvervoltage();
+    if(overCap) showToast('⚠️ ¡Un capacitor superó su voltaje nominal! Podría dañarse o explotar');
+    else if(!blownAny) showToast('✅ Simulación completa — toca un componente para ver detalles');
     return;
   }
 
@@ -1017,6 +1226,15 @@ function runTransient(capacitors, acSources, fuses){
   playFrames(frames, anyBlown);
 }
 
+function checkCapacitorOvervoltage(){
+  if(!lastSim) return false;
+  return components.some(c=>{
+    if(c.type!=='capacitor' || !c.vrating) return false;
+    const va=lastSim.nodeVoltages[pid(c.pts[0])]??0, vb=lastSim.nodeVoltages[pid(c.pts[1])]??0;
+    return Math.abs(va-vb) > c.vrating;
+  });
+}
+
 function playFrames(frames, anyBlown){
   let i=0;
   const totalMs=2800;
@@ -1029,7 +1247,9 @@ function playFrames(frames, anyBlown){
     i++;
     if(i>=frames.length){
       clearInterval(playTimer); playTimer=null;
-      showToast(anyBlown ? '🔥 ¡Un fusible se fundió durante la simulación!' : '✅ Simulación completa — vuelve a tocar Simular para repetir');
+      const overCap = checkCapacitorOvervoltage();
+      if(overCap) showToast('⚠️ ¡Un capacitor superó su voltaje nominal! Podría dañarse o explotar');
+      else showToast(anyBlown ? '🔥 ¡Un fusible se fundió durante la simulación!' : '✅ Simulación completa — vuelve a tocar Simular para repetir');
     }
   }, stepMs);
 }
@@ -1050,13 +1270,19 @@ function trySelectComponent(e){
 const infoPanel=document.getElementById('infoPanel');
 function openInfo(c){
   selectedCompId=c.id;
-  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible'};
+  const names={wire:'Cable',resistor:'Resistencia',battery:'Batería / Fuente DC',led:'LED',diode:'Diodo',transistor:'Transistor NPN',switch:'Interruptor',capacitor:'Capacitor',acsource:'Fuente de CA',fuse:'Fusible',bridge:'Puente Rectificador'};
   document.getElementById('infoTitle').textContent=names[c.type]||c.type;
+  const nameRow=document.querySelector('.info-name-row');
+  if(c.type==='wire'){ nameRow.style.display='none'; }
+  else { nameRow.style.display='block'; document.getElementById('infoNameInput').value = c.name||''; }
   let rows='';
   if(c.type==='resistor') rows+=`<div class="info-row"><span>Valor</span><b>${formatOhms(c.value)}</b></div>`;
   if(c.type==='battery') rows+=`<div class="info-row"><span>Voltaje</span><b>${c.value} V</b></div>`;
   if(c.type==='transistor') rows+=`<div class="info-row"><span>Beta (hFE)</span><b>${c.beta}</b></div>`;
-  if(c.type==='capacitor') rows+=`<div class="info-row"><span>Capacitancia</span><b>${formatFarads(c.value)}</b></div>`;
+  if(c.type==='capacitor'){
+    rows+=`<div class="info-row"><span>Capacitancia</span><b>${formatFarads(c.value)}</b></div>`;
+    rows+=`<div class="info-row"><span>Voltaje nominal</span><b>${c.vrating||'—'} V</b></div>`;
+  }
   if(c.type==='acsource'){
     rows+=`<div class="info-row"><span>Voltaje RMS</span><b>${c.vrms} V~</b></div>`;
     rows+=`<div class="info-row"><span>Voltaje pico</span><b>${c.vpeak.toFixed(2)} V</b></div>`;
@@ -1066,7 +1292,15 @@ function openInfo(c){
     rows+=`<div class="info-row"><span>Amperaje nominal</span><b>${c.rating} A</b></div>`;
     rows+=`<div class="info-row"><span>Estado</span><b style="color:${c.blown?'#ef4444':'#10b981'}">${c.blown?'🔥 FUNDIDO':'✅ Intacto'}</b></div>`;
   }
-  if(lastSim){
+  if(c.type==='bridge' && lastSim){
+    const labels=['CA (1)','CA (2)','DC (+)','DC (−)'];
+    c.pts.forEach((p,i)=>{
+      const v=lastSim.nodeVoltages[pid(p)];
+      if(v!==undefined) rows+=`<div class="info-row"><span>${labels[i]}</span><b>${v.toFixed(3)} V</b></div>`;
+    });
+    const vout = (lastSim.nodeVoltages[pid(c.pts[2])]??0) - (lastSim.nodeVoltages[pid(c.pts[3])]??0);
+    rows+=`<div class="info-row"><span>Salida DC (+ menos −)</span><b>${vout.toFixed(3)} V</b></div>`;
+  } else if(lastSim){
     const r = lastSim.results.find(x=>x.compId===c.id);
     const va=lastSim.nodeVoltages[pid(c.pts[0])], vb=lastSim.nodeVoltages[pid(c.pts[c.pts.length-1])];
     if(va!==undefined) rows+=`<div class="info-row"><span>Voltaje en punto 1</span><b>${va.toFixed(3)} V</b></div>`;
@@ -1080,11 +1314,14 @@ function openInfo(c){
       const vc=Math.abs(va-vb);
       rows+=`<div class="info-row"><span>Carga (Q)</span><b>${(c.value*vc*1e6).toFixed(2)} µC</b></div>`;
       rows+=`<div class="info-row"><span>Energía almacenada</span><b>${(0.5*c.value*vc*vc*1e3).toFixed(3)} mJ</b></div>`;
+      if(c.vrating && vc>c.vrating) rows+=`<div class="info-row"><span style="color:#ef4444">⚠️ Voltaje excede el nominal</span><b style="color:#ef4444">¡Riesgo!</b></div>`;
     }
   } else {
     rows+=`<div class="info-row"><span colspan=2>Presiona <b>Simular</b> para ver voltajes y corrientes</span></div>`;
   }
   document.getElementById('infoBody').innerHTML=rows;
+  document.getElementById('infoEdit').style.display = EDITABLE_TYPES.includes(c.type) ? 'block' : 'none';
+  enterMoveMode(c.id);
   infoPanel.classList.add('open');
 }
 function formatAmps(i){
@@ -1093,13 +1330,162 @@ function formatAmps(i){
   if(a>=0.001) return (i*1000).toFixed(2)+' mA';
   return (i*1e6).toFixed(2)+' µA';
 }
-function closeInfo(){ infoPanel.classList.remove('open'); selectedCompId=null; }
+function closeInfo(){ infoPanel.classList.remove('open'); selectedCompId=null; exitMoveMode(); renderAll(); }
 document.getElementById('infoClose').addEventListener('click', closeInfo);
 document.getElementById('infoDel').addEventListener('click', ()=>{
   components = components.filter(c=>c.id!==selectedCompId);
   lastSim=null;
+  exitMoveMode();
   closeInfo(); renderAll(); saveState();
 });
+
+/* ══ EDITAR VALOR DE UNA PIEZA YA COLOCADA ══ */
+const EDITABLE_TYPES=['resistor','battery','capacitor','fuse','acsource','transistor','bridge'];
+document.getElementById('infoNameInput').addEventListener('change', ()=>{
+  const c=components.find(x=>x.id===selectedCompId);
+  if(!c) return;
+  c.name=document.getElementById('infoNameInput').value.trim();
+  renderAll(); saveState();
+});
+document.getElementById('infoEdit').addEventListener('click', ()=>{
+  const c=components.find(x=>x.id===selectedCompId);
+  if(!c) return;
+  editComponent(c);
+});
+function editComponent(c){
+  if(c.type==='resistor'){
+    openValueModal('⚡ Nueva resistencia', 'resistor', String(c.value), (val)=>{
+      c.value=parseFloat(val)||c.value; lastSim=null; renderAll(); saveState(); openInfo(c);
+      showToast('✅ Valor actualizado');
+    });
+  } else if(c.type==='battery'){
+    openValueModal('🔋 Nuevo voltaje', 'battery', String(c.value), (val)=>{
+      c.value=parseFloat(val)||c.value; lastSim=null; renderAll(); saveState(); openInfo(c);
+      showToast('✅ Valor actualizado');
+    });
+  } else if(c.type==='fuse'){
+    openValueModal('🧯 Nuevo amperaje', 'fuse', String(c.rating), (val)=>{
+      c.rating=parseFloat(val)||c.rating; c.blown=false; lastSim=null; renderAll(); saveState(); openInfo(c);
+      showToast('✅ Valor actualizado');
+    });
+  } else if(c.type==='capacitor'){
+    openValueModal('‖ Nueva capacitancia', 'capacitor', String(c.value*1e6), (val)=>{
+      let num=parseFloat(val); if(!num||num<=0) num=100;
+      c.value=num*1e-6;
+      openValueModal('⚡ Nuevo voltaje nominal', 'capvolt', String(c.vrating||25), (vval)=>{
+        c.vrating=parseFloat(vval)||c.vrating; lastSim=null; renderAll(); saveState(); openInfo(c);
+        showToast('✅ Valor actualizado');
+      });
+    });
+  } else if(c.type==='acsource'){
+    openValueModal('⏦ Nuevo voltaje CA (RMS)', 'acsource', String(c.vrms), (val)=>{
+      let vrms=parseFloat(val); if(!vrms||vrms<=0) vrms=c.vrms;
+      openValueModal('⏱️ Nueva frecuencia', 'freq', String(c.freq), (fval)=>{
+        c.vrms=vrms; c.freq=parseFloat(fval)||c.freq; c.vpeak=vrms*Math.SQRT2;
+        lastSim=null; renderAll(); saveState(); openInfo(c);
+        showToast('✅ Valor actualizado');
+      });
+    });
+  } else if(c.type==='transistor'){
+    openValueModal('🔺 Nuevo Beta (hFE)', 'beta', String(c.beta), (val)=>{
+      c.beta=parseFloat(val)||c.beta; lastSim=null; renderAll(); saveState(); openInfo(c);
+      showToast('✅ Valor actualizado');
+    });
+  } else if(c.type==='bridge'){
+    openValueModal('◇ Nuevo tamaño del puente', 'bridgesize', String(c.size||3*GRID), (val)=>{
+      const size=parseFloat(val)||c.size||3*GRID;
+      const center=midpoint(c.pts);
+      c.pts=[
+        {x:center.x, y:center.y-size},
+        {x:center.x, y:center.y+size},
+        {x:center.x+size, y:center.y},
+        {x:center.x-size, y:center.y}
+      ];
+      c.size=size;
+      lastSim=null; renderAll(); saveState(); openInfo(c);
+      showToast('✅ Tamaño actualizado');
+    });
+  }
+}
+
+/* ══ MOVER / ROTAR una pieza ya colocada ══
+   Se activa automáticamente al tocar la pieza (no hace falta un paso extra).
+   Arrastrar un extremo mueve solo ese punto (rotación tipo "aguja de reloj" con el otro extremo fijo).
+   Arrastrar el círculo central O el cuerpo de la pieza mueve todo junto. */
+let movingCompId=null, moveDrag=null;
+document.getElementById('infoMove').addEventListener('click', ()=>{
+  // este botón ahora solo oculta/muestra los controles, ya que se activan solos al seleccionar
+  if(movingCompId){ movingCompId=null; document.getElementById('infoMove').classList.remove('active'); document.getElementById('infoMove').textContent='✋ Mostrar controles'; document.getElementById('moveHint').classList.remove('show'); }
+  else { movingCompId=selectedCompId; document.getElementById('infoMove').classList.add('active'); document.getElementById('infoMove').textContent='🙈 Ocultar controles'; document.getElementById('moveHint').classList.add('show'); }
+  renderAll();
+});
+function enterMoveMode(compId){
+  movingCompId=compId;
+  document.getElementById('infoMove').classList.add('active');
+  document.getElementById('infoMove').textContent='🙈 Ocultar controles';
+  document.getElementById('moveHint').classList.add('show');
+}
+function exitMoveMode(){
+  movingCompId=null; moveDrag=null;
+  document.getElementById('infoMove').classList.remove('active');
+  document.getElementById('infoMove').textContent='✋ Mostrar controles';
+  document.getElementById('moveHint').classList.remove('show');
+}
+svg.addEventListener('pointerdown', (e)=>{
+  if(!movingCompId) return;
+  const c=components.find(x=>x.id===movingCompId);
+  if(!c) return;
+  let target=e.target.closest('[data-handle]');
+  let idx;
+  if(target){ idx=target.getAttribute('data-handle'); }
+  else if(e.target.closest('[data-comp="'+c.id+'"]')){ idx='body'; } // tocar directo la pieza también la mueve
+  else return;
+  e.preventDefault();
+  moveDrag = { compId:c.id, idx, startPointer: svgPointRaw(e), startPts: c.pts.map(p=>({x:p.x,y:p.y})) };
+});
+let moveRenderQueued=false;
+window.addEventListener('pointermove', (e)=>{
+  if(!moveDrag) return;
+  e.preventDefault();
+  const c=components.find(x=>x.id===moveDrag.compId);
+  if(!c) return;
+  const now = svgPointRaw(e);
+  const dx = now.x - moveDrag.startPointer.x, dy = now.y - moveDrag.startPointer.y;
+  if(moveDrag.idx==='body'){
+    c.pts = moveDrag.startPts.map(p=> snap(p.x+dx, p.y+dy));
+  } else {
+    const i=parseInt(moveDrag.idx,10);
+    const np = snap(moveDrag.startPts[i].x+dx, moveDrag.startPts[i].y+dy);
+    c.pts = c.pts.map((p,j)=> j===i ? np : p);
+  }
+  lastSim=null;
+  // agrupar los redibujados en un solo frame — evita el "tironeo" al arrastrar rápido
+  if(!moveRenderQueued){
+    moveRenderQueued=true;
+    requestAnimationFrame(()=>{ moveRenderQueued=false; renderAll(); });
+  }
+}, {passive:false});
+window.addEventListener('pointerup', ()=>{
+  if(moveDrag){ moveDrag=null; saveState(); renderAll(); }
+});
+
+function drawMoveHandles(g){
+  if(!movingCompId) return;
+  const c=components.find(x=>x.id===movingCompId);
+  if(!c) return;
+  const mid=midpoint(c.pts);
+  // círculo grande invisible = área de toque ampliada; anillo visible = referencia
+  c.pts.forEach((p,i)=>{
+    g.appendChild(el('circle',{cx:p.x,cy:p.y,r:24,fill:'rgba(56,189,248,.001)','data-handle':i,style:'cursor:grab'}));
+    g.appendChild(el('circle',{cx:p.x,cy:p.y,r:13,fill:'rgba(56,189,248,.3)',stroke:'#38bdf8','stroke-width':3,'data-handle':i,style:'cursor:grab'}));
+    const lbl=el('text',{x:p.x,y:p.y+4,fill:'#fff','font-size':9,'text-anchor':'middle','pointer-events':'none'});
+    lbl.textContent='↻'; g.appendChild(lbl);
+  });
+  g.appendChild(el('circle',{cx:mid.x,cy:mid.y,r:26,fill:'rgba(168,85,247,.001)','data-handle':'body',style:'cursor:move'}));
+  g.appendChild(el('circle',{cx:mid.x,cy:mid.y,r:15,fill:'rgba(168,85,247,.35)',stroke:'#a855f7','stroke-width':3,'data-handle':'body',style:'cursor:move'}));
+  const lbl2=el('text',{x:mid.x,y:mid.y+4,fill:'#fff','font-size':11,'text-anchor':'middle','pointer-events':'none'});
+  lbl2.textContent='✥'; g.appendChild(lbl2);
+}
 
 /* ══════════════════════════════════════════════════════════════
    LIMPIAR
@@ -1137,6 +1523,7 @@ document.getElementById('photoInput').addEventListener('change', (e)=>{
       photoNatural={w:nw,h:nh};
       photoTransform={ x:(1400-nw*fitScale)/2, y:(1400-nh*fitScale)/2, scale:fitScale };
       document.getElementById('photoControls').classList.add('show');
+      setPcExpanded(true);
       setPhotoAdjustMode(true);
       renderAll();
       showToast('📷 Foto cargada — arrástrala para ubicarla y usa +/− para el tamaño');
@@ -1153,17 +1540,42 @@ document.getElementById('btnPhotoRemove').addEventListener('click', ()=>{
 
 function setPhotoAdjustMode(on){
   photoAdjustMode = on && !!photoDataUrl;
+  // preservar el scroll del lienzo: algunos navegadores lo alteran al esconder/mostrar elementos
+  const sl=canvasWrap.scrollLeft, st=canvasWrap.scrollTop;
   document.getElementById('btnPhotoAdjust').classList.toggle('active', photoAdjustMode);
   document.getElementById('btnPhotoAdjust').textContent = photoAdjustMode ? '✓ Listo' : '✥ Ajustar';
   document.getElementById('photoHint').classList.toggle('show', photoAdjustMode);
   svg.style.cursor = photoAdjustMode ? 'move' : 'crosshair';
+  if(!photoAdjustMode) setPcExpanded(false); // al terminar de ajustar, se colapsa el panel para no estorbar la vista
+  canvasWrap.scrollLeft=sl; canvasWrap.scrollTop=st;
+  requestAnimationFrame(()=>{ canvasWrap.scrollLeft=sl; canvasWrap.scrollTop=st; });
 }
 document.getElementById('btnPhotoAdjust').addEventListener('click', ()=>{ setPhotoAdjustMode(!photoAdjustMode); });
-document.getElementById('btnPhotoZoomIn').addEventListener('click', ()=>{
-  photoTransform.scale*=1.12; renderAll();
+function setPcExpanded(on){
+  document.getElementById('pcBody').classList.toggle('show', on);
+  document.getElementById('pcToggle').classList.toggle('active', on);
+}
+document.getElementById('pcToggle').addEventListener('click', ()=>{
+  const isOpen = document.getElementById('pcBody').classList.contains('show');
+  setPcExpanded(!isOpen);
 });
-document.getElementById('btnPhotoZoomOut').addEventListener('click', ()=>{
-  photoTransform.scale=Math.max(0.05, photoTransform.scale/1.12); renderAll();
+function zoomPhoto(factor){
+  // zoom anclado al centro de la imagen, así no "salta" de posición al acercar/alejar
+  const w0=photoNatural.w*photoTransform.scale, h0=photoNatural.h*photoTransform.scale;
+  const cx=photoTransform.x+w0/2, cy=photoTransform.y+h0/2;
+  photoTransform.scale=Math.max(0.05, photoTransform.scale*factor);
+  const w1=photoNatural.w*photoTransform.scale, h1=photoNatural.h*photoTransform.scale;
+  photoTransform.x=cx-w1/2; photoTransform.y=cy-h1/2;
+  renderAll();
+}
+document.getElementById('btnPhotoZoomIn').addEventListener('click', ()=> zoomPhoto(1.12));
+document.getElementById('btnPhotoZoomOut').addEventListener('click', ()=> zoomPhoto(1/1.12));
+document.getElementById('btnPhotoCenter').addEventListener('click', ()=>{
+  const w=photoNatural.w*photoTransform.scale, h=photoNatural.h*photoTransform.scale;
+  photoTransform.x=(1400-w)/2; photoTransform.y=(1400-h)/2;
+  canvasWrap.scrollLeft=0; canvasWrap.scrollTop=0;
+  renderAll();
+  showToast('🎯 Foto recentrada');
 });
 
 svg.addEventListener('pointerdown', (e)=>{
@@ -1184,7 +1596,7 @@ window.addEventListener('pointerup', ()=>{ photoDragStart=null; });
 ══════════════════════════════════════════════════════════════ */
 function saveState(){
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({components, groundPoint, compCounter}));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({components, groundPoint, compCounter, typeCounters}));
   }catch(e){}
 }
 function loadState(){
@@ -1193,6 +1605,9 @@ function loadState(){
     if(!raw) return;
     const s=JSON.parse(raw);
     components=s.components||[]; groundPoint=s.groundPoint||null; compCounter=s.compCounter||1;
+    typeCounters=s.typeCounters||{};
+    // por compatibilidad con circuitos guardados antes de esta función: asignar nombre a lo que no tenga
+    components.forEach(c=>{ if(!c.name && NAME_PREFIX[c.type]) c.name=nextName(c.type); });
   }catch(e){}
 }
 
