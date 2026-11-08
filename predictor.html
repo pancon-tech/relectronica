@@ -560,7 +560,6 @@
 <!-- FAB NAV -->
 <div class="fab-overlay" id="fab-overlay" onclick="toggleFAB()"></div>
 <div class="fab-items" id="fab-items">
-    <a href="recepcion.html"    class="fab-item"><span class="fab-item-label">Recepción</span><span class="fab-item-btn">📋</span></a>
     <a href="fallas.html"       class="fab-item"><span class="fab-item-label">Casos de Falla</span><span class="fab-item-btn">🛠️</span></a>
     <a href="componentes.html"  class="fab-item"><span class="fab-item-label">Componentes</span><span class="fab-item-btn">🔍</span></a>
     <a href="calculadoras.html" class="fab-item"><span class="fab-item-label">Cálculos</span><span class="fab-item-btn">🧮</span></a>
@@ -569,9 +568,7 @@
     <a href="notas.html"        class="fab-item"><span class="fab-item-label">Mis Notas</span><span class="fab-item-btn">📝</span></a>
     <a href="predictor.html"    class="fab-item active"><span class="fab-item-label">Predictor</span><span class="fab-item-btn">📈</span></a>
     <a href="index.html"        class="fab-item"><span class="fab-item-label">Chat Técnico</span><span class="fab-item-btn">💬</span></a>
-<a href="inventario.html" class="fab-item"><span class="fab-item-label">Inventario</span><span class="fab-item-btn">📦</span></a>
 <a href="codigoserror.html" class="fab-item"><span class="fab-item-label">Códigos de Error</span><span class="fab-item-btn">⚠️</span></a>
-<a href="multitester.html" class="fab-item"><span class="fab-item-label">Multímetro</span><span class="fab-item-btn">🔬</span></a>
 </div>
 <button class="fab-toggle" id="fab-toggle" onclick="toggleFAB()">☰</button>
 
@@ -614,29 +611,6 @@ function cargarDatos() {
     showToast('🔄 Cargando datos históricos...');
     mostrarSkeletons(true);
     const all = [];
-
-    // 1. Órdenes de recepción
-    try {
-        const raw = localStorage.getItem('relectronica_ordenes_v2');
-        const ordenes = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(ordenes)) {
-            ordenes.forEach(o => {
-                all.push({
-                    fuente: 'orden',
-                    categoria: (o.tipo || '').trim() || 'Sin tipo de equipo',
-                    marca: (o.fabricante || '').trim(),
-                    modelo: (o.modelo || '').trim(),
-                    falla: (o.falla || '').trim(),
-                    solucion: (o.obs || '').trim(),
-                    fecha: o.fecha || '',
-                    estatus: o.estatus || 'En Diagnóstico',
-                    tipo: o.tipo || '',
-                    linea: detectarLinea(o.tipo),
-                    componentes: extraerComponentes((o.falla || '') + ' ' + (o.obs || ''))
-                });
-            });
-        }
-    } catch(e) { console.warn('Error cargando órdenes:', e); }
 
     // 2. Notas del técnico
     try {
@@ -694,7 +668,7 @@ function cargarDatos() {
         document.getElementById('stats-grid').innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--dim);">
                 <div style="font-size:3rem;margin-bottom:10px;">📭</div>
-                <p>Aún no hay datos. Empieza registrando reparaciones en <strong>Recepción</strong> o <strong>Notas</strong>.</p>
+                <p>Aún no hay datos. Empieza registrando reparaciones en <strong>Notas</strong>.</p>
             </div>
         `;
         mostrarSkeletons(false);
